@@ -5,9 +5,9 @@
  *  purpose   :  CAN Interface API, Version 3 (PCAN-Basic)
  *
  *  copyright :  (C) 2010, UV Software, Friedrichshafen
- *               (C) 2014, 2017-2018, UV Software, Berlin
+ *               (C) 2014, 2017-2019, UV Software, Berlin
  *
- *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15.26730)
+ *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15)
  *
  *  export    :  (see header file)
  *
@@ -101,6 +101,7 @@ typedef struct {
     int   reset;                        // re-initialization flag (a helper)
 #ifdef _BLOCKING_READ
     HANDLE event;                       // event handle for blocking read
+    int    killed;                      // flag to signal Ctrl+C (SIGINT)
 #endif
     can_mode_t mode;                    // operation mode of the CAN channel
     can_status_t status;                // 8-bit status register
@@ -360,6 +361,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
             CAN_Uninitialize(can[handle].board);
             return pcan_error(rc);
         }
+        can[handle].killed = 0;
 #endif
     }
     can[handle].status.byte = 0x00;     // clear old status bits
@@ -466,22 +468,24 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
     if(can[handle].status.b.can_stopped)// must be running!
         return CANERR_OFFLINE;
 
-    if(!can[handle].mode.b.fdoe)
+    if(!can[handle].mode.b.fdoe)        // read message queue
         rc = CAN_Read(can[handle].board, &can_msg, &timestamp);
     else
         rc = CAN_ReadFD(can[handle].board, &can_msg_fd, &timestamp_fd);
     if(rc == PCAN_ERROR_QRCVEMPTY) {
 #ifdef _BLOCKING_READ
-        switch (WaitForSingleObject(can[handle].event, (timeout != 65535) ? timeout : INFINITE)) {
-        case WAIT_OBJECT_0:
-            break;                          //   one or more messages received
-        case WAIT_TIMEOUT:
-            break;                          //   time-out, but look for old messages
-        default:
-            return CANERR_FATAL;            //   function failed!
-        }
+        if (!can[handle].killed) {
+            switch (WaitForSingleObject(can[handle].event, (timeout != 65535) ? timeout : INFINITE)) {
+            case WAIT_OBJECT_0:
+                break;                  //   one or more messages received, or got signal SIGINT
+            case WAIT_TIMEOUT:
+                break;                  //   time-out, but look for old messages
+            default:
+                return CANERR_FATAL;    //   function failed!
+            }
+         }
 #endif
-        if (!can[handle].mode.b.fdoe)
+        if (!can[handle].mode.b.fdoe)   // read message queue
             rc = CAN_Read(can[handle].board, &can_msg, &timestamp);
         else
             rc = CAN_ReadFD(can[handle].board, &can_msg_fd, &timestamp_fd);
@@ -501,7 +505,7 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
         can[handle].status.b.message_lost |= (can_msg.DATA[3] & PCAN_ERROR_OVERRUN) != PCAN_ERROR_OK;
         return CANERR_RX_EMPTY;         //   receiver empty!
     }
-    if(!can[handle].mode.b.fdoe) {
+    if(!can[handle].mode.b.fdoe) {      // CAN 2.0 message:
         msg->id = can_msg.ID;
         msg->ext = can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED;
         msg->rtr = can_msg.MSGTYPE & PCAN_MESSAGE_RTR;
@@ -514,7 +518,7 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
         msg->timestamp.sec = (long)(msec / 1000ull);
         msg->timestamp.usec = (((long)(msec % 1000ull)) * 1000L) + (long)timestamp.micros;
     }
-    else {
+    else {                              // CAN FD message:
         msg->id = can_msg_fd.ID;
         msg->ext = can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED;
         msg->rtr = can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR;
@@ -684,10 +688,12 @@ static int pcan_error(TPCANStatus status)
  {
     int i;
 
-    /*printf("got signal %d\n", signo);*/
+    //printf("%s: got signal %d\n", __FILE__, signo);
     for (i = 0; i < PCAN_MAX_HANDLES; i++) {
-        if (can[i].board != PCAN_NONEBUS)
+        if (can[i].board != PCAN_NONEBUS) {
             SetEvent(can[i].event);
+            can[i].killed = 1;
+        }
     }
     if ((signo == SIGINT) && (sigint != NULL))
         sigint(signo);
