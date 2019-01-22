@@ -121,8 +121,12 @@ static int receive_fd(int handle);
 static int convert(const char *string, can_bitrate_t *bitrate);
 static void verbose(BYTE op_mode, const can_bitrate_t *bitrate);
 
-static int start_timer(DWORD timeout);
-static int is_timeout(void);
+#ifndef _WAITABLE_TIMER
+ static int start_timer(DWORD timeout);
+ static int is_timeout(void);
+#else
+ static void usleep(QWORD usec);
+#endif
 
 static void sigterm(int signo);
 //static void usage(FILE *stream, char *program);
@@ -270,7 +274,7 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "BR:CiA5002M")) convert(BR_CiA_500K2M, &bitrate);
         if(!strcmp(argv[i], "BR:CiA1M5M")) convert(BR_CiA_1M5M, &bitrate);
     }
-//option_io = OPTION_IO_POLLING;
+option_io = OPTION_IO_POLLING;
     /* offline informations */
     if(option_info) {
         fprintf(stdout, "can_test: "__DATE__" "__TIME__" (MSC_VER=%u)\n",_MSC_VER);
@@ -362,7 +366,7 @@ repeat:
         }
         while(!is_timeout()) {
             if(!running) {
-                printf("\n");
+                printf("%i\n", frames);
                 return i;
             }
         }
@@ -371,11 +375,11 @@ repeat:
             fflush(stdout);
         }
         if(!running) {
-            printf("\n");
+            printf("%i\n", frames);
             return i;
         }
     }
-    printf("\n");
+    printf("%i\n", frames);
     return i;
 }
 
@@ -416,7 +420,7 @@ repeat_fd:
         }
         while(!is_timeout()) {
             if(!running) {
-                printf("\n");
+                printf("%i\n", frames);
                 return i;
             }
         }
@@ -425,11 +429,11 @@ repeat_fd:
             fflush(stdout);
         }
         if(!running) {
-            printf("\n");
+            printf("%i\n", frames);
             return i;
         }
     }
-    printf("\n");
+    printf("%i\n", frames);
     return i;
 }
 
@@ -507,7 +511,7 @@ static int receive(int handle)
         }
     }
     if(!option_echo) {
-        fprintf(stdout, "%llu", frames);
+        fprintf(stdout, "%llu\n", frames);
         fflush(stdout);
     }
     return 0;
@@ -590,7 +594,7 @@ static int receive_fd(int handle)
         }
     }
     if(!option_echo) {
-        fprintf(stdout, "%llu", frames);
+        fprintf(stdout, "%llu\n", frames);
         fflush(stdout);
     }
     return 0;
@@ -670,14 +674,15 @@ static void verbose(BYTE op_mode, const can_bitrate_t *bitrate)
 
 static void sigterm(int signo)
 {
-    /*printf("got signal %d\n", signo);*/
+    //printf("%s: got signal %d\n", __FILE__, signo);
     running = 0;
 }
 
-static LONGLONG  llUntilStop = 0;       // counter value for time-out
+#ifndef _WAITABLE_TIMER
+ static LONGLONG  llUntilStop = 0;       // counter value for time-out
 
-static int start_timer(DWORD timeout)
-{
+ static int start_timer(DWORD timeout)
+ {
     LARGE_INTEGER largeCounter;         // high-resolution performance counter
     LARGE_INTEGER largeFrequency;       // frequency in counts per second
 
@@ -691,10 +696,10 @@ static int start_timer(DWORD timeout)
     llUntilStop = largeCounter.QuadPart + ((largeFrequency.QuadPart * (LONGLONG)timeout)
                                                                     / (LONGLONG)1000000);
     return 0;
-}
+ }
 
-static int is_timeout(void)
-{
+ static int is_timeout(void)
+ {
     LARGE_INTEGER largeCounter;         // high-resolution performance counter
 
     // retrieve the current value of the high-resolution performance counter
@@ -705,8 +710,22 @@ static int is_timeout(void)
         return FALSE;
     else
         return TRUE;
-}
+ }
+#else
+ static void usleep(QWORD usec)
+ {
+    HANDLE timer;
+    LARGE_INTEGER ft;
 
+    ft.QuadPart = -(10 * (LONGLONG)usec); // Convert to 100 nanosecond interval, negative value indicates relative time
+    if (usec >= 100) {
+        timer = CreateWaitableTimer(NULL, TRUE, NULL);
+        SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+        WaitForSingleObject(timer, INFINITE);
+        CloseHandle(timer);
+    }
+ }
+#endif
 /*  ----------------------------------------------------------------------
  *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
  *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903
