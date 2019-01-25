@@ -24,6 +24,9 @@
     <ClCompile Include="bitrates.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="printmsg.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\api\can_defs.h">
@@ -36,6 +39,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="bitrates.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="printmsg.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

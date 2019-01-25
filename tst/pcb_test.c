@@ -57,6 +57,7 @@
 #endif
 #include "can_api.h"                    // CAN API V3 Interface
 #include "bitrates.h"                   // Bit-rate conversion
+#include "printmsg.h"                   // Print CAN messages
 
 
 /*  -----------  options  ------------------------------------------------
@@ -79,6 +80,10 @@
 
 #define OPTION_MODE_CAN_20  (0)
 #define OPTION_MODE_CAN_FD  (1)
+
+#define OPTION_TIME_ZERO    (0)
+#define OPTION_TIME_ABS     (1)
+#define OPTION_TIME_REL     (2)
 
 #define OPTION_IO_POLLING   (0)
 #define OPTION_IO_BLOCKING  (1)
@@ -137,6 +142,7 @@ static void sigterm(int signo);
  */
 
 static int option_io = OPTION_IO_BLOCKING;
+static int option_time = OPTION_TIME_ZERO;
 static int option_test = OPTION_NO;
 static int option_info = OPTION_NO;
 static int option_stat = OPTION_NO;
@@ -247,6 +253,10 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "CHECK")) option_check = OPTION_YES;
         /* echo ON/OFF */
         if(!strcmp(argv[i], "SILENT")) option_echo = OPTION_NO;
+        /* time-stamps */
+        if(!strcmp(argv[i], "ZERO")) option_time = OPTION_TIME_ZERO;
+        if(!strcmp(argv[i], "ABS") || !strcmp(argv[i], "ABSOLUTE")) option_time = OPTION_TIME_ABS;
+        if(!strcmp(argv[i], "REL") || !strcmp(argv[i], "RELATIVE")) option_time = OPTION_TIME_REL;
 #if (0)
         /* logging and debugging */
         if(!strcmp(argv[i], "TRACE")) option_trace = OPTION_YES;
@@ -459,13 +469,10 @@ static int receive(int handle)
         if((rc = can_read(handle, &message, (option_io == OPTION_IO_BLOCKING)? TIME_IO_BLOCKING : TIME_IO_POLLING)) == CANERR_NOERROR) {
             if(option_echo) {
                 printf("%c %llu\t", symbol[prompt], frames++);
-                printf("%llu.%03lu\t", ((QWORD)message.timestamp.sec * 1000ull) + ((QWORD)message.timestamp.usec / 1000ull), ((DWORD)message.timestamp.usec % 1000ul));
-                printf("%03lX %c%c [%u]\t", message.id, 
-                                            message.ext? 'X' : ' ',
-                                            message.rtr? 'R' : ' ',
-                                            message.dlc);
-                for(i = 0;i < message.dlc; i++)
-                    printf("%02X ", message.data[i]);
+                msg_print_time(stdout, (struct msg_timestamp*)&message.timestamp, option_time);  // an evil cast!
+                msg_print_id(stdout, message.id, message.ext, message.rtr, message.dlc, MSG_MODE_HEX);
+                for(i = 0; i < message.dlc; i++)
+                    msg_print_data(stdout, message.data[i], ((i+1) == message.dlc), MSG_MODE_HEX);
                 printf("\n");
             }
             else {
@@ -539,16 +546,10 @@ static int receive_fd(int handle)
         if((rc = can_read(handle, &message, (option_io == OPTION_IO_BLOCKING)? TIME_IO_BLOCKING : TIME_IO_POLLING)) == CANERR_NOERROR) {
             if(option_echo) {
                 printf("%c %llu\t", symbol[prompt], frames++);
-                printf("%llu.%03lu\t", ((QWORD)message.timestamp.sec * 1000ull) + ((QWORD)message.timestamp.usec / 1000ull), ((DWORD)message.timestamp.usec % 1000ul));
-                printf("%03lX %c%c%c%c%c [%u]\t", message.id, 
-                                                    message.ext? 'X' : ' ', 
-                                                    message.rtr? 'R' : ' ',  
-                                                    message.fdf? 'F' : ' ',  
-                                                    message.brs? 'B' : ' ',  
-                                                    message.esi? 'E' : ' ',  
-                                                    DLC2DLEN(message.dlc));
+                msg_print_time(stdout, (struct msg_timestamp*)&message.timestamp, option_time);  // an evil cast!
+                msg_print_id_fd(stdout, message.id, message.ext, message.rtr, message.fdf, message.brs, message.esi, DLC2DLEN(message.dlc), MSG_MODE_HEX);
                 for(i = 0; i < DLC2DLEN(message.dlc); i++)
-                    printf("%02X ", message.data[i]);
+                    msg_print_data(stdout, message.data[i], ((i + 1) == DLC2DLEN(message.dlc)), MSG_MODE_HEX);
                 printf("\n");
             }
             else {
