@@ -21,7 +21,7 @@ echo  */ >> can_vers.h
 echo #ifndef CAN_VERS_H_INCLUDED >> can_vers.h
 echo #define CAN_VERS_H_INCLUDED >> can_vers.h
 echo #define SVN_REV \>> can_vers.h
-svn info --show-item last-changed-revision >> can_vers.h
+svn info --show-item last-changed-revision can_api.c >> can_vers.h
 echo #define STRINGIFY(X) #X >> can_vers.h
 echo #define TOSTRING(X) STRINGIFY(X) >> can_vers.h
 echo #define SVN_REV_INT (SVN_REV) >> can_vers.h
