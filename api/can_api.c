@@ -472,8 +472,8 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
         msg->esi = can_msg_fd.MSGTYPE & PCAN_MESSAGE_ESI;
         msg->dlc = can_msg_fd.DLC;
         memcpy(msg->data, can_msg_fd.DATA, CANFD_MAX_LEN);
-        msg->timestamp.sec = (long)(timestamp_fd / 1000ull);
-        msg->timestamp.usec = (long)(timestamp_fd % 1000ull);
+        msg->timestamp.sec = (long)(timestamp_fd / 1000000ull);
+        msg->timestamp.usec = (long)(timestamp_fd % 1000000ull);
     }
     can[handle].status.b.receiver_empty = 0;        // message read!
 
