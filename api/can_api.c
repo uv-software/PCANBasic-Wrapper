@@ -7,7 +7,7 @@
  *  copyright :  (C) 2010, UV Software, Friedrichshafen
  *               (C) 2014, 2017-2019, UV Software, Berlin
  *
- *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15)
+ *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.16)
  *
  *  export    :  (see header file)
  *
@@ -220,7 +220,7 @@ int can_init(int board, unsigned char mode, const void *param)
     can[i].mode.byte = mode;            // store selected operation mode
     can[i].status.byte = CANSTAT_RESET; // CAN controller not started yet!
 
-    return CANERR_NOERROR;
+	return i;                           // return the handle
 }
 
 int can_exit(int handle)
