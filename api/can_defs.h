@@ -5,9 +5,9 @@
  *  purpose   :  CAN Interface API, Version 3 (PCAN-Basic)
  *
  *  copyright :  (C) 2010, UV Software, Friedrichshafen
- *               (C) 2014, 2017-2018, UV Software, Berlin
+ *               (C) 2014, 2017-2019, UV Software, Berlin
  *
- *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15.26730)
+ *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.16)
  *
  *  export    :  (see below)
  *
@@ -82,7 +82,7 @@
  #define PCAN_ERR_OFFSET           -200 //   offset for PCANBasic-specific errors
  #define PCAN_ERR_UNKNOWN          -299 //   unknown error
 
- #define PCAN_LIB_ID                200 //   library ID (CAN/COP API V1 compatible) 
+ #define PCAN_LIB_ID                400 //   library ID (CAN/COP API V1 compatible) 
  #define PCAN_LIB_BASIC            "PCANBasic.DLL"
 
  struct _pcan_param                     //   installation parameter:

@@ -167,7 +167,7 @@ int can_test(int board, unsigned char mode, const void *param, int *result)
     if(result) {
         if((cond == PCAN_CHANNEL_AVAILABLE) || (cond == PCAN_CHANNEL_PCANVIEW))
             *result = CANBRD_PRESENT;
-        if(cond == PCAN_CHANNEL_UNAVAILABLE)
+        else if(cond == PCAN_CHANNEL_UNAVAILABLE)
             *result = CANBRD_NOT_PRESENT;
         else if(cond == PCAN_CHANNEL_OCCUPIED)
             *result = CANBRD_NOT_AVAILABLE;
