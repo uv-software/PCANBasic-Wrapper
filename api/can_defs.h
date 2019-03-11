@@ -52,6 +52,7 @@
  #define PCAN_USB6              0x56U   //   PCAN-USB interface, channel 6
  #define PCAN_USB7              0x57U   //   PCAN-USB interface, channel 7
  #define PCAN_USB8              0x58U   //   PCAN-USB interface, channel 8
+#ifndef __APPLE__
  #define PCAN_USB9              0x509U  //   PCAN-USB interface, channel 9
  #define PCAN_USB10             0x50AU  //   PCAN-USB interface, channel 10
  #define PCAN_USB11             0x50BU  //   PCAN-USB interface, channel 11
@@ -63,7 +64,11 @@
  #define PCAN_BOARDS               (16) //   number of PCAN Interface boards
 
  #define PCAN_MAX_HANDLES          (16) //   maximum number of interface handles
+#else
+ #define PCAN_BOARDS               (8)  //   number of PCAN Interface boards
 
+ #define PCAN_MAX_HANDLES          (8)  //   maximum number of interface handles
+#endif
  #define PCAN_ERR_REGTEST          -201 //   test of the CAN controller hardware registers failed (no hardware found)
  #define PCAN_ERR_NODRIVER         -202 //   driver not loaded
  #define PCAN_ERR_HWINUSE          -203 //   hardware is in use by another Net
@@ -83,8 +88,11 @@
  #define PCAN_ERR_UNKNOWN          -299 //   unknown error
 
  #define PCAN_LIB_ID                400 //   library ID (CAN/COP API V1 compatible) 
+#ifndef __APPLE__
  #define PCAN_LIB_BASIC            "PCANBasic.DLL"
-
+#else
+ #define PCAN_LIB_BASIC            "libPCBUSB.dylib"
+#endif
  struct _pcan_param                     //   installation parameter:
  {
     unsigned char  type;                //     operation mode (non-plug'n'play devices)

@@ -227,6 +227,16 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "PCAN-USB6")) channel = PCAN_USB6;
         if(!strcmp(argv[i], "PCAN-USB7")) channel = PCAN_USB7;
         if(!strcmp(argv[i], "PCAN-USB8")) channel = PCAN_USB8;
+#if !defined(__APPLE__)
+        if(!strcmp(argv[i], "PCAN-USB9")) channel = PCAN_USB9;
+        if(!strcmp(argv[i], "PCAN-USB10")) channel = PCAN_USB10;
+        if(!strcmp(argv[i], "PCAN-USB11")) channel = PCAN_USB11;
+        if(!strcmp(argv[i], "PCAN-USB12")) channel = PCAN_USB12;
+        if(!strcmp(argv[i], "PCAN-USB13")) channel = PCAN_USB13;
+        if(!strcmp(argv[i], "PCAN-USB14")) channel = PCAN_USB14;
+        if(!strcmp(argv[i], "PCAN-USB15")) channel = PCAN_USB15;
+        if(!strcmp(argv[i], "PCAN-USB16")) channel = PCAN_USB16;
+#endif
         /* baud rate (CAN 2.0) */
         if(!strcmp(argv[i], "BD:0") || !strcmp(argv[i], "BD:1000")) bitrate.index = -CANBDR_1000;
         if(!strcmp(argv[i], "BD:1") || !strcmp(argv[i], "BD:800")) bitrate.index = -CANBDR_800;
