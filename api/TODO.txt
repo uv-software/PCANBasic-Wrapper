@@ -7,7 +7,7 @@ purpose   :  CAN Interface API, Version 3 (PCAN-Basic)
 copyright :  (C) 2010, UV Software, Friedrichshafen
              (C) 2014, 2017-2019, UV Software, Berlin
 
-compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15)
+compiler  :  Microsoft Visual C/C++ Compiler (Version 19.16)
 
 ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15)
 - get bit-rate
 - same for MacCAN
 
-20yy-mm-dd: open points
+2010-10-19: open points
 - bus load
 
 ----------------------------------------------------------------------

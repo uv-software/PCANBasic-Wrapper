@@ -618,6 +618,7 @@ static int pcan_error(TPCANStatus status)
     if((status & PCAN_ERROR_ILLHANDLE)    == PCAN_ERROR_ILLHW)          return PCAN_ERR_ILLHW;
     if((status & PCAN_ERROR_RESOURCE)     == PCAN_ERROR_RESOURCE)       return PCAN_ERR_RESOURCE;
     if((status & PCAN_ERROR_ILLPARAMTYPE) == PCAN_ERROR_ILLPARAMTYPE)   return PCAN_ERR_ILLPARAMTYPE;
+    if((status & PCAN_ERROR_ILLPARAMVAL)  == PCAN_ERROR_ILLPARAMVAL)    return PCAN_ERR_ILLPARAMVAL;
     if((status & PCAN_ERROR_ILLDATA)      == PCAN_ERROR_ILLDATA)        return PCAN_ERR_ILLDATA;
     if((status & PCAN_ERROR_ILLOPERATION) == PCAN_ERROR_ILLOPERATION)   return PCAN_ERR_ILLOPERATION;
     if((status & PCAN_ERROR_CAUTION)      == PCAN_ERROR_CAUTION)        return PCAN_ERR_CAUTION;
