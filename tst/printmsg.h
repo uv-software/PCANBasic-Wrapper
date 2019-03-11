@@ -1,4 +1,4 @@
-/*  -- $HeadURL$ --
+/*  -- $HeadURL: https://svn.uv-software.net/projects/uv-software/CAN/I386/DRV/trunk/API/misc/printmsg.h $ --
  *
  *  project   :  CAN - Controller Area Network
  *
@@ -6,7 +6,8 @@
  *
  *  copyright :  (C) 2019, UV Software, Berlin
  *
- *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15)
+ *  compiler  :  Microsoft Visual C/C++ Compiler
+ *               Apple LLVM version (clang)
  *
  *  export    :  void msg_print_id(FILE *stream, unsigned long id, int rtr, int ext, unsigned char dlc, int mode);
  *               void msg_print_id_fd(FILE *stream, unsigned long id, int rtr, int ext, int fdf, int brs, int esi, int len, int mode);
@@ -28,9 +29,9 @@
   *
   *  @brief       Print CAN Messages (Monitor)
   *
-  *  @author      $Author$
+  *  @author      $Author: haumea $
   *
-  *  @version     $Rev$
+  *  @version     $Rev: 576 $
   *
   *  @defgroup    print_msg Print CAN Messages (Monitor)
   *  @{

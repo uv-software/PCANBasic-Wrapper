@@ -7,7 +7,7 @@
  *  copyright :  (C) 2005-2010, UV Software, Friedrichshafen
  *               (C) 2014,2017-2019, UV Software, Berlin
  *
- *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15)
+ *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.16)
  *
  *  syntax    :  <program> [<option>...] <file>...
  *               Options:
@@ -34,6 +34,9 @@
 
 /*  -----------  includes  -----------------------------------------------
  */
+#include "can_api.h"
+#include "bitrates.h"
+#include "printmsg.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,9 +58,7 @@
 #define QWORD unsigned long long
 #endif
 #endif
-#include "can_api.h"                    // CAN API V3 Interface
-#include "bitrates.h"                   // Bit-rate conversion
-#include "printmsg.h"                   // Print CAN messages
+#include <inttypes.h>
 
 
 /*  -----------  options  ------------------------------------------------
@@ -66,6 +67,7 @@
 #if !defined(__uvs_license) && !defined(__gpl_license)
     #define  __uvs_license
 #endif
+//#define _WAITABLE_TIMER
 
 
 /*  -----------  defines  ------------------------------------------------
@@ -75,7 +77,7 @@
 #define PROMPT_OVERRUN      (1)
 #define PROMPT_ISSUE198     (2)
 
-#define TIME_IO_POLLING     (3)
+#define TIME_IO_POLLING     (0)
 #define TIME_IO_BLOCKING    (65535)
 
 #define OPTION_MODE_CAN_20  (0)
@@ -180,16 +182,13 @@ int main(int argc, char *argv[])
 {
     int handle = -1;
     int rc = -1;
+    int opt, i;
 
     int channel = PCAN_USB1;
     BYTE op_mode = CANMODE_DEFAULT;
-    can_bitrate_t bitrate = {-CANBDR_250};
     DWORD delay = 0;
+    can_bitrate_t bitrate = { -CANBDR_250 };
     char *device, *firmware, *software;
-
-
-    int frames = 0;
-    int opt, i;
 
     //struct option long_options[] = {
     //  {"help", no_argument, 0, 'h'},
@@ -339,9 +338,13 @@ option_io = OPTION_IO_POLLING;
             fprintf(stdout, "Firmware: %s\n", firmware);
     }
 end:
+    printf("Teardown.."); fflush(stdout);
     if((rc = can_exit(handle)) != CANERR_NOERROR) {
+        printf("FAILED\n");
         printf("+++ error(%i): can_exit failed\n", rc);
+        return 1;
     }
+    printf("Bye!\n");
     return 0;
 }
 
@@ -460,15 +463,15 @@ static int receive(int handle)
     char symbol[] = ">!?";
     int prompt = 0;
 
-    printf("Receiving CAN 2.0 messages (%s)", (option_io == OPTION_IO_BLOCKING)? "blocking" : "polling");
+    printf("Receiving CAN 2.0 messages (%s)", (option_io == OPTION_IO_BLOCKING) ? "blocking" : "polling");
     if(option_echo)
         printf(":\n");
     else
         fflush(stdout);
     while(running) {
-        if((rc = can_read(handle, &message, (option_io == OPTION_IO_BLOCKING)? TIME_IO_BLOCKING : TIME_IO_POLLING)) == CANERR_NOERROR) {
+        if((rc = can_read(handle, &message, (option_io == OPTION_IO_BLOCKING) ? TIME_IO_BLOCKING : TIME_IO_POLLING)) == CANERR_NOERROR) {
             if(option_echo) {
-                printf("%c %llu\t", symbol[prompt], frames++);
+                printf("%c %"PRIu64"\t", symbol[prompt], frames++);
                 msg_print_time(stdout, (struct msg_timestamp*)&message.timestamp, option_time);  // an evil cast!
                 msg_print_id(stdout, message.id, message.ext, message.rtr, message.dlc, MSG_MODE_HEX);
                 for(i = 0; i < message.dlc; i++)
@@ -492,9 +495,9 @@ static int receive(int handle)
             if(message.dlc > 7) received |= (QWORD)message.data[7] << 56;
             if(received != expected) {
                 if(option_check != OPTION_NO) {
-                    printf("+++ error(X): received data is not equal to expected data (%llu : %llu)\n", received, expected);
+                    printf("+++ error(X): received data is not equal to expected data (%"PRIu64" : %"PRIu64")\n", received, expected);
                     if(expected > received) {
-                        printf("              issue #198: old messages on pipe #3 (offset -%llu)\a\n", expected - received);
+                        printf("              issue #198: old messages on pipe #3 (offset -%"PRIu64")\a\n", expected - received);
 #if (STOP_FRAMES == 0)
                         if(option_stop)
                             return -1;
@@ -502,7 +505,7 @@ static int receive(int handle)
                         prompt = PROMPT_ISSUE198;
                     }
                     else {
-                        prompt = prompt != PROMPT_ISSUE198? PROMPT_OVERRUN : PROMPT_ISSUE198;
+                        prompt = prompt != PROMPT_ISSUE198 ? PROMPT_OVERRUN : PROMPT_ISSUE198;
                     }
                 }
             }
@@ -518,7 +521,7 @@ static int receive(int handle)
         }
     }
     if(!option_echo) {
-        fprintf(stdout, "%llu\n", frames);
+        fprintf(stdout, "%"PRIu64"\n", frames);
         fflush(stdout);
     }
     return 0;
@@ -537,15 +540,15 @@ static int receive_fd(int handle)
     char symbol[] = ">!?";
     int prompt = 0;
 
-    printf("Receiving CAN FD messages (%s)", (option_io == OPTION_IO_BLOCKING)? "blocking" : "polling");
+    printf("Receiving CAN FD messages (%s)", (option_io == OPTION_IO_BLOCKING) ? "blocking" : "polling");
     if(option_echo)
         printf(":\n");
     else
         fflush(stdout);
     while(running) {
-        if((rc = can_read(handle, &message, (option_io == OPTION_IO_BLOCKING)? TIME_IO_BLOCKING : TIME_IO_POLLING)) == CANERR_NOERROR) {
+        if((rc = can_read(handle, &message, (option_io == OPTION_IO_BLOCKING) ? TIME_IO_BLOCKING : TIME_IO_POLLING)) == CANERR_NOERROR) {
             if(option_echo) {
-                printf("%c %llu\t", symbol[prompt], frames++);
+                printf("%c %"PRIu64"\t", symbol[prompt], frames++);
                 msg_print_time(stdout, (struct msg_timestamp*)&message.timestamp, option_time);  // an evil cast!
                 msg_print_id_fd(stdout, message.id, message.ext, message.rtr, message.fdf, message.brs, message.esi, DLC2DLEN(message.dlc), MSG_MODE_HEX);
                 for(i = 0; i < DLC2DLEN(message.dlc); i++)
@@ -569,9 +572,9 @@ static int receive_fd(int handle)
             if(message.dlc > 7) received |= (QWORD)message.data[7] << 56;
             if(received != expected) {
                 if(option_check != OPTION_NO) {
-                    printf("+++ error(X): received data is not equal to expected data (%llu : %llu)\n", received, expected);
+                    printf("+++ error(X): received data is not equal to expected data (%"PRIu64" : %"PRIu64")\n", received, expected);
                     if(expected > received) {
-                        printf("              issue #198: old messages on pipe #3 (offset -%llu)\a\n", expected - received);
+                        printf("              issue #198: old messages on pipe #3 (offset -%"PRIu64")\a\n", expected - received);
 #if (STOP_FRAMES == 0)
                         if(option_stop)
                             return -1;
@@ -579,7 +582,7 @@ static int receive_fd(int handle)
                         prompt = PROMPT_ISSUE198;
                     }
                     else {
-                        prompt = prompt != PROMPT_ISSUE198? PROMPT_OVERRUN : PROMPT_ISSUE198;
+                        prompt = prompt != PROMPT_ISSUE198 ? PROMPT_OVERRUN : PROMPT_ISSUE198;
                     }
                 }
             }
@@ -595,7 +598,7 @@ static int receive_fd(int handle)
         }
     }
     if(!option_echo) {
-        fprintf(stdout, "%llu\n", frames);
+        fprintf(stdout, "%"PRIu64"\n", frames);
         fflush(stdout);
     }
     return 0;
@@ -603,13 +606,13 @@ static int receive_fd(int handle)
 
 static int convert(const char *string, can_bitrate_t *bitrate)
 {
-    long  freq = 0; struct btr_bit_timing slow, fast;
+    unsigned long freq = 0; struct btr_bit_timing slow, fast;
 
     if(!btr_string_to_bit_timing(string, &freq, &slow, &fast)) {
         fprintf(stderr, "+++ error: illegal argument in option /BITRATE!\n\n");
         return 0;
     }
-    bitrate->btr.frequency = freq;
+    bitrate->btr.frequency = (long)freq;
     bitrate->btr.nominal.brp = (unsigned short)slow.brp;
     bitrate->btr.nominal.tseg1 = (unsigned short)slow.tseg1;
     bitrate->btr.nominal.tseg2 = (unsigned short)slow.tseg2;
@@ -624,35 +627,35 @@ static int convert(const char *string, can_bitrate_t *bitrate)
 
 static void verbose(BYTE op_mode, const can_bitrate_t *bitrate)
 {
-    unsigned freq; struct btr_bit_timing slow, fast;
+    unsigned long freq; struct btr_bit_timing slow, fast;
 
     freq = bitrate->btr.frequency;
-    slow.brp   = bitrate->btr.nominal.brp;
+    slow.brp = bitrate->btr.nominal.brp;
     slow.tseg1 = bitrate->btr.nominal.tseg1;
     slow.tseg2 = bitrate->btr.nominal.tseg2;
-    slow.sjw   = bitrate->btr.nominal.sjw;
-    fast.brp   = bitrate->btr.data.brp;
+    slow.sjw = bitrate->btr.nominal.sjw;
+    fast.brp = bitrate->btr.data.brp;
     fast.tseg1 = bitrate->btr.data.tseg1;
     fast.tseg2 = bitrate->btr.data.tseg2;
-    fast.sjw   = bitrate->btr.data.sjw;
+    fast.sjw = bitrate->btr.data.sjw;
 
 
     if(bitrate->btr.frequency > 0) {
-        fprintf(stdout, "Baudrate: %lubps@%.2f%%", 
-                btr_calc_bit_rate_nominal(&slow, freq),
-                btr_calc_sample_point_nominal(&slow) * 100.);
+        fprintf(stdout, "Baudrate: %lubps@%.2f%%",
+            btr_calc_bit_rate_nominal(&slow, freq),
+            btr_calc_sample_point_nominal(&slow) * 100.);
         if((op_mode & (CANMODE_FDOE | CANMODE_BRSE)) == (CANMODE_FDOE | CANMODE_BRSE))
-            fprintf(stdout, ":%lubps@%.2f%%", 
-                    btr_calc_bit_rate_data(&fast, freq),
-                    btr_calc_sample_point_data(&fast) * 100.);
+            fprintf(stdout, ":%lubps@%.2f%%",
+                btr_calc_bit_rate_data(&fast, freq),
+                btr_calc_sample_point_data(&fast) * 100.);
         fprintf(stdout, " (f_clock=%lu,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u",
-                bitrate->btr.frequency,
-                bitrate->btr.nominal.brp,
-                bitrate->btr.nominal.tseg1,
-                bitrate->btr.nominal.tseg2,
-                bitrate->btr.nominal.sjw);
+            bitrate->btr.frequency,
+            bitrate->btr.nominal.brp,
+            bitrate->btr.nominal.tseg1,
+            bitrate->btr.nominal.tseg2,
+            bitrate->btr.nominal.sjw);
         if((op_mode & (CANMODE_FDOE | CANMODE_BRSE)) == (CANMODE_FDOE | CANMODE_BRSE))
-        fprintf(stdout, ",data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
+            fprintf(stdout, ",data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
                 bitrate->btr.data.brp,
                 bitrate->btr.data.tseg1,
                 bitrate->btr.data.tseg2,
@@ -661,15 +664,15 @@ static void verbose(BYTE op_mode, const can_bitrate_t *bitrate)
     }
     else {
         fprintf(stdout, "Baudrate: %sbps (CiA index %li)\n",
-                bitrate->index == CANBDR_1000 ? "1000000" :
-                bitrate->index == -CANBDR_800 ?  "800000" :
-                bitrate->index == -CANBDR_500 ?  "500000" :
-                bitrate->index == -CANBDR_250 ?  "250000" :
-                bitrate->index == -CANBDR_125 ?  "125000" :
-                bitrate->index == -CANBDR_100 ?  "100000" :
-                bitrate->index == -CANBDR_50  ?   "50000" :
-                bitrate->index == -CANBDR_20  ?   "20000" :
-                bitrate->index == -CANBDR_10  ?   "10000" : "?", -bitrate->index);
+            bitrate->index == CANBDR_1000 ? "1000000" :
+            bitrate->index == -CANBDR_800 ? "800000" :
+            bitrate->index == -CANBDR_500 ? "500000" :
+            bitrate->index == -CANBDR_250 ? "250000" :
+            bitrate->index == -CANBDR_125 ? "125000" :
+            bitrate->index == -CANBDR_100 ? "100000" :
+            bitrate->index == -CANBDR_50 ? "50000" :
+            bitrate->index == -CANBDR_20 ? "20000" :
+            bitrate->index == -CANBDR_10 ? "10000" : "?", -bitrate->index);
     }
 }
 
@@ -677,10 +680,11 @@ static void sigterm(int signo)
 {
     //printf("%s: got signal %d\n", __FILE__, signo);
     running = 0;
+    (void)signo;
 }
 
 #ifndef _WAITABLE_TIMER
- static LONGLONG  llUntilStop = 0;       // counter value for time-out
+ static LONGLONG  llUntilStop = 0;      // counter value for time-out
 
  static int start_timer(DWORD timeout)
  {
@@ -727,6 +731,7 @@ static void sigterm(int signo)
     }
  }
 #endif
+
 /*  ----------------------------------------------------------------------
  *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
  *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903

@@ -1,12 +1,13 @@
-/*  -- $HeadURL$ --
+/*  -- $HeadURL: https://svn.uv-software.net/projects/uv-software/CAN/I386/DRV/trunk/API/misc/bitrates.c $ --
  *
  *  project   :  CAN - Controller Area Network
  *
  *  purpose   :  CAN FD Bit-rates (Converter)
  *
- *  copyright :  (C) 2017-2019, UV Software, Berlin
+ *  copyright :  (C) 2017-20xx, UV Software, Berlin
  *
  *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15)
+ *               Apple LLVM version (clang)
  *
  *  export    :  (see header file)
  *
@@ -23,9 +24,9 @@
  *
  *  @brief       CAN FD Bit-rates (Converter)
  *
- *  @author      $Author$
+ *  @author      $Author: haumea $
  *
- *  @version     $Rev$
+ *  @version     $Rev: 576 $
  *
  *  @addtogroup  bit_rate
  *  @{
