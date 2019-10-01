@@ -293,7 +293,6 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "BR:CiA5002M")) convert(BR_CiA_500K2M, &bitrate);
         if(!strcmp(argv[i], "BR:CiA1M5M")) convert(BR_CiA_1M5M, &bitrate);
     }
-option_io = OPTION_IO_POLLING;
     /* offline informations */
     if(option_info) {
         fprintf(stdout, "can_test: "__DATE__" "__TIME__" (MSC_VER=%u)\n",_MSC_VER);
@@ -691,6 +690,7 @@ static void sigterm(int signo)
     //printf("%s: got signal %d\n", __FILE__, signo);
     running = 0;
     (void)signo;
+	(void)can_kill(-1);
 }
 
 #ifndef _WAITABLE_TIMER

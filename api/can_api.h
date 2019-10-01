@@ -5,9 +5,9 @@
  *  purpose   :  CAN Interface API, Version 3 (PCAN-Basic)
  *
  *  copyright :  (C) 2010, UV Software, Friedrichshafen
- *               (C) 2014, 2017-2018, UV Software, Berlin
+ *               (C) 2014, 2017-2019, UV Software, Berlin
  *
- *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15.26730)
+ *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.16)
  *
  *  export    :  int can_test(int board, unsigned char mode, const void *param, int *result);
  *               int can_init(int board, unsigned char mode, const void *param);
@@ -365,6 +365,25 @@ CANAPI int can_write(int handle, const can_msg_t *msg);
  *  @returns     0 if successful, or a negative value on error.
  */
 CANAPI int can_read(int handle, can_msg_t *msg, unsigned short timeout);
+
+
+/** @brief       signals a waiting event object of the CAN interface. This is
+ *               used to terminat a blocking read operation (e.g. by means of
+ *               a Ctrl-C handler or similar).
+ *
+ *  @remark      The PCAN-Basic DLL uses an event object to realize a blocking
+ *               read by a call to WaitForSingleObject, but this event object
+ *               is not terminated by Ctrl-C (SIGINT).
+ *
+ *  @note        SIGINT is not supported for any Win32 application. [MSVC Docs]
+ *
+ *  @param[in]   handle  - handle of the CAN interface, or (-1) for all. 
+ *
+ *  @returns     0 if successful, or a negative value on error.
+ */
+#if defined (_WIN32) || defined(_WIN64)
+ CANAPI int can_kill(int handle);
+#endif
 
 
 /** @brief       retrieves the status register of the CAN interface.

@@ -62,6 +62,8 @@
 /*  -----------  options  ------------------------------------------------
  */
 
+#define _BLOCKING_READ                  // blocking read via wait event
+
 
 /*  -----------  defines  ------------------------------------------------
  */
@@ -96,6 +98,9 @@ typedef struct {
     DWORD brd_port;                     // board parameter: I/O port address
     WORD  brd_irq;                      // board parameter: interrupt number
     int   reset;                        // re-initialization flag (a helper)
+#ifdef _BLOCKING_READ
+    HANDLE event;                       // event handle for blocking read
+#endif
     can_mode_t mode;                    // operation mode of the CAN channel
     can_status_t status;                // 8-bit status register
 }   can_interface_t;
@@ -158,8 +163,13 @@ int can_test(int board, unsigned char mode, const void *param, int *result)
             can[i].brd_type = 0;
             can[i].brd_port = 0;
             can[i].brd_irq = 0;
-            /* to terminate blocking read on Ctrl-C */
-        }
+			can[i].reset = 0;
+#ifdef _BLOCKING_READ
+			can[i].event = NULL;
+#endif
+			can[i].mode.byte = CANMODE_DEFAULT;
+			can[i].status.byte = CANSTAT_RESET;
+		}
         init = 1;                       //   set initialization flag
     }
     if((rc = CAN_GetValue((WORD)board, PCAN_CHANNEL_CONDITION, (void*)&cond, sizeof(cond))) != PCAN_ERROR_OK)
@@ -191,6 +201,12 @@ int can_init(int board, unsigned char mode, const void *param)
             can[i].brd_type = 0;
             can[i].brd_port = 0;
             can[i].brd_irq = 0;
+			can[i].reset = 0;
+#ifdef _BLOCKING_READ
+			can[i].event = NULL;
+#endif
+			can[i].mode.byte = CANMODE_DEFAULT;
+			can[i].status.byte = CANSTAT_RESET;
         }
         init = 1;                       // set initialization flag
     }
@@ -233,6 +249,9 @@ int can_exit(int handle)
     /*if(!can[handle].status.b.can_stopped) // release the CAN interface!*/
     {
         CAN_Uninitialize(can[handle].board);
+#ifdef _BLOCKING_READ
+        CloseHandle(can[handle].event);
+#endif
     }
     can[handle].status.byte |= CANSTAT_RESET;// CAN controller in INIT state
     can[handle].board = PCAN_NONEBUS;   // handle can be used again
@@ -326,11 +345,50 @@ int can_start(int handle, const can_bitrate_t *bitrate)
                                     can[handle].brd_irq)) != PCAN_ERROR_OK)
                 return pcan_error(rc);
         }
+#ifdef _BLOCKING_READ
+        if((can[handle].event = CreateEvent( // create an event handle
+                NULL,                   //   default security attributes
+                FALSE,                  //   auto-reset event
+                FALSE,                  //   initial state is nonsignaled
+                TEXT("PCANBasic")       //   object name
+                )) == NULL)
+            return CANERR_FATAL;
+        if((rc = CAN_SetValue(can[handle].board, PCAN_RECEIVE_EVENT, 
+                    (void*)&can[handle].event, sizeof(can[handle].event))) != PCAN_ERROR_OK) {
+            CAN_Uninitialize(can[handle].board);
+            return pcan_error(rc);
+        }
+#endif
     }
     can[handle].status.byte = 0x00;     // clear old status bits
     can[handle].status.b.can_stopped = 0;// CAN controller started!
 
     return CANERR_NOERROR;
+}
+
+int can_kill(int handle)
+{
+	int i;
+
+	if(!init)                           // must be initialized!
+		return CANERR_NOTINIT;
+#ifdef _BLOCKING_READ
+	if(handle != INVALID_HANDLE) {
+		if(!IS_HANDLE_VALID(handle))    // must be a valid handle!
+			return CANERR_HANDLE;
+		if(can[handle].board != PCAN_NONEBUS) {
+			SetEvent(can[handle].event);
+		}
+	}
+	else {
+		for(i = 0; i < PCAN_MAX_HANDLES; i++) {
+			if(can[i].board != PCAN_NONEBUS) {
+				SetEvent(can[i].event);
+			}
+		}
+	}
+#endif
+	return CANERR_NOERROR;
 }
 
 int can_reset(int handle)
@@ -436,13 +494,32 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
 	else
 		rc = CAN_ReadFD(can[handle].board, &can_msg_fd, &timestamp_fd);
 	if(rc == PCAN_ERROR_QRCVEMPTY) {
+#ifdef _BLOCKING_READ
+        switch (WaitForSingleObject(can[handle].event, (timeout != 65535) ? timeout : INFINITE)) {
+        case WAIT_OBJECT_0:
+            break;						//   one or more messages received
+        case WAIT_TIMEOUT:
+            break;						//   time-out, but look for old messages
+        default:
+            return CANERR_FATAL;		//   function failed!
+        }
+		if(!can[handle].mode.b.fdoe)
+			rc = CAN_Read(can[handle].board, &can_msg, &timestamp);
+		else
+			rc = CAN_ReadFD(can[handle].board, &can_msg_fd, &timestamp_fd);
+		if(rc == PCAN_ERROR_QRCVEMPTY) {
+			can[handle].status.b.receiver_empty = 1;
+			return CANERR_RX_EMPTY;		//   receiver empty!
+		}
+#else
 		can[handle].status.b.receiver_empty = 1;
 		return CANERR_RX_EMPTY;			//   receiver empty!
+#endif
 	}
-	else if(rc != PCAN_ERROR_OK) {
+	if(rc != PCAN_ERROR_OK) {
         return pcan_error(rc);          //   something´s wrong!
     }
-	else if((can_msg.MSGTYPE == PCAN_MESSAGE_STATUS) || 
+	if((can_msg.MSGTYPE == PCAN_MESSAGE_STATUS) || 
        (can_msg_fd.MSGTYPE == PCAN_MESSAGE_STATUS)) {
         can[handle].status.b.bus_off = (can_msg.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
         can[handle].status.b.bus_error = (can_msg.DATA[3] & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
