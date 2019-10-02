@@ -174,6 +174,13 @@
 #define CANBRD_NOT_AVAILABLE       (+1) /**< CAN board present, but occupied */
 /** @} */
 
+/** @name  Blocking Read
+ *  @brief Control of blocking read
+ *  @{ */
+#define CANREAD_INFINITE         65535u /**< infinite timeout (blocking read) */
+#define CANKILL_ALL                (-1) /**< to signal all CAN interfaces */
+/** @} */
+
 /** @name  Legacy Stuff
  *  @brief For compatibility
  *  @{ */
@@ -274,7 +281,7 @@ typedef struct _can_msg_t {
  */
 
 /** @brief       tests if the CAN interface (hardware and driver) given by
- *               the arguments s 'library' and 'board' is present.
+ *               the arguments 'library' and 'board' is present.
  *
  *  @param[in]   board   - type of the CAN interface board.
  *  @param[in]   mode    - operation mode to be checked.
@@ -291,7 +298,7 @@ CANAPI int can_test(int board, unsigned char mode, const void *param, int *resul
 
 /** @brief       initializes the CAN interface (hardware and driver) by loading
  *               and starting the appropriate DLL for the specified CAN board
- *               given by the arguments 'library' and 'board'. 
+ *               given by the arguments 'library' and 'board'.
  *               The operation status of the CAN interface is set to 'stopped';
  *               no communication is possible in this state.
  *
@@ -299,7 +306,7 @@ CANAPI int can_test(int board, unsigned char mode, const void *param, int *resul
  *  @param[in]   mode    - operation mode of the CAN controller.
  *  @param[in]   param   - pointer to board-specific parameters.
  *
- *  @returns     handle of the CAN interface if successful, 
+ *  @returns     handle of the CAN interface if successful,
  *               or a negative value on error.
  */
 CANAPI int can_init(int board, unsigned char mode, const void *param);
@@ -377,7 +384,7 @@ CANAPI int can_read(int handle, can_msg_t *msg, unsigned short timeout);
  *
  *  @note        SIGINT is not supported for any Win32 application. [MSVC Docs]
  *
- *  @param[in]   handle  - handle of the CAN interface, or (-1) for all. 
+ *  @param[in]   handle  - handle of the CAN interface, or (-1) for all.
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -419,7 +426,7 @@ CANAPI int can_busload(int handle, unsigned char *load, unsigned char *status);
 CANAPI int can_interface(int handle, int *board, unsigned char *mode, void *param);
 
 
-/** @brief       retrieves the hardware version of the CAN adapter
+/** @brief       retrieves the hardware version of the CAN interface
  *               as a zero-terminated string.
  *
  *  @returns     pointer to a zero-terminated string, or NULL on error.
@@ -427,7 +434,7 @@ CANAPI int can_interface(int handle, int *board, unsigned char *mode, void *para
 CANAPI char *can_hardware(int handle);
 
 
-/** @brief       retrieves the firmware version of the CAN adapter
+/** @brief       retrieves the firmware version of the CAN interface
  *               as a zero-terminated string.
  *
  *  @returns     pointer to a zero-terminated string, or NULL on error.
@@ -435,9 +442,10 @@ CANAPI char *can_hardware(int handle);
 CANAPI char *can_software(int handle);
 
 
-/** @brief       retrieves the identification number of the library.
+/** @brief      retrieves the library number (ID) of the CAN interface.
  *
- *  @param[out]  library - identification number of the library.
+ *  @param[out] library - driver library of the CAN interface.
+ *
  *
  *  @returns     0 if successful, or a negative value on error.
  */

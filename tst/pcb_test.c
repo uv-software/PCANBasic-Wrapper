@@ -690,7 +690,7 @@ static void sigterm(int signo)
     //printf("%s: got signal %d\n", __FILE__, signo);
     running = 0;
     (void)signo;
-	(void)can_kill(-1);
+	(void)can_kill(CANKILL_ALL);
 }
 
 #ifndef _WAITABLE_TIMER

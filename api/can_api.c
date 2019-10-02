@@ -142,7 +142,7 @@ ATTRIB can_board_t can_board[PCAN_BOARDS]=// list of CAN Interface boards:
 static const BYTE dlc_table[16] = {     // DLC to length
     0,1,2,3,4,5,6,7,8,12,16,20,24,32,48,64
 };
-static can_interface_t can[PCAN_MAX_HANDLES];   // interface handles 
+static can_interface_t can[PCAN_MAX_HANDLES];   // interface handles
 static char hardware[256] = "";         // hardware version of the CAN interface board
 static char software[256] = "";         // software version of the CAN interface driver
 static int  init = 0;                   // initialization flag
@@ -341,7 +341,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
         }
         else {                          //   CAN 2.0 operation mode
             if((rc = CAN_Initialize(can[handle].board, baudrate,
-                                    can[handle].brd_type, can[handle].brd_port, 
+                                    can[handle].brd_type, can[handle].brd_port,
                                     can[handle].brd_irq)) != PCAN_ERROR_OK)
                 return pcan_error(rc);
         }
@@ -353,7 +353,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
                 TEXT("PCANBasic")       //   object name
                 )) == NULL)
             return CANERR_FATAL;
-        if((rc = CAN_SetValue(can[handle].board, PCAN_RECEIVE_EVENT, 
+        if((rc = CAN_SetValue(can[handle].board, PCAN_RECEIVE_EVENT,
                     (void*)&can[handle].event, sizeof(can[handle].event))) != PCAN_ERROR_OK) {
             CAN_Uninitialize(can[handle].board);
             return pcan_error(rc);
@@ -372,22 +372,22 @@ int can_kill(int handle)
 
 	if(!init)                           // must be initialized!
 		return CANERR_NOTINIT;
-#ifdef _BLOCKING_READ
-	if(handle != INVALID_HANDLE) {
+	if(handle != CANKILL_ALL) {
 		if(!IS_HANDLE_VALID(handle))    // must be a valid handle!
 			return CANERR_HANDLE;
+#ifdef _BLOCKING_READ
 		if(can[handle].board != PCAN_NONEBUS) {
-			SetEvent(can[handle].event);
+			SetEvent(can[handle].event);  // signal event oject
 		}
 	}
 	else {
 		for(i = 0; i < PCAN_MAX_HANDLES; i++) {
 			if(can[i].board != PCAN_NONEBUS) {
-				SetEvent(can[i].event);
+				SetEvent(can[i].event);	//   signal all event ojects
 			}
 		}
-	}
 #endif
+	}
 	return CANERR_NOERROR;
 }
 
@@ -495,31 +495,37 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
 		rc = CAN_ReadFD(can[handle].board, &can_msg_fd, &timestamp_fd);
 	if(rc == PCAN_ERROR_QRCVEMPTY) {
 #ifdef _BLOCKING_READ
-        switch (WaitForSingleObject(can[handle].event, (timeout != 65535) ? timeout : INFINITE)) {
-        case WAIT_OBJECT_0:
-            break;						//   one or more messages received
-        case WAIT_TIMEOUT:
-            break;						//   time-out, but look for old messages
-        default:
-            return CANERR_FATAL;		//   function failed!
-        }
-		if(!can[handle].mode.b.fdoe)
-			rc = CAN_Read(can[handle].board, &can_msg, &timestamp);
-		else
-			rc = CAN_ReadFD(can[handle].board, &can_msg_fd, &timestamp_fd);
-		if(rc == PCAN_ERROR_QRCVEMPTY) {
+		if(timeout > 0) {
+			switch(WaitForSingleObject(can[handle].event, (timeout != 65535) ? timeout : INFINITE)) {
+			case WAIT_OBJECT_0:
+				break;					//   one or more messages received
+			case WAIT_TIMEOUT:
+				break;					//   time-out, but look for old messages
+			default:
+				return CANERR_FATAL;	//   function failed!
+			}
+			if(!can[handle].mode.b.fdoe)
+				rc = CAN_Read(can[handle].board, &can_msg, &timestamp);
+			else
+				rc = CAN_ReadFD(can[handle].board, &can_msg_fd, &timestamp_fd);
+			if(rc == PCAN_ERROR_QRCVEMPTY) {
+				can[handle].status.b.receiver_empty = 1;
+				return CANERR_RX_EMPTY;	//   receiver empty!
+			}
+		}
+		else {
 			can[handle].status.b.receiver_empty = 1;
 			return CANERR_RX_EMPTY;		//   receiver empty!
-		}
+	}
 #else
 		can[handle].status.b.receiver_empty = 1;
 		return CANERR_RX_EMPTY;			//   receiver empty!
 #endif
 	}
 	if(rc != PCAN_ERROR_OK) {
-        return pcan_error(rc);          //   something´s wrong!
+        return pcan_error(rc);          //   somethingï¿½s wrong!
     }
-	if((can_msg.MSGTYPE == PCAN_MESSAGE_STATUS) || 
+	if((can_msg.MSGTYPE == PCAN_MESSAGE_STATUS) ||
        (can_msg_fd.MSGTYPE == PCAN_MESSAGE_STATUS)) {
         can[handle].status.b.bus_off = (can_msg.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
         can[handle].status.b.bus_error = (can_msg.DATA[3] & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
