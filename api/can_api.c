@@ -528,8 +528,8 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
 	if((can_msg.MSGTYPE == PCAN_MESSAGE_STATUS) ||
        (can_msg_fd.MSGTYPE == PCAN_MESSAGE_STATUS)) {
         can[handle].status.b.bus_off = (can_msg.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
-        can[handle].status.b.bus_error = (can_msg.DATA[3] & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
-        can[handle].status.b.warning_level = (can_msg.DATA[3] & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
+        can[handle].status.b.bus_error = (can_msg.DATA[3] & PCAN_ERROR_BUSLIGHT) != PCAN_ERROR_OK;
+        can[handle].status.b.warning_level = (can_msg.DATA[3] & PCAN_ERROR_BUSHEAVY) != PCAN_ERROR_OK;
         can[handle].status.b.message_lost |= (can_msg.DATA[3] & PCAN_ERROR_OVERRUN) != PCAN_ERROR_OK;
         return CANERR_RX_EMPTY;         //   receiver empty!
     }
@@ -576,8 +576,8 @@ int can_status(int handle, unsigned char *status)
         if((rc = CAN_GetStatus(can[handle].board)) > 255)
             return pcan_error(rc);
         can[handle].status.b.bus_off = (rc & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
-        can[handle].status.b.bus_error = (rc & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
-        can[handle].status.b.warning_level = (rc & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
+        can[handle].status.b.bus_error = (rc & (PCAN_ERROR_BUSLIGHT | PCAN_ERROR_BUSPASSIVE)) != PCAN_ERROR_OK;
+        can[handle].status.b.warning_level = (rc & (PCAN_ERROR_BUSHEAVY | PCAN_ERROR_BUSWARNING)) != PCAN_ERROR_OK;
         can[handle].status.b.message_lost |= (rc & (PCAN_ERROR_OVERRUN | PCAN_ERROR_QOVERRUN)) != PCAN_ERROR_OK;
         can[handle].status.b.transmitter_busy |= (rc & (PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL)) != PCAN_ERROR_OK;
     }
@@ -599,12 +599,12 @@ int can_busload(int handle, unsigned char *load, unsigned char *status)
     if(!can[handle].status.b.can_stopped)   {   // must be running:
         if((rc = CAN_GetStatus(can[handle].board)) > 255)
             return pcan_error(rc);
-        can[handle].status.b.bus_off = (rc & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
-        can[handle].status.b.bus_error = (rc & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
-        can[handle].status.b.warning_level = (rc & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
-        can[handle].status.b.message_lost |= (rc & (PCAN_ERROR_OVERRUN | PCAN_ERROR_QOVERRUN)) != PCAN_ERROR_OK;
-        can[handle].status.b.transmitter_busy |= (rc & (PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL)) != PCAN_ERROR_OK;
-    }
+		can[handle].status.b.bus_off = (rc & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
+		can[handle].status.b.bus_error = (rc & (PCAN_ERROR_BUSLIGHT | PCAN_ERROR_BUSPASSIVE)) != PCAN_ERROR_OK;
+		can[handle].status.b.warning_level = (rc & (PCAN_ERROR_BUSHEAVY | PCAN_ERROR_BUSWARNING)) != PCAN_ERROR_OK;
+		can[handle].status.b.message_lost |= (rc & (PCAN_ERROR_OVERRUN | PCAN_ERROR_QOVERRUN)) != PCAN_ERROR_OK;
+		can[handle].status.b.transmitter_busy |= (rc & (PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL)) != PCAN_ERROR_OK;
+	}
     if(status)                          // status-register
       *status = can[handle].status.byte;
     if(load)                            // bus-load
