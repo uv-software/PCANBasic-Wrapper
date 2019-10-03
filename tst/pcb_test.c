@@ -307,7 +307,13 @@ int main(int argc, char *argv[])
     }
     /* channel tester */
     if(option_test) {
-    }
+		for(i = 0; i < PCAN_BOARDS; i++) {
+			if((rc = can_test(can_board[i].type, op_mode, NULL, &opt)) == CANERR_NOERROR)
+				printf("Channel 0x%02x: %s\n", can_board[i].type, opt == CANBRD_NOT_PRESENT ? "unavailable" : opt == CANBRD_PRESENT ? "available" : "occuptied");
+			else
+				printf("Channel 0x%02x: can_test failed (%i)\n", can_board[i].type, rc);
+		}
+	}
     /* initialization */
     if((rc = can_init(channel, op_mode, NULL)) < 0) {
         printf("+++ error(%i): can_init failed\n", rc);
