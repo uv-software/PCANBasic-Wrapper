@@ -309,9 +309,9 @@ int main(int argc, char *argv[])
     if(option_test) {
 		for(i = 0; i < PCAN_BOARDS; i++) {
 			if((rc = can_test(can_board[i].type, op_mode, NULL, &opt)) == CANERR_NOERROR)
-				printf("Channel 0x%02x: %s\n", can_board[i].type, opt == CANBRD_NOT_PRESENT ? "unavailable" : opt == CANBRD_PRESENT ? "available" : "occuptied");
+				printf("Channel 0x%02lx: %s\n", can_board[i].type, opt == CANBRD_NOT_PRESENT ? "unavailable" : opt == CANBRD_PRESENT ? "available" : "occuptied");
 			else
-				printf("Channel 0x%02x: can_test failed (%i)\n", can_board[i].type, rc);
+				printf("Channel 0x%02lx: can_test failed (%i)\n", can_board[i].type, rc);
 		}
 	}
     /* initialization */

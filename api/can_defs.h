@@ -33,6 +33,7 @@
  *  @defgroup    can_defs Options and Definitions
  *  @{
  */
+
 #ifndef __CAN_DEFS_H
 #define __CAN_DEFS_H
 

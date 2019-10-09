@@ -539,8 +539,8 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
     }
     if(!can[handle].mode.b.fdoe) {      // CAN 2.0 message:
         msg->id = can_msg.ID;
-        msg->ext = can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED;
-        msg->rtr = can_msg.MSGTYPE & PCAN_MESSAGE_RTR;
+        msg->ext = (can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
+        msg->rtr = (can_msg.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
         msg->fdf = 0;
         msg->brs = 0;
         msg->esi = 0;
@@ -552,11 +552,11 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
     }
     else {                              // CAN FD message:
         msg->id = can_msg_fd.ID;
-        msg->ext = can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED;
-        msg->rtr = can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR;
-        msg->fdf = can_msg_fd.MSGTYPE & PCAN_MESSAGE_FD;
-        msg->brs = can_msg_fd.MSGTYPE & PCAN_MESSAGE_BRS;
-        msg->esi = can_msg_fd.MSGTYPE & PCAN_MESSAGE_ESI;
+        msg->ext = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
+        msg->rtr = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
+        msg->fdf = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_FD) ? 1 : 0;
+        msg->brs = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_BRS) ? 1 : 0;
+        msg->esi = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_ESI) ? 1 : 0;
         msg->dlc = can_msg_fd.DLC;
         memcpy(msg->data, can_msg_fd.DATA, CANFD_MAX_LEN);
         msg->timestamp.sec = (long)(timestamp_fd / 1000000ull);
@@ -653,8 +653,8 @@ char *can_hardware(int handle)
         return NULL;
     if((ptr = strchr(str, '\n')) != NULL)
        *ptr = '\0';
-    if((((can[handle].board & 0x00F0) >> 8) == PCAN_USB) ||
-       (((can[handle].board & 0x0F00) >> 16) == PCAN_USB))
+    if((((can[handle].board & 0x00F0) >> 4) == PCAN_USB) ||
+       (((can[handle].board & 0x0F00) >> 8) == PCAN_USB))
     {
         if(CAN_GetValue(can[handle].board, PCAN_DEVICE_NUMBER, (void*)&dev, 4) != PCAN_ERROR_OK)
             return NULL;

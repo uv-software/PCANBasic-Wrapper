@@ -6,8 +6,9 @@
  *
  *  copyright :  (C) 2017-20xx, UV Software, Berlin
  *
- *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.15)
- *               Apple LLVM version (clang)
+ *  compiler  :  Microsoft Visual C/C++ Compiler
+ *               Apple LLVM (clang) Compiler
+ *               GNU C/C++ Compiler
  *
  *  export    :  (see header file)
  *
@@ -26,7 +27,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 576 $
+ *  @version     $Rev: 592 $
  *
  *  @addtogroup  bit_rate
  *  @{
@@ -128,9 +129,51 @@ static char *skip_blanks(char *str);
 /*  -----------  variables  ----------------------------------------------
  */
 
+static const unsigned short sja1000_btr0btr1[10] = {
+    0x0014U,  //   1 MBit/s
+    0x0016U,  // 800 kBit/s
+    0x001CU,  // 500 kBit/s
+    0x011CU,  // 250 kBit/s
+    0x031CU,  // 125 kBit/s
+    0x432FU,  // 100 kBit/s
+    0x472FU,  //  50 kBit/s
+    0x532FU,  //  20 kBit/s
+    0x672FU,  //  10 kBit/s
+    0x7F7FU   //   5 kBit/s
+};
 
 /*  -----------  functions  ----------------------------------------------
  */
+
+int btr_index_to_bit_rate_sja1000(long index, unsigned short *btr0btr1)
+{
+	if (index < 0)
+		index *= -1;
+	if (index > 9)
+		return 0;
+	if (!btr0btr1)
+		return 0;
+	*btr0btr1 = sja1000_btr0btr1[index];
+	return 1;
+}
+
+int btr_index_to_bit_timing_sja1000(long index, unsigned long *frequency, struct btr_bit_timing *btr_timing)
+{
+	unsigned short btr0btr1 = 0x0000;
+
+	if (!btr_timing)
+		return 0;
+	if (!btr_index_to_bit_rate_sja1000(index, &btr0btr1))
+		return 0;
+	if (frequency)
+		*frequency = BTR_FREQUENCY_SJA1000;
+	btr_timing->brp = BTR_BRP(btr0btr1);
+	btr_timing->tseg1 = BTR_TSEG1(btr0btr1);
+	btr_timing->tseg2 = BTR_TSEG2(btr0btr1);
+	btr_timing->sjw = BTR_SJW(btr0btr1);
+	btr_timing->sam = BTR_SAM(btr0btr1);
+	return 1;
+}
 
 unsigned long btr_calc_bit_rate_sja1000(unsigned short btr0btr1)
 {

@@ -282,7 +282,7 @@ typedef struct _can_msg_t {
  */
 
 /** @brief       tests if the CAN interface (hardware and driver) given by
- *               the arguments 'library' and 'board' is present.
+ *               the argument 'board' is present.
  *
  *  @param[in]   board   - type of the CAN interface board.
  *  @param[in]   mode    - operation mode to be checked.
@@ -299,7 +299,7 @@ CANAPI int can_test(int board, unsigned char mode, const void *param, int *resul
 
 /** @brief       initializes the CAN interface (hardware and driver) by loading
  *               and starting the appropriate DLL for the specified CAN board
- *               given by the arguments 'library' and 'board'.
+ *               given by the argument 'board'. 
  *               The operation status of the CAN interface is set to 'stopped';
  *               no communication is possible in this state.
  *
