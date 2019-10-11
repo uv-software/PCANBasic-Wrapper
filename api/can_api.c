@@ -103,7 +103,7 @@ typedef struct {
 #endif
     can_mode_t mode;                    // operation mode of the CAN channel
     can_status_t status;                // 8-bit status register
-    can_bitrate_t bitrate;              // bit-rate setting 
+    can_bitrate_t bitrate;              // bit-rate setting
 }   can_interface_t;
 
 
@@ -331,38 +331,43 @@ int can_start(int handle, const can_bitrate_t *bitrate)
                       bitrate->btr.nominal.sjw,
                       bitrate->btr.nominal.sam);
     }
-    if(!can[handle].reset) {            // initialize CAN controller
-        if(can[handle].mode.b.mon) {    //   set listen-only mode?
-            value = PCAN_PARAMETER_ON;
-            if((rc = CAN_SetValue(can[handle].board, PCAN_LISTEN_ONLY,
-                                  (void*)&value, sizeof(value))) != PCAN_ERROR_OK)
-                return pcan_error(rc);
-        }
-        if(can[handle].mode.b.fdoe) {   //   CAN FD operation mode?
-            if((rc = CAN_InitializeFD(can[handle].board, string)) != PCAN_ERROR_OK)
-                return pcan_error(rc);
-        }
-        else {                          //   CAN 2.0 operation mode
-            if((rc = CAN_Initialize(can[handle].board, baudrate,
-                                    can[handle].brd_type, can[handle].brd_port,
-                                    can[handle].brd_irq)) != PCAN_ERROR_OK)
-                return pcan_error(rc);
-        }
-#ifdef _BLOCKING_READ
-        if((can[handle].event = CreateEvent( // create an event handle
-                NULL,                   //   default security attributes
-                FALSE,                  //   auto-reset event
-                FALSE,                  //   initial state is nonsignaled
-                TEXT("PCANBasic")       //   object name
-                )) == NULL)
-            return CANERR_FATAL;
-        if((rc = CAN_SetValue(can[handle].board, PCAN_RECEIVE_EVENT,
-                    (void*)&can[handle].event, sizeof(can[handle].event))) != PCAN_ERROR_OK) {
-            CAN_Uninitialize(can[handle].board);
+    if(can[handle].reset) {             // re-initialize CAN controller
+        if((rc = CAN_Reset(can[handle].board)) !=  PCAN_ERROR_OK)
             return pcan_error(rc);
-        }
-#endif
+        if((rc = CAN_Uninitialize(can[handle].board)) !=  PCAN_ERROR_OK)
+            return pcan_error(rc);
+        can[handle].reset = 0;
     }
+    if(can[handle].mode.b.mon) {        // set listen-only mode?
+        value = PCAN_PARAMETER_ON;
+        if((rc = CAN_SetValue(can[handle].board, PCAN_LISTEN_ONLY,
+                              (void*)&value, sizeof(value))) != PCAN_ERROR_OK)
+            return pcan_error(rc);
+    }
+    if(can[handle].mode.b.fdoe) {       // CAN FD operation mode?
+        if((rc = CAN_InitializeFD(can[handle].board, string)) != PCAN_ERROR_OK)
+            return pcan_error(rc);
+    }
+    else {                              // CAN 2.0 operation mode
+        if((rc = CAN_Initialize(can[handle].board, baudrate,
+                                can[handle].brd_type, can[handle].brd_port,
+                                can[handle].brd_irq)) != PCAN_ERROR_OK)
+            return pcan_error(rc);
+    }
+#ifdef _BLOCKING_READ
+    if((can[handle].event = CreateEvent( // create an event handle
+            NULL,                       //   default security attributes
+            FALSE,                      //   auto-reset event
+            FALSE,                      //   initial state is nonsignaled
+            TEXT("PCANBasic")           //   object name
+            )) == NULL)
+        return CANERR_FATAL;
+    if((rc = CAN_SetValue(can[handle].board, PCAN_RECEIVE_EVENT,
+                (void*)&can[handle].event, sizeof(can[handle].event))) != PCAN_ERROR_OK) {
+        CAN_Uninitialize(can[handle].board);
+        return pcan_error(rc);
+    }
+#endif
     memcpy(&can[handle].bitrate, bitrate, sizeof(can_bitrate_t));
     can[handle].status.byte = 0x00;     // clear old status bits
     can[handle].status.b.can_stopped = 0;// CAN controller started!
@@ -402,8 +407,8 @@ int can_reset(int handle)
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
 
-    if(can[handle].status.b.can_stopped) {  // CAN started, then reset
-        can[handle].reset = (CAN_Reset(can[handle].board) == PCAN_ERROR_OK);
+    if(!can[handle].status.b.can_stopped) { // CAN started, then re-initialize
+        can[handle].reset = 1;
     }
     can[handle].status.b.can_stopped = 1;   // CAN controller stopped!
 
