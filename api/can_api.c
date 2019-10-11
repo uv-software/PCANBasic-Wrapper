@@ -211,10 +211,14 @@ int can_init(int board, unsigned char mode, const void *param)
             can[i].status.byte = CANSTAT_RESET;
             can[i].bitrate.index = -CANBDR_250;
         }
-        init = 1;                       // set initialization flag
+        init = 1;                       //   set initialization flag
     }
+	for(i = 0; i < PCAN_MAX_HANDLES; i++) {
+		if(can[i].board == board)       // channel already in use
+			return CANERR_YETINIT;
+	}
     for(i = 0; i < PCAN_MAX_HANDLES; i++) {
-        if(can[i].board == PCAN_NONEBUS)
+        if(can[i].board == PCAN_NONEBUS)// get an unused handle, if any
             break;
     }
     if(!IS_HANDLE_VALID(i))             // no free handle found
