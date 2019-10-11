@@ -390,13 +390,15 @@ int can_kill(int handle)
         if(!IS_HANDLE_VALID(handle))    // must be a valid handle!
             return CANERR_HANDLE;
 #ifdef _BLOCKING_READ
-        if(can[handle].board != PCAN_NONEBUS) {
+        if((can[handle].board != PCAN_NONEBUS) &&
+           (can[handle].event != NULL)) {
             SetEvent(can[handle].event);  // signal event oject
         }
     }
     else {
         for(i = 0; i < PCAN_MAX_HANDLES; i++) {
-            if(can[i].board != PCAN_NONEBUS) {
+            if((can[i].board != PCAN_NONEBUS) &&
+               (can[i].event != NULL))  {
                 SetEvent(can[i].event); //   signal all event ojects
             }
         }
