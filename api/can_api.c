@@ -32,7 +32,10 @@
  *  @{
  */
 
-#define VERSION "3.3.dev"
+#define VERSION_MAJOR     3
+#define VERSION_MINOR     3
+#define VERSION_REVISION  0
+#define VERSION_STRING    TOSTRING(VERSION_MAJOR)"." TOSTRING(VERSION_MINOR)"."TOSTRING(VERSION_REVISION)
 #if defined(_WIN64)
 #define PLATFORM    "x64"
 #elif defined(_WIN32)
@@ -42,9 +45,9 @@
 #endif
 #include "can_vers.h"
 #ifdef _DEBUG
-    static char _id[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version "VERSION"."SVN_REV_STR" ("PLATFORM") _DEBUG";
+    static char _id[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version "VERSION_STRING"-"TOSTRING(BUILD_NO)" ("PLATFORM") _DEBUG";
 #else
-    static char _id[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version "VERSION"."SVN_REV_STR" ("PLATFORM")";
+    static char _id[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version "VERSION_STRING"-"TOSTRING(BUILD_NO)" ("PLATFORM")";
 #endif
 
 /*  -----------  includes  -------------------------------------------------
@@ -695,7 +698,7 @@ char *can_hardware(int handle)
     else
         strcpy_s(hardware, 256, str);
 
-    return (char*)hardware;     // hardware version
+    return (char*)hardware;             // hardware version
 }
 
 char *can_software(int handle)
@@ -713,16 +716,16 @@ char *can_software(int handle)
     return (char*)software;             // software version
 }
 
-int can_library(int *library)
+int can_library(unsigned short *version, unsigned char *revision, unsigned long *build)
 {
-    //if(!init)                         // must be initialized!
-    //  return CANERR_NOTINIT;
-    if(library == NULL)                 // null-pointer assignment!
-        return CANERR_NULLPTR;
+    if(version)
+        *version = ((unsigned short)VERSION_MAJOR << 8) | ((unsigned short)VERSION_MINOR & 0x00FFu);
+    if(revision)
+        *revision = (unsigned char)VERSION_REVISION;
+    if(build)
+        *build = (unsigned long)BUILD_NO;
 
-    *library = PCAN_LIB_ID;             // library ID
-
-    return CANERR_NOERROR;
+    return PCAN_LIB_ID;                 // library ID
 }
 
 /*  -----------  local functions  ----------------------------------------

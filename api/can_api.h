@@ -22,7 +22,7 @@
  *               int can_interface(int handle, int *board, unsigned char *mode, void *param);
  *               char *can_hardware(int handle);
  *               char *can_software(int handle);
- *               int can_library(int *library);
+ *               int can_library(unsigned short *version, unsigned char *revision, unsigned long *build);
  *               char *can_version();
  *
  *  includes  :  can_defs.h
@@ -331,7 +331,7 @@ CANAPI int can_exit(int handle);
  *               index and sets the operation status to 'running'.
  *
  *  @param[in]   handle  - handle of the CAN interface.
- *  @param[in]   bitrate - bit-rate as btr register or baud rate index
+ *  @param[in]   bitrate - bit-rate as btr register or baud rate index.
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -455,13 +455,15 @@ CANAPI char *can_hardware(int handle);
 CANAPI char *can_software(int handle);
 
 
-/** @brief       retrieves the library number (ID) of the CAN interface.
+/** @brief      retrieves the library number (ID) of the CAN interface.
  *
- *  @param[out]  library - driver library of the CAN interface.
+ *  @param[out] version  - version number (high byte = major, low byte = minor).
+ *  @param[out] revision - revision number (e.g. for service releases).
+ *  @param[out] build    - build number (taken from svn or git).
  *
- *  @returns     0 if successful, or a negative value on error.
+ *  @returns    library number if successful, or a negative value on error.
  */
-CANAPI int can_library(int *library);
+CANAPI int can_library(unsigned short *version, unsigned char *revision, unsigned long *build);
 
 
 /** @brief       retrieves version information of the CAN API V300
