@@ -255,8 +255,8 @@ int can_exit(int handle)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
 
     /*if(!can[handle].status.b.can_stopped) // release the CAN interface: */
     {
@@ -283,8 +283,8 @@ int can_start(int handle, const can_bitrate_t *bitrate)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
     if(bitrate == NULL)                 // null-pointer assignment!
         return CANERR_NULLPTR;
     if(!can[handle].status.b.can_stopped)// must be stopped!
@@ -420,8 +420,8 @@ int can_reset(int handle)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
 
     if(!can[handle].status.b.can_stopped) { // CAN started, then re-initialize
         can[handle].reset = 1;
@@ -441,8 +441,8 @@ int can_write(int handle, const can_msg_t *msg)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
     if(msg == NULL)                     // null-pointer assignment!
         return CANERR_NULLPTR;
     if(can[handle].status.b.can_stopped)// must be running!
@@ -511,8 +511,8 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
     if(msg == NULL)                     // null-pointer assignment!
         return CANERR_NULLPTR;
     if(can[handle].status.b.can_stopped)// must be running!
@@ -600,8 +600,8 @@ int can_status(int handle, unsigned char *status)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
 
     if(!can[handle].status.b.can_stopped)   {   // must be running:
         if((rc = CAN_GetStatus(can[handle].board)) > 255)
@@ -624,8 +624,8 @@ int can_busload(int handle, unsigned char *load, unsigned char *status)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
 
     if(!can[handle].status.b.can_stopped) { // must be running:
         if(load)
@@ -640,8 +640,8 @@ int can_bitrate(int handle, can_bitrate_t *bitrate, unsigned char *status)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
 
     if(!can[handle].status.b.can_stopped) { // must be running:
         if(bitrate)
@@ -657,8 +657,8 @@ int can_interface(int handle, int *board, unsigned char *mode, void *param)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
-        return CANERR_NOTINIT;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
+        return CANERR_HANDLE;
     if(board == NULL || mode == NULL)   // null-pointer assignment!
         return CANERR_NULLPTR;
 
@@ -681,7 +681,7 @@ char *can_hardware(int handle)
         return NULL;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle!
         return NULL;
-    if(can[handle].board == PCAN_NONEBUS) // must be a valid channel!
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
         return NULL;
 
     if(CAN_GetValue(can[handle].board, PCAN_CHANNEL_VERSION, (void*)str, 256) != PCAN_ERROR_OK)

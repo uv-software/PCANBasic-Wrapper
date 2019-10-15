@@ -150,6 +150,7 @@
 #define CANERR_NULLPTR              -94 /**< USR - null-pointer assignment */
 #define CANERR_NOTINIT              -95 /**< USR - not initialized */
 #define CANERR_YETINIT              -96 /**< USR - already initialized */
+#define CANERR_LIBRARY              -97 /**< USR - illegal library */
 #define CANERR_NOTSUPP              -98 /**< USR - not supported */
 #define CANERR_FATAL                -99 /**< USR - other errors */
 /** @} */
