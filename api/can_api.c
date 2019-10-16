@@ -634,7 +634,7 @@ int can_busload(int handle, unsigned char *load, unsigned char *status)
     return can_status(handle, status);  // status-register
 }
 
-int can_bitrate(int handle, can_bitrate_t *bitrate, unsigned char *status)
+int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed)
 {
     if(!init)                           // must be initialized!
         return CANERR_NOTINIT;
@@ -646,8 +646,10 @@ int can_bitrate(int handle, can_bitrate_t *bitrate, unsigned char *status)
     if(!can[handle].status.b.can_stopped) { // must be running:
         if(bitrate)
             memcpy(bitrate, &can[handle].bitrate, sizeof(can_bitrate_t));
+        if (speed)
+            memset(speed, 0, sizeof(can_speed_t)); // TODO: calculate this!
     }
-    return can_status(handle, status);  // status-register
+    return can_status(handle, NULL);    // current status
 }
 
 int can_interface(int handle, int *board, unsigned char *mode, void *param)

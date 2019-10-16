@@ -18,7 +18,7 @@
  *               int can_read(int handle, can_msg_t *msg, unsigned short timeout);
  *               int can_status(int handle, unsigned char *status);
  *               int can_busload(int handle, unsigned char *load, unsigned char *status);
- *               int can_bitrate(int handle, can_bitrate_t *bitrate, unsigned char *status);
+ *               int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed);
  *               int can_interface(int handle, int *board, unsigned char *mode, void *param);
  *               char *can_hardware(int handle);
  *               char *can_software(int handle);
@@ -200,8 +200,7 @@
 #define _CAN_BOARD
  /** @brief      CAN Interface board:
   */
- typedef struct _can_board_t
- {
+ typedef struct _can_board_t {
    unsigned long type;                  /**< board type */
    char* name;                          /**< board name */
  } can_board_t;
@@ -210,8 +209,7 @@
 #define _CAN_STATUS
  /** @brief      CAN Status-register:
   */
- typedef union _can_status_t
- {
+ typedef union _can_status_t {
    unsigned char byte;                  /**< byte access */
    struct {                             /*   bit access: */
      unsigned char queue_overrun : 1;   /**<   Event-queue overrun */
@@ -227,8 +225,7 @@
 #endif
 /** @brief      CAN Bit-rate (nominal and data):
  */
-typedef union _can_bitrate_t
-{
+typedef union _can_bitrate_t {
     long index;                         /**< index to predefined bit-rate (<= 0) */
     struct {                            /*   bit-timing register: */
         long frequency;                 /**<   clock domain (frequency in [Hz]) */
@@ -249,6 +246,26 @@ typedef union _can_bitrate_t
 #endif
     }   btr;                            /**< bit-timing register */
 }   can_bitrate_t;
+
+/** @brief      CAN Transmission rate (nominal and data):
+ */
+typedef struct _can_speed_t {
+    struct {                            /*   nominal bus speed: */
+#ifndef CAN_20_ONLY
+        int fdoe;                       /**<   CAN FD operation enabled */
+        float speed;                    /**<   bus speed in [Bit/s] */
+        float samplepoint;              /**<   sample point in [percent] */
+#endif
+    }   nominal;                        /**< nominal bus speed */
+#ifndef CAN_20_ONLY
+    struct {                            /*   data bus speed: */
+        int brse;                       /**<   bit-rate switch enabled */
+        float speed;                    /**<   bus speed in [Bit/s] */
+        float samplepoint;              /**<   sample point in [percent] */
+    }   data;                           /**<   data bus speed */
+#endif
+}   can_speed_t;
+
 /** @brief      CAN Message (with Time-stamp):
  */
 typedef struct _can_msg_t {
@@ -285,13 +302,13 @@ typedef struct _can_msg_t {
 /** @brief       tests if the CAN interface (hardware and driver) given by
  *               the argument 'board' is present.
  *
- *  @param[in]   board   - type of the CAN interface board.
- *  @param[in]   mode    - operation mode to be checked.
- *  @param[in]   param   - pointer to board-specific parameters.
+ *  @param[in]   board   - type of the CAN interface board
+ *  @param[in]   mode    - operation mode to be checked
+ *  @param[in]   param   - pointer to board-specific parameters
  *  @param[out]  result  - result of the board test:
- *                             < 0 - board is not present;
- *                             = 0 - board is present;
- *                             > 0 - board is present, but in use.
+ *                             < 0 - board is not present,
+ *                             = 0 - board is present,
+ *                             > 0 - board is present, but in use
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -304,11 +321,11 @@ CANAPI int can_test(int board, unsigned char mode, const void *param, int *resul
  *               The operation status of the CAN interface is set to 'stopped';
  *               no communication is possible in this state.
  *
- *  @param[in]   board   - type of the CAN interface board.
- *  @param[in]   mode    - operation mode of the CAN controller.
- *  @param[in]   param   - pointer to board-specific parameters.
+ *  @param[in]   board   - type of the CAN interface board
+ *  @param[in]   mode    - operation mode of the CAN controller
+ *  @param[in]   param   - pointer to board-specific parameters
  *
- *  @returns     handle of the CAN interface if successful,
+ *  @returns     handle of the CAN interface if successful, 
  *               or a negative value on error.
  */
 CANAPI int can_init(int board, unsigned char mode, const void *param);
@@ -320,7 +337,7 @@ CANAPI int can_init(int board, unsigned char mode, const void *param);
  *  @note        The handle is invalid after this operation and may be assigned
  *               to a different CAN interface board by a call to can_init().
  *
- *  @param[in]   handle  - handle of the CAN interface.
+ *  @param[in]   handle  - handle of the CAN interface
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -331,8 +348,8 @@ CANAPI int can_exit(int handle);
  *               the parameters of the bit-timing table selected by the baudrate
  *               index and sets the operation status to 'running'.
  *
- *  @param[in]   handle  - handle of the CAN interface.
- *  @param[in]   bitrate - bit-rate as btr register or baud rate index.
+ *  @param[in]   handle  - handle of the CAN interface
+ *  @param[in]   bitrate - bit-rate as btr register or baud rate index
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -342,7 +359,7 @@ CANAPI int can_start(int handle, const can_bitrate_t *bitrate);
 /** @brief       stops any operation of the CAN interface and sets the operation
  *               status to 'stopped'; no communication is possible in this state.
  *
- *  @param[in]   handle  - handle of the CAN interface.
+ *  @param[in]   handle  - handle of the CAN interface
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -352,8 +369,8 @@ CANAPI int can_reset(int handle);
 /** @brief       transmits a message over the CAN bus. The CAN interface must be
  *               in operation status 'running'.
  *
- *  @param[in]   handle  - handle of the CAN interface.
- *  @param[in]   msg     - pointer to the message to send.
+ *  @param[in]   handle  - handle of the CAN interface
+ *  @param[in]   msg     - pointer to the message to send
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -364,8 +381,8 @@ CANAPI int can_write(int handle, const can_msg_t *msg);
  *               any message was received. The CAN interface must be in operation
  *               status 'running'.
  *
- *  @param[in]   handle  - handle of the CAN interface.
- *  @param[out]  msg     - pointer to a message buffer.
+ *  @param[in]   handle  - handle of the CAN interface
+ *  @param[out]  msg     - pointer to a message buffer
  *  @param[in]   timeout - time to wait for the reception of a message:
  *                              0 means the function returns immediately,
  *                              65535 means blocking read, and any other
@@ -377,7 +394,7 @@ CANAPI int can_read(int handle, can_msg_t *msg, unsigned short timeout);
 
 
 /** @brief       signals a waiting event object of the CAN interface. This is
- *               used to terminat a blocking read operation (e.g. by means of
+ *               used to terminate a blocking read operation (e.g. by means of
  *               a Ctrl-C handler or similar).
  *
  *  @remark      The PCAN-Basic DLL uses an event object to realize a blocking
@@ -386,7 +403,7 @@ CANAPI int can_read(int handle, can_msg_t *msg, unsigned short timeout);
  *
  *  @note        SIGINT is not supported for any Win32 application. [MSVC Docs]
  *
- *  @param[in]   handle  - handle of the CAN interface, or (-1) for all.
+ *  @param[in]   handle  - handle of the CAN interface, or (-1) to signal all
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -407,9 +424,9 @@ CANAPI int can_status(int handle, unsigned char *status);
 
 /** @brief       retrieves the bus-load (in percent) of the CAN interface.
  *
- *  @param[in]   handle  - handle of the CAN interface.
- *  @param[out]  load    - bus-load in [percent].
- *  @param[out]  status  - 8-bit status register.
+ *  @param[in]   handle  - handle of the CAN interface
+ *  @param[out]  load    - bus-load in [percent]
+ *  @param[out]  status  - 8-bit status register
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -419,21 +436,21 @@ CANAPI int can_busload(int handle, unsigned char *load, unsigned char *status);
 /** @brief       retrieves the bit-rate setting of the CAN interface. The
  *               CAN interface must be in operation status 'running'.
  *
- *  @param[in]   handle  - handle of the CAN interface.
- *  @param[out]  bitrate - bit-rate setting.
- *  @param[out]  status  - 8-bit status register.
+ *  @param[in]   handle  - handle of the CAN interface
+ *  @param[out]  bitrate - bit-rate setting
+ *  @param[out]  speed   - transmission rate
  *
  *  @returns     0 if successful, or a negative value on error.
  */
-CANAPI int can_bitrate(int handle, can_bitrate_t *bitrate, unsigned char *status);
+CANAPI int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed);
 
 
 /** @brief       retrieves operation information of the CAN interface.
  *
- *  @param[in]   handle  - handle of the CAN interface.
- *  @param[out]  board   - type of the CAN interface board.
- *  @param[out]  mode    - operation mode of the CAN controller.
- *  @param[out]  param   - pointer to board-specific parameters.
+ *  @param[in]   handle  - handle of the CAN interface
+ *  @param[out]  board   - type of the CAN interface board
+ *  @param[out]  mode    - operation mode of the CAN controller
+ *  @param[out]  param   - pointer to board-specific parameters
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -443,6 +460,8 @@ CANAPI int can_interface(int handle, int *board, unsigned char *mode, void *para
 /** @brief       retrieves the hardware version of the CAN interface
  *               as a zero-terminated string.
  *
+ *  @param[in]   handle  - handle of the CAN interface
+ *
  *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
 CANAPI char *can_hardware(int handle);
@@ -451,18 +470,20 @@ CANAPI char *can_hardware(int handle);
 /** @brief       retrieves the firmware version of the CAN interface
  *               as a zero-terminated string.
  *
+ *  @param[in]   handle  - handle of the CAN interface
+ *
  *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
 CANAPI char *can_software(int handle);
 
 
-/** @brief      retrieves the library number (ID) of the CAN interface.
+/** @brief      retrieves the library id of the CAN interface's library.
  *
- *  @param[out] version  - version number (high byte = major, low byte = minor).
- *  @param[out] revision - revision number (e.g. for service releases).
- *  @param[out] build    - build number (taken from svn or git).
+ *  @param[out] version  - version number (high byte = major, low byte = minor)
+ *  @param[out] revision - revision number (e.g. for service releases)
+ *  @param[out] build    - build number (taken from svn or git)
  *
- *  @returns    library number if successful, or a negative value on error.
+ *  @returns    library id if successful, or a negative value on error.
  */
 CANAPI int can_library(unsigned short *version, unsigned char *revision, unsigned long *build);
 
