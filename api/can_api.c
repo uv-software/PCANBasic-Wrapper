@@ -661,11 +661,11 @@ int can_interface(int handle, int *board, unsigned char *mode, void *param)
         return CANERR_HANDLE;
     if(can[handle].board == PCAN_NONEBUS) // must be an opened handle!
         return CANERR_HANDLE;
-    if(board == NULL || mode == NULL)   // null-pointer assignment!
-        return CANERR_NULLPTR;
 
-    *board = can[handle].board;         // handle of the CAN channel
-    *mode  = can[handle].mode.byte;     // current opperation mode
+    if(board)                           // handle of the CAN channel
+        *board = can[handle].board;
+    if(mode)                            // current opperation mode
+        *mode  = can[handle].mode.byte;
     if(param) {                         // non-plug'n'play devices:
         ((struct _pcan_param*)param)->type = can[handle].brd_type;
         ((struct _pcan_param*)param)->port = can[handle].brd_port;
