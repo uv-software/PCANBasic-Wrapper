@@ -223,7 +223,7 @@
    } b;
  } can_status_t;
 #endif
-/** @brief      CAN Bit-rate (nominal and data):
+/** @brief      CAN Bit-rate settings (nominal and data):
  */
 typedef union _can_bitrate_t {
     long index;                         /**< index to predefined bit-rate (<= 0) */
@@ -318,7 +318,7 @@ CANAPI int can_test(int board, unsigned char mode, const void *param, int *resul
 /** @brief       initializes the CAN interface (hardware and driver) by loading
  *               and starting the appropriate DLL for the specified CAN board
  *               given by the argument 'board'. 
- *               The operation status of the CAN interface is set to 'stopped';
+ *               The operation state of the CAN interface is set to 'stopped';
  *               no communication is possible in this state.
  *
  *  @param[in]   board   - type of the CAN interface board
@@ -332,7 +332,7 @@ CANAPI int can_init(int board, unsigned char mode, const void *param);
 
 
 /** @brief       stops any operation of the CAN interface and sets the operation
- *               status to 'offline'.
+ *               state to 'offline'.
  *
  *  @note        The handle is invalid after this operation and may be assigned
  *               to a different CAN interface board by a call to can_init().
@@ -346,7 +346,7 @@ CANAPI int can_exit(int handle);
 
 /** @brief       initializes the bit-timing register of the CAN interface with
  *               the parameters of the bit-timing table selected by the baudrate
- *               index and sets the operation status to 'running'.
+ *               index and sets the operation state to 'running'.
  *
  *  @param[in]   handle  - handle of the CAN interface
  *  @param[in]   bitrate - bit-rate as btr register or baud rate index
@@ -357,7 +357,7 @@ CANAPI int can_start(int handle, const can_bitrate_t *bitrate);
 
 
 /** @brief       stops any operation of the CAN interface and sets the operation
- *               status to 'stopped'; no communication is possible in this state.
+ *               state to 'stopped'; no communication is possible in this state.
  *
  *  @param[in]   handle  - handle of the CAN interface
  *
@@ -367,7 +367,7 @@ CANAPI int can_reset(int handle);
 
 
 /** @brief       transmits a message over the CAN bus. The CAN interface must be
- *               in operation status 'running'.
+ *               in operation state 'running'.
  *
  *  @param[in]   handle  - handle of the CAN interface
  *  @param[in]   msg     - pointer to the message to send
@@ -379,14 +379,14 @@ CANAPI int can_write(int handle, const can_msg_t *msg);
 
 /** @brief       read one message from the message queue of the CAN interface, if
  *               any message was received. The CAN interface must be in operation
- *               status 'running'.
+ *               state 'running'.
  *
  *  @param[in]   handle  - handle of the CAN interface
  *  @param[out]  msg     - pointer to a message buffer
  *  @param[in]   timeout - time to wait for the reception of a message:
  *                              0 means the function returns immediately,
  *                              65535 means blocking read, and any other
- *                              value means the time to wait im milliseconds.
+ *                              value means the time to wait im milliseconds
  *
  *  @returns     0 if successful, or a negative value on error.
  */
@@ -434,7 +434,7 @@ CANAPI int can_busload(int handle, unsigned char *load, unsigned char *status);
 
 
 /** @brief       retrieves the bit-rate setting of the CAN interface. The
- *               CAN interface must be in operation status 'running'.
+ *               CAN interface must be in operation state 'running'.
  *
  *  @param[in]   handle  - handle of the CAN interface
  *  @param[out]  bitrate - bit-rate setting
