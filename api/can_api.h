@@ -173,7 +173,8 @@
  *  @{ */
 #define CANBRD_NOT_PRESENT         (-1) /**< CAN board not present */
 #define CANBRD_PRESENT              (0) /**< CAN board present */
-#define CANBRD_NOT_AVAILABLE       (+1) /**< CAN board present, but occupied */
+#define CANBRD_OCCUPIED            (+1) /**< CAN board present, but occupied */
+#define CANBRD_NOT_TESTABLE        (-2) /**< CAN board not testable (e.g. legacy API) */
 /** @} */
 
 /** @name  Blocking Read
@@ -184,7 +185,7 @@
 /** @} */
 
 /** @name  Legacy Stuff
- *  @brief For compatibility
+ *  @brief For compatibility reasons
  *  @{ */
 #define can_transmit(hnd, msg)      can_write(hnd, msg)
 #define can_receive(hnd, msg)       can_read(hnd, msg, 0u)
@@ -300,7 +301,11 @@ typedef struct _can_msg_t {
  */
 
 /** @brief       tests if the CAN interface (hardware and driver) given by
- *               the argument 'board' is present.
+ *               the argument 'board' is present, and if the requested
+ *               operation mode is supported by the CAN interface.
+ *
+ *  @note        When a requested operation mode is not supported by the
+ *               CAN interface, error CANERR_ILLPARA will be returned.
  *
  *  @param[in]   board   - type of the CAN interface board
  *  @param[in]   mode    - operation mode to be checked

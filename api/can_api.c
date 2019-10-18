@@ -170,7 +170,8 @@ static int  init = 0;                   // initialization flag
 int can_test(int board, unsigned char mode, const void *param, int *result)
 {
     TPCANStatus rc;                     // return value
-    DWORD cond;                         // channel condition
+    DWORD condition;                    // channel condition
+    DWORD features;                     // channel features
     int i;
 
     if(!init) {                         // when not init before:
@@ -189,20 +190,32 @@ int can_test(int board, unsigned char mode, const void *param, int *result)
         }
         init = 1;                       //   set initialization flag
     }
-    // TODO: check CAN FD capability when requested by 'mode' (return CANERR_ILLPARA if not)
-    if((rc = CAN_GetValue((WORD)board, PCAN_CHANNEL_CONDITION, (void*)&cond, sizeof(cond))) != PCAN_ERROR_OK)
+    if((rc = CAN_GetValue((WORD)board, PCAN_CHANNEL_CONDITION, (void*)&condition, sizeof(condition))) != PCAN_ERROR_OK)
         return pcan_error(rc);
-    if(result) {
-        if((cond == PCAN_CHANNEL_AVAILABLE) || (cond == PCAN_CHANNEL_PCANVIEW))
-            *result = CANBRD_PRESENT;
-        else if(cond == PCAN_CHANNEL_UNAVAILABLE)
-            *result = CANBRD_NOT_PRESENT;
-        else if(cond == PCAN_CHANNEL_OCCUPIED)
-            *result = CANBRD_NOT_AVAILABLE;
-        else
-            return PCAN_ERR_UNKNOWN;
+    for(i = 0; i < PCAN_MAX_HANDLES; i++) {
+        if(can[i].board == board) {     //   me, myself and I!
+            condition = PCAN_CHANNEL_OCCUPIED;
+            break;
+        }
     }
-    (void)mode;
+    if(result) {                        // CAN board test:
+        if((condition == PCAN_CHANNEL_AVAILABLE) || (condition == PCAN_CHANNEL_PCANVIEW))
+            *result = CANBRD_PRESENT;     // CAN board present  
+        else if(condition == PCAN_CHANNEL_UNAVAILABLE)
+            *result = CANBRD_NOT_PRESENT; // CAN board not present  
+        else if(condition == PCAN_CHANNEL_OCCUPIED)
+            *result = CANBRD_OCCUPIED;    // CAN board present, but occupied
+        else
+            *result = CANBRD_NOT_TESTABLE;// guess borad is not testable
+    }
+    if((condition == PCAN_CHANNEL_AVAILABLE) || (condition == PCAN_CHANNEL_PCANVIEW) || (condition == PCAN_CHANNEL_OCCUPIED)) {
+        if((rc = CAN_GetValue((WORD)board, PCAN_CHANNEL_FEATURES, (void*)&features, sizeof(features))) != PCAN_ERROR_OK)
+            return pcan_error(rc);
+        if((mode & CANMODE_FDOE) && !(features & FEATURE_FD_CAPABLE))
+            return CANERR_ILLPARA;          //   CAN FD operation requested, but not supported   
+        if((mode & CANMODE_BRSE) && !(mode & CANMODE_FDOE))
+            return CANERR_ILLPARA;          //   bit-rate switching requested, but CAN FD not enabled
+    }
     (void)param;
     return CANERR_NOERROR;
 }

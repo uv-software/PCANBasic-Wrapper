@@ -294,6 +294,17 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "BR:CiA1M5M")) convert(BR_CiA_1M5M, &bitrate);
     }
     fprintf(stdout, "can_test: "__DATE__" "__TIME__" (MSC_VER=%u)\n", _MSC_VER);
+    /* channel tester */
+    if(option_test) {
+        for(i = 0; i < PCAN_BOARDS; i++) {
+            if((rc = can_test(can_board[i].type, op_mode, NULL, &opt)) == CANERR_NOERROR)
+                printf("Channel 0x%02lx: %s\n", can_board[i].type, opt == CANBRD_OCCUPIED ? "occuptied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
+            else if(rc == CANERR_ILLPARA)
+                printf("Channel 0x%02lx: incompatible\n", can_board[i].type);
+            else
+                printf("Channel 0x%02lx: can_test failed (%i)\n", can_board[i].type, rc);
+        }
+    }
     /* offline informations */
     if(option_info) {
         if((software = can_version()) != NULL)
@@ -305,21 +316,21 @@ int main(int argc, char *argv[])
         }
         verbose(op_mode, &bitrate);
     }
-    /* channel tester */
-    if(option_test) {
-		for(i = 0; i < PCAN_BOARDS; i++) {
-			if((rc = can_test(can_board[i].type, op_mode, NULL, &opt)) == CANERR_NOERROR)
-				printf("Channel 0x%02lx: %s\n", can_board[i].type, opt == CANBRD_NOT_PRESENT ? "unavailable" : opt == CANBRD_PRESENT ? "available" : "occuptied");
-			else
-				printf("Channel 0x%02lx: can_test failed (%i)\n", can_board[i].type, rc);
-		}
-	}
     /* initialization */
     if((rc = can_init(channel, op_mode, NULL)) < 0) {
         printf("+++ error(%i): can_init failed\n", rc);
         goto end;
     }
     handle = rc;
+    /* channel status */
+    if(option_test) {
+        if((rc = can_test(channel, op_mode, NULL, &opt)) == CANERR_NOERROR)
+            printf("Channel 0x%02lx: %s\n", channel, opt == CANBRD_OCCUPIED ? "now occuptied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
+        else if(rc == CANERR_ILLPARA)
+            printf("Channel 0x%02lx: incompatible\n", channel);
+        else
+            printf("Channel 0x%02lx: can_test failed (%i)\n", channel, rc);
+    }
     /* start communication */
     if((rc = can_start(handle, &bitrate)) != CANERR_NOERROR) {
         printf("+++ error(%i): can_start failed\n", rc);
