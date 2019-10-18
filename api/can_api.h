@@ -477,18 +477,18 @@ CANAPI char *can_hardware(int handle);
 CANAPI char *can_software(int handle);
 
 
-/** @brief      retrieves the library id of the CAN interface's library.
+/** @brief       retrieves the library id of the CAN interface DLL.
  *
- *  @param[out] version  - version number (high byte = major, low byte = minor)
- *  @param[out] revision - revision number (e.g. for service releases)
- *  @param[out] build    - build number (taken from svn or git)
+ *  @param[out]  version  - version number (high byte = major, low byte = minor)
+ *  @param[out]  revision - revision number (e.g. for service releases)
+ *  @param[out]  build    - build number (taken from svn or git)
  *
- *  @returns    library id if successful, or a negative value on error.
+ *  @returns     library id if successful, or a negative value on error.
  */
 CANAPI int can_library(unsigned short *version, unsigned char *revision, unsigned long *build);
 
 
-/** @brief       retrieves version information of the CAN API V300
+/** @brief       retrieves version information of the CAN interface DLL
  *               as a zero-terminated string.
  *
  *  @returns     pointer to a zero-terminated string, or NULL on error.

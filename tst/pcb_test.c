@@ -293,9 +293,9 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "BR:CiA5002M")) convert(BR_CiA_500K2M, &bitrate);
         if(!strcmp(argv[i], "BR:CiA1M5M")) convert(BR_CiA_1M5M, &bitrate);
     }
+    fprintf(stdout, "can_test: "__DATE__" "__TIME__" (MSC_VER=%u)\n", _MSC_VER);
     /* offline informations */
     if(option_info) {
-        fprintf(stdout, "can_test: "__DATE__" "__TIME__" (MSC_VER=%u)\n",_MSC_VER);
         if((software = can_version()) != NULL)
             fprintf(stdout, "Software: %s\n", software);
         for(i = 0; i < PCAN_BOARDS; i++) {
