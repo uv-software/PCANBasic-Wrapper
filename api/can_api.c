@@ -172,6 +172,7 @@ int can_test(int board, unsigned char mode, const void *param, int *result)
     TPCANStatus rc;                     // return value
     DWORD condition;                    // channel condition
     DWORD features;                     // channel features
+    int used = 0;                       // own used channel
     int i;
 
     if(!init) {                         // when not init before:
@@ -190,11 +191,13 @@ int can_test(int board, unsigned char mode, const void *param, int *result)
         }
         init = 1;                       //   set initialization flag
     }
-    if((rc = CAN_GetValue((WORD)board, PCAN_CHANNEL_CONDITION, (void*)&condition, sizeof(condition))) != PCAN_ERROR_OK)
+    if((rc = CAN_GetValue((WORD)board, PCAN_CHANNEL_CONDITION, 
+                          (void*)&condition, sizeof(condition))) != PCAN_ERROR_OK)
         return pcan_error(rc);
     for(i = 0; i < PCAN_MAX_HANDLES; i++) {
         if(can[i].board == board) {     //   me, myself and I!
             condition = PCAN_CHANNEL_OCCUPIED;
+            used = 1;
             break;
         }
     }
@@ -208,13 +211,16 @@ int can_test(int board, unsigned char mode, const void *param, int *result)
         else
             *result = CANBRD_NOT_TESTABLE;// guess borad is not testable
     }
-    if((condition == PCAN_CHANNEL_AVAILABLE) || (condition == PCAN_CHANNEL_PCANVIEW) || (condition == PCAN_CHANNEL_OCCUPIED)) {
-        if((rc = CAN_GetValue((WORD)board, PCAN_CHANNEL_FEATURES, (void*)&features, sizeof(features))) != PCAN_ERROR_OK)
+    if(((condition == PCAN_CHANNEL_AVAILABLE) || (condition == PCAN_CHANNEL_PCANVIEW)) || 
+       (/*(condition == PCAN_CHANNEL_OCCUPIED) ||*/ used)) {
+        // FIXME: issue TC07_47_9w - returns PCAN_ERROR_INITIALIZE when channel used by another process
+        if((rc = CAN_GetValue((WORD)board, PCAN_CHANNEL_FEATURES, 
+                              (void*)&features, sizeof(features))) != PCAN_ERROR_OK)
             return pcan_error(rc);
         if((mode & CANMODE_FDOE) && !(features & FEATURE_FD_CAPABLE))
-            return CANERR_ILLPARA;          //   CAN FD operation requested, but not supported   
+            return CANERR_ILLPARA; // CAN FD operation requested, but not supported   
         if((mode & CANMODE_BRSE) && !(mode & CANMODE_FDOE))
-            return CANERR_ILLPARA;          //   bit-rate switching requested, but CAN FD not enabled
+            return CANERR_ILLPARA; // bit-rate switching requested, but CAN FD not enabled
     }
     (void)param;
     return CANERR_NOERROR;
@@ -635,7 +641,7 @@ int can_status(int handle, unsigned char *status)
         return CANERR_HANDLE;
 
     if(!can[handle].status.b.can_stopped)   {   // must be running:
-        if((rc = CAN_GetStatus(can[handle].board)) > 255)
+        if((rc = CAN_GetStatus(can[handle].board)) > 255) // FIXME: mask it out!
             return pcan_error(rc);
         can[handle].status.b.bus_off = (rc & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
         can[handle].status.b.bus_error = (rc & (PCAN_ERROR_BUSLIGHT | PCAN_ERROR_BUSPASSIVE)) != PCAN_ERROR_OK;
