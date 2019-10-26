@@ -67,7 +67,7 @@
 #if !defined(__uvs_license) && !defined(__gpl_license)
     #define  __uvs_license
 #endif
-//#define _WAITABLE_TIMER
+#define _WAITABLE_TIMER
 
 
 /*  -----------  defines  ------------------------------------------------
@@ -292,6 +292,12 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "BR:CiA250K2M")) convert(BR_CiA_250K2M, &bitrate);
         if(!strcmp(argv[i], "BR:CiA5002M")) convert(BR_CiA_500K2M, &bitrate);
         if(!strcmp(argv[i], "BR:CiA1M5M")) convert(BR_CiA_1M5M, &bitrate);
+        /* additional operation modes */
+        //if(!strcmp(argv[i], "SHARED")) op_mode |= CANMODE_SHRD;
+        if(!strcmp(argv[i], "MONITOR")) op_mode |= CANMODE_MON;
+        if(!strcmp(argv[i], "ERR:ON")) op_mode |= CANMODE_ERR;
+        if(!strcmp(argv[i], "XTD:OFF")) op_mode |= CANMODE_NXTD;
+        if(!strcmp(argv[i], "RTR:OFF")) op_mode |= CANMODE_NRTR;
     }
     fprintf(stdout, "can_test: "__DATE__" "__TIME__" (MSC_VER=%u)\n", _MSC_VER);
     /* channel tester */
@@ -394,7 +400,9 @@ static int transmit(int handle, int frames, DWORD delay)
         message.data[6] = (BYTE)(((QWORD)i & 0x00FF000000000000) >> 48);
         message.data[7] = (BYTE)(((QWORD)i & 0xFF00000000000000) >> 56);
 
+#ifndef _WAITABLE_TIMER
         start_timer(delay);
+#endif
 repeat:
         if((rc = can_write(handle, &message)) != CANERR_NOERROR) {
             if(rc == CANERR_TX_BUSY && running)
@@ -403,12 +411,21 @@ repeat:
             if(option_stop)
                 return -1;
         }
+#ifndef _WAITABLE_TIMER
         while(!is_timeout()) {
             if(!running) {
                 printf("%i\n", frames);
                 return i;
             }
         }
+#else
+        usleep(delay);
+#endif
+        //    if(!running) {
+        //        printf("%i\n", frames);
+        //        return i;
+        //    }
+        //}
         if(!(i % 2048)) {
             fprintf(stdout, ".");
             fflush(stdout);
@@ -448,7 +465,9 @@ static int transmit_fd(int handle, int frames, DWORD delay)
         message.data[6] = (BYTE)(((QWORD)i & 0x00FF000000000000) >> 48);
         message.data[7] = (BYTE)(((QWORD)i & 0xFF00000000000000) >> 56);
 
+#ifndef _WAITABLE_TIMER
         start_timer(delay);
+#endif
 repeat_fd:
         if((rc = can_write(handle, &message)) != CANERR_NOERROR) {
             if(rc == CANERR_TX_BUSY && running)
@@ -457,12 +476,16 @@ repeat_fd:
             if(option_stop)
                 return -1;
         }
+#ifndef _WAITABLE_TIMER
         while(!is_timeout()) {
             if(!running) {
                 printf("%i\n", frames);
                 return i;
             }
         }
+#else
+        usleep(delay);
+#endif
         if(!(i % 2048)) {
             fprintf(stdout, ".");
             fflush(stdout);
