@@ -95,18 +95,6 @@
 /*  -----------  types  --------------------------------------------------
  */
 
-typedef union {
-    BYTE byte;                          // byte access
-    struct {                            // bit access:
-        BYTE mon : 1;                   //   monitor mode enable/disable
-        BYTE : 3;                       //   (reserved)
-        BYTE niso : 1;                  //   Non-ISO CAN FD enable
-        BYTE : 1;                       //   (reserved)
-        BYTE brse : 1;                  //   bit-rate switch enable
-        BYTE fdoe : 1;                  //   CAN FD operation enable
-    }   b;
-}   can_mode_t;
-
 typedef struct {
     TPCANHandle board;                  // board hardware channel handle
     BYTE  brd_type;                     // board type (none PnP hardware)
@@ -285,26 +273,47 @@ int can_init(int board, unsigned char mode, const void *param)
 
 int can_exit(int handle)
 {
+    int i;
+
     if(!init)                           // must be initialized
         return CANERR_NOTINIT;
-    if(!IS_HANDLE_VALID(handle))        // must be a valid handle
-        return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle
-        return CANERR_HANDLE;
-
-    /*if(!can[handle].status.b.can_stopped) // release the CAN interface: */
-    if(can[handle].initialized)
-    {
+    if(handle != CANEXIT_ALL) {
+        if (!IS_HANDLE_VALID(handle))   // must be a valid handle
+            return CANERR_HANDLE;
+        if (can[handle].board == PCAN_NONEBUS) // must be an opened handle
+            return CANERR_HANDLE;
+        /*if(!can[handle].status.b.can_stopped) // release the CAN interface: */
+        if(can[handle].initialized)
+        {
 #ifdef _BLOCKING_READ
-        if(can[handle].event != NULL)   //   close event handle, if any
-            CloseHandle(can[handle].event);
+            if(can[handle].event != NULL) // close event handle, if any
+                CloseHandle(can[handle].event);
 #endif
-        CAN_Uninitialize(can[handle].board); //   resistance is futile!
-        can[handle].initialized = 0;
+            CAN_Uninitialize(can[handle].board); // resistance is futile!
+            can[handle].initialized = 0;
+        }
+        can[handle].status.byte |= CANSTAT_RESET;// CAN controller in INIT state
+        can[handle].board = PCAN_NONEBUS; // handle can be used again
     }
-    can[handle].status.byte |= CANSTAT_RESET;// CAN controller in INIT state
-    can[handle].board = PCAN_NONEBUS;   // handle can be used again
-
+    else {
+        for(i = 0; i < PCAN_MAX_HANDLES; i++) {
+            if(can[i].board != PCAN_NONEBUS) // must be an opened handle
+            {
+                /*if(!can[i].status.b.can_stopped) // release the CAN interface: */
+                if(can[i].initialized)
+                {
+#ifdef _BLOCKING_READ
+                    if(can[i].event != NULL) // close event handle, if any
+                        CloseHandle(can[i].event);
+#endif
+                    CAN_Uninitialize(can[i].board); // resistance is futile!
+                    can[i].initialized = 0;
+                }
+                can[i].status.byte |= CANSTAT_RESET;// CAN controller in INIT state
+                can[i].board = PCAN_NONEBUS; // handle can be used again
+            }
+        }
+    }
     return CANERR_NOERROR;
 }
 

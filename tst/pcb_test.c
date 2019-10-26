@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
     }
 end:
     printf("Teardown.."); fflush(stdout);
-    if((rc = can_exit(handle)) != CANERR_NOERROR) {
+    if((rc = can_exit(CANEXIT_ALL)) != CANERR_NOERROR) {
         printf("FAILED\n");
         printf("+++ error(%i): can_exit failed\n", rc);
         return 1;
@@ -707,7 +707,9 @@ static void sigterm(int signo)
     //printf("%s: got signal %d\n", __FILE__, signo);
     running = 0;
     (void)signo;
-	(void)can_kill(CANKILL_ALL);
+#ifdef _WIN32
+    (void)can_kill(CANKILL_ALL);
+#endif
 }
 
 #ifndef _WAITABLE_TIMER
