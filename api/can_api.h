@@ -182,8 +182,8 @@
 #define CANBTR_SJA1000_TSEG2_MAX    8u  /**< max. time segment 2 (after SP) */
 #define CANBTR_SJA1000_SJW_MIN      1u  /**< min. syncronization jump width */
 #define CANBTR_SJA1000_SJW_MAX      4u  /**< max. syncronization jump width */
-#define CANBTR_SJA1000_SAM_MIN      0u  /**< min. number of samples taken per bit time */
-#define CANBTR_SJA1000_SAM_MAX      1u  /**< max. number of samples taken per bit time */
+#define CANBTR_SJA1000_SAM_MIN      0u  /**< single: the bus is sampled once */
+#define CANBTR_SJA1000_SAM_MAX      1u  /**< triple: the bus is sampled three times */
 /** @} */
 
 /** @name  CAN Mode Flags

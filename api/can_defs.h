@@ -24,7 +24,7 @@
  *
  *  @brief       CAN API V3 for PEAK PCAN-Basic Interfaces - Defines
  *
- *  For PEAK PCAN-Basic Interface (V4.3.0.150):
+ *  For PEAK PCAN-Basic Interface (V4.3.4.246):
  *
  *  @author      $Author$
  *
@@ -39,6 +39,8 @@
 
 /*  -----------  options  ------------------------------------------------
  */
+
+#define _BLOCKING_READ                  // blocking read via wait event
 
 
 /*  -----------  defines  ------------------------------------------------
@@ -87,6 +89,8 @@
 
  #define PCAN_ERR_OFFSET           -200 //   offset for PCANBasic-specific errors
  #define PCAN_ERR_UNKNOWN          -299 //   unknown error
+
+ #define PCAN_BUF_SIZE              256 //   max. buffer size for CAN_SetValue/CAN_GetValue
 
  #define PCAN_LIB_ID                400 //   library ID (CAN/COP API V1 compatible) 
 #ifndef __APPLE__

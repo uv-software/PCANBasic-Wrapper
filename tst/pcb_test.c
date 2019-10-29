@@ -16,7 +16,7 @@
  *
  *  libraries :  (none)
  *
- *  includes  :  can_api.h (can_defs.h), dosopt.h, bitrates.h
+ *  includes  :  can_api.h (can_defs.h), bitrates.h, printmsg.h
  *
  *  author    :  Uwe Vogt, UV Software
  *
@@ -126,7 +126,7 @@ static int receive(int handle);
 static int transmit_fd(int handle, int frames, DWORD delay);
 static int receive_fd(int handle);
 static int convert(const char *string, can_bitrate_t *bitrate);
-static void verbose(BYTE op_mode, const can_bitrate_t *bitrate);
+static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed);
 
 #ifndef _WAITABLE_TIMER
  static int start_timer(DWORD timeout);
@@ -188,6 +188,7 @@ int main(int argc, char *argv[])
     BYTE op_mode = CANMODE_DEFAULT;
     DWORD delay = 0;
     can_bitrate_t bitrate = { -CANBDR_250 };
+    can_speed_t speed;
     char *device, *firmware, *software;
 
     //struct option long_options[] = {
@@ -320,14 +321,21 @@ int main(int argc, char *argv[])
                 fprintf(stdout, "Hardware: %s (0x%lx)\n", can_board[i].name, can_board[i].type);
             }
         }
-        verbose(op_mode, &bitrate);
+        if((rc = can_bitrate((-1), &bitrate, &speed)) == CANERR_NOTINIT || rc == CANERR_HANDLE)
+            verbose(&bitrate, &speed);
     }
     /* initialization */
-    if((rc = can_init(channel, op_mode, NULL)) < 0) {
-        printf("+++ error(%i): can_init failed\n", rc);
+    if((handle = can_init(channel, op_mode, NULL)) < 0) {
+        printf("+++ error(%i): can_init failed\n", handle);
         goto end;
     }
-    handle = rc;
+    if((rc = can_interface(handle, NULL, NULL, NULL)) != CANERR_NOERROR) {
+        printf("+++ error(%i): can_interface failed\n", rc);
+        goto end;
+    }
+	if(option_info) {
+        // TODO: ...
+    }
     /* channel status */
     if(option_test) {
         if((rc = can_test(channel, op_mode, NULL, &opt)) == CANERR_NOERROR)
@@ -341,6 +349,13 @@ int main(int argc, char *argv[])
     if((rc = can_start(handle, &bitrate)) != CANERR_NOERROR) {
         printf("+++ error(%i): can_start failed\n", rc);
         goto end;
+    }
+    if((rc = can_bitrate(handle, &bitrate, &speed)) != CANERR_NOERROR) {
+        printf("+++ error(%i): can_bitrate failed\n", rc);
+        goto end;
+    }
+	if(option_info) {
+        verbose(&bitrate, &speed);
     }
     /* transmit messages */
     if(option_transmit > 0) {
@@ -421,11 +436,6 @@ repeat:
 #else
         usleep(delay);
 #endif
-        //    if(!running) {
-        //        printf("%i\n", frames);
-        //        return i;
-        //    }
-        //}
         if(!(i % 2048)) {
             fprintf(stdout, ".");
             fflush(stdout);
@@ -674,55 +684,40 @@ static int convert(const char *string, can_bitrate_t *bitrate)
     return 1;
 }
 
-static void verbose(BYTE op_mode, const can_bitrate_t *bitrate)
+static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed)
 {
-    unsigned long freq; struct btr_bit_timing slow, fast;
-
-    freq = bitrate->btr.frequency;
-    slow.brp = bitrate->btr.nominal.brp;
-    slow.tseg1 = bitrate->btr.nominal.tseg1;
-    slow.tseg2 = bitrate->btr.nominal.tseg2;
-    slow.sjw = bitrate->btr.nominal.sjw;
-    fast.brp = bitrate->btr.data.brp;
-    fast.tseg1 = bitrate->btr.data.tseg1;
-    fast.tseg2 = bitrate->btr.data.tseg2;
-    fast.sjw = bitrate->btr.data.sjw;
-
-
-    if(bitrate->btr.frequency > 0) {
-        fprintf(stdout, "Baudrate: %lubps@%.2f%%",
-            btr_calc_bit_rate_nominal(&slow, freq),
-            btr_calc_sample_point_nominal(&slow) * 100.);
-        if((op_mode & (CANMODE_FDOE | CANMODE_BRSE)) == (CANMODE_FDOE | CANMODE_BRSE))
-            fprintf(stdout, ":%lubps@%.2f%%",
-                btr_calc_bit_rate_data(&fast, freq),
-                btr_calc_sample_point_data(&fast) * 100.);
+    //if(bitrate->btr.frequency > 0) {
+        fprintf(stdout, "Baudrate: %.0fkbps@%.1f%%",
+            speed->nominal.speed / 1000., speed->nominal.samplepoint * 100.);
+        if(speed->data.brse)
+            fprintf(stdout, ":%.0fkbps@%.1f%%",
+                speed->data.speed / 1000., speed->data.samplepoint * 100.);
         fprintf(stdout, " (f_clock=%lu,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u",
             bitrate->btr.frequency,
             bitrate->btr.nominal.brp,
             bitrate->btr.nominal.tseg1,
             bitrate->btr.nominal.tseg2,
             bitrate->btr.nominal.sjw);
-        if((op_mode & (CANMODE_FDOE | CANMODE_BRSE)) == (CANMODE_FDOE | CANMODE_BRSE))
+        if(speed->data.brse)
             fprintf(stdout, ",data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
                 bitrate->btr.data.brp,
                 bitrate->btr.data.tseg1,
                 bitrate->btr.data.tseg2,
                 bitrate->btr.data.sjw);
         fprintf(stdout, ")\n");
-    }
-    else {
-        fprintf(stdout, "Baudrate: %sbps (CiA index %li)\n",
-            bitrate->index == CANBDR_1000 ? "1000000" :
-            bitrate->index == -CANBDR_800 ? "800000" :
-            bitrate->index == -CANBDR_500 ? "500000" :
-            bitrate->index == -CANBDR_250 ? "250000" :
-            bitrate->index == -CANBDR_125 ? "125000" :
-            bitrate->index == -CANBDR_100 ? "100000" :
-            bitrate->index == -CANBDR_50 ? "50000" :
-            bitrate->index == -CANBDR_20 ? "20000" :
-            bitrate->index == -CANBDR_10 ? "10000" : "?", -bitrate->index);
-    }
+    //}
+    //else {
+    //    fprintf(stdout, "Baudrate: %sbps (CiA index %li)\n",
+    //        bitrate->index == CANBDR_1000 ? "1000000" :
+    //        bitrate->index == -CANBDR_800 ? "800000" :
+    //        bitrate->index == -CANBDR_500 ? "500000" :
+    //        bitrate->index == -CANBDR_250 ? "250000" :
+    //        bitrate->index == -CANBDR_125 ? "125000" :
+    //        bitrate->index == -CANBDR_100 ? "100000" :
+    //        bitrate->index == -CANBDR_50 ? "50000" :
+    //        bitrate->index == -CANBDR_20 ? "20000" :
+    //        bitrate->index == -CANBDR_10 ? "10000" : "?", -bitrate->index);
+    //}
 }
 
 static void sigterm(int signo)
