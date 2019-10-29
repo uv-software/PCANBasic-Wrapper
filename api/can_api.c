@@ -535,7 +535,7 @@ int can_write(int handle, const can_msg_t *msg)
         rc = CAN_Write(can[handle].board, &can_msg);
     }
     else {
-        if(msg->dlc > CANFD_MAX_LEN)    //   data length 0 .. 64!
+        if(msg->dlc > CANFD_MAX_DLC)    //   data length 0 .. 0Fh!
             return CANERR_ILLPARA;
         if(msg->ext)                    //   29-bit identifier
             can_msg_fd.MSGTYPE = PCAN_MESSAGE_EXTENDED;
