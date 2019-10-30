@@ -7,13 +7,16 @@
  *  copyright :  (C) 2019, UV Software, Berlin
  *
  *  compiler  :  Microsoft Visual C/C++ Compiler
- *               Apple LLVM version (clang)
+ *               Apple LLVM Compiler (clang)
+ *               GNU C/C++ Compiler (gcc)
  *
  *  export    :  void msg_print_id(FILE *stream, unsigned long id, int rtr, int ext, unsigned char dlc, int mode);
  *               void msg_print_id_fd(FILE *stream, unsigned long id, int rtr, int ext, int fdf, int brs, int esi, int len, int mode);
  *               void msg_print_data(FILE *stream, unsigned char data, int last, int mode);
  *               void msg_print_space(FILE *stream, int last, int mode);
  *               void msg_print_ascii(FILE *stream, unsigned char data, int mode);
+ *               void msg_print_indent(FILE *stream, const char *prefix, int mode);
+ *               void msg_print_indent_fd(FILE *stream, const char *prefix, int mode);
  *               void msg_print_time(FILE *stream, struct msg_timestamp *timestamp, int mode);
  *
  *  includes  :  (none)
@@ -29,9 +32,9 @@
   *
   *  @brief       Print CAN Messages (Monitor)
   *
-  *  @author      $Author: haumea $
+  *  @author      $Author: neptune $
   *
-  *  @version     $Rev: 576 $
+  *  @version     $Rev: 589 $
   *
   *  @defgroup    print_msg Print CAN Messages (Monitor)
   *  @{
@@ -84,6 +87,8 @@ void msg_print_id_fd(FILE *stream, unsigned long id, int rtr, int ext, int fdf, 
 void msg_print_data(FILE *stream, unsigned char data, int last, int mode);
 void msg_print_space(FILE *stream, int last, int mode);
 void msg_print_ascii(FILE *stream, unsigned char data, int mode);
+void msg_print_indent(FILE *stream, const char *prefix, int mode);
+void msg_print_indent_fd(FILE *stream, const char *prefix, int mode);
 void msg_print_time(FILE *stream, struct msg_timestamp *timestamp, int mode);
 
 

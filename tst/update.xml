@@ -3,14 +3,6 @@
   <project name="Library Tester"
            path="." />
   <dependencies>
-    <item name="bit-rates (header)"
-          target="bitrates.h"
-          source="C:\Projekte\CAN\DRV\API\misc\bitrates.h"
-          version="file:latest" />
-    <item name="bit-rates (c-file)"
-          target="bitrates.c"
-          source="C:\Projekte\CAN\DRV\API\misc\bitrates.c"
-          version="file:latest" />
     <item name="msg printer (header)"
           target="printmsg.h"
           source="C:\Projekte\CAN\DRV\API\misc\printmsg.h"

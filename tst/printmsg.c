@@ -7,7 +7,8 @@
  *  copyright :  (C) 2019, UV Software, Berlin
  *
  *  compiler  :  Microsoft Visual C/C++ Compiler
- *               Apple LLVM version (clang)
+ *               Apple LLVM Compiler (clang)
+ *               GNU C/C++ Compiler (gcc)
  *
  *  export    :  (see header file)
  *
@@ -24,9 +25,9 @@
  *
  *  @brief       Print CAN Messages (Monitor)
  *
- *  @author      $Author: haumea $
+ *  @author      $Author: neptune $
  *
- *  @version     $Rev: 576 $
+ *  @version     $Rev: 589 $
  *
  *  @addtogroup  print_msg
  *  @{
@@ -87,10 +88,28 @@ void msg_print_id(FILE *stream, unsigned long id, int rtr, int ext, unsigned cha
         fprintf(stream, "%03lX ", id);
         break;
     }
-    fprintf(stream, "%c%c [%u]\t",
+    fprintf(stream, "%c%c [%u]  ",
         ext ? 'X' : ' ',
         rtr ? 'R' : ' ',
         dlc);
+}
+
+void msg_print_indent(FILE *stream, const char *prefix, int mode)
+{
+    switch(mode) {
+        case MSG_MODE_DEC:
+            /* format DEC:  "  HH:MM:SS.xxxx  DDDD XR [DD]  " */
+            fprintf(stream, "%s                             ", prefix);
+            break;
+        case MSG_MODE_OCT:
+            /* format OCT:  "  HH:MM:SS.xxxx  \OOOO XR [DD]  " */
+            fprintf(stream, "%s                              ", prefix);
+            break;
+        case MSG_MODE_HEX:
+            /* format HEX:  "  HH:MM:SS.xxxx  XXX XR [DD]  " */
+            fprintf(stream, "%s                            ", prefix);
+            break;
+    }
 }
 
 void msg_print_id_fd(FILE *stream, unsigned long id, int rtr, int ext, int fdf, int brs, int esi, int len, int mode)
@@ -107,13 +126,31 @@ void msg_print_id_fd(FILE *stream, unsigned long id, int rtr, int ext, int fdf, 
         fprintf(stream, "%03lX ", id);
         break;
     }
-    fprintf(stream, "%c%c%c%c%c [%u]\t",
+    fprintf(stream, "%c%c%c%c%c [%u]  ",
         ext ? 'X' : ' ',
         rtr ? 'R' : ' ',
         fdf ? 'F' : ' ',
         brs ? 'B' : ' ',
         esi ? 'E' : ' ',
         len);
+}
+
+void msg_print_indent_fd(FILE *stream, const char *prefix, int mode)
+{
+    switch(mode) {
+        case MSG_MODE_DEC:
+            /* format DEC:  "  HH:MM:SS.xxxx  DDDD XRFBE [DD]  " */
+            fprintf(stream, "%s                                ", prefix);
+            break;
+        case MSG_MODE_OCT:
+            /* format OCT:  "  HH:MM:SS.xxxx  \OOOO XRFBE [DD]  " */
+            fprintf(stream, "%s                                 ", prefix);
+            break;
+        case MSG_MODE_HEX:
+            /* format HEX:  "  HH:MM:SS.xxxx  XXX XRFBE [DD]  " */
+            fprintf(stream, "%s                               ", prefix);
+            break;
+    }
 }
 
 void msg_print_data(FILE *stream, unsigned char data, int last, int mode)
@@ -172,7 +209,7 @@ void msg_print_ascii(FILE *stream, unsigned char data, int mode)
         if (isprint(data))
             fprintf(stream, "%c", data);
         else
-            fprintf(stream, "?");
+            fprintf(stream, ".");
     }
 }
 void msg_print_time(FILE *stream, struct msg_timestamp *timestamp, int mode)
@@ -200,9 +237,9 @@ void msg_print_time(FILE *stream, struct msg_timestamp *timestamp, int mode)
         tm = *gmtime(&t);
         strftime(timestring, 24, "%H:%M:%S", &tm);
 #if (MSG_PRINT_USEC == 0)
-        fprintf(stream, "%s.%04li\t", timestring, difftime.tv_usec / 100L);
+        fprintf(stream, "%s.%04li  ", timestring, difftime.tv_usec / 100L);
 #else
-        fprintf(stream, "%s.%06li\t", timestring, difftime.tv_usec);
+        fprintf(stream, "%s.%06li  ", timestring, difftime.tv_usec);
 #endif
         if (mode == MSG_TIME_REL)
             laststamp = *timestamp; /* update for delta calculation */
@@ -218,9 +255,9 @@ void msg_print_time(FILE *stream, struct msg_timestamp *timestamp, int mode)
         tm = *localtime(&t);
         strftime(timestring, 24, "%H:%M:%S", &tm);
 #if (MSG_PRINT_USEC == 0)
-        fprintf(stream, "%s.%04li\t", timestring, timestamp->tv_usec / 100L);
+        fprintf(stream, "%s.%04li  ", timestring, timestamp->tv_usec / 100L);
 #else
-        fprintf(stream, "%s.%04li\t", timestring, timestamp->tv_usec);
+        fprintf(stream, "%s.%04li  ", timestring, timestamp->tv_usec);
 #endif
         break;
     }
