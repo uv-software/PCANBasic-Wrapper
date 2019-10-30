@@ -14,9 +14,9 @@
  *                 -h, --help     display this help and exit
  *                     --version  show version information and exit
  *
- *  libraries :  (none)
+ *  libraries :  PCANBasic.lib
  *
- *  includes  :  can_api.h (can_defs.h), printmsg.h
+ *  includes  :  can_api.h (can_defs.h), misc\printmsg.h
  *
  *  author    :  Uwe Vogt, UV Software
  *
@@ -35,7 +35,7 @@
 /*  -----------  includes  -----------------------------------------------
  */
 #include "can_api.h"
-#include "printmsg.h"
+#include "misc\printmsg.h"
 
 #include <stdio.h>
 #include <stdlib.h>
