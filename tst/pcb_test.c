@@ -16,7 +16,7 @@
  *
  *  libraries :  (none)
  *
- *  includes  :  can_api.h (can_defs.h), bitrates.h, printmsg.h
+ *  includes  :  can_api.h (can_defs.h), printmsg.h
  *
  *  author    :  Uwe Vogt, UV Software
  *
@@ -35,7 +35,6 @@
 /*  -----------  includes  -----------------------------------------------
  */
 #include "can_api.h"
-#include "bitrates.h"
 #include "printmsg.h"
 
 #include <stdio.h>
@@ -97,21 +96,20 @@
 
 #define DLC2DLEN(dlc)       dtab[(dlc) & 0xFu]
 
-#define BITRATE_DEFAULT     "f_clock_mhz=80,nom_brp=20,nom_tseg1=12,nom_tseg2=3,nom_sjw=1,data_brp=4,data_tseg1=7,data_tseg2=2,data_sjw=1"
-#define BITRATE_125K1M      "f_clock_mhz=80,nom_brp=2,nom_tseg1=255,nom_tseg2=64,nom_sjw=64,data_brp=2,data_tseg1=31,data_tseg2=8,data_sjw=8"
-#define BITRATE_250K2M      "f_clock_mhz=80,nom_brp=2,nom_tseg1=127,nom_tseg2=32,nom_sjw=32,data_brp=2,data_tseg1=15,data_tseg2=4,data_sjw=4"
-#define BITRATE_500K4M      "f_clock_mhz=80,nom_brp=2,nom_tseg1=63,nom_tseg2=16,nom_sjw=16,data_brp=2,data_tseg1=7,data_tseg2=2,data_sjw=2"
-#define BITRATE_1M8M        "f_clock_mhz=80,nom_brp=2,nom_tseg1=31,nom_tseg2=8,nom_sjw=8,data_brp=2,data_tseg1=3,data_tseg2=1,data_sjw=1"
-#define BITRATE_125K        "f_clock_mhz=80,nom_brp=2,nom_tseg1=255,nom_tseg2=64,nom_sjw=64"
-#define BITRATE_250K        "f_clock_mhz=80,nom_brp=2,nom_tseg1=127,nom_tseg2=32,nom_sjw=32"
-#define BITRATE_500K        "f_clock_mhz=80,nom_brp=2,nom_tseg1=63,nom_tseg2=16,nom_sjw=16"
-#define BITRATE_1M          "f_clock_mhz=80,nom_brp=2,nom_tseg1=31,nom_tseg2=8,nom_sjw=8"
+#define BITRATE_DEFAULT(x)  do{ x.btr.frequency=80000000; x.btr.nominal.brp=20; x.btr.nominal.tseg1= 12; x.btr.nominal.tseg2= 3; x.btr.nominal.sjw= 1; x.btr.data.brp=4; x.btr.data.tseg1= 7; x.btr.data.tseg2=2; x.btr.data.sjw=1; } while(0)
+#define BITRATE_125K1M(x)   do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1=255; x.btr.nominal.tseg2=64; x.btr.nominal.sjw=64; x.btr.data.brp=2; x.btr.data.tseg1=31; x.btr.data.tseg2=8; x.btr.data.sjw=8; } while(0)
+#define BITRATE_250K2M(x)   do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1=127; x.btr.nominal.tseg2=32; x.btr.nominal.sjw=32; x.btr.data.brp=2; x.btr.data.tseg1=15; x.btr.data.tseg2=4; x.btr.data.sjw=4; } while(0)
+#define BITRATE_500K4M(x)   do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1= 63; x.btr.nominal.tseg2=16; x.btr.nominal.sjw=16; x.btr.data.brp=2; x.btr.data.tseg1= 7; x.btr.data.tseg2=2; x.btr.data.sjw=2; } while(0)
+#define BITRATE_1M8M(x)     do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1= 31; x.btr.nominal.tseg2= 8; x.btr.nominal.sjw= 8; x.btr.data.brp=2; x.btr.data.tseg1= 3; x.btr.data.tseg2=1; x.btr.data.sjw=1; } while(0)
+#define BITRATE_125K(x)     do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1=255; x.btr.nominal.tseg2=64; x.btr.nominal.sjw=64; } while(0)
+#define BITRATE_250K(x)     do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1=127; x.btr.nominal.tseg2=32; x.btr.nominal.sjw=32; } while(0)
+#define BITRATE_500K(x)     do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1= 63; x.btr.nominal.tseg2=16; x.btr.nominal.sjw=16; } while(0)
+#define BITRATE_1M(x)       do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1= 31; x.btr.nominal.tseg2= 8; x.btr.nominal.sjw= 8; } while(0)
 
-#define BR_CiA_125K2M       "f_clock_mhz=80,nom_brp=4,nom_tseg1=127,nom_tseg2=32,nom_sjw=32,data_brp=4,data_tseg1=6,data_tseg2=3,data_sjw=3"
-#define BR_CiA_250K2M       "f_clock_mhz=80,nom_brp=4,nom_tseg1=63,nom_tseg2=16,nom_sjw=16,data_brp=4,data_tseg1=6,data_tseg2=3,data_sjw=3"
-#define BR_CiA_500K2M       "f_clock_mhz=80,nom_brp=2,nom_tseg1=63,nom_tseg2=16,nom_sjw=16,data_brp=2,data_tseg1=14,data_tseg2=5,data_sjw=5"
-#define BR_CiA_1M5M         "f_clock_mhz=80,nom_brp=2,nom_tseg1=31,nom_tseg2=8,nom_sjw=8,data_brp=2,data_tseg1=5,data_tseg2=2,data_sjw=2"
-
+#define BR_CiA_125K2M(x)    do{ x.btr.frequency=80000000; x.btr.nominal.brp= 4; x.btr.nominal.tseg1=127; x.btr.nominal.tseg2=32; x.btr.nominal.sjw=32; x.btr.data.brp=4; x.btr.data.tseg1= 6; x.btr.data.tseg2=3; x.btr.data.sjw=3; } while(0)
+#define BR_CiA_250K2M(x)    do{ x.btr.frequency=80000000; x.btr.nominal.brp= 4; x.btr.nominal.tseg1= 63; x.btr.nominal.tseg2=16; x.btr.nominal.sjw=16; x.btr.data.brp=4; x.btr.data.tseg1= 6; x.btr.data.tseg2=3; x.btr.data.sjw=3; } while(0)
+#define BR_CiA_500K2M(x)    do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1= 63; x.btr.nominal.tseg2=16; x.btr.nominal.sjw=16; x.btr.data.brp=2; x.btr.data.tseg1=14; x.btr.data.tseg2=5; x.btr.data.sjw=5; } while(0)
+#define BR_CiA_1M5M(x)      do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1= 31; x.btr.nominal.tseg2= 8; x.btr.nominal.sjw =8; x.btr.data.brp=2; x.btr.data.tseg1= 5; x.btr.data.tseg2=2; x.btr.data.sjw=2; } while(0)
 
 
  /*  -----------  types  --------------------------------------------------
@@ -125,7 +123,6 @@ static int transmit(int handle, int frames, DWORD delay);
 static int receive(int handle);
 static int transmit_fd(int handle, int frames, DWORD delay);
 static int receive_fd(int handle);
-static int convert(const char *string, can_bitrate_t *bitrate);
 static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed);
 
 #ifndef _WAITABLE_TIMER
@@ -281,18 +278,18 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "FDF")) { option_fdf = OPTION_YES; option_mode = OPTION_MODE_CAN_FD; op_mode = CANMODE_FDOE; }
         if(!strcmp(argv[i], "BRS")) { option_brs = OPTION_YES; option_fdf = OPTION_YES; option_mode = OPTION_MODE_CAN_FD; op_mode = CANMODE_FDOE | CANMODE_BRSE; }
         /* bit rate (CAN FD) */
-        if(!strcmp(argv[i], "BR:125K1M")) convert(BITRATE_125K1M, &bitrate);
-        if(!strcmp(argv[i], "BR:250K2M")) convert(BITRATE_250K2M, &bitrate);
-        if(!strcmp(argv[i], "BR:500K4M")) convert(BITRATE_500K4M, &bitrate);
-        if(!strcmp(argv[i], "BR:1M8M")) convert(BITRATE_1M8M, &bitrate);
-        if(!strcmp(argv[i], "BR:125K")) convert(BITRATE_125K, &bitrate);
-        if(!strcmp(argv[i], "BR:250K")) convert(BITRATE_250K, &bitrate);
-        if(!strcmp(argv[i], "BR:500K")) convert(BITRATE_500K, &bitrate);
-        if(!strcmp(argv[i], "BR:1M")) convert(BITRATE_1M, &bitrate);
-        if(!strcmp(argv[i], "BR:CiA125K2M")) convert(BR_CiA_125K2M, &bitrate);
-        if(!strcmp(argv[i], "BR:CiA250K2M")) convert(BR_CiA_250K2M, &bitrate);
-        if(!strcmp(argv[i], "BR:CiA5002M")) convert(BR_CiA_500K2M, &bitrate);
-        if(!strcmp(argv[i], "BR:CiA1M5M")) convert(BR_CiA_1M5M, &bitrate);
+        if(!strcmp(argv[i], "BR:125K1M")) BITRATE_125K1M(bitrate);
+        if(!strcmp(argv[i], "BR:250K2M")) BITRATE_250K2M(bitrate);
+        if(!strcmp(argv[i], "BR:500K4M")) BITRATE_500K4M(bitrate);
+        if(!strcmp(argv[i], "BR:1M8M")) BITRATE_1M8M(bitrate);
+        if(!strcmp(argv[i], "BR:125K")) BITRATE_125K(bitrate);
+        if(!strcmp(argv[i], "BR:250K")) BITRATE_250K(bitrate);
+        if(!strcmp(argv[i], "BR:500K")) BITRATE_500K(bitrate);
+        if(!strcmp(argv[i], "BR:1M")) BITRATE_1M(bitrate);
+        if(!strcmp(argv[i], "BR:CiA125K2M")) BR_CiA_125K2M(bitrate);
+        if(!strcmp(argv[i], "BR:CiA250K2M")) BR_CiA_250K2M(bitrate);
+        if(!strcmp(argv[i], "BR:CiA5002M")) BR_CiA_500K2M(bitrate);
+        if(!strcmp(argv[i], "BR:CiA1M5M")) BR_CiA_1M5M(bitrate);
         /* additional operation modes */
         //if(!strcmp(argv[i], "SHARED")) op_mode |= CANMODE_SHRD;
         if(!strcmp(argv[i], "MONITOR")) op_mode |= CANMODE_MON;
@@ -661,27 +658,6 @@ static int receive_fd(int handle)
         fflush(stdout);
     }
     return 0;
-}
-
-static int convert(const char *string, can_bitrate_t *bitrate)
-{
-    unsigned long freq = 0; struct btr_bit_timing slow, fast;
-
-    if(!btr_string_to_bit_timing(string, &freq, &slow, &fast)) {
-        fprintf(stderr, "+++ error: illegal argument in option /BITRATE!\n\n");
-        return 0;
-    }
-    bitrate->btr.frequency = (long)freq;
-    bitrate->btr.nominal.brp = (unsigned short)slow.brp;
-    bitrate->btr.nominal.tseg1 = (unsigned short)slow.tseg1;
-    bitrate->btr.nominal.tseg2 = (unsigned short)slow.tseg2;
-    bitrate->btr.nominal.sjw = (unsigned short)slow.sjw;
-    bitrate->btr.nominal.sam = (unsigned char)slow.sam;
-    bitrate->btr.data.brp = (unsigned short)fast.brp;
-    bitrate->btr.data.tseg1 = (unsigned short)fast.tseg1;
-    bitrate->btr.data.tseg2 = (unsigned short)fast.tseg2;
-    bitrate->btr.data.sjw = (unsigned short)fast.sjw;
-    return 1;
 }
 
 static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed)

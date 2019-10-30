@@ -172,6 +172,7 @@ copy .\x64\Release\u3canpcb.lib ..\x64\u3canpcb.lib</Command>
   <ItemGroup>
     <ClInclude Include="..\api\can_api.h" />
     <ClInclude Include="..\api\can_defs.h" />
+    <ClInclude Include="..\api\can_vers.h" />
     <ClInclude Include="..\api\PCANBasic.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />

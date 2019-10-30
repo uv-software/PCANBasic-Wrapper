@@ -21,9 +21,6 @@
     <ClCompile Include="..\api\can_api.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="bitrates.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="printmsg.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -38,10 +35,10 @@
     <ClInclude Include="..\api\can_api.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="bitrates.h">
+    <ClInclude Include="printmsg.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="printmsg.h">
+    <ClInclude Include="..\api\can_vers.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

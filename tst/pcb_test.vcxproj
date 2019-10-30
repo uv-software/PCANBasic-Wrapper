@@ -147,15 +147,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\api\can_api.c" />
-    <ClCompile Include="bitrates.c" />
     <ClCompile Include="pcb_test.c" />
     <ClCompile Include="printmsg.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\api\can_api.h" />
     <ClInclude Include="..\api\can_defs.h" />
+    <ClInclude Include="..\api\can_vers.h" />
     <ClInclude Include="..\api\PCANBasic.h" />
-    <ClInclude Include="bitrates.h" />
     <ClInclude Include="printmsg.h" />
   </ItemGroup>
   <ItemGroup>
