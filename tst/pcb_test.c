@@ -186,6 +186,7 @@ int main(int argc, char *argv[])
     DWORD delay = 0;
     can_bitrate_t bitrate = { -CANBDR_250 };
     can_speed_t speed;
+    can_status_t status;
     char *device, *firmware, *software;
 
     //struct option long_options[] = {
@@ -318,16 +319,16 @@ int main(int argc, char *argv[])
                 fprintf(stdout, "Hardware: %s (0x%lx)\n", can_board[i].name, can_board[i].type);
             }
         }
-        if((rc = can_bitrate((-1), &bitrate, &speed)) == CANERR_NOTINIT || rc == CANERR_HANDLE)
-            verbose(&bitrate, &speed);
+        //if((rc = can_bitrate((-1), &bitrate, &speed)) == CANERR_NOTINIT || rc == CANERR_HANDLE)
+        //    verbose(&bitrate, &speed);
     }
     /* initialization */
     if((handle = can_init(channel, op_mode, NULL)) < 0) {
         printf("+++ error(%i): can_init failed\n", handle);
         goto end;
     }
-    if((rc = can_interface(handle, NULL, NULL, NULL)) != CANERR_NOERROR) {
-        printf("+++ error(%i): can_interface failed\n", rc);
+    if((rc = can_status(handle, &status.byte)) != CANERR_NOERROR) {
+        printf("+++ error(%i): can_status failed\n", rc);
         goto end;
     }
 	if(option_info) {
@@ -345,6 +346,10 @@ int main(int argc, char *argv[])
     /* start communication */
     if((rc = can_start(handle, &bitrate)) != CANERR_NOERROR) {
         printf("+++ error(%i): can_start failed\n", rc);
+        goto end;
+    }
+    if((rc = can_status(handle, &status.byte)) != CANERR_NOERROR) {
+        printf("+++ error(%i): can_status failed\n", rc);
         goto end;
     }
     if((rc = can_bitrate(handle, &bitrate, &speed)) != CANERR_NOERROR) {

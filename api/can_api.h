@@ -19,10 +19,8 @@
  *               int can_status(int handle, unsigned char *status);
  *               int can_busload(int handle, unsigned char *load, unsigned char *status);
  *               int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed);
- *               int can_interface(int handle, int *board, unsigned char *mode, void *param);
  *               char *can_hardware(int handle);
  *               char *can_software(int handle);
- *               int can_library(unsigned short *version, unsigned char *revision, unsigned long *build);
  *               char *can_version();
  *
  *  includes  :  can_defs.h
@@ -77,9 +75,7 @@
 /** @name  CAN API Revision Number
  *  @brief Revision number of the CAN API wrapper specification
  */
-#define CAN_API_SPEC            0x0300u /**< CAN API revision number */
-#define CAN_API_SPEC_MAJOR              ((CAN_API_SPEC & 0xFF00u) >> 8)
-#define CAN_API_SPEC_MINOR              ((CAN_API_SPEC & 0x00FFu) >> 0)
+#define CAN_API_SPEC            0x0300u /**< CAN API revision number! */
 /** @} */
 
 /** @name  CAN Identifier
@@ -103,49 +99,49 @@
 #define CANFD_MAX_LEN             (64) /**< max. payload length (CAN FD) */
 /** @} */
 
-/** @name  CAN Baud Rate Indexes
+/** @name  CAN Baud Rate Indexes (for compatibility)
  *  @brief CAN baud rate indexes defined by CiA (for CANopen)
  *  @note  They must be passed with a minus sign to can_start()
  *  @{ */
-#define CANBDR_1000                  0  /**< baud rate: 1000 kBit/s */
-#define CANBDR_800                   1  /**< baud rate:  800 kBit/s */
-#define CANBDR_500                   2  /**< baud rate:  500 kBit/s */
-#define CANBDR_250                   3  /**< baud rate:  250 kBit/s */
-#define CANBDR_125                   4  /**< baud rate:  125 kBit/s */
-#define CANBDR_100                   5  /**< baud rate:  100 kBit/s */
-#define CANBDR_50                    6  /**< baud rate:   50 kBit/s */
-#define CANBDR_20                    7  /**< baud rate:   20 kBit/s */
-#define CANBDR_10                    8  /**< baud rate:   10 kBit/s */
+#define CANBDR_1000                  0  /**< baud rate: 1000 kbit/s */
+#define CANBDR_800                   1  /**< baud rate:  800 kbit/s */
+#define CANBDR_500                   2  /**< baud rate:  500 kbit/s */
+#define CANBDR_250                   3  /**< baud rate:  250 kbit/s */
+#define CANBDR_125                   4  /**< baud rate:  125 kbit/s */
+#define CANBDR_100                   5  /**< baud rate:  100 kbit/s */
+#define CANBDR_50                    6  /**< baud rate:   50 kbit/s */
+#define CANBDR_20                    7  /**< baud rate:   20 kbit/s */
+#define CANBDR_10                    8  /**< baud rate:   10 kbit/s */
 /** @} */
 
 /** @name  CAN 2.0 Predefined Bit-rates
  *  @brief Indexes to predefined bit-rates (CAN 2.0 only!)
  *  @{ */
-#define CANBTR_INDEX_1M   (CANBDR_1000) /**< bit-rate: 1000 kBit/s */
-#define CANBTR_INDEX_800K (-CANBDR_800) /**< bit-rate:  800 kBit/s */
-#define CANBTR_INDEX_500K (-CANBDR_500) /**< bit-rate:  500 kBit/s */
-#define CANBTR_INDEX_250K (-CANBDR_250) /**< bit-rate:  250 kBit/s */
-#define CANBTR_INDEX_125K (-CANBDR_125) /**< bit-rate:  125 kBit/s */
-#define CANBTR_INDEX_100K (-CANBDR_100) /**< bit-rate:  100 kBit/s */
-#define CANBTR_INDEX_50K   (-CANBDR_50) /**< bit-rate:   50 kBit/s */
-#define CANBTR_INDEX_20K   (-CANBDR_20) /**< bit-rate:   20 kBit/s */
-#define CANBTR_INDEX_10K   (-CANBDR_10) /**< bit-rate:   10 kBit/s */
+#define CANBTR_INDEX_1M            (0l) /**< bit-rate: 1000 kbit/s */
+#define CANBTR_INDEX_800K         (-1l) /**< bit-rate:  800 kbit/s */
+#define CANBTR_INDEX_500K         (-2l) /**< bit-rate:  500 kbit/s */
+#define CANBTR_INDEX_250K         (-3l) /**< bit-rate:  250 kbit/s */
+#define CANBTR_INDEX_125K         (-4l) /**< bit-rate:  125 kbit/s */
+#define CANBTR_INDEX_100K         (-5l) /**< bit-rate:  100 kbit/s */
+#define CANBTR_INDEX_50K          (-6l) /**< bit-rate:   50 kbit/s */
+#define CANBTR_INDEX_20K          (-7l) /**< bit-rate:   20 kbit/s */
+#define CANBTR_INDEX_10K          (-8l) /**< bit-rate:   10 kbit/s */
 /** @} */
 
 /** @name  CAN Controller Frequencies
  *  @brief Frequencies for calculation of the bit-rate
  *  @note  Usable frequencies depend on the microcontroller used
  *  @{ */
-#define CANBTR_FREQ_80MHz     80000000u /**< frequency: 80 MHz */
-#define CANBTR_FREQ_60MHz     60000000u /**< frequency: 60 MHz */
-#define CANBTR_FREQ_40MHz     40000000u /**< frequency: 40 MHz */
-#define CANBTR_FREQ_30MHz     30000000u /**< frequency: 30 MHz */
-#define CANBTR_FREQ_24MHz     24000000u /**< frequency: 24 MHz */
-#define CANBTR_FREQ_20MHz     20000000u /**< frequency: 20 MHz */
-#define CANBTR_FREQ_SJA1000    8000000u /**< frequency:  8 MHz */
+#define CANBTR_FREQ_80MHz     80000000l /**< frequency: 80 MHz */
+#define CANBTR_FREQ_60MHz     60000000l /**< frequency: 60 MHz */
+#define CANBTR_FREQ_40MHz     40000000l /**< frequency: 40 MHz */
+#define CANBTR_FREQ_30MHz     30000000l /**< frequency: 30 MHz */
+#define CANBTR_FREQ_24MHz     24000000l /**< frequency: 24 MHz */
+#define CANBTR_FREQ_20MHz     20000000l /**< frequency: 20 MHz */
+#define CANBTR_FREQ_SJA1000    8000000l /**< frequency:  8 MHz */
 /** @} */
 
-/** @name  CAN FD Nominal Bit-rate Settings
+/** @name  CAN 2.0 and CAN FD Nominal Bit-rate Settings
  *  @brief Limits for nominal bit-rate settings
  *  @{ */
 #define CANBTR_NOMINAL_BRP_MIN      1u  /**< min. bit-timing prescaler */
@@ -171,7 +167,7 @@
 #define CANBTR_DATA_SJW_MAX        16u  /**< max. syncronization jump width */
 /** @} */
 
-/** @name  SJA1000 Bit-rate Settings
+/** @name  SJA1000 Bit-rate Settings (CAN 2.0 only)
  *  @brief Limits for bit-rate settings of the SJA1000 CAN controller
  *  @{ */
 #define CANBTR_SJA1000_BRP_MIN      1u  /**< min. baud rate prescaler */
@@ -272,7 +268,7 @@
 #define _can_state_t                    _can_status_t
 #define  can_state_t                     can_status_t
 #define _timestamp                      _can_timestamp_t
- /** @} */
+/** @} */
 
 /** @name  Aliases
  *  @brief Alternative names
@@ -281,11 +277,12 @@ typedef int                             can_handle_t;
 typedef unsigned long                   can_board_type_t;
 typedef unsigned char                   can_status_reg_t;
 typedef unsigned char                   can_op_mode_t;
-#define CAN_MAX_EXT_ID                  CAN_MAX_XTD_ID
-#define CANEXIT_ALL                     CANKILL_ALL
+#define CANAPI_HANDLE                   (can_handle_t)(-1)
 #define CANBRD_AVAILABLE                CANBRD_PRESENT    
 #define CANBRD_UNAVAILABLE              CANBRD_NOT_PRESENT
 #define CANBRD_INTESTABLE               CANBRD_NOT_TESTABLE
+#define CANEXIT_ALL                     CANKILL_ALL
+#define CAN_MAX_EXT_ID                  CAN_MAX_XTD_ID
 /** @} */
 
 /*  -----------  types  --------------------------------------------------
@@ -552,6 +549,7 @@ CANAPI int can_write(int handle, const can_msg_t *msg);
 CANAPI int can_read(int handle, can_msg_t *msg, unsigned short timeout);
 
 
+#if defined (_WIN32) || defined(_WIN64)
 /** @brief       signals a waiting event object of the CAN interface. This is
  *               used to terminate a blocking read operation (e.g. by means of
  *               a Ctrl-C handler or similar).
@@ -571,8 +569,7 @@ CANAPI int can_read(int handle, can_msg_t *msg, unsigned short timeout);
  *  @retval      CANERR_NOTSUPP   - function not supported
  *  @retval      others           - vendor-specific
  */
-#if defined (_WIN32) || defined(_WIN64)
- CANAPI int can_kill(int handle);
+CANAPI int can_kill(int handle);
 #endif
 
 
@@ -624,23 +621,6 @@ CANAPI int can_busload(int handle, unsigned char *load, unsigned char *status);
 CANAPI int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed);
 
 
-/** @brief       retrieves operation information of the CAN interface.
- *
- *  @param[in]   handle  - handle of the CAN interface
- *  @param[out]  board   - type of the CAN interface board
- *  @param[out]  mode    - operation mode of the CAN controller
- *  @param[out]  param   - pointer to board-specific parameters
- *
- *  @returns     0 if successful, or a negative value on error.
- *
- *  @retval      CANERR_NOTINIT   - interface not initialized
- *  @retval      CANERR_HANDLE    - invalid interface handle
- *  @retval      CANERR_NOTSUPP   - function not supported
- *  @retval      others           - vendor-specific
- */
-CANAPI int can_interface(int handle, int *board, unsigned char *mode, void *param);
-
-
 /** @brief       retrieves the hardware version of the CAN interface
  *               as a zero-terminated string.
  *
@@ -659,17 +639,6 @@ CANAPI char *can_hardware(int handle);
  *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
 CANAPI char *can_software(int handle);
-
-
-/** @brief       retrieves the library id of the CAN interface DLL.
- *
- *  @param[out]  version  - version number (high byte = major, low byte = minor)
- *  @param[out]  revision - revision number (e.g. for service releases)
- *  @param[out]  build    - build number (taken from svn or git)
- *
- *  @returns     the library id.
- */
-CANAPI int can_library(unsigned short *version, unsigned char *revision, unsigned long *build);
 
 
 /** @brief       retrieves version information of the CAN interface DLL

@@ -708,15 +708,6 @@ int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed)
 
     memset(&temporary, 0, sizeof(can_bitrate_t));
 
-    if((!init || !IS_HANDLE_VALID(handle)) && (bitrate && speed)) {
-        speed->nominal.fdoe = 1;
-        speed->data.brse = 1;
-        (void)calc_speed(bitrate, speed, 1);
-        if(!init)
-            return CANERR_NOTINIT;
-        else
-            return CANERR_HANDLE;
-    }
     if(!init)                           // must be initialized
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle
@@ -752,28 +743,6 @@ int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed)
     else
         rc = CANERR_OFFLINE;
     return rc;
-}
-
-int can_interface(int handle, int *board, unsigned char *mode, void *param)
-{
-
-    if(!init)                           // must be initialized
-        return CANERR_NOTINIT;
-    if(!IS_HANDLE_VALID(handle))        // must be a valid handle
-        return CANERR_HANDLE;
-    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle
-        return CANERR_HANDLE;
-
-    if(board)                           // handle of the CAN channel
-        *board = can[handle].board;
-    if(mode)                            // current opperation mode
-        *mode  = can[handle].mode.byte;
-    if(param) {                         // non-plug'n'play devices:
-        ((struct _pcan_param*)param)->type = can[handle].brd_type;
-        ((struct _pcan_param*)param)->port = can[handle].brd_port;
-        ((struct _pcan_param*)param)->irq  = can[handle].brd_irq;
-    }
-    return CANERR_NOERROR;
 }
 
 char *can_hardware(int handle)
@@ -820,18 +789,6 @@ char *can_software(int handle)
     strcpy_s(software, 256, str);
 
     return (char*)software;             // software version
-}
-
-int can_library(unsigned short *version, unsigned char *revision, unsigned long *build)
-{
-    if(version)
-        *version = ((unsigned short)VERSION_MAJOR << 8) | ((unsigned short)VERSION_MINOR & 0x00FFu);
-    if(revision)
-        *revision = (unsigned char)VERSION_REVISION;
-    if(build)
-        *build = (unsigned long)BUILD_NO;
-
-    return PCAN_LIB_ID;                 // library ID
 }
 
 /*  -----------  local functions  ----------------------------------------
