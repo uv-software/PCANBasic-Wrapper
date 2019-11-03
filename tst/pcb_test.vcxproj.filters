@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pcb_test.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\api\can_api.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="misc\printmsg.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

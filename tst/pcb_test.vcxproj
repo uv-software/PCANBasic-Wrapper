@@ -147,8 +147,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\api\can_api.c" />
+    <ClCompile Include="main.c" />
     <ClCompile Include="misc\printmsg.c" />
-    <ClCompile Include="pcb_test.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\api\can_api.h" />

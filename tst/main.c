@@ -189,6 +189,11 @@ int main(int argc, char *argv[])
     can_status_t status;
     char *device, *firmware, *software;
 
+    unsigned char  uchar;
+    unsigned short ushort;
+    unsigned long  ulong;
+    char string[CANPROP_BUF_MAX_SIZE];
+    
     //struct option long_options[] = {
     //  {"help", no_argument, 0, 'h'},
     //  {"version", no_argument, 0, 'v'},
@@ -314,6 +319,34 @@ int main(int argc, char *argv[])
     if(option_info) {
         if((software = can_version()) != NULL)
             fprintf(stdout, "Software: %s\n", software);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_SPEC, (void*)&ushort, sizeof(ushort))) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_SPEC=%03xh\n", ushort);
+        else
+            printf("+++ error(%i): can_property(CANPROP_GET_SPEC) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_VERSION, (void*)&ushort, sizeof(ushort))) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_VERSION=%03xh\n", ushort);
+        else
+            printf("+++ error(%i): can_property(CANPROP_GET_VERSION) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_REVISION, (void*)&uchar, sizeof(uchar))) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_REVISION=%xh\n", uchar);
+        else
+            printf("+++ error(%i): can_property(CANPROP_GET_REVISION) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_BUILD_NO, (void*)&ulong, sizeof(ulong))) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_BUILD_NO=%lxh\n", ulong);
+        else
+            printf("+++ error(%i): can_property(CANPROP_GET_BUILD_NO) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_LIBRARY_ID, (void*)&i, sizeof(i))) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_LIBRARY_ID=(%d)\n", i);
+        else
+            printf("+++ error(%i): can_property(CANPROP_GET_LIBRARY_ID) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_LIBRARY_DLL, (void*)string, CANPROP_BUF_MAX_SIZE)) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_LIBRARY_DLL=%s\n", string);
+        else
+            printf("+++ error(%i): can_property(CANPROP_GET_LIBRARY_DLL) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_VENDOR_NAME, (void*)string, CANPROP_BUF_MAX_SIZE)) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_VENDOR_NAME=%s\n", string);
+        else
+            printf("+++ error(%i): can_property(CANPROP_GET_VENDOR_NAME) failed\n", rc);
         for(i = 0; i < PCAN_BOARDS; i++) {
             if(channel == can_board[i].type) {
                 fprintf(stdout, "Hardware: %s (0x%lx)\n", can_board[i].name, can_board[i].type);

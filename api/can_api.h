@@ -19,6 +19,7 @@
  *               int can_status(int handle, unsigned char *status);
  *               int can_busload(int handle, unsigned char *load, unsigned char *status);
  *               int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed);
+ *               int can_property(int handle, int param, void *value, int nbytes);
  *               char *can_hardware(int handle);
  *               char *can_software(int handle);
  *               char *can_version();
@@ -257,6 +258,41 @@
  *  @{ */
 #define CANREAD_INFINITE         65535u /**< infinite time-out (blocking read) */
 #define CANKILL_ALL                (-1) /**< to signal all waiting event objects */
+/** @} */
+
+/** @name  Property IDs
+ *  @brief Properties which can be read or written  
+ *  @{ */
+#define CANPROP_GET_SPEC             0  /**< version of the wrapper specification (USHORT) */
+#define CANPROP_GET_VERSION          1  /**< version number of the library (USHORT) */
+#define CANPROP_GET_REVISION         2  /**< revision number of the library (UCHAR) */
+#define CANPROP_GET_BUILD_NO         3  /**< build number of the library (ULONG) */
+#define CANPROP_GET_LIBRARY_ID       4  /**< library id of the library (int) */
+#define CANPROP_GET_LIBRARY_DLL      5  /**< filename of the library (CHAR[256]) */
+#define CANPROP_GET_VENDOR_NAME      6  /**< vendor name of the interface (CHAR[256]) */
+#define CANPROP_GET_BOARD_TYPE      10  /**< board type of the interface (int) */
+#define CANPROP_GET_BOARD_NAME      11  /**< board name of the interface (CHAR[256]) */
+#define CANPROP_GET_BOARD_PARAM     12  /**< board parameter of the interface (CHAR[256]) */
+#define CANPROP_GET_OP_CAPABILITY   15  /**< supported operation modes of the interface (UCHAR) */
+#define CANPROP_GET_OP_MODE         16  /**< active operation mode of the interface (UCHAR) */
+#define CANPROP_GET_BITRATE         17  /**< active bit-rate of the interface (can_bitrate_t) */
+#define CANPROP_GET_SPEED           18  /**< active bus speed of the interface (can_speed_t) */
+#define CANPROP_GET_STATUS          19  /**< current status register of the interface (UCHAR) */
+#define CANPROP_GET_BUSLOAD         20  /**< current bus load of the interface (UCHAR) */
+#define CANPROP_GET_TX_COUNTER      24  /**< total number of sent messages (ULONGONG) */
+#define CANPROP_GET_RX_COUNTER      25  /**< total number of reveice messages (ULONGONG) */
+#define CANPROP_GET_ERR_COUNTER     26  /**< total number of reveice error frames (ULONGONG) */
+#define CANPROP_GET_BTR_INDEX       32  /**< bit-rate as CiA index (int) */
+#define CANPROP_GET_BTR_VALUE       33  /**< bit-rate as struct (can_bitrate_t) */
+#define CANPROP_GET_BTR_SPEED       34  /**< bit-rate as bus speed (can_speed_t) */
+#define CANPROP_GET_BTR_STRING      35  /**< bit-rate as string (CHAR[256]) */
+#define CANPROP_GET_BTR_SJA1000     36  /**< bit-rate as SJA1000 register (USHORT) */
+#define CANPROP_SET_BTR_INDEX       40  /**< bit-rate calculation form CiA index */
+#define CANPROP_SET_BTR_VALUE       41  /**< bit-rate calculation form struct */
+#define CANPROP_SET_BTR_SPEED       42  /**< bit-rate calculation form bus speed */
+#define CANPROP_SET_BTR_STRING      43  /**< bit-rate calculation form string */
+#define CANPROP_SET_BTR_SJA1000     44  /**< bit-rate calculation form  SJA1000 register */
+#define CANPROP_BUF_MAX_SIZE       256  /**< max. buffer size for property values */
 /** @} */
 
 /** @name  Legacy Stuff
@@ -550,11 +586,11 @@ CANAPI int can_read(int handle, can_msg_t *msg, unsigned short timeout);
 
 
 #if defined (_WIN32) || defined(_WIN64)
-/** @brief       signals a waiting event object of the CAN interface. This is
- *               used to terminate a blocking read operation (e.g. by means of
- *               a Ctrl-C handler or similar).
+/** @brief       signals a waiting event object of the CAN interface. This can
+ *               be used to terminate a blocking read operation in progress
+ *               (e.g. by means of a Ctrl-C handler or similar).
  *
- *  @remark      The PCAN-Basic DLL uses an event object to realize a blocking
+ *  @remark      This driver DLL uses an event object to realize blocking
  *               read by a call to WaitForSingleObject, but this event object
  *               is not terminated by Ctrl-C (SIGINT).
  *
@@ -619,6 +655,30 @@ CANAPI int can_busload(int handle, unsigned char *load, unsigned char *status);
  *  @retval      others           - vendor-specific
  */
 CANAPI int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed);
+
+
+/** @brief       retrieves or modifies a property value of the CAN interface.
+ *
+ *  @note        To read or to write a property value of the CAN interface DLL,
+ *               -1 can be given as handle.
+ *
+ *  @param[in]   handle   - handle of the CAN interface, or (-1)
+ *  @param[in]   param    - property id to be read or to be written
+ *  @param[out]  value    - pointer to a buffer for the value to be read
+ *  @param[in]   value    - pointer to a buffer with the value to be written
+ *  @param[in]   nbytes   - size of the given buffer in bytes
+ *
+ *  @returns     0 if successful, or a negative value on error.
+ *
+ *  @retval      CANERR_NOTINIT   - interface not initialized
+ *  @retval      CANERR_HANDLE    - invalid interface handle
+ *  @retval      CANERR_NULLPTR   - null-pointer assignment
+ *  @retval      CANERR_ILLPARA   - illegal parameter, value or nbytes
+ *  @retval      CANERR_...       - tbd.
+ *  @retval      CANERR_NOTSUPP   - property or function not supported
+ *  @retval      others           - vendor-specific
+ */
+CANAPI int can_property(int handle, int param, void *value, int nbytes);
 
 
 /** @brief       retrieves the hardware version of the CAN interface

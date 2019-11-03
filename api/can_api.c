@@ -65,13 +65,14 @@
 /*  -----------  includes  -------------------------------------------------
  */
 
-#include "can_api.h"                    // Interface prototypes
+#include "can_api.h"
 
-#include <stdio.h>                      // Standard I/O routines
-#include <string.h>                     // String manipulation functions
-#include <windows.h>                    // Master include file for Windows
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <windows.h>
 
-#include "PCANBasic.h"                  // PEAK PCAN-Basic device(s)
+#include "PCANBasic.h"
 
 
 /*  -----------  options  ------------------------------------------------
@@ -119,6 +120,9 @@ static int bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr
 static int register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate);
 static int bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, int brse);
 static int string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, int brse);
+
+static int lib_parameter(int param, void *value, size_t nbytes);
+static int drv_parameter(int handle, int param, void *value, size_t nbytes);
 
 static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify);
 
@@ -284,9 +288,9 @@ int can_exit(int handle)
     if(!init)                           // must be initialized
         return CANERR_NOTINIT;
     if(handle != CANEXIT_ALL) {
-        if (!IS_HANDLE_VALID(handle))   // must be a valid handle
+        if(!IS_HANDLE_VALID(handle))   // must be a valid handle
             return CANERR_HANDLE;
-        if (can[handle].board == PCAN_NONEBUS) // must be an opened handle
+        if(can[handle].board == PCAN_NONEBUS) // must be an opened handle
             return CANERR_HANDLE;
         /*if(!can[handle].status.b.can_stopped) // release the CAN interface: */
         if(can[handle].initialized)  // FIXME: due to deffered initialzation!
@@ -745,6 +749,21 @@ int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed)
     return rc;
 }
 
+int can_property(int handle, int param, void *value, int nbytes)
+{
+    int rc = CANERR_FATAL;              // return value
+
+    if(!init || !IS_HANDLE_VALID(handle)) {
+        return lib_parameter(param, value, (size_t)nbytes);
+    }
+    if(!init)                           // must be initialized
+        return CANERR_NOTINIT;
+    if(!IS_HANDLE_VALID(handle))        // must be a valid handle
+        return CANERR_HANDLE;
+
+    return drv_parameter(handle, param, value, (size_t)nbytes);
+}
+
 char *can_hardware(int handle)
 {
     static char hardware[256] = "";     // hardware version
@@ -945,7 +964,7 @@ static int string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, i
     bitrate->btr.nominal.tseg1 = (unsigned short)nom_tseg1;
     bitrate->btr.nominal.tseg2 = (unsigned short)nom_tseg2;
     bitrate->btr.nominal.sjw = (unsigned short)nom_sjw;
-    if (brse) {
+    if(brse) {
         bitrate->btr.data.brp = (unsigned short)data_brp;
         bitrate->btr.data.tseg1 = (unsigned short)data_tseg1;
         bitrate->btr.data.tseg2 = (unsigned short)data_tseg2;
@@ -960,6 +979,99 @@ static int string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, i
     return CANERR_NOERROR;
 }
 
+/*  - - - - - -  CAN API V3 properties  - - - - - - - - - - - - - - - - -
+    */
+static int lib_parameter(int param, void *value, size_t nbytes)
+{
+    int rc = CANERR_ILLPARA;            // suppose an invalid parameter
+
+    if(value == NULL)                   // check for null-pointer
+        return CANERR_NULLPTR;
+
+    /* CAN library properties */
+    switch(param) {
+    case CANPROP_GET_SPEC:              // version of the wrapper specification (USHORT)
+        if(nbytes == sizeof(unsigned short)) {
+            *(unsigned short*)value = (unsigned short)CAN_API_SPEC;
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_VERSION:           // version number of the library (USHORT)
+        if(nbytes == sizeof(unsigned short)) {
+            *(unsigned short*)value = ((unsigned short)VERSION_MAJOR << 8)
+                | ((unsigned short)VERSION_MINOR & 0xFu);
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_REVISION:          // revision number of the library (UCHAR)
+        if(nbytes == sizeof(unsigned char)) {
+            *(unsigned char*)value = (unsigned char)VERSION_REVISION;
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_BUILD_NO:          // build number of the library (ULONG)
+        if(nbytes == sizeof(unsigned long)) {
+            *(unsigned long*)value = (unsigned long)BUILD_NO;
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_LIBRARY_ID:        // library id of the library (int)
+        if(nbytes == sizeof(int)) {
+            *(int*)value = (int)PCAN_LIB_ID;
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_LIBRARY_DLL:       // filename of the library (CHAR[256])
+        if((nbytes > strlen(PCAN_LIB_BASIC)) && (nbytes <= CANPROP_BUF_MAX_SIZE)) {
+            strcpy_s((char*)value, strlen(PCAN_LIB_BASIC) + 1, PCAN_LIB_BASIC);
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_VENDOR_NAME:       // vendor name of the interface (CHAR[256])
+        if((nbytes > strlen(PCAN_LIB_VENDOR)) && (nbytes <= CANPROP_BUF_MAX_SIZE)) {
+            strcpy_s((char*)value, strlen(PCAN_LIB_VENDOR) + 1, PCAN_LIB_VENDOR);
+            rc = CANERR_NOERROR;
+        }
+        break;
+    default:
+        rc = CANERR_NOTSUPP;
+        break;
+    }
+    return rc;
+}
+
+static int drv_parameter(int handle, int param, void *value, size_t nbytes)
+{
+    int rc = CANERR_ILLPARA;            // suppose an invalid parameter
+
+    assert(IS_HANDLE_VALID(handle));    // just to make sure
+
+    if(value == NULL)                   // check for null-pointer
+        return CANERR_NULLPTR;
+
+    /* CAN interface properties */
+    switch(param) {
+    case CANPROP_GET_BOARD_TYPE:        // board type of the interface (int)
+    case CANPROP_GET_BOARD_NAME:        // board name of the interface (CHAR[256])
+    case CANPROP_GET_BOARD_PARAM:       // board parameter of the interface (CHAR[256])
+    case CANPROP_GET_OP_CAPABILITY:     // supported operation modes of the interface (UCHAR)
+    case CANPROP_GET_OP_MODE:           // active operation mode of the interface (UCHAR)
+    case CANPROP_GET_BITRATE:           // active bit-rate of the interface (can_bitrate_t)
+    case CANPROP_GET_SPEED:             // active bus speed of the interface (can_speed_t)
+    case CANPROP_GET_STATUS:            // current status register of the interface (UCHAR)
+    case CANPROP_GET_BUSLOAD:           // current bus load of the interface (UCHAR)
+    case CANPROP_GET_TX_COUNTER:        // total number of sent messages (ULONGONG)
+    case CANPROP_GET_RX_COUNTER:        // total number of reveice messages (ULONGONG)
+    case CANPROP_GET_ERR_COUNTER:       // total number of reveice error frames (ULONGONG)
+    default:
+        rc = CANERR_NOTSUPP;
+        break;
+    }
+    return rc;
+}
+
+/*  - - - - - -  Bus-speed calculator  - - - - - - - - - - - - - - - - - -
+ */
 static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify)
 {
     can_bitrate_t temporary;            // bit-rate settings
@@ -967,7 +1079,7 @@ static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify)
 
     memset(&temporary, 0, sizeof(can_bitrate_t));
 
-    if (bitrate->index <= 0) {
+    if(bitrate->index <= 0) {
         if((rc = index2bitrate(bitrate->index, &temporary)) != CANERR_NOERROR)
             return rc;
         if(modify)                      // translate index to bit-rate
