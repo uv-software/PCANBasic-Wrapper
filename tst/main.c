@@ -352,8 +352,6 @@ int main(int argc, char *argv[])
                 fprintf(stdout, "Hardware: %s (0x%lx)\n", can_board[i].name, can_board[i].type);
             }
         }
-        //if((rc = can_bitrate((-1), &bitrate, &speed)) == CANERR_NOTINIT || rc == CANERR_HANDLE)
-        //    verbose(&bitrate, &speed);
     }
     /* initialization */
     if((handle = can_init(channel, op_mode, NULL)) < 0) {

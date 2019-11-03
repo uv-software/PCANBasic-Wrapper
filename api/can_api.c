@@ -1063,8 +1063,8 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
     case CANPROP_GET_TX_COUNTER:        // total number of sent messages (ULONGONG)
     case CANPROP_GET_RX_COUNTER:        // total number of reveice messages (ULONGONG)
     case CANPROP_GET_ERR_COUNTER:       // total number of reveice error frames (ULONGONG)
-    default:
-        rc = CANERR_NOTSUPP;
+    default:                            // or general library properties (see lib_parameter)
+        rc = lib_parameter(param, value, nbytes);
         break;
     }
     return rc;
