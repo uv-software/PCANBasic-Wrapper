@@ -41,6 +41,7 @@
  */
 
 #define _BLOCKING_READ                  // blocking read via wait event
+#define _CiA_BIT_TIMING                 // CiA bit-timing (from CANopen spec.)
 
 
 /*  -----------  defines  ------------------------------------------------

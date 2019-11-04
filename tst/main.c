@@ -304,17 +304,6 @@ int main(int argc, char *argv[])
         if(!strcmp(argv[i], "RTR:OFF")) op_mode |= CANMODE_NRTR;
     }
     fprintf(stdout, "can_test: "__DATE__" "__TIME__" (MSC_VER=%u)\n", _MSC_VER);
-    /* channel tester */
-    if(option_test) {
-        for(i = 0; i < PCAN_BOARDS; i++) {
-            if((rc = can_test(can_board[i].type, op_mode, NULL, &opt)) == CANERR_NOERROR)
-                printf("Channel 0x%02lx: %s\n", can_board[i].type, opt == CANBRD_OCCUPIED ? "occuptied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
-            else if(rc == CANERR_ILLPARA)
-                printf("Channel 0x%02lx: incompatible\n", can_board[i].type);
-            else
-                printf("Channel 0x%02lx: can_test failed (%i)\n", can_board[i].type, rc);
-        }
-    }
     /* offline informations */
     if(option_info) {
         if((software = can_version()) != NULL)
@@ -347,6 +336,22 @@ int main(int argc, char *argv[])
             fprintf(stdout, "Property: CANPROP_GET_VENDOR_NAME=%s\n", string);
         else
             printf("+++ error(%i): can_property(CANPROP_GET_VENDOR_NAME) failed\n", rc);
+    }
+    /* channel tester */
+    if(option_test) {
+        for(i = 0; i < PCAN_BOARDS; i++) {
+            if((rc = can_test(can_board[i].type, op_mode, NULL, &opt)) == CANERR_NOERROR)
+                printf("Testing...BoardType=0x%02lx: %s\n", can_board[i].type, opt == CANBRD_OCCUPIED ? "occupied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
+            else if(rc == CANERR_ILLPARA)
+                printf("Testing...BoardType=0x%02lx: incompatible\n", can_board[i].type);
+            else if(rc == CANERR_NOTSUPP)
+                printf("Testing...BoardType=0x%02lx: not testable\n", can_board[i].type);
+            else
+                printf("Testing...BoardType=0x%02lx: FAILED\n+++ error(%i) can_test failed\n", can_board[i].type, rc);
+        }
+    }
+    /* selected hardware */
+    if(option_info) {
         for(i = 0; i < PCAN_BOARDS; i++) {
             if(channel == can_board[i].type) {
                 fprintf(stdout, "Hardware: %s (0x%lx)\n", can_board[i].name, can_board[i].type);
@@ -368,11 +373,13 @@ int main(int argc, char *argv[])
     /* channel status */
     if(option_test) {
         if((rc = can_test(channel, op_mode, NULL, &opt)) == CANERR_NOERROR)
-            printf("Channel 0x%02lx: %s\n", channel, opt == CANBRD_OCCUPIED ? "now occuptied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
+            printf("Testing...BoardType=0x%02lx: %s\n", channel, opt == CANBRD_OCCUPIED ? "now occupied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
         else if(rc == CANERR_ILLPARA)
-            printf("Channel 0x%02lx: incompatible\n", channel);
+            printf("Testing...BoardType=0x%02lx: incompatible\n", channel);
+        else if(rc == CANERR_NOTSUPP)
+            printf("Testing...BoardType=0x%02lx: not testable\n", channel);
         else
-            printf("Channel 0x%02lx: can_test failed (%i)\n", channel, rc);
+            printf("Testing...BoardType=0x%02lx: FAILED\n+++ error(%i) can_test failed\n", channel, rc);
     }
     /* start communication */
     if((rc = can_start(handle, &bitrate)) != CANERR_NOERROR) {
@@ -698,18 +705,19 @@ static int receive_fd(int handle)
 
 static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed)
 {
-    //if(bitrate->btr.frequency > 0) {
+    if(bitrate->btr.frequency > 0) {
         fprintf(stdout, "Baudrate: %.0fkbps@%.1f%%",
             speed->nominal.speed / 1000., speed->nominal.samplepoint * 100.);
         if(speed->data.brse)
             fprintf(stdout, ":%.0fkbps@%.1f%%",
                 speed->data.speed / 1000., speed->data.samplepoint * 100.);
-        fprintf(stdout, " (f_clock=%lu,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u",
+        fprintf(stdout, " (f_clock=%lu,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,nom_sam=%u",
             bitrate->btr.frequency,
             bitrate->btr.nominal.brp,
             bitrate->btr.nominal.tseg1,
             bitrate->btr.nominal.tseg2,
-            bitrate->btr.nominal.sjw);
+            bitrate->btr.nominal.sjw,
+            bitrate->btr.nominal.sam);
         if(speed->data.brse)
             fprintf(stdout, ",data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
                 bitrate->btr.data.brp,
@@ -717,19 +725,19 @@ static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed)
                 bitrate->btr.data.tseg2,
                 bitrate->btr.data.sjw);
         fprintf(stdout, ")\n");
-    //}
-    //else {
-    //    fprintf(stdout, "Baudrate: %sbps (CiA index %li)\n",
-    //        bitrate->index == CANBDR_1000 ? "1000000" :
-    //        bitrate->index == -CANBDR_800 ? "800000" :
-    //        bitrate->index == -CANBDR_500 ? "500000" :
-    //        bitrate->index == -CANBDR_250 ? "250000" :
-    //        bitrate->index == -CANBDR_125 ? "125000" :
-    //        bitrate->index == -CANBDR_100 ? "100000" :
-    //        bitrate->index == -CANBDR_50 ? "50000" :
-    //        bitrate->index == -CANBDR_20 ? "20000" :
-    //        bitrate->index == -CANBDR_10 ? "10000" : "?", -bitrate->index);
-    //}
+    }
+    else {
+        fprintf(stdout, "Baudrate: %skbps (CiA index %li)\n",
+            bitrate->index == CANBDR_1000 ? "1000" :
+            bitrate->index == -CANBDR_800 ? "800" :
+            bitrate->index == -CANBDR_500 ? "500" :
+            bitrate->index == -CANBDR_250 ? "250" :
+            bitrate->index == -CANBDR_125 ? "125" :
+            bitrate->index == -CANBDR_100 ? "100" :
+            bitrate->index == -CANBDR_50 ? "50" :
+            bitrate->index == -CANBDR_20 ? "20" :
+            bitrate->index == -CANBDR_10 ? "10" : "?", -bitrate->index);
+    }
 }
 
 static void sigterm(int signo)

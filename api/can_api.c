@@ -90,13 +90,22 @@
 #ifndef DLC2LEN
 #define DLC2LEN(x)              dlc_table[x & 0xF]
 #endif
-#ifndef QWORD
-#define QWORD                   unsigned long long
+#ifdef _CiA_BIT_TIMING
+#undef  PCAN_BAUD_100K
+#define PCAN_BAUD_100K          0x441Cu
+#undef  PCAN_BAUD_50K
+#define PCAN_BAUD_50K           0x491Cu
+#undef  PCAN_BAUD_20K
+#define PCAN_BAUD_20K           0x581Cu
+#undef  PCAN_BAUD_10K
+#define PCAN_BAUD_10K           0x711Cu
 #endif
 #define BTR0BTR1_DEFAULT        PCAN_BAUD_250K
 #define BIT_RATE_DEFAULT        "f_clock_mhz=80,nom_brp=20,nom_tseg1=12,nom_tseg2=3,nom_sjw=1," \
                                                "data_brp=4,data_tseg1=7,data_tseg2=2,data_sjw=1"
-
+#ifndef QWORD
+#define QWORD                   unsigned long long
+#endif
 
 /*  -----------  types  --------------------------------------------------
  */
