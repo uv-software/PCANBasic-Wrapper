@@ -33,9 +33,8 @@
  *  @defgroup    can_defs Options and Definitions
  *  @{
  */
-
-#ifndef __CAN_DEFS_H
-#define __CAN_DEFS_H
+#ifndef CAN_DEFS_H_INCLUDED
+#define CAN_DEFS_H_INCLUDED
 
 /*  -----------  options  ------------------------------------------------
  */
@@ -107,7 +106,7 @@
     unsigned short irq;                 //     interrupt number (parallel device)
  };
 #endif
-#endif /* __CAN_DEFS_H */
+#endif /* CAN_DEFS_H_INCLUDED */
 /** @}
  */
 /*  ----------------------------------------------------------------------

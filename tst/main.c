@@ -316,11 +316,11 @@ int main(int argc, char *argv[])
         if((software = can_version()) != NULL)
             fprintf(stdout, "Software: %s\n", software);
         if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_SPEC, (void*)&ushort, sizeof(ushort))) == CANERR_NOERROR)
-            fprintf(stdout, "Property: CANPROP_GET_SPEC=%03xh\n", ushort);
+            fprintf(stdout, "Property: CANPROP_GET_SPEC=%u.%u\n", (ushort >> 8), (ushort & 0x0FFu));
         else
             fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_SPEC) failed\n", rc);
         if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_VERSION, (void*)&ushort, sizeof(ushort))) == CANERR_NOERROR)
-            fprintf(stdout, "Property: CANPROP_GET_VERSION=%03xh\n", ushort);
+            fprintf(stdout, "Property: CANPROP_GET_VERSION=%u.%u\n", (ushort >> 8), (ushort & 0x0FFu));
         else
             fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_VERSION) failed\n", rc);
         if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_REVISION, (void*)&uchar, sizeof(uchar))) == CANERR_NOERROR)
@@ -352,13 +352,13 @@ int main(int argc, char *argv[])
     if(option_test) {
         for(i = 0; i < PCAN_BOARDS; i++) {
             if((rc = can_test(can_board[i].type, op_mode, NULL, &opt)) == CANERR_NOERROR)
-                printf("Testing...BoardType=0x%02lx: %s\n", can_board[i].type, opt == CANBRD_OCCUPIED ? "occupied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
+                fprintf(stdout, "Testing...BoardType=0x%02lx: %s\n", can_board[i].type, opt == CANBRD_OCCUPIED ? "occupied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
             else if(rc == CANERR_ILLPARA)
-                printf("Testing...BoardType=0x%02lx: incompatible\n", can_board[i].type);
+                fprintf(stdout, "Testing...BoardType=0x%02lx: incompatible\n", can_board[i].type);
             else if(rc == CANERR_NOTSUPP)
-                printf("Testing...BoardType=0x%02lx: not testable\n", can_board[i].type);
+                fprintf(stdout, "Testing...BoardType=0x%02lx: not testable\n", can_board[i].type);
             else
-                printf("Testing...BoardType=0x%02lx: FAILED\n+++ error(%i) can_test failed\n", can_board[i].type, rc);
+                fprintf(stdout, "Testing...BoardType=0x%02lx: FAILED\n+++ error(%i) can_test failed\n", can_board[i].type, rc);
         }
     }
     /* selected hardware */
@@ -407,13 +407,13 @@ int main(int argc, char *argv[])
     /* channel status */
     if(option_test) {
         if((rc = can_test(channel, op_mode, NULL, &opt)) == CANERR_NOERROR)
-            printf("Testing...BoardType=0x%02lx: %s\n", channel, opt == CANBRD_OCCUPIED ? "now occupied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
+            fprintf(stdout, "Testing...BoardType=0x%02x: %s\n", channel, opt == CANBRD_OCCUPIED ? "now occupied" : opt == CANBRD_PRESENT ? "available" : "unavailable");
         else if(rc == CANERR_ILLPARA)
-            printf("Testing...BoardType=0x%02lx: incompatible\n", channel);
+            fprintf(stdout, "Testing...BoardType=0x%02x: incompatible\n", channel);
         else if(rc == CANERR_NOTSUPP)
-            printf("Testing...BoardType=0x%02lx: not testable\n", channel);
+            fprintf(stdout, "Testing...BoardType=0x%02x: not testable\n", channel);
         else
-            printf("Testing...BoardType=0x%02lx: FAILED\n+++ error(%i) can_test failed\n", channel, rc);
+            fprintf(stdout, "Testing...BoardType=0x%02x: FAILED\n+++ error(%i) can_test failed\n", channel, rc);
     }
     /* start communication */
     if((rc = can_start(handle, &bitrate)) != CANERR_NOERROR) {
