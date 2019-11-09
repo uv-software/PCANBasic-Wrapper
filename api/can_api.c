@@ -67,6 +67,12 @@
 
 #include "can_api.h"
 
+#ifdef _MSC_VER
+ //no Microsoft extensions please!
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -817,6 +823,8 @@ int can_property(int handle, int param, void *value, int nbytes)
         return CANERR_NOTINIT;
     if(!IS_HANDLE_VALID(handle))        // must be a valid handle
         return CANERR_HANDLE;
+    if(can[handle].board == PCAN_NONEBUS) // must be an opened handle
+        return CANERR_HANDLE;
 
     return drv_parameter(handle, param, value, (size_t)nbytes);
 }
@@ -843,10 +851,10 @@ char *can_hardware(int handle)
     {
         if(CAN_GetValue(can[handle].board, PCAN_DEVICE_NUMBER, (void*)&dev, 4) != PCAN_ERROR_OK)
             return NULL;
-        _snprintf_s(hardware, 256, 256, "%s (Device %02lXh)", str, dev);
+        snprintf(hardware, 256, "%s (Device %02lXh)", str, dev);
     }
     else
-        strcpy_s(hardware, 256, str);
+        strcpy(hardware, str);
 
     return (char*)hardware;             // hardware version
 }
@@ -862,7 +870,7 @@ char *can_software(int handle)
 
     if(CAN_GetValue(PCAN_NONEBUS, PCAN_API_VERSION, (void*)&str[15], 256-15) != PCAN_ERROR_OK)
         return NULL;
-    strcpy_s(software, 256, str);
+    strcpy(software, str);
 
     return (char*)software;             // software version
 }
@@ -990,13 +998,13 @@ static int bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, i
     if((bitrate->btr.nominal.sjw < CANBTR_NOMINAL_SJW_MIN) || (CANBTR_NOMINAL_SJW_MAX < bitrate->btr.nominal.sjw))
         return CANERR_BAUDRATE;
     if(!brse) {     // long frames only
-        if(sprintf_s(string, PCAN_BUF_SIZE, "f_clock=%li,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,nom_sam=%u",
-                                             bitrate->btr.frequency,
-                                             bitrate->btr.nominal.brp,
-                                             bitrate->btr.nominal.tseg1,
-                                             bitrate->btr.nominal.tseg2,
-                                             bitrate->btr.nominal.sjw,
-                                             bitrate->btr.nominal.sam) < 0)
+        if(sprintf(string, "f_clock=%li,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,nom_sam=%u",
+                            bitrate->btr.frequency,
+                            bitrate->btr.nominal.brp,
+                            bitrate->btr.nominal.tseg1,
+                            bitrate->btr.nominal.tseg2,
+                            bitrate->btr.nominal.sjw,
+                            bitrate->btr.nominal.sam) < 0)
             return CANERR_BAUDRATE;
     }
     else {          // long and fast frames
@@ -1008,18 +1016,18 @@ static int bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, i
             return CANERR_BAUDRATE;
         if((bitrate->btr.data.sjw < CANBTR_DATA_SJW_MIN) || (CANBTR_DATA_SJW_MAX < bitrate->btr.data.sjw))
             return CANERR_BAUDRATE;
-        if(sprintf_s(string, PCAN_BUF_SIZE, "f_clock=%li,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,nom_sam=%u,"
-                                                       "data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
-                                             bitrate->btr.frequency,
-                                             bitrate->btr.nominal.brp,
-                                             bitrate->btr.nominal.tseg1,
-                                             bitrate->btr.nominal.tseg2,
-                                             bitrate->btr.nominal.sjw,
-                                             bitrate->btr.nominal.sam,
-                                             bitrate->btr.data.brp,
-                                             bitrate->btr.data.tseg1,
-                                             bitrate->btr.data.tseg2,
-                                             bitrate->btr.data.sjw) < 0)
+        if(sprintf(string, "f_clock=%li,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,nom_sam=%u,"
+                                      "data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
+                            bitrate->btr.frequency,
+                            bitrate->btr.nominal.brp,
+                            bitrate->btr.nominal.tseg1,
+                            bitrate->btr.nominal.tseg2,
+                            bitrate->btr.nominal.sjw,
+                            bitrate->btr.nominal.sam,
+                            bitrate->btr.data.brp,
+                            bitrate->btr.data.tseg1,
+                            bitrate->btr.data.tseg2,
+                            bitrate->btr.data.sjw) < 0)
             return CANERR_BAUDRATE;
     }
     return CANERR_NOERROR;
@@ -1032,7 +1040,7 @@ static int string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, i
     int unsigned data_brp = 0, data_tseg1 = 0, data_tseg2 = 0, data_sjw = 0/*, data_ssp_offset = 0*/;
 
     // TODO: rework this!
-    if(sscanf_s(string, "f_clock=%lu,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,"
+    if(sscanf(string, "f_clock=%lu,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,"
                                    "data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
                              &freq, &nom_brp, &nom_tseg1, &nom_tseg2, &nom_sjw,
                                    &data_brp, &data_tseg1, &data_tseg2, &data_sjw) != 9)
@@ -1102,13 +1110,13 @@ static int lib_parameter(int param, void *value, size_t nbytes)
         break;
     case CANPROP_GET_VENDOR_NAME:       // vendor name of the interface DLL (CHAR[256])
         if((nbytes > strlen(PCAN_LIB_VENDOR)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
-            strcpy_s((char*)value, strlen(PCAN_LIB_VENDOR) + 1, PCAN_LIB_VENDOR);
+            strcpy((char*)value, PCAN_LIB_VENDOR);
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_VENDOR_DLLNAME:    // file name of the interface DLL (CHAR[256])
         if ((nbytes > strlen(PCAN_LIB_BASIC)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
-            strcpy_s((char*)value, strlen(PCAN_LIB_BASIC) + 1, PCAN_LIB_BASIC);
+            strcpy((char*)value, PCAN_LIB_BASIC);
             rc = CANERR_NOERROR;
         }
         break;
@@ -1164,7 +1172,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
         for(i = 0; i < PCAN_BOARDS; i++) {
             if(can_board[i].type == (unsigned long)can[handle].board) {
                 if((nbytes > strlen(can_board[i].name)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
-                    strcpy_s((char*)value, strlen(can_board[i].name) + 1, can_board[i].name);
+                    strcpy((char*)value, can_board[i].name);
                     rc = CANERR_NOERROR;
                     break;
                 }
