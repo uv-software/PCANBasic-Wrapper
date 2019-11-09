@@ -95,11 +95,11 @@
 
  #define PCAN_LIB_ID                400 //   library ID (CAN/COP API V1 compatible) 
 #ifndef __APPLE__
- #define PCAN_LIB_BASIC                     "PCANBasic.DLL"
+ #define PCAN_LIB_BASIC                     "PCANBasic.dll"
 #else
  #define PCAN_LIB_BASIC                     "libPCBUSB.dylib"
 #endif
- #define PCAN_LIB_VENDOR                    "PEAK-System"
+ #define PCAN_LIB_VENDOR                    "PEAK-System Technik GmbH, Darmstadt"
 
  struct _pcan_param                     //   installation parameters:
  {

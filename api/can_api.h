@@ -268,8 +268,8 @@
 #define CANPROP_GET_REVISION         2  /**< revision number of the library (UCHAR) */
 #define CANPROP_GET_BUILD_NO         3  /**< build number of the library (ULONG) */
 #define CANPROP_GET_LIBRARY_ID       4  /**< library id of the library (int) */
-#define CANPROP_GET_LIBRARY_DLL      5  /**< filename of the library (CHAR[256]) */
-#define CANPROP_GET_VENDOR_NAME      6  /**< vendor name of the interface (CHAR[256]) */
+#define CANPROP_GET_VENDOR_NAME      5  /**< vendor name of the interface DLL (CHAR[256]) */
+#define CANPROP_GET_VENDOR_DLLNAME   6  /**< file name of the interface DLL (CHAR[256]) */
 #define CANPROP_GET_BOARD_TYPE      10  /**< board type of the interface (int) */
 #define CANPROP_GET_BOARD_NAME      11  /**< board name of the interface (CHAR[256]) */
 #define CANPROP_GET_BOARD_PARAM     12  /**< board parameter of the interface (CHAR[256]) */
@@ -292,7 +292,10 @@
 #define CANPROP_SET_BTR_SPEED       42  /**< bit-rate calculation form bus speed */
 #define CANPROP_SET_BTR_STRING      43  /**< bit-rate calculation form string */
 #define CANPROP_SET_BTR_SJA1000     44  /**< bit-rate calculation form  SJA1000 register */
-#define CANPROP_BUF_MAX_SIZE       256  /**< max. buffer size for property values */
+#define CANPROP_GET_VENDOR_PROP    256  /**< get a vendor-specific property value (VOID) */
+#define CANPROP_SET_VENDOR_PROP    512  /**< set a vendor-specific property value (VOID) */
+#define CANPROP_VENDOR_PROP_RANGE  256  /**< range for vendor-specific property values */
+#define CANPROP_BUFFER_SIZE        256  /**< max. buffer size for property values */
 /** @} */
 
 /** @name  Legacy Stuff
@@ -454,7 +457,7 @@ typedef struct _can_msg_t {
  *  @note        When a requested operation mode is not supported by the
  *               CAN interface, error CANERR_ILLPARA will be returned.
  *
- *  @param[in]   board   - type of the CAN interface board
+ *  @param[in]   board   - type of the CAN controller board
  *  @param[in]   mode    - operation mode to be checked
  *  @param[in]   param   - pointer to board-specific parameters
  *  @param[out]  result  - result of the board test:
@@ -472,13 +475,13 @@ CANAPI int can_test(int board, unsigned char mode, const void *param, int *resul
 
 
 /** @brief       initializes the CAN interface (hardware and driver) by loading
- *               and starting the appropriate DLL for the specified CAN board
- *               given by the argument 'board'. 
+ *               and starting the appropriate DLL for the specified CAN controller
+ *               board given by the argument 'board'. 
  *               The operation state of the CAN interface is set to 'stopped';
  *               no communication is possible in this state.
  *
- *  @param[in]   board   - type of the CAN interface board
- *  @param[in]   mode    - operation mode of the CAN controller
+ *  @param[in]   board   - type of the CAN controller board
+ *  @param[in]   mode    - operation mode of the CAN interface
  *  @param[in]   param   - pointer to board-specific parameters
  *
  *  @returns     handle of the CAN interface if successful, 
@@ -494,8 +497,8 @@ CANAPI int can_init(int board, unsigned char mode, const void *param);
 /** @brief       stops any operation of the CAN interface and sets the operation
  *               state to 'offline'.
  *
- *  @note        The handle is invalid after this operation and may be assigned
- *               to a different CAN interface board by a call to can_init().
+ *  @note        The handle is invalid after this operation and could be assigned
+ *               to a different CAN controller board in a multy-board application.
  *
  *  @param[in]   handle  - handle of the CAN interface
  *
@@ -508,9 +511,10 @@ CANAPI int can_init(int board, unsigned char mode, const void *param);
 CANAPI int can_exit(int handle);
 
 
-/** @brief       initializes the bit-timing register of the CAN interface with
- *               the parameters of the bit-timing table selected by the baudrate
- *               index and sets the operation state to 'running'.
+/** @brief       initializes the operation mode and bit-timing registers of
+ *               the CAN interface and sets the operation state to 'running'.
+ *
+ *  @note        All statistical counters (tx(rx/err) will be reset by this.
  *
  *  @param[in]   handle  - handle of the CAN interface
  *  @param[in]   bitrate - bit-rate as btr register or baud rate index
