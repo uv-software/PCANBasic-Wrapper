@@ -68,7 +68,7 @@
 #include "can_api.h"
 
 #ifdef _MSC_VER
- //no Microsoft extensions please!
+//no Microsoft extensions please!
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS 1
 #endif
@@ -96,7 +96,7 @@
 #ifndef DLC2LEN
 #define DLC2LEN(x)              dlc_table[x & 0xF]
 #endif
-#ifdef _CiA_BIT_TIMING
+#ifdef  CANAPI_CiA_BIT_TIMING
 #undef  PCAN_BAUD_100K
 #define PCAN_BAUD_100K          0x441Cu
 #undef  PCAN_BAUD_50K
@@ -108,7 +108,7 @@
 #endif
 #define BTR0BTR1_DEFAULT        PCAN_BAUD_250K
 #define BIT_RATE_DEFAULT        "f_clock_mhz=80,nom_brp=20,nom_tseg1=12,nom_tseg2=3,nom_sjw=1," \
-                                               "data_brp=4,data_tseg1=7,data_tseg2=2,data_sjw=1"
+                                              "data_brp=4,data_tseg1=7,data_tseg2=2,data_sjw=1"
 #ifndef QWORD
 #define QWORD                   unsigned long long
 #endif
@@ -127,7 +127,7 @@ typedef struct {
     BYTE  brd_type;                     // board type (none PnP hardware)
     DWORD brd_port;                     // board parameter: I/O port address
     WORD  brd_irq;                      // board parameter: interrupt number
-#ifdef _BLOCKING_READ
+#if defined(_WIN32) || defined(_WIN64)
     HANDLE event;                       // event handle for blocking read
 #endif
     can_mode_t mode;                    // operation mode of the CAN channel
@@ -204,7 +204,7 @@ int can_test(int board, unsigned char mode, const void *param, int *result)
             can[i].brd_type = 0;
             can[i].brd_port = 0;
             can[i].brd_irq = 0;
-#ifdef _BLOCKING_READ
+#if defined(_WIN32) || defined(_WIN64)
             can[i].event = NULL;
 #endif
             can[i].mode.byte = CANMODE_DEFAULT;
@@ -270,7 +270,7 @@ int can_init(int board, unsigned char mode, const void *param)
             can[i].brd_type = 0;
             can[i].brd_port = 0;
             can[i].brd_irq = 0;
-#ifdef _BLOCKING_READ
+#if defined(_WIN32) || defined(_WIN64)
             can[i].event = NULL;
 #endif
             can[i].mode.byte = CANMODE_DEFAULT;
@@ -341,7 +341,7 @@ int can_exit(int handle)
              *       but after CAN_Uninitialize we are really bus off! */
             (void)CAN_Reset(can[handle].board);
         }
-#ifdef _BLOCKING_READ
+#if defined(_WIN32) || defined(_WIN64)
         if(can[handle].event != NULL)   // close event handle, if any
             (void)CloseHandle(can[handle].event);
 #endif
@@ -359,7 +359,7 @@ int can_exit(int handle)
                      *       but after CAN_Uninitialize we are really bus off! */
                     (void)CAN_Reset(can[i].board);
                 }
-#ifdef _BLOCKING_READ
+#if defined(_WIN32) || defined(_WIN64)
                 if(can[i].event != NULL) // close event handle, if any
                     (void)CloseHandle(can[i].event);
 #endif
@@ -415,9 +415,9 @@ int can_start(int handle, const can_bitrate_t *bitrate)
             return CANERR_BAUDRATE;
     }
     /* note: to (re-)start the CAN controller, we have to reinitialize it */
-#ifdef _BLOCKING_READ
-//    if(can[handle].event != NULL)       // close event handle, if any
-//        (void)CloseHandle(can[handle].event);
+#if defined(_WIN32) || defined(_WIN64)
+    if(can[handle].event != NULL)       // close event handle, if any
+        (void)CloseHandle(can[handle].event);
 #endif
     if((rc = CAN_Reset(can[handle].board)) != PCAN_ERROR_OK)
         return pcan_error(rc);
@@ -434,7 +434,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
                                 can[handle].brd_irq)) != PCAN_ERROR_OK)
             return pcan_error(rc);
     }
-#ifdef _BLOCKING_READ
+#if defined(_WIN32) || defined(_WIN64)
     if((can[handle].event = CreateEvent( // create an event handle
             NULL,                       //   default security attributes
             FALSE,                      //   auto-reset event
@@ -483,8 +483,9 @@ int can_start(int handle, const can_bitrate_t *bitrate)
     return CANERR_NOERROR;
 }
 
-int can_kill(int handle)
-{
+#if defined(_WIN32) || defined(_WIN64)
+ int can_kill(int handle)
+ {
     int i;
 
     if(!init)                           // must be initialized
@@ -492,7 +493,6 @@ int can_kill(int handle)
     if(handle != CANKILL_ALL) {
         if(!IS_HANDLE_VALID(handle))    // must be a valid handle
             return CANERR_HANDLE;
-#ifdef _BLOCKING_READ
         if((can[handle].board != PCAN_NONEBUS) &&
            (can[handle].event != NULL)) {
             SetEvent(can[handle].event);  // signal event oject
@@ -505,10 +505,10 @@ int can_kill(int handle)
                 SetEvent(can[i].event); //   signal all event ojects
             }
         }
-#endif
     }
     return CANERR_NOERROR;
-}
+ }
+#endif
 
 int can_reset(int handle)
 {
@@ -629,7 +629,7 @@ int can_read(int handle, can_msg_t *msg, unsigned short timeout)
     else
         rc = CAN_ReadFD(can[handle].board, &can_msg_fd, &timestamp_fd);
     if(rc == PCAN_ERROR_QRCVEMPTY) {
-#ifdef _BLOCKING_READ
+#if defined(_WIN32) || defined(_WIN64)
         if(timeout > 0) {
             switch(WaitForSingleObject(can[handle].event, (timeout != 65535) ? timeout : INFINITE)) {
             case WAIT_OBJECT_0:
