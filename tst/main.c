@@ -335,14 +335,22 @@ int main(int argc, char *argv[])
             fprintf(stdout, "Property: CANPROP_GET_LIBRARY_ID=(%d)\n", i);
         else
             fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_LIBRARY_ID) failed\n", rc);
-        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_VENDOR_NAME, (void*)string, CANPROP_BUFFER_SIZE)) == CANERR_NOERROR)
-            fprintf(stdout, "Property: CANPROP_GET_VENDOR_NAME=%s\n", string);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_LIBRARY_VENDOR, (void*)string, CANPROP_BUFFER_SIZE)) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_LIBRARY_VENDOR=%s\n", string);
         else
-            fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_VENDOR_NAME) failed\n", rc);
-        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_VENDOR_DLLNAME, (void*)string, CANPROP_BUFFER_SIZE)) == CANERR_NOERROR)
-            fprintf(stdout, "Property: CANPROP_GET_VENDOR_DLLNAME=%s\n", string);
+            fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_LIBRARY_VENDOR) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_LIBRARY_DLLNAME, (void*)string, CANPROP_BUFFER_SIZE)) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_LIBRARY_DLLNAME=%s\n", string);
         else
-            fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_VENDOR_DLLNAME) failed\n", rc);
+            fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_LIBRARY_DLLNAME) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_BOARD_VENDOR, (void*)string, CANPROP_BUFFER_SIZE)) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_BOARD_VENDOR=%s\n", string);
+        else
+            fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_BOARD_VENDOR) failed\n", rc);
+        if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_BOARD_DLLNAME, (void*)string, CANPROP_BUFFER_SIZE)) == CANERR_NOERROR)
+            fprintf(stdout, "Property: CANPROP_GET_BOARD_DLLNAME=%s\n", string);
+        else
+            fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_BOARD_DLLNAME) failed\n", rc);
         if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_VENDOR_PROP + 5, (void*)string, CANPROP_BUFFER_SIZE)) == CANERR_NOERROR)
             fprintf(stdout, "Property: PCAN_API_VERSION=%s\n", string);
         else

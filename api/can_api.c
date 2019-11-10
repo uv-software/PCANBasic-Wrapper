@@ -1108,14 +1108,26 @@ static int lib_parameter(int param, void *value, size_t nbytes)
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_VENDOR_NAME:       // vendor name of the interface DLL (CHAR[256])
+    case CANPROP_GET_LIBRARY_VENDOR:    // vendor name of the library (CHAR[256])
+        if((nbytes > strlen(CAN_API_VENDOR)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
+            strcpy((char*)value, CAN_API_VENDOR);
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_LIBRARY_DLLNAME:   // file name of the library (CHAR[256])
+        if ((nbytes > strlen(PCAN_LIB_WRAPPER)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
+            strcpy((char*)value, PCAN_LIB_WRAPPER);
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_BOARD_VENDOR:      // vendor name of the CAN interface (CHAR[256])
         if((nbytes > strlen(PCAN_LIB_VENDOR)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
             strcpy((char*)value, PCAN_LIB_VENDOR);
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_VENDOR_DLLNAME:    // file name of the interface DLL (CHAR[256])
-        if ((nbytes > strlen(PCAN_LIB_BASIC)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
+    case CANPROP_GET_BOARD_DLLNAME:     // file name of the CAN interface (CHAR[256])
+        if((nbytes > strlen(PCAN_LIB_BASIC)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
             strcpy((char*)value, PCAN_LIB_BASIC);
             rc = CANERR_NOERROR;
         }
@@ -1162,13 +1174,13 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
 
     /* CAN interface properties */
     switch(param) {
-    case CANPROP_GET_BOARD_TYPE:        // board type of the interface (int)
+    case CANPROP_GET_BOARD_TYPE:        // board type of the CAN interface (int)
         if(nbytes == sizeof(int)) {
             *(int*)value = (int)can[handle].board;
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_BOARD_NAME:        // board name of the interface (CHAR[256])
+    case CANPROP_GET_BOARD_NAME:        // board name of the CAN interface (CHAR[256])
         for(i = 0; i < PCAN_BOARDS; i++) {
             if(can_board[i].type == (unsigned long)can[handle].board) {
                 if((nbytes > strlen(can_board[i].name)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
@@ -1181,7 +1193,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
         if((i == PCAN_BOARDS) || (rc = CANERR_NOERROR))
             rc = CANERR_FATAL;
         break;
-    case CANPROP_GET_BOARD_PARAM:       // board parameter of the interface (CHAR[256])
+    case CANPROP_GET_BOARD_PARAM:       // board parameter of the CAN interface (CHAR[256])
         if(nbytes == sizeof(struct _pcan_param)) {
             ((struct _pcan_param*)value)->type = (unsigned char)can[handle].brd_type;
             ((struct _pcan_param*)value)->port = (unsigned long)can[handle].brd_port;
@@ -1189,7 +1201,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_OP_CAPABILITY:     // supported operation modes of the interface (UCHAR)
+    case CANPROP_GET_OP_CAPABILITY:     // supported operation modes of the CAN controller (UCHAR)
         if((rc = pcan_capability(can[handle].board, &mode)) == CANERR_NOERROR) {
             if(nbytes == sizeof(unsigned char)) {
                 *(unsigned char*)value = (unsigned char)mode.byte;
@@ -1197,13 +1209,13 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
             }
         }
         break;
-    case CANPROP_GET_OP_MODE:           // active operation mode of the interface (UCHAR)
+    case CANPROP_GET_OP_MODE:           // active operation mode of the CAN controller (UCHAR)
         if (nbytes == sizeof(unsigned char)) {
             *(unsigned char*)value = (unsigned char)can[handle].mode.byte;
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_BITRATE:           // active bit-rate of the interface (can_bitrate_t)
+    case CANPROP_GET_BITRATE:           // active bit-rate of the CAN controller (can_bitrate_t)
         if(((rc = can_bitrate(handle, &bitrate, NULL)) == CANERR_NOERROR) || (rc == CANERR_OFFLINE)) {
             if(nbytes == sizeof(can_bitrate_t)) {
                 memcpy(value, &bitrate, sizeof(can_bitrate_t));
@@ -1211,7 +1223,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
             }
         }
         break;
-    case CANPROP_GET_SPEED:             // active bus speed of the interface (can_speed_t)
+    case CANPROP_GET_SPEED:             // active bus speed of the CAN controller (can_speed_t)
         if(((rc = can_bitrate(handle, NULL, &speed)) == CANERR_NOERROR) || (rc == CANERR_OFFLINE)) {
             if(nbytes == sizeof(can_speed_t)) {
                 memcpy(value, &speed, sizeof(can_speed_t));
@@ -1219,7 +1231,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
             }
         }
         break;
-    case CANPROP_GET_STATUS:            // current status register of the interface (UCHAR)
+    case CANPROP_GET_STATUS:            // current status register of the CAN controller (UCHAR)
         if((rc = can_status(handle, &status)) == CANERR_NOERROR) {
             if(nbytes == sizeof(unsigned char)) {
                 *(unsigned char*)value = (unsigned char)status;
@@ -1227,7 +1239,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
             }
         }
         break;
-    case CANPROP_GET_BUSLOAD:           // current bus load of the interface (UCHAR)
+    case CANPROP_GET_BUSLOAD:           // current bus load of the CAN controller (UCHAR)
         if((rc = can_busload(handle, &load, NULL)) == CANERR_NOERROR) {
             if(nbytes == sizeof(unsigned char)) {
                 *(unsigned char*)value = (unsigned char)load;
@@ -1241,13 +1253,13 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_RX_COUNTER:        // total number of reveice messages (ULONGONG)
+    case CANPROP_GET_RX_COUNTER:        // total number of reveiced messages (ULONGONG)
         if(nbytes == sizeof(unsigned long long)) {
             *(unsigned long long*)value = (unsigned long long)can[handle].counters.rx;
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_ERR_COUNTER:       // total number of reveice error frames (ULONGONG)
+    case CANPROP_GET_ERR_COUNTER:       // total number of reveiced error frames (ULONGONG)
         if(nbytes == sizeof(unsigned long long)) {
             *(unsigned long long*)value = (unsigned long long)can[handle].counters.err;
             rc = CANERR_NOERROR;

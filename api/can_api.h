@@ -268,20 +268,22 @@
 #define CANPROP_GET_REVISION         2  /**< revision number of the library (UCHAR) */
 #define CANPROP_GET_BUILD_NO         3  /**< build number of the library (ULONG) */
 #define CANPROP_GET_LIBRARY_ID       4  /**< library id of the library (int) */
-#define CANPROP_GET_VENDOR_NAME      5  /**< vendor name of the interface DLL (CHAR[256]) */
-#define CANPROP_GET_VENDOR_DLLNAME   6  /**< file name of the interface DLL (CHAR[256]) */
-#define CANPROP_GET_BOARD_TYPE      10  /**< board type of the interface (int) */
-#define CANPROP_GET_BOARD_NAME      11  /**< board name of the interface (CHAR[256]) */
-#define CANPROP_GET_BOARD_PARAM     12  /**< board parameter of the interface (CHAR[256]) */
-#define CANPROP_GET_OP_CAPABILITY   15  /**< supported operation modes of the interface (UCHAR) */
-#define CANPROP_GET_OP_MODE         16  /**< active operation mode of the interface (UCHAR) */
-#define CANPROP_GET_BITRATE         17  /**< active bit-rate of the interface (can_bitrate_t) */
-#define CANPROP_GET_SPEED           18  /**< active bus speed of the interface (can_speed_t) */
-#define CANPROP_GET_STATUS          19  /**< current status register of the interface (UCHAR) */
-#define CANPROP_GET_BUSLOAD         20  /**< current bus load of the interface (UCHAR) */
+#define CANPROP_GET_LIBRARY_VENDOR   5  /**< vendor name of the library (CHAR[256]) */
+#define CANPROP_GET_LIBRARY_DLLNAME  6  /**< file name of the library DLL (CHAR[256]) */
+#define CANPROP_GET_BOARD_TYPE      10  /**< board type of the CAN interface (int) */
+#define CANPROP_GET_BOARD_NAME      11  /**< board name of the CAN interface (CHAR[256]) */
+#define CANPROP_GET_BOARD_VENDOR    12  /**< vendor name of the CAN interface (CHAR[256]) */
+#define CANPROP_GET_BOARD_DLLNAME   13  /**< file name of the CAN interface DLL(CHAR[256]) */
+#define CANPROP_GET_BOARD_PARAM     14  /**< board parameter of the CAN interface (CHAR[256]) */
+#define CANPROP_GET_OP_CAPABILITY   15  /**< supported operation modes of the CAN controller (UCHAR) */
+#define CANPROP_GET_OP_MODE         16  /**< active operation mode of the CAN controller (UCHAR) */
+#define CANPROP_GET_BITRATE         17  /**< active bit-rate of the CAN controller (can_bitrate_t) */
+#define CANPROP_GET_SPEED           18  /**< active bus speed of the CAN controller (can_speed_t) */
+#define CANPROP_GET_STATUS          19  /**< current status register of the CAN controller (UCHAR) */
+#define CANPROP_GET_BUSLOAD         20  /**< current bus load of the CAN controller (UCHAR) */
 #define CANPROP_GET_TX_COUNTER      24  /**< total number of sent messages (ULONGONG) */
-#define CANPROP_GET_RX_COUNTER      25  /**< total number of reveice messages (ULONGONG) */
-#define CANPROP_GET_ERR_COUNTER     26  /**< total number of reveice error frames (ULONGONG) */
+#define CANPROP_GET_RX_COUNTER      25  /**< total number of reveiced messages (ULONGONG) */
+#define CANPROP_GET_ERR_COUNTER     26  /**< total number of reveiced error frames (ULONGONG) */
 #define CANPROP_GET_BTR_INDEX       32  /**< bit-rate as CiA index (long) */
 #define CANPROP_GET_BTR_VALUE       33  /**< bit-rate as struct (can_bitrate_t) */
 #define CANPROP_GET_BTR_SPEED       34  /**< bit-rate as bus speed (can_speed_t) */

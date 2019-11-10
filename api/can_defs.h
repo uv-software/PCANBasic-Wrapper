@@ -94,10 +94,20 @@
  #define PCAN_LIB_ID                400 //   library ID (CAN/COP API V1 compatible) 
 #ifndef __APPLE__
  #define PCAN_LIB_BASIC                     "PCANBasic.dll"
-#else
+ #define PCAN_LIB_WRAPPER                   "u3canpcb.dll"
+#else                                       
  #define PCAN_LIB_BASIC                     "libPCBUSB.dylib"
-#endif
+ #define PCAN_LIB_WRAPPER                   "libUVCANPCB.dylib"
+#endif                                      
  #define PCAN_LIB_VENDOR                    "PEAK-System Technik GmbH, Darmstadt"
+ #define CAN_API_VENDOR                     "UV Software, Berlin"
+ #define CAN_API_AUTHOR                     "Uwe Vogt, UV Software"
+ #define CAN_API_WEBSITE                    "www.uv-software.com"
+ #define CAN_API_CONTACT                    "info@uv-software.com"
+ #define CAN_API_LICENSE                    "UVS Freeware License (without any warranty or support)"
+ #define CAN_API_COPYRIGHT                  "Copyright (C) 2005-20%02u, UV Software, Berlin"
+ #define CAN_API_HAZARD_NOTE                "Do not connect your CAN device to a real CAN network when using this program.\n" \
+                                            "This can damage your application."
 
  struct _pcan_param                     //   installation parameters:
  {
