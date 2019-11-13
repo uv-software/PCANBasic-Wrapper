@@ -268,13 +268,13 @@
 #define CANPROP_GET_REVISION         2  /**< revision number of the library (UCHAR) */
 #define CANPROP_GET_BUILD_NO         3  /**< build number of the library (ULONG) */
 #define CANPROP_GET_LIBRARY_ID       4  /**< library id of the library (int) */
-#define CANPROP_GET_LIBRARY_VENDOR   5  /**< vendor name of the library (CHAR[256]) */
-#define CANPROP_GET_LIBRARY_DLLNAME  6  /**< file name of the library DLL (CHAR[256]) */
+#define CANPROP_GET_LIBRARY_VENDOR   5  /**< vendor name of the library (char[256]) */
+#define CANPROP_GET_LIBRARY_DLLNAME  6  /**< file name of the library DLL (char[256]) */
 #define CANPROP_GET_BOARD_TYPE      10  /**< board type of the CAN interface (int) */
-#define CANPROP_GET_BOARD_NAME      11  /**< board name of the CAN interface (CHAR[256]) */
-#define CANPROP_GET_BOARD_VENDOR    12  /**< vendor name of the CAN interface (CHAR[256]) */
-#define CANPROP_GET_BOARD_DLLNAME   13  /**< file name of the CAN interface DLL(CHAR[256]) */
-#define CANPROP_GET_BOARD_PARAM     14  /**< board parameter of the CAN interface (CHAR[256]) */
+#define CANPROP_GET_BOARD_NAME      11  /**< board name of the CAN interface (char[256]) */
+#define CANPROP_GET_BOARD_VENDOR    12  /**< vendor name of the CAN interface (char[256]) */
+#define CANPROP_GET_BOARD_DLLNAME   13  /**< file name of the CAN interface DLL(char[256]) */
+#define CANPROP_GET_BOARD_PARAM     14  /**< board parameter of the CAN interface (char[256]) */
 #define CANPROP_GET_OP_CAPABILITY   15  /**< supported operation modes of the CAN controller (UCHAR) */
 #define CANPROP_GET_OP_MODE         16  /**< active operation mode of the CAN controller (UCHAR) */
 #define CANPROP_GET_BITRATE         17  /**< active bit-rate of the CAN controller (can_bitrate_t) */
@@ -284,18 +284,9 @@
 #define CANPROP_GET_TX_COUNTER      24  /**< total number of sent messages (ULONGONG) */
 #define CANPROP_GET_RX_COUNTER      25  /**< total number of reveiced messages (ULONGONG) */
 #define CANPROP_GET_ERR_COUNTER     26  /**< total number of reveiced error frames (ULONGONG) */
-#define CANPROP_GET_BTR_INDEX       32  /**< bit-rate as CiA index (long) */
-#define CANPROP_GET_BTR_VALUE       33  /**< bit-rate as struct (can_bitrate_t) */
-#define CANPROP_GET_BTR_SPEED       34  /**< bit-rate as bus speed (can_speed_t) */
-#define CANPROP_GET_BTR_STRING      35  /**< bit-rate as string (CHAR[256]) */
-#define CANPROP_GET_BTR_SJA1000     36  /**< bit-rate as SJA1000 register (USHORT) */
-#define CANPROP_SET_BTR_INDEX       40  /**< bit-rate calculation form CiA index */
-#define CANPROP_SET_BTR_VALUE       41  /**< bit-rate calculation form struct */
-#define CANPROP_SET_BTR_SPEED       42  /**< bit-rate calculation form bus speed */
-#define CANPROP_SET_BTR_STRING      43  /**< bit-rate calculation form string */
-#define CANPROP_SET_BTR_SJA1000     44  /**< bit-rate calculation form  SJA1000 register */
-#define CANPROP_GET_VENDOR_PROP    256  /**< get a vendor-specific property value (VOID) */
-#define CANPROP_SET_VENDOR_PROP    512  /**< set a vendor-specific property value (VOID) */
+/* - -  access to vendor-specific properties  - - - - - - - - - - - - - */
+#define CANPROP_GET_VENDOR_PROP    256  /**< get a vendor-specific property value (void*) */
+#define CANPROP_SET_VENDOR_PROP    512  /**< set a vendor-specific property value (void*) */
 #define CANPROP_VENDOR_PROP_RANGE  256  /**< range for vendor-specific property values */
 #define CANPROP_BUFFER_SIZE        256  /**< max. buffer size for property values */
 /** @} */

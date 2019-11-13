@@ -1108,32 +1108,32 @@ static int lib_parameter(int param, void *value, size_t nbytes)
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_LIBRARY_VENDOR:    // vendor name of the library (CHAR[256])
+    case CANPROP_GET_LIBRARY_VENDOR:    // vendor name of the library (char[256])
         if((nbytes > strlen(CAN_API_VENDOR)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
             strcpy((char*)value, CAN_API_VENDOR);
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_LIBRARY_DLLNAME:   // file name of the library (CHAR[256])
+    case CANPROP_GET_LIBRARY_DLLNAME:   // file name of the library (char[256])
         if ((nbytes > strlen(PCAN_LIB_WRAPPER)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
             strcpy((char*)value, PCAN_LIB_WRAPPER);
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_BOARD_VENDOR:      // vendor name of the CAN interface (CHAR[256])
+    case CANPROP_GET_BOARD_VENDOR:      // vendor name of the CAN interface (char[256])
         if((nbytes > strlen(PCAN_LIB_VENDOR)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
             strcpy((char*)value, PCAN_LIB_VENDOR);
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_BOARD_DLLNAME:     // file name of the CAN interface (CHAR[256])
+    case CANPROP_GET_BOARD_DLLNAME:     // file name of the CAN interface (char[256])
         if((nbytes > strlen(PCAN_LIB_BASIC)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
             strcpy((char*)value, PCAN_LIB_BASIC);
             rc = CANERR_NOERROR;
         }
         break;
     default:
-        if((CANPROP_GET_VENDOR_PROP <= param) &&  // get a vendor-specific property value (VOID)
+        if((CANPROP_GET_VENDOR_PROP <= param) &&  // get a vendor-specific property value (void*)
             (param < (CANPROP_GET_VENDOR_PROP + CANPROP_VENDOR_PROP_RANGE))) {
             if((sts = CAN_GetValue(PCAN_NONEBUS, (BYTE)(param - CANPROP_GET_VENDOR_PROP),
                 (void*)value, (DWORD)nbytes)) == PCAN_ERROR_OK)
@@ -1141,7 +1141,7 @@ static int lib_parameter(int param, void *value, size_t nbytes)
             else
                 rc = pcan_error(sts);
         }
-        else if((CANPROP_SET_VENDOR_PROP <= param) &&  // set a vendor-specific property value (VOID)
+        else if((CANPROP_SET_VENDOR_PROP <= param) &&  // set a vendor-specific property value (void*)
             (param < (CANPROP_SET_VENDOR_PROP + CANPROP_VENDOR_PROP_RANGE))) {
             if((sts = CAN_SetValue(PCAN_NONEBUS, (BYTE)(param - CANPROP_SET_VENDOR_PROP),
                 (void*)value, (DWORD)nbytes)) == PCAN_ERROR_OK)
@@ -1180,7 +1180,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_BOARD_NAME:        // board name of the CAN interface (CHAR[256])
+    case CANPROP_GET_BOARD_NAME:        // board name of the CAN interface (char[256])
         for(i = 0; i < PCAN_BOARDS; i++) {
             if(can_board[i].type == (unsigned long)can[handle].board) {
                 if((nbytes > strlen(can_board[i].name)) && (nbytes <= CANPROP_BUFFER_SIZE)) {
@@ -1193,7 +1193,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
         if((i == PCAN_BOARDS) || (rc = CANERR_NOERROR))
             rc = CANERR_FATAL;
         break;
-    case CANPROP_GET_BOARD_PARAM:       // board parameter of the CAN interface (CHAR[256])
+    case CANPROP_GET_BOARD_PARAM:       // board parameter of the CAN interface (char[256])
         if(nbytes == sizeof(struct _pcan_param)) {
             ((struct _pcan_param*)value)->type = (unsigned char)can[handle].brd_type;
             ((struct _pcan_param*)value)->port = (unsigned long)can[handle].brd_port;
@@ -1266,7 +1266,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
         }
         break;
     default:
-        if((CANPROP_GET_VENDOR_PROP <= param) &&  // get a vendor-specific property value (VOID)
+        if((CANPROP_GET_VENDOR_PROP <= param) &&  // get a vendor-specific property value (void*)
            (param < (CANPROP_GET_VENDOR_PROP + CANPROP_VENDOR_PROP_RANGE))) {
             if((sts = CAN_GetValue(can[handle].board, (BYTE)(param - CANPROP_GET_VENDOR_PROP),
                 (void*)value, (DWORD)nbytes)) == PCAN_ERROR_OK)
@@ -1274,7 +1274,7 @@ static int drv_parameter(int handle, int param, void *value, size_t nbytes)
             else
                 rc = pcan_error(sts);
         }
-        else if((CANPROP_SET_VENDOR_PROP <= param) &&  // set a vendor-specific property value (VOID)
+        else if((CANPROP_SET_VENDOR_PROP <= param) &&  // set a vendor-specific property value (void*)
                 (param < (CANPROP_SET_VENDOR_PROP + CANPROP_VENDOR_PROP_RANGE))) {
             if((sts = CAN_SetValue(can[handle].board, (BYTE)(param - CANPROP_SET_VENDOR_PROP),
                 (void*)value, (DWORD)nbytes)) == PCAN_ERROR_OK)
