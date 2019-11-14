@@ -31,17 +31,22 @@
  *  @addtogroup  can_api
  *  @{
  */
+/*  -----------  version  ------------------------------------------------
+ */
+
+#include "can_vers.h"
 
 #ifdef _MSC_VER
 #define VERSION_MAJOR     3
 #define VERSION_MINOR     3
-#define VERSION_REVISION  0
+#define VERSION_PATCH     0
 #else
 #define VERSION_MAJOR     0
 #define VERSION_MINOR     2
-#define VERSION_REVISION  0
+#define VERSION_PATCH     0
 #endif
-#define VERSION_STRING    TOSTRING(VERSION_MAJOR)"." TOSTRING(VERSION_MINOR)"."TOSTRING(VERSION_REVISION)
+#define VERSION_BUILD     BUILD_NO
+#define VERSION_STRING    TOSTRING(VERSION_MAJOR)"." TOSTRING(VERSION_MINOR)"."TOSTRING(VERSION_PATCH)"-"TOSTRING(BUILD_NO)
 #if defined(_WIN64)
 #define PLATFORM    "x64"
 #elif defined(_WIN32)
@@ -55,14 +60,13 @@
 #else
 #error Unsupported architecture
 #endif
-#include "can_vers.h"
 #ifdef _DEBUG
-    static char _id[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version "VERSION_STRING"-"TOSTRING(BUILD_NO)" ("PLATFORM") _DEBUG";
+    static char _id[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version "VERSION_STRING" ("PLATFORM") _DEBUG";
 #else
-    static char _id[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version "VERSION_STRING"-"TOSTRING(BUILD_NO)" ("PLATFORM")";
+    static char _id[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version "VERSION_STRING" ("PLATFORM")";
 #endif
 
-/*  -----------  includes  -------------------------------------------------
+/*  -----------  includes  -----------------------------------------------
  */
 
 #include "can_api.h"
@@ -246,8 +250,13 @@ int can_test(int board, unsigned char mode, const void *param, int *result)
         if((mode & CANMODE_BRSE) && !(mode & CANMODE_FDOE))
             return CANERR_ILLPARA; // bit-rate switching requested, but CAN FD not enabled
         /*if((mode & CANMODE_NISO)) {} // This can not be determined (FIXME) */
+#if (0)
         /*if((mode & CANMODE_NXTD)) {} // PCAN_ACCEPTANCE_FILTER_29BIT available since version 4.2.0 */
         /*if((mode & CANMODE_NRTR)) {} // PCAN_ALLOW_RTR_FRAMES available since version 4.2.0 */
+#else
+        if((mode & CANMODE_NXTD)) return CANERR_ILLPARA; // acceptance filtering not supported!
+        if((mode & CANMODE_NRTR)) return CANERR_ILLPARA; // suppressing RTR frames not supported!
+#endif
         /*if((mode & CANMODE_ERR)) {}  // PCAN_ALLOW_ERROR_FRAMES available since version 4.2.0 */
         /*if((mode & CANMODE_MON)) {}  // PCAN_LISTEN_ONLY available since version 1.0.0 */
     }
@@ -378,7 +387,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
     TPCANBaudrate btr0btr1;             // btr0btr1 value
     char string[PCAN_BUF_SIZE];         // bit-rate string
     DWORD value;                        // parameter value
-    QWORD filter;                       // for 29-bit filter
+    //QWORD filter;                       // for 29-bit filter
     TPCANStatus rc;                     // return value
 
     if(!init)                           // must be initialized
@@ -462,6 +471,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
         CAN_Uninitialize(can[handle].board);
         return pcan_error(rc);
     }
+#if (0)
     value = (can[handle].mode.b.nrtr) ? PCAN_PARAMETER_OFF : PCAN_PARAMETER_ON;
     if((rc = CAN_SetValue(can[handle].board, PCAN_ALLOW_RTR_FRAMES, // TODO: fdoe?
                   (void*)&value, sizeof(value))) != PCAN_ERROR_OK) {
@@ -474,6 +484,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
         CAN_Uninitialize(can[handle].board);
         return pcan_error(rc);
     }
+#endif
     can[handle].status.byte = 0x00;     // clear old status bits and counters
     can[handle].counters.tx = 0ull;
     can[handle].counters.rx = 0ull;
@@ -920,8 +931,13 @@ static int pcan_capability(WORD board, can_mode_t *capability)
     capability->b.brse = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
     capability->b.niso = 0; // This can not be determined (FIXME) 
     capability->b.shrd = 0; // This feature is not supported (TODO: clarify)
+#if (0)
     capability->b.nxtd = 1; // PCAN_ACCEPTANCE_FILTER_29BIT available since version 4.2.0
     capability->b.nrtr = 1; // PCAN_ALLOW_RTR_FRAMES available since version 4.2.0
+#else
+    capability->b.nxtd = 0; // This feature is not supported (TODO: acceptance filtering)
+    capability->b.nrtr = 0; // This feature is not supported (TODO: suppress RTR frames)
+#endif
     capability->b.err = 1;  // PCAN_ALLOW_ERROR_FRAMES available since version 4.2.0
     capability->b.mon = 1;  // PCAN_LISTEN_ONLY available since version 1.0.0
 
@@ -1090,15 +1106,15 @@ static int lib_parameter(int param, void *value, size_t nbytes)
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_REVISION:          // revision number of the library (UCHAR)
+    case CANPROP_GET_PATCH_NO:          // patch number of the library (UCHAR)
         if(nbytes == sizeof(unsigned char)) {
-            *(unsigned char*)value = (unsigned char)VERSION_REVISION;
+            *(unsigned char*)value = (unsigned char)VERSION_PATCH;
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_BUILD_NO:          // build number of the library (ULONG)
         if(nbytes == sizeof(unsigned long)) {
-            *(unsigned long*)value = (unsigned long)BUILD_NO;
+            *(unsigned long*)value = (unsigned long)VERSION_BUILD;
             rc = CANERR_NOERROR;
         }
         break;

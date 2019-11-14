@@ -265,7 +265,7 @@
  *  @{ */
 #define CANPROP_GET_SPEC             0  /**< version of the wrapper specification (USHORT) */
 #define CANPROP_GET_VERSION          1  /**< version number of the library (USHORT) */
-#define CANPROP_GET_REVISION         2  /**< revision number of the library (UCHAR) */
+#define CANPROP_GET_PATCH_NO         2  /**< patch number of the library (UCHAR) */
 #define CANPROP_GET_BUILD_NO         3  /**< build number of the library (ULONG) */
 #define CANPROP_GET_LIBRARY_ID       4  /**< library id of the library (int) */
 #define CANPROP_GET_LIBRARY_VENDOR   5  /**< vendor name of the library (char[256]) */
