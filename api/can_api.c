@@ -336,6 +336,7 @@ int can_init(int board, unsigned char mode, const void *param)
 
 int can_exit(int handle)
 {
+    TPCANStatus rc;                     // return value
     int i;
 
     if(!init)                           // must be initialized
@@ -351,10 +352,13 @@ int can_exit(int handle)
             (void)CAN_Reset(can[handle].board);
         }
 #if defined(_WIN32) || defined(_WIN64)
-        if(can[handle].event != NULL)   // close event handle, if any
-            (void)CloseHandle(can[handle].event);
+        if(can[handle].event != NULL) { // close event handle, if any
+            if(!CloseHandle(can[handle].event))
+                return CANERR_FATAL;
+        }
 #endif
-        (void)CAN_Uninitialize(can[handle].board); // resistance is futile!
+        if((rc = CAN_Uninitialize(can[handle].board)) != PCAN_ERROR_OK)
+            return pcan_error(rc);
 		
         can[handle].status.byte |= CANSTAT_RESET;  // CAN controller in INIT state
         can[handle].board = PCAN_NONEBUS; // handle can be used again

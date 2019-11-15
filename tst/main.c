@@ -477,7 +477,7 @@ int main(int argc, char *argv[])
         else if((rc = can_property(handle, CANPROP_GET_ERR_COUNTER, (void*)&err, sizeof(err))) != CANERR_NOERROR)
             fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_ERR_COUNTER) failed\n", rc);
         else
-            fprintf(stdout, "Counters: TxCnt=%llu, RxCnt=%llu, ErrCnt=%llu\n", tx, rx, err);
+            fprintf(stdout, "Counters: TxCnt=%"PRIu64", RxCnt=%"PRIu64", ErrCnt=%"PRIu64"\n", tx, rx, err);
         if((device = can_hardware(handle)) != NULL)
             fprintf(stdout, "Hardware: %s\n", device);
         if((firmware = can_software(handle)) != NULL)
@@ -485,7 +485,7 @@ int main(int argc, char *argv[])
     }
 end:
     fprintf(stdout, "Teardown.."); fflush(stdout);
-    if((rc = can_exit(CANEXIT_ALL)) != CANERR_NOERROR) {
+    if((rc = can_exit(handle)) != CANERR_NOERROR) {
         fprintf(stdout, "FAILED\n");
         fprintf(stderr, "+++ error(%i): can_exit failed\n", rc);
         return 1;
