@@ -116,6 +116,8 @@
 #ifndef QWORD
 #define QWORD                   unsigned long long
 #endif
+#define SYSERR_OFFSET          -10000  /**< Offset for system errors */
+
 
 /*  -----------  types  --------------------------------------------------
  */
@@ -301,12 +303,23 @@ int can_init(int board, unsigned char mode, const void *param)
     if(!IS_HANDLE_VALID(i))             // no free handle found
         return CANERR_HANDLE;
 
-    /* to start the CAN controller initially in reset state, we have switch off
+#if defined(_WIN32) || defined(_WIN64)
+    /* one event handle per channel */
+    if((can[i].event = CreateEvent( // create an event handle
+        NULL,                       //   default security attributes
+        FALSE,                      //   auto-reset event
+        FALSE,                      //   initial state is nonsignaled
+        TEXT("PCANBasic")           //   object name
+      )) == NULL) {
+        return SYSERR_OFFSET - (int)GetLastError();
+    }
+#endif
+    /* to start the CAN controller initially in reset state, we have switch OFF
      * the receiver and the transmitter and then to call CAN_Initialize[FD]() */
-    value = PCAN_PARAMETER_OFF;         // receiver off
+    value = PCAN_PARAMETER_OFF;         // receiver OFF
     if((rc = CAN_SetValue((WORD)board, PCAN_RECEIVE_STATUS, (void*)&value, sizeof(value))) != PCAN_ERROR_OK)
         return pcan_error(rc);
-    value = PCAN_PARAMETER_ON;          // transmitter off
+    value = PCAN_PARAMETER_ON;          // transmitter OFF
     if((rc = CAN_SetValue((WORD)board, PCAN_LISTEN_ONLY, (void*)&value, sizeof(value))) != PCAN_ERROR_OK)
         return pcan_error(rc);
     if((mode & CANMODE_FDOE)) {         // CAN FD operation mode?
@@ -348,20 +361,21 @@ int can_exit(int handle)
             return CANERR_HANDLE;
         if(!can[handle].status.b.can_stopped) {// when running then go bus off
             /* note: here we should turn off the receiver and the transmitter,
-             *       but after CAN_Uninitialize we are really bus off! */
+             *       but after CAN_Uninitialize we are really (bus) OFF! */
             (void)CAN_Reset(can[handle].board);
         }
-#if defined(_WIN32) || defined(_WIN64)
-        if(can[handle].event != NULL) { // close event handle, if any
-            if(!CloseHandle(can[handle].event))
-                return CANERR_FATAL;
-        }
-#endif
         if((rc = CAN_Uninitialize(can[handle].board)) != PCAN_ERROR_OK)
             return pcan_error(rc);
 		
         can[handle].status.byte |= CANSTAT_RESET;  // CAN controller in INIT state
         can[handle].board = PCAN_NONEBUS; // handle can be used again
+
+#if defined(_WIN32) || defined(_WIN64)
+        if(can[handle].event != NULL) {   // close event handle, if any
+            if(!CloseHandle(can[handle].event))
+                return SYSERR_OFFSET - (int)GetLastError();
+        }
+#endif
     }
     else {
         for(i = 0; i < PCAN_MAX_HANDLES; i++) {
@@ -372,14 +386,15 @@ int can_exit(int handle)
                      *       but after CAN_Uninitialize we are really bus off! */
                     (void)CAN_Reset(can[i].board);
                 }
-#if defined(_WIN32) || defined(_WIN64)
-                if(can[i].event != NULL) // close event handle, if any
-                    (void)CloseHandle(can[i].event);
-#endif
                 (void)CAN_Uninitialize(can[i].board); // resistance is futile!
 				
                 can[i].status.byte |= CANSTAT_RESET;  // CAN controller in INIT state
                 can[i].board = PCAN_NONEBUS; // handle can be used again
+
+#if defined(_WIN32) || defined(_WIN64)
+                if(can[i].event != NULL)     // close event handle, if any
+                    (void)CloseHandle(can[i].event);
+#endif
             }
         }
     }
@@ -428,15 +443,11 @@ int can_start(int handle, const can_bitrate_t *bitrate)
             return CANERR_BAUDRATE;
     }
     /* note: to (re-)start the CAN controller, we have to reinitialize it */
-#if defined(_WIN32) || defined(_WIN64)
-    if(can[handle].event != NULL)       // close event handle, if any
-        (void)CloseHandle(can[handle].event);
-#endif
     if((rc = CAN_Reset(can[handle].board)) != PCAN_ERROR_OK)
         return pcan_error(rc);
     if((rc = CAN_Uninitialize(can[handle].board)) != PCAN_ERROR_OK)
         return pcan_error(rc);
-    /* note: the receiver is automatically switched on by CAN_Uninitialize() */
+    /* note: the receiver is automatically switched ON by CAN_Uninitialize() */
     if(can[handle].mode.b.fdoe) {       // CAN FD operation mode?
         if((rc = CAN_InitializeFD(can[handle].board, string)) != PCAN_ERROR_OK)
             return pcan_error(rc);
@@ -448,15 +459,6 @@ int can_start(int handle, const can_bitrate_t *bitrate)
             return pcan_error(rc);
     }
 #if defined(_WIN32) || defined(_WIN64)
-    if((can[handle].event = CreateEvent( // create an event handle
-            NULL,                       //   default security attributes
-            FALSE,                      //   auto-reset event
-            FALSE,                      //   initial state is nonsignaled
-            TEXT("PCANBasic")           //   object name
-            )) == NULL) {
-        CAN_Uninitialize(can[handle].board);
-        return CANERR_FATAL;
-    }
     if((rc = CAN_SetValue(can[handle].board, PCAN_RECEIVE_EVENT,
                   (void*)&can[handle].event, sizeof(can[handle].event))) != PCAN_ERROR_OK) {
         CAN_Uninitialize(can[handle].board);
