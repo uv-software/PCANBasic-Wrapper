@@ -60,7 +60,7 @@
 #else
 #include <windows.h>
 #ifndef QWORD
-#define QWORD unsigned long long
+#define QWORD UINT64
 #endif
 #endif
 #include <inttypes.h>
@@ -69,7 +69,7 @@
 /*  -----------  options  ------------------------------------------------
  */
 
-#if !defined(__uvs_license) && !defined(__gpl_license)
+#if !defined(__uvs_license) && !defined(__gpl_license) && !defined(__mit_license)
     #define  __uvs_license
 #endif
 #define _WAITABLE_TIMER
@@ -88,9 +88,10 @@
 #define OPTION_MODE_CAN_20  (0)
 #define OPTION_MODE_CAN_FD  (1)
 
-#define OPTION_TIME_ZERO    (0)
-#define OPTION_TIME_ABS     (1)
-#define OPTION_TIME_REL     (2)
+#define OPTION_TIME_DRIVER  (0)
+#define OPTION_TIME_ZERO    (1)
+#define OPTION_TIME_ABS     (2)
+#define OPTION_TIME_REL     (3)
 
 #define OPTION_IO_POLLING   (0)
 #define OPTION_IO_BLOCKING  (1)
@@ -125,19 +126,15 @@
  /*  -----------  prototypes  ---------------------------------------------
  */
 
-static int transmit(int handle, int frames, DWORD delay);
+static int transmit(int handle, int frames, unsigned int delay);
 static int receive(int handle);
-static int transmit_fd(int handle, int frames, DWORD delay);
+static int transmit_fd(int handle, int frames, unsigned int delay);
 static int receive_fd(int handle);
 static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed);
 
-#ifndef _WAITABLE_TIMER
- static int start_timer(DWORD timeout);
- static int is_timeout(void);
-#else
- static void usleep(QWORD usec);
+#if defined(_WIN32) || defined(_WIN64)
+static void usleep(unsigned int usec);
 #endif
-
 static void sigterm(int signo);
 //static void usage(FILE *stream, char *program);
 //static void version(FILE *stream, char *program);
@@ -147,7 +144,7 @@ static void sigterm(int signo);
  */
 
 static int option_io = OPTION_IO_BLOCKING;
-static int option_time = OPTION_TIME_ZERO;
+static int option_time = OPTION_TIME_DRIVER;
 static int option_test = OPTION_NO;
 static int option_info = OPTION_NO;
 static int option_stat = OPTION_NO;
@@ -189,7 +186,7 @@ int main(int argc, char *argv[])
 
     int channel = PCAN_USB1;
     BYTE op_mode = CANMODE_DEFAULT;
-    DWORD delay = 0;
+    unsigned int delay = 0;
     can_bitrate_t bitrate = { -CANBDR_250 };
     can_speed_t speed;
     can_status_t status;
@@ -494,7 +491,7 @@ end:
     return 0;
 }
 
-static int transmit(int handle, int frames, DWORD delay)
+static int transmit(int handle, int frames, unsigned int delay)
 {
     can_msg_t message;
     int rc = -1, i;
@@ -513,10 +510,6 @@ static int transmit(int handle, int frames, DWORD delay)
         message.data[5] = (BYTE)(((QWORD)i & 0x0000FF0000000000) >> 40);
         message.data[6] = (BYTE)(((QWORD)i & 0x00FF000000000000) >> 48);
         message.data[7] = (BYTE)(((QWORD)i & 0xFF00000000000000) >> 56);
-
-#ifndef _WAITABLE_TIMER
-        start_timer(delay);
-#endif
 repeat:
         if((rc = can_write(handle, &message)) != CANERR_NOERROR) {
             if(rc == CANERR_TX_BUSY && running)
@@ -525,16 +518,8 @@ repeat:
             if(option_stop)
                 return -1;
         }
-#ifndef _WAITABLE_TIMER
-        while(!is_timeout()) {
-            if(!running) {
-                fprintf(stdout, "%i\n", frames);
-                return i;
-            }
-        }
-#else
         usleep(delay);
-#endif
+
         if(!(i % 2048)) {
             fprintf(stdout, ".");
             fflush(stdout);
@@ -548,7 +533,7 @@ repeat:
     return i;
 }
 
-static int transmit_fd(int handle, int frames, DWORD delay)
+static int transmit_fd(int handle, int frames, unsigned int delay)
 {
     can_msg_t message;
     int rc = -1, i; BYTE j;
@@ -573,10 +558,6 @@ static int transmit_fd(int handle, int frames, DWORD delay)
         message.data[5] = (BYTE)(((QWORD)i & 0x0000FF0000000000) >> 40);
         message.data[6] = (BYTE)(((QWORD)i & 0x00FF000000000000) >> 48);
         message.data[7] = (BYTE)(((QWORD)i & 0xFF00000000000000) >> 56);
-
-#ifndef _WAITABLE_TIMER
-        start_timer(delay);
-#endif
 repeat_fd:
         if((rc = can_write(handle, &message)) != CANERR_NOERROR) {
             if(rc == CANERR_TX_BUSY && running)
@@ -585,16 +566,8 @@ repeat_fd:
             if(option_stop)
                 return -1;
         }
-#ifndef _WAITABLE_TIMER
-        while(!is_timeout()) {
-            if(!running) {
-                fprintf(stdout, "%i\n", frames);
-                return i;
-            }
-        }
-#else
         usleep(delay);
-#endif
+
         if(!(i % 2048)) {
             fprintf(stdout, ".");
             fflush(stdout);
@@ -799,51 +772,20 @@ static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed)
     }
 }
 
-static void sigterm(int signo)
-{
-    //fprintf(stderr, "%s: got signal %d\n", __FILE__, signo);
-    running = 0;
-    (void)signo;
-#ifdef _WIN32
-    (void)can_kill(CANKILL_ALL);
-#endif
-}
-
-#ifndef _WAITABLE_TIMER
- static LONGLONG  llUntilStop = 0;      // counter value for time-out
-
- static int start_timer(DWORD timeout)
- {
-    LARGE_INTEGER largeCounter;         // high-resolution performance counter
-    LARGE_INTEGER largeFrequency;       // frequency in counts per second
-
-    // retrieve the frequency of the high-resolution performance counter
-    if (!QueryPerformanceFrequency(&largeFrequency))
-        return CANERR_FATAL;
-    // retrieve the current value of the high-resolution performance counter
-    if (!QueryPerformanceCounter(&largeCounter))
-        return CANERR_FATAL;
-    // calculate the counter value for the desired time-out
-    llUntilStop = largeCounter.QuadPart + ((largeFrequency.QuadPart * (LONGLONG)timeout)
-                                                                    / (LONGLONG)1000000);
-    return 0;
- }
-
- static int is_timeout(void)
- {
-    LARGE_INTEGER largeCounter;         // high-resolution performance counter
-
-    // retrieve the current value of the high-resolution performance counter
-    if (!QueryPerformanceCounter(&largeCounter))
-        return FALSE;
-    // a time-out occurred, if the counter overruns the time-out value
-    if (largeCounter.QuadPart < llUntilStop)
-        return FALSE;
-    else
-        return TRUE;
- }
-#else
- static void usleep(QWORD usec)
+#if defined(_WIN32) || defined(_WIN64)
+ /* usleep(3) - Linux man page
+  *
+  * Notes
+  * The type useconds_t is an unsigned integer type capable of holding integers in the range [0,1000000].
+  * Programs will be more portable if they never mention this type explicitly. Use
+  *
+  *    #include <unistd.h>
+  *    ...
+  *        unsigned int usecs;
+  *    ...
+  *        usleep(usecs);
+  */
+ static void usleep(unsigned int usec)
  {
     HANDLE timer;
     LARGE_INTEGER ft;
@@ -858,7 +800,17 @@ static void sigterm(int signo)
  }
 #endif
 
-/*  ----------------------------------------------------------------------
+ static void sigterm(int signo)
+ {
+     //fprintf(stderr, "%s: got signal %d\n", __FILE__, signo);
+#if defined(_WIN32) || defined(_WIN64)
+     (void)can_kill(CANKILL_ALL);
+#endif
+     running = 0;
+     (void)signo;
+ }
+
+ /*  ----------------------------------------------------------------------
  *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
  *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903
  *  E-Mail: uwe.vogt@uv-software.de,  Homepage: http://www.uv-software.de/
