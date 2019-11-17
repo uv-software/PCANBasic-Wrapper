@@ -119,11 +119,11 @@
 #define BR_CiA_1M5M(x)      do{ x.btr.frequency=80000000; x.btr.nominal.brp= 2; x.btr.nominal.tseg1= 31; x.btr.nominal.tseg2= 8; x.btr.nominal.sjw =8; x.btr.data.brp=2; x.btr.data.tseg1= 5; x.btr.data.tseg2=2; x.btr.data.sjw=2; } while(0)
 
 
- /*  -----------  types  --------------------------------------------------
+/*  -----------  types  --------------------------------------------------
  */
 
 
- /*  -----------  prototypes  ---------------------------------------------
+/*  -----------  prototypes  ---------------------------------------------
  */
 
 static int transmit(int handle, int frames, unsigned int delay);
@@ -800,15 +800,15 @@ static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed)
  }
 #endif
 
- static void sigterm(int signo)
- {
+static void sigterm(int signo)
+{
      //fprintf(stderr, "%s: got signal %d\n", __FILE__, signo);
 #if defined(_WIN32) || defined(_WIN64)
      (void)can_kill(CANKILL_ALL);
 #endif
      running = 0;
      (void)signo;
- }
+}
 
  /*  ----------------------------------------------------------------------
  *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
