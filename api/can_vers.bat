@@ -5,7 +5,7 @@ echo  *  project   :  CAN - Controller Area Network >> can_vers.h
 echo  * >> can_vers.h
 echo  *  purpose   :  CAN Interface API, Version 3 (PCAN-Basic) >> can_vers.h
 echo  * >> can_vers.h
-echo  *  copyright :  (C) 2018-2019, UV Software, Berlin >> can_vers.h
+echo  *  copyright :  (C) 2018-2020, UV Software, Berlin >> can_vers.h
 echo  * >> can_vers.h
 echo  *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.16) >> can_vers.h
 echo  * >> can_vers.h
