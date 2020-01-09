@@ -119,23 +119,23 @@
 /*  -----------  types  --------------------------------------------------
  */
 
-typedef struct {
-    uint64_t tx;                        // number of transmitted CAN frames
-    uint64_t rx;                        // number of received CAN frames
-    uint64_t err;                       // number of receiced error frames
+typedef struct {                        // frame conters:
+    uint64_t tx;                        //   number of transmitted CAN frames
+    uint64_t rx;                        //   number of received CAN frames
+    uint64_t err;                       //   number of receiced error frames
 }   can_counter_t;
 
-typedef struct {
-    TPCANHandle board;                  // board hardware channel handle
-    BYTE  brd_type;                     // board type (none PnP hardware)
-    DWORD brd_port;                     // board parameter: I/O port address
-    WORD  brd_irq;                      // board parameter: interrupt number
+typedef struct {                        // PCAN interface:
+    TPCANHandle board;                  //   board hardware channel handle
+    BYTE  brd_type;                     //   board type (none PnP hardware)
+    DWORD brd_port;                     //   board parameter: I/O port address
+    WORD  brd_irq;                      //   board parameter: interrupt number
 #if defined(_WIN32) || defined(_WIN64)
-    HANDLE event;                       // event handle for blocking read
+    HANDLE event;                       //   event handle for blocking read
 #endif
-    can_mode_t mode;                    // operation mode of the CAN channel
-    can_status_t status;                // 8-bit status register
-    can_counter_t counters;             // statistical counters
+    can_mode_t mode;                    //   operation mode of the CAN channel
+    can_status_t status;                //   8-bit status register
+    can_counter_t counters;             //   statistical counters
 }   can_interface_t;
 
 
@@ -696,13 +696,13 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
             can[handle].counters.err++;
             return CANERR_ERR_FRAME;    //   error frame received
         }
-        msg->id = can_msg.ID;
+        msg->id = (int32_t)can_msg.ID;
         msg->ext = (can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
         msg->rtr = (can_msg.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
         msg->fdf = 0;
         msg->brs = 0;
         msg->esi = 0;
-        msg->dlc = can_msg.LEN;
+        msg->dlc = (uint8_t)can_msg.LEN;
         memcpy(msg->data, can_msg.DATA, CAN_MAX_LEN);
         msec = ((uint64_t)timestamp.millis_overflow << 32) + (uint64_t)timestamp.millis;
         msg->timestamp.sec = (long)(msec / 1000ull);
@@ -722,13 +722,13 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
             can[handle].counters.err++;
             return CANERR_ERR_FRAME;    //   error frame received
         }
-        msg->id = can_msg_fd.ID;
+        msg->id = (int32_t)can_msg_fd.ID;
         msg->ext = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
         msg->rtr = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
         msg->fdf = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_FD) ? 1 : 0;
         msg->brs = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_BRS) ? 1 : 0;
         msg->esi = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_ESI) ? 1 : 0;
-        msg->dlc = can_msg_fd.DLC;
+        msg->dlc = (uint8_t)can_msg_fd.DLC;
         memcpy(msg->data, can_msg_fd.DATA, CANFD_MAX_LEN);
         msg->timestamp.sec = (long)(timestamp_fd / 1000000ull);
         msg->timestamp.usec = (long)(timestamp_fd % 1000000ull);

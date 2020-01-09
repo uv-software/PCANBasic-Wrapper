@@ -34,6 +34,7 @@
 
 /*  -----------  includes  -----------------------------------------------
  */
+
 #include "can_api.h"
 #include "misc\printmsg.h"
 
@@ -71,8 +72,6 @@
 #if !defined(__uvs_license) && !defined(__gpl_license) && !defined(__mit_license)
     #define  __uvs_license
 #endif
-#define _WAITABLE_TIMER
-
 
 /*  -----------  defines  ------------------------------------------------
  */
@@ -132,7 +131,7 @@ static int receive_fd(int handle);
 static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed);
 
 #if defined(_WIN32) || defined(_WIN64)
-static void usleep(unsigned int usec);
+ static void usleep(unsigned int usec);
 #endif
 static void sigterm(int signo);
 //static void usage(FILE *stream, char *program);
@@ -197,7 +196,7 @@ int main(int argc, char *argv[])
     uint32_t ui32;
     uint64_t rx, tx, err;
     char string[CANPROP_BUFFER_SIZE];
-    
+
     //struct option long_options[] = {
     //  {"help", no_argument, 0, 'h'},
     //  {"version", no_argument, 0, 'v'},
