@@ -39,12 +39,6 @@
 /*  -----------  includes  ------------------------------------------------
  */
 
-#ifdef _MSC_VER
-//no Microsoft extensions please!
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS 1
-#endif
-#endif
 #include <stdint.h>                     // C99 header for sized integer types
 #include <stdbool.h>                    // C99 header for boolean type
 

@@ -38,12 +38,6 @@
 #include "can_api.h"
 #include "misc\printmsg.h"
 
-#ifdef _MSC_VER
-//no Microsoft extensions please!
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS 1
-#endif
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
