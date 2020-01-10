@@ -35,10 +35,10 @@
     <ClInclude Include="..\api\can_api.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="..\api\can_vers.h">
+    <ClInclude Include="misc\printmsg.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="misc\printmsg.h">
+    <ClInclude Include="..\api\build_no.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

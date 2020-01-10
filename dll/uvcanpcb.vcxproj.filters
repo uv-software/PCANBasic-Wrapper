@@ -37,7 +37,7 @@
     <ClInclude Include="resource.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="..\api\can_vers.h">
+    <ClInclude Include="..\api\build_no.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

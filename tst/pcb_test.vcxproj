@@ -151,9 +151,9 @@
     <ClCompile Include="misc\printmsg.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\api\build_no.h" />
     <ClInclude Include="..\api\can_api.h" />
     <ClInclude Include="..\api\can_defs.h" />
-    <ClInclude Include="..\api\can_vers.h" />
     <ClInclude Include="..\api\PCANBasic.h" />
     <ClInclude Include="misc\printmsg.h" />
   </ItemGroup>

@@ -34,7 +34,7 @@
 /*  -----------  version  ------------------------------------------------
  */
 
-#include "can_vers.h"
+#include "build_no.h"
 #ifdef _MSC_VER
 #define VERSION_MAJOR     3
 #define VERSION_MINOR     3
