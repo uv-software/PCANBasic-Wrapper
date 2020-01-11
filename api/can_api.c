@@ -80,7 +80,6 @@
 #include <string.h>
 #include <assert.h>
 #include <windows.h>
-
 #include "PCANBasic.h"
 
 
@@ -143,7 +142,7 @@ typedef struct {                        // PCAN interface:
  */
 
 static int pcan_error(TPCANStatus);     // PCAN specific errors
-static int pcan_capability(WORD board, can_mode_t *capability);
+static int pcan_capability(TPCANHandle board, can_mode_t *capability);
 
 static int bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr1);
 static int register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate);
@@ -292,10 +291,10 @@ int can_init(int32_t board, uint8_t mode, const void *param)
         }
         init = 1;                       //   set initialization flag
     }
-	for(i = 0; i < PCAN_MAX_HANDLES; i++) {
-		if(can[i].board == board)       // channel already in use
-			return CANERR_YETINIT;
-	}
+    for(i = 0; i < PCAN_MAX_HANDLES; i++) {
+        if(can[i].board == (TPCANHandle)board) // channel already in use
+          return CANERR_YETINIT;
+    }
     for(i = 0; i < PCAN_MAX_HANDLES; i++) {
         if(can[i].board == PCAN_NONEBUS)// get an unused handle, if any
             break;
@@ -330,18 +329,18 @@ int can_init(int32_t board, uint8_t mode, const void *param)
     }
     else {                              // CAN 2.0 operation mode
         if(param) {
-            type = ((struct _pcan_param*)param)->type;
-            port = ((struct _pcan_param*)param)->port;
-            irq = ((struct _pcan_param*)param)->irq;
+            type =  (BYTE)((struct _pcan_param*)param)->type;
+            port = (DWORD)((struct _pcan_param*)param)->port;
+            irq  =  (WORD)((struct _pcan_param*)param)->irq;
         }
         if((rc = CAN_Initialize((TPCANHandle)board, BTR0BTR1_DEFAULT, type, port, irq)) != PCAN_ERROR_OK)
             return pcan_error(rc);
     }
-    can[i].board = board;               // handle of the CAN channel
+    can[i].board = (TPCANHandle)board;  // handle of the CAN channel
     if(param) {                         // non-plug'n'play devices:
-        can[i].brd_type = ((struct _pcan_param*)param)->type;
-        can[i].brd_port = ((struct _pcan_param*)param)->port;
-        can[i].brd_irq  = ((struct _pcan_param*)param)->irq;
+        can[i].brd_type =  (BYTE)((struct _pcan_param*)param)->type;
+        can[i].brd_port = (DWORD)((struct _pcan_param*)param)->port;
+        can[i].brd_irq  =  (WORD)((struct _pcan_param*)param)->irq;
     }
     can[i].mode.byte = mode;            // store selected operation mode
     can[i].status.byte = CANSTAT_RESET; // CAN controller not started yet!
@@ -368,7 +367,7 @@ int can_exit(int handle)
         }
         if((rc = CAN_Uninitialize(can[handle].board)) != PCAN_ERROR_OK)
             return pcan_error(rc);
-		
+
         can[handle].status.byte |= CANSTAT_RESET;  // CAN controller in INIT state
         can[handle].board = PCAN_NONEBUS; // handle can be used again
 
@@ -389,7 +388,7 @@ int can_exit(int handle)
                     (void)CAN_Reset(can[i].board);
                 }
                 (void)CAN_Uninitialize(can[i].board); // resistance is futile!
-				
+
                 can[i].status.byte |= CANSTAT_RESET;  // CAN controller in INIT state
                 can[i].board = PCAN_NONEBUS; // handle can be used again
 
@@ -926,7 +925,7 @@ static int pcan_error(TPCANStatus status)
     return PCAN_ERR_UNKNOWN;
 }
 
-static int pcan_capability(WORD board, can_mode_t *capability)
+static int pcan_capability(TPCANHandle board, can_mode_t *capability)
 {
     TPCANStatus rc;                     // return value
     DWORD features;                     // channel features
@@ -937,7 +936,7 @@ static int pcan_capability(WORD board, can_mode_t *capability)
 
     capability->b.fdoe = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
     capability->b.brse = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
-    capability->b.niso = 0; // This can not be determined (FIXME) 
+    capability->b.niso = 0; // This can not be determined (FIXME)
     capability->b.shrd = 0; // This feature is not supported (TODO: clarify)
 #if (0)
     capability->b.nxtd = 1; // PCAN_ACCEPTANCE_FILTER_29BIT available since version 4.2.0
@@ -1198,9 +1197,9 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbytes)
 
     /* CAN interface properties */
     switch(param) {
-    case CANPROP_GET_BOARD_TYPE:        // board type of the CAN interface (int)
-        if(nbytes == sizeof(int)) {
-            *(int*)value = (int)can[handle].board;
+    case CANPROP_GET_BOARD_TYPE:        // board type of the CAN interface (int32_t)
+        if(nbytes == sizeof(int32_t)) {
+            *(int32_t*)value = (int32_t)can[handle].board;
             rc = CANERR_NOERROR;
         }
         break;
@@ -1257,8 +1256,8 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbytes)
         break;
     case CANPROP_GET_STATUS:            // current status register of the CAN controller (uint8_t)
         if((rc = can_status(handle, &status)) == CANERR_NOERROR) {
-            if(nbytes == sizeof(unsigned char)) {
-                *(unsigned char*)value = (unsigned char)status;
+            if(nbytes == sizeof(uint8_t)) {
+                *(uint8_t*)value = (uint8_t)status;
                 rc = CANERR_NOERROR;
             }
         }
