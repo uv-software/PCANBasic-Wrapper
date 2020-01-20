@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
         else
             fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_PATCH_NO) failed\n", rc);
         if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_BUILD_NO, (void*)&ui32, sizeof(ui32))) == CANERR_NOERROR)
-            fprintf(stdout, "Property: CANPROP_GET_BUILD_NO=%"PRIx32"\n", ui32);
+            fprintf(stdout, "Property: CANPROP_GET_BUILD_NO=%"PRIi32"\n", ui32);
         else
             fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_BUILD_NO) failed\n", rc);
         if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_LIBRARY_ID, (void*)&i32, sizeof(i32))) == CANERR_NOERROR)

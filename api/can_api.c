@@ -649,7 +649,8 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
     if(rc == PCAN_ERROR_QRCVEMPTY) {
 #if defined(_WIN32) || defined(_WIN64)
         if(timeout > 0) {
-            switch(WaitForSingleObject(can[handle].event, (timeout != 65535) ? timeout : INFINITE)) {
+            switch(WaitForSingleObject(can[handle].event, 
+                                      (timeout != CANREAD_INFINITE) ? (DWORD)timeout : INFINITE)) {
             case WAIT_OBJECT_0:
                 break;                  //   one or more messages received
             case WAIT_TIMEOUT:
