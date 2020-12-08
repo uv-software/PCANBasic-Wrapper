@@ -8,12 +8,12 @@
 //
 //  ------------------------------------------------------------------
 //  Author : Keneth Wagner
-//	Last change: 28.10.2019 Wagner
+//	Last change: 15.10.2020 Wagner
 //
 //  Language: ANSI-C
 //  ------------------------------------------------------------------
 //
-//  Copyright (C) 1999-2019  PEAK-System Technik GmbH, Darmstadt
+//  Copyright (C) 1999-2020  PEAK-System Technik GmbH, Darmstadt
 //  more Info at http://www.peak-system.com 
 //
 #ifndef __PCANBASICH__
@@ -234,6 +234,13 @@
 #define PCAN_MESSAGE_ESI              0x10U  // The PCAN message represents a FD error state indicator(CAN FD transmitter was error active)
 #define PCAN_MESSAGE_ERRFRAME         0x40U  // The PCAN message represents an error frame
 #define PCAN_MESSAGE_STATUS           0x80U  // The PCAN message represents a PCAN status message
+
+// LookUp Parameters
+//
+#define LOOKUP_DEVICE_TYPE		    __T("devicetype")       // Lookup channel by Device type (see PCAN devices e.g. PCAN_USB)
+#define LOOKUP_DEVICE_ID			__T("deviceid")         // Lookup channel by device id
+#define LOOKUP_CONTROLLER_NUMBER	__T("controllernumber") // Lookup channel by CAN controller 0-based index
+#define LOOKUP_IP_ADDRESS			__T("ipaddress")        // Lookup channel by IP address (LAN channels only)
 
 // Frame Type / Initialization Mode
 //
@@ -555,6 +562,18 @@ TPCANStatus __stdcall CAN_GetErrorText(
         TPCANStatus Error, 
         WORD Language, 
         LPSTR Buffer);
+
+/// <summary>
+/// Finds a PCAN-Basic channel that matches with the given parameters
+/// </summary>
+/// <param name="Parameters">A comma separated string contained pairs of 
+/// parameter-name/value to be matched within a PCAN-Basic channel</param>
+/// <param name="FoundChannel">Buffer for returning the PCAN-Basic channel, 
+/// when found</param>
+/// <returns>A TPCANStatus error code</returns>
+TPCANStatus __stdcall CAN_LookUpChannel(
+    LPSTR Parameters, 
+    TPCANHandle* FoundChannel);
 
 #ifdef __cplusplus
 }
