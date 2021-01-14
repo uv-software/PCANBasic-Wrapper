@@ -41,8 +41,11 @@
     <ClInclude Include="..\api\build_no.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\x86\PCANBasic.lib" />
+    <ClInclude Include="..\api\CANAPI_Types.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\api\CANAPI_PeakCAN.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
