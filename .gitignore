@@ -1,0 +1,14 @@
+#.gitignore
+api/build_no.h
+x86
+x64
+dll/.vs
+dll/x64
+dll/Debug
+dll/Release
+dll/uvcanpcb.vcxproj.user
+tst/.vs
+tst/x64
+tst/Debug
+tst/Release
+tst/pcb_test.vcxproj.user
