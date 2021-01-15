@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
         else
             fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_PATCH_NO) failed\n", rc);
         if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_BUILD_NO, (void*)&ui32, sizeof(ui32))) == CANERR_NOERROR)
-            fprintf(stdout, "Property: CANPROP_GET_BUILD_NO=%"PRIi32"\n", ui32);
+            fprintf(stdout, "Property: CANPROP_GET_BUILD_NO=%"PRIx32"\n", ui32);
         else
             fprintf(stderr, "+++ error(%i): can_property(CANPROP_GET_BUILD_NO) failed\n", rc);
         if((rc = can_property(CANAPI_HANDLE, CANPROP_GET_LIBRARY_ID, (void*)&i32, sizeof(i32))) == CANERR_NOERROR)
@@ -790,10 +790,11 @@ static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed)
 
     ft.QuadPart = -(10 * (LONGLONG)usec); // Convert to 100 nanosecond interval, negative value indicates relative time
     if (usec >= 100) {
-        timer = CreateWaitableTimer(NULL, TRUE, NULL);
-        SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-        WaitForSingleObject(timer, INFINITE);
-        CloseHandle(timer);
+        if ((timer = CreateWaitableTimer(NULL, TRUE, NULL)) != NULL) {
+            SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+            WaitForSingleObject(timer, INFINITE);
+            CloseHandle(timer);
+        }
     }
  }
 #endif
@@ -801,9 +802,7 @@ static void verbose(const can_bitrate_t *bitrate, const can_speed_t *speed)
 static void sigterm(int signo)
 {
      //fprintf(stderr, "%s: got signal %d\n", __FILE__, signo);
-#if defined(_WIN32) || defined(_WIN64)
      (void)can_kill(CANKILL_ALL);
-#endif
      running = 0;
      (void)signo;
 }
