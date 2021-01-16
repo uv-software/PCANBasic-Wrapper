@@ -37,7 +37,7 @@
 
 #include "can_defs.h"
 #include "can_api.h"
-#include "misc\printmsg.h"
+#include "printmsg.h"
 
 #include <stdio.h>
 #include <stdlib.h>
