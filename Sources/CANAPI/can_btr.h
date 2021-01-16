@@ -22,9 +22,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces (Bit-rate Conversion)
  *
- *  @author      $Author: eris $
+ *  @author      $Author: haumea $
  *
- *  @version     $Rev: 915 $
+ *  @version     $Rev: 951 $
  *
  *  @defgroup    can_btr CAN Bit-rate Conversion
  *  @{

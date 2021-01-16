@@ -22,9 +22,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces - Definitions and Options
  *
- *  @author      $Author: eris $
+ *  @author      $Author: haumea $
  *
- *  @version     $Rev: 925 $
+ *  @version     $Rev: 951 $
  *
  *  @addtogroup  can_api
  *  @{

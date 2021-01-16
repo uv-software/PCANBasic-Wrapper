@@ -26,7 +26,7 @@
   *
   *  @author      $Author: haumea $
   *
-  *  @version     $Rev: 933 $
+  *  @version     $Rev: 951 $
   *
   *  @addtogroup  can_api
   *  @{
@@ -136,7 +136,7 @@ extern "C" {
 #define CAN_API_AUTHOR                  "Uwe Vogt, UV Software"
 #define CAN_API_WEBSITE                 "www.uv-software.com"
 #define CAN_API_CONTACT                 "info@uv-software.com"
-#define CAN_API_LICENSE                 "UVS Freeware License (without any warranty or support)"
+#define CAN_API_LICENSE                 "GNU Lesser General Public License, Version 3"
 #define CAN_API_COPYRIGHT               "Copyright (C) 2005-20%02u, UV Software, Berlin"
 #define CAN_API_HAZARD_NOTE             "Do not connect your CAN device to a real CAN network when using this program.\n" \
                                         "This can damage your application."

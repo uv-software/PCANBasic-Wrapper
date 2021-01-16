@@ -34,9 +34,9 @@
 /// \remarks     Additionally the class CCANAPI provides static methods for
 ///              bit-rate conversion using CiA bit-timing indexes as a base.
 //
-/// \author      $Author: eris $
+/// \author      $Author: haumea $
 //
-/// \version     $Rev: 928 $
+/// \version     $Rev: 951 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -343,4 +343,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 928 2021-01-14 08:09:06Z eris $  Copyright (C) UV Software //
+// $Id: CANAPI.h 951 2021-01-16 09:37:00Z haumea $  Copyright (C) UV Software //

@@ -1,39 +1,27 @@
-/*  -- $HeadURL$ --
+/*
+ *  CAN Interface API, Version 3 (for PEAK PCAN-Basic Interfaces)
  *
- *  project   :  CAN - Controller Area Network
+ *  Copyright (C) 2005-2010, UV Software, Friedrichshafen
+ *  Copytight (C) 2014-2021, UV Software, Berlin
  *
- *  purpose   :  CAN Interface API, Version 3 (PCAN-Basic)
+ *  This file is part of PCANBasic-Wrapper.
  *
- *  copyright :  (C) 2010, UV Software, Friedrichshafen
- *               (C) 2014, 2017-2021, UV Software, Berlin
+ *  PCANBasic-Wrapper is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- *  compiler  :  Microsoft Visual C/C++ Compiler (Version 19.16)
+ *  PCANBasic-Wrapper is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
  *
- *  export    :  (see header file)
- *
- *  includes  :  can_api.h (can_defs.h), PCANBasic.h
- *
- *  author    :  Uwe Vogt, UV Software
- *
- *  e-mail    :  uwe.vogt@uv-software.de
- *
- *
- *  -----------  description  --------------------------------------------
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with PCANBasic-Wrapper.  If not, see <http://www.gnu.org/licenses/>.
  */
-/** @file        can_api.h
- *
- *  @brief       CAN API V3 for PEAK PCAN-Basic Interfaces - API
- *
- *  @author      $Author$
- *
- *  @version     $Rev$
- *
- *  @addtogroup  can_api
+/** @addtogroup  can_api
  *  @{
  */
-/*  -----------  version  ------------------------------------------------
- */
-
 #include "build_no.h"
 #ifdef _MSC_VER
 #define VERSION_MAJOR     0

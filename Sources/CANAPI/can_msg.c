@@ -24,7 +24,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 939 $
+ *  @version     $Rev: 951 $
  *
  *  @addtogroup  can_msg
  *  @{

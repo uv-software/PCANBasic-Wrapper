@@ -22,9 +22,9 @@
  *
  *  @brief       CAN Message Formatter
  *
- *  @author      $Author: eris $
+ *  @author      $Author: haumea $
  *
- *  @version     $Rev: 902 $
+ *  @version     $Rev: 951 $
  *
  *  @defgroup    can_msg CAN Message Formatter
  *  @{
