@@ -20,9 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\CANAPI\can_btr.c" />
+    <ClCompile Include="..\..\Sources\PCAN.cpp" />
     <ClCompile Include="..\..\Sources\PCAN_Wrapper\can_api.c" />
-    <ClCompile Include="..\Sources\main.c" />
-    <ClCompile Include="..\Sources\printmsg.c" />
+    <ClCompile Include="..\Sources\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Sources\build_no.h" />
@@ -32,9 +32,9 @@
     <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Types.h" />
     <ClInclude Include="..\..\Sources\CANAPI\can_api.h" />
     <ClInclude Include="..\..\Sources\CANAPI\can_btr.h" />
+    <ClInclude Include="..\..\Sources\PCAN.h" />
     <ClInclude Include="..\..\Sources\PCAN_Basic\PCANBasic.h" />
     <ClInclude Include="..\..\Sources\PCAN_Wrapper\can_defs.h" />
-    <ClInclude Include="..\Sources\printmsg.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
