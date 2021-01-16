@@ -18,7 +18,7 @@ echo  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the >> Source
 echo  *  GNU Lesser General Public License for more details. >> Sources/build_no.h
 echo  * >> Sources/build_no.h
 echo  *  You should have received a copy of the GNU Lesser General Public License >> Sources/build_no.h
-echo  *  along with PCANBasic-Wrapper.  If not, see <http://www.gnu.org/licenses/>. >> Sources/build_no.h
+echo  *  along with PCANBasic-Wrapper.  If not, see "http://www.gnu.org/licenses/". >> Sources/build_no.h
 echo  */ >> Sources/build_no.h
 echo #ifndef BUILD_NO_H_INCLUDED >> Sources/build_no.h
 echo #define BUILD_NO_H_INCLUDED >> Sources/build_no.h
