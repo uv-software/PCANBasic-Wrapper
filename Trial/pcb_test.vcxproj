@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,28 +19,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Sources\CANAPI\can_btr.c" />
-    <ClCompile Include="..\..\Sources\PCAN.cpp" />
-    <ClCompile Include="..\..\Sources\PCAN_Wrapper\can_api.c" />
-    <ClCompile Include="..\Sources\main.cpp" />
+    <ClCompile Include="..\Sources\CANAPI\can_btr.c" />
+    <ClCompile Include="..\Sources\PCAN.cpp" />
+    <ClCompile Include="..\Sources\PCAN_Wrapper\can_api.c" />
+    <ClCompile Include=".\Sources\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Sources\build_no.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\CANAPI.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Defines.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\CANAPI_PeakCAN.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Types.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\can_api.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\can_btr.h" />
-    <ClInclude Include="..\..\Sources\PCAN.h" />
-    <ClInclude Include="..\..\Sources\PCAN_Basic\PCANBasic.h" />
-    <ClInclude Include="..\..\Sources\PCAN_Wrapper\can_defs.h" />
+    <ClInclude Include="..\Sources\build_no.h" />
+    <ClInclude Include="..\Sources\CANAPI\CANAPI.h" />
+    <ClInclude Include="..\Sources\CANAPI\CANAPI_Defines.h" />
+    <ClInclude Include="..\Sources\CANAPI\CANAPI_PeakCAN.h" />
+    <ClInclude Include="..\Sources\CANAPI\CANAPI_Types.h" />
+    <ClInclude Include="..\Sources\CANAPI\can_api.h" />
+    <ClInclude Include="..\Sources\CANAPI\can_btr.h" />
+    <ClInclude Include="..\Sources\PCAN.h" />
+    <ClInclude Include="..\Sources\PCAN_Basic\PCANBasic.h" />
+    <ClInclude Include="..\Sources\PCAN_Wrapper\can_defs.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{0BC9A9D0-6831-486F-8038-72D6EDA1C5DF}</ProjectGuid>
+    <ProjectGuid>{C41C94F4-C535-41B2-A996-207255768623}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Trial</RootNamespace>
+    <RootNamespace>pcb_test</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -90,19 +89,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>pcb_test</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>pcb_test</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>pcb_test</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>pcb_test</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -113,12 +108,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\PCAN_Basic;..\..\Sources\PCAN_Wrapper;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Sources;..\Sources;..\Sources\CANAPI;..\Sources\PCAN_Basic;..\Sources\PCAN_Wrapper;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\Sources\PCAN_Basic\x86\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\Sources\PCAN_Basic\x86\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,12 +125,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\PCAN_Basic;..\..\Sources\PCAN_Wrapper;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Sources;..\Sources;..\Sources\CANAPI;..\Sources\PCAN_Basic;..\Sources\PCAN_Wrapper;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\Sources\PCAN_Basic\x64\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\Sources\PCAN_Basic\x64\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -149,14 +144,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\PCAN_Basic;..\..\Sources\PCAN_Wrapper;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Sources;..\Sources;..\Sources\CANAPI;..\Sources\PCAN_Basic;..\Sources\PCAN_Wrapper;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\Sources\PCAN_Basic\x86\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\Sources\PCAN_Basic\x86\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -170,14 +165,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\PCAN_Basic;..\..\Sources\PCAN_Wrapper;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Sources;..\Sources;..\Sources\CANAPI;..\Sources\PCAN_Basic;..\Sources\PCAN_Wrapper;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\Sources\PCAN_Basic\x64\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\Sources\PCAN_Basic\x64\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
