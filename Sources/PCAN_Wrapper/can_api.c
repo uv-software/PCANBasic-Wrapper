@@ -24,34 +24,29 @@
  */
 #include "build_no.h"
 #ifdef _MSC_VER
-#define VERSION_MAJOR     0
-#define VERSION_MINOR     4
-#define VERSION_PATCH     0
+#define VERSION_MAJOR    0
+#define VERSION_MINOR    4
+#define VERSION_PATCH    0
 #else
-#define VERSION_MAJOR     0
-#define VERSION_MINOR     2
-#define VERSION_PATCH     0
+#define VERSION_MAJOR    0
+#define VERSION_MINOR    2
+#define VERSION_PATCH    0
 #endif
-#define VERSION_BUILD     BUILD_NO
-#define VERSION_STRING    TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) "-" TOSTRING(BUILD_NO)
+#define VERSION_BUILD    BUILD_NO
+#define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
-#define PLATFORM    "x64"
+#define PLATFORM        "x64"
 #elif defined(_WIN32)
-#define PLATFORM    "x86"
+#define PLATFORM        "x86"
 #elif defined(__linux__)
-#define PLATFORM    "Linux"
+#define PLATFORM        "Linux"
 #elif defined(__APPLE__)
-#define PLATFORM    "macOS"
-#elif defined(__MINGW32__)
-#define PLATFORM    "MinGW"
+#define PLATFORM        "macOS"
 #else
 #error Unsupported architecture
 #endif
-#ifdef _DEBUG
-    static const char version[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version " VERSION_STRING " (" PLATFORM ") _DEBUG";
-#else
-    static const char version[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version " VERSION_STRING " (" PLATFORM ")";
-#endif
+static const char version[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version " VERSION_STRING;
+
 
 /*  -----------  includes  -----------------------------------------------
  */
@@ -303,11 +298,11 @@ int can_init(int32_t board, uint8_t mode, const void *param)
     /* to start the CAN controller initially in reset state, we have switch OFF
      * the receiver and the transmitter and then to call CAN_Initialize[FD]() */
     value = PCAN_PARAMETER_OFF;         // receiver OFF
-    if((rc = CAN_SetValue((TPCANHandle)board, PCAN_RECEIVE_STATUS, 
+    if((rc = CAN_SetValue((TPCANHandle)board, PCAN_RECEIVE_STATUS,
                           (void*)&value, sizeof(value))) != PCAN_ERROR_OK)
         return pcan_error(rc);
     value = PCAN_PARAMETER_ON;          // transmitter OFF
-    if((rc = CAN_SetValue((TPCANHandle)board, PCAN_LISTEN_ONLY, 
+    if((rc = CAN_SetValue((TPCANHandle)board, PCAN_LISTEN_ONLY,
                           (void*)&value, sizeof(value))) != PCAN_ERROR_OK)
         return pcan_error(rc);
     if((mode & CANMODE_FDOE)) {         // CAN FD operation mode?
@@ -641,7 +636,7 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
     if(rc == PCAN_ERROR_QRCVEMPTY) {
 #if defined(_WIN32) || defined(_WIN64)
         if(timeout > 0) {
-            switch(WaitForSingleObject(can[handle].event, 
+            switch(WaitForSingleObject(can[handle].event,
                                       (timeout != CANREAD_INFINITE) ? (DWORD)timeout : INFINITE)) {
             case WAIT_OBJECT_0:
                 break;                  //   one or more messages received

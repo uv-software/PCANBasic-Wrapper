@@ -29,9 +29,15 @@
 #include <assert.h>
 
 #include "build_no.h"
+#ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
 #define VERSION_PATCH    0
+#else
+#define VERSION_MAJOR    0
+#define VERSION_MINOR    2
+#define VERSION_PATCH    0
+#endif
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
@@ -42,12 +48,10 @@
 #define PLATFORM        "Linux"
 #elif defined(__APPLE__)
 #define PLATFORM        "macOS"
-#elif defined(__CYGWIN__)
-#define PLATFORM        "Cygwin"
 #else
 #error Unsupported architecture
 #endif
-static const char version[] = PLATFORM " Wrapper for PEAK PCAN-Basic Interfaces, Version " VERSION_STRING;
+static const char version[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version " VERSION_STRING;
 
 #if (OPTION_PCAN_DYLIB != 0)
 __attribute__((constructor))
