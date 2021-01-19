@@ -24,5 +24,7 @@ Libraries/PeakCAN/Release
 Libraries/PeakCAN/*.sln
 Libraries/PeakCAN/*.aps
 Libraries/PeakCAN/*.vcxproj.user
+Binaries
+Includes
 Testing
 Utilities
