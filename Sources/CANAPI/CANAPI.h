@@ -34,9 +34,17 @@
 /// \remarks     Additionally the class CCANAPI provides static methods for
 ///              bit-rate conversion using CiA bit-timing indexes as a base.
 //
+/// \note        Set define OPTION_CANAPI_LIBRARY to a non-zero value to compile
+///              the master loader library (e.g. in the build environment). Or
+///              optionally set define OPTION_CANAPI_DRIVER to a non-zero value
+///              to compile a driver library.
+//               
+/// \note        Set define OPTION_CAN_2_0_ONLY to a non-zero value to compile
+///              with CAN 2.0 frame format only (e.g. in the build environment).
+//
 /// \author      $Author: haumea $
 //
-/// \version     $Rev: 951 $
+/// \version     $Rev: 952 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -121,12 +129,14 @@ public:
         VendorSpecific = CANERR_VENDOR  ///< offset for vendor-specific error code
     };
     /// \brief       probes if the CAN interface (hardware and driver) given by
-    ///              the argument 'channel' is present, and if the requested
-    ///              operation mode is supported by the CAN controller.
+    ///              the argument [ 'library' and ] 'channel' is present,
+    ///              and if the requested operation mode is supported by the
+    ///              CAN controller.
     //
     /// \note        When a requested operation mode is not supported by the
     ///              CAN controller, error CANERR_ILLPARA will be returned.
     //
+    /// \param[in]   library - library id of the CAN interface
     /// \param[in]   channel - channel number of the CAN interface
     /// \param[in]   opMode  - operation mode to be checked
     /// \param[in]   param   - pointer to channel-specific parameters
@@ -137,14 +147,20 @@ public:
     //
     /// \returns     0 if successful, or a negative value on error.
     //
+#if (OPTION_CANAPI_LIBRARY != 0)
+    static CANAPI_Return_t ProbeChannel(int32_t library, int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state);
+    static CANAPI_Return_t ProbeChannel(int32_t library, int32_t channel, CANAPI_OpMode_t opMode, EChannelState &state);
+#else
     static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state);
     static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, EChannelState &state);
+#endif
 
     /// \brief       initializes the CAN interface (hardware and driver) given by
-    ///              the argument 'channel'.
+    ///              the argument [ 'library' and ] 'channel'.
     ///              The operation state of the CAN controller is set to 'stopped';
     ///              no communication is possible in this state.
     //
+    /// \param[in]   library - library id of the CAN interface
     /// \param[in]   channel - channel number of the CAN interface
     /// \param[in]   opMode  - operation mode of the CAN controller
     /// \param[in]   param   - pointer to channel-specific parameters
@@ -152,7 +168,11 @@ public:
     /// \returns     handle of the CAN interface if successful,
     ///              or a negative value on error.
     //
+#if (OPTION_CANAPI_LIBRARY != 0)
+    virtual CANAPI_Return_t InitializeChannel(int32_t library, int32_t channel, CANAPI_OpMode_t opMode, const void *param = NULL) = 0;
+#else
     virtual CANAPI_Return_t InitializeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param = NULL) = 0;
+#endif
 
     /// \brief       stops any operation of the CAN interface and sets the operation
     ///              state of the CAN controller to 'stopped'.
@@ -343,4 +363,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 951 2021-01-16 09:37:00Z haumea $  Copyright (C) UV Software //
+// $Id: CANAPI.h 952 2021-01-17 13:41:26Z haumea $  Copyright (C) UV Software //

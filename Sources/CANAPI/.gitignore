@@ -1,3 +1,8 @@
 .svn
+CANAPI_Defines.h
+#CANAPI_PeakCAN.h
+CANAPI_KvaserCAN.h
+CANAPI_TouCAN.h
 CANAPI_SerialCAN.h
+CANAPI_SocketCAN.h
 CANAPI_RocketCAN.h

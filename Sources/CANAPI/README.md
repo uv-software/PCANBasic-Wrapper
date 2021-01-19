@@ -2,17 +2,17 @@
 
 _Copyright &copy; 2004-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
-Version $Rev: 951 $
+Version $Rev: 952 $
 
 # A CAN Interface Wrapper Specification
 
-Originally, the CAN Interface API was based on a CAN interface definition as part of a microcontroller hardware abstraction layer for a 82527 compatible on-chip CAN controller.
-It was developed for use by (simple hand-coded) CANopen applications and migrated to different microcontroller types, even if the CAN peripherals on the micro had a different design.
+Originally, the CAN Interface API was based on a CAN interface definition as part of a microcontroller hardware abstraction layer for an 82527-compatible on-chip CAN controller.
+It was developed for use by (simple hand-coded) CANopen applications and migrated to different microcontroller types (even if the CAN peripherals on the micro had a different design).
 
 ## CAN API V1
 
 What works on microcontrollers should also work on PC.
-So I started to use this interface definition as a wrapper specification for different CAN devices from various vendors: e.g. for IXXAT, PEAK, Vector, Kvaser, and also for Linux-CAN (a.k.a. SocketCAN).
+So I started to use this interface definition as a wrapper specification for different CAN devices from various vendors: e.g. for IXXAT, PEAK, Vector, Kvaser, and also for Linux-CAN (aka SocketCAN).
 
 ## CAN API V2
 
@@ -31,11 +31,11 @@ In case of doubt the source code:
 
 ```C
 #if (OPTION_CANAPI_LIBRARY != 0)
-extern int can_test(int32_t library, int32_t board, uint8_t mode, const void *param, int *result);
-extern int can_init(int32_t library, int32_t board, uint8_t mode, const void *param);
+extern int can_test(int32_t library, int32_t channel, uint8_t mode, const void *param, int *result);
+extern int can_init(int32_t library, int32_t channel, uint8_t mode, const void *param);
 #else
-extern int can_test(int32_t board, uint8_t mode, const void *param, int *result);
-extern int can_init(int32_t board, uint8_t mode, const void *param);
+extern int can_test(int32_t channel, uint8_t mode, const void *param, int *result);
+extern int can_init(int32_t channel, uint8_t mode, const void *param);
 #endif
 extern int can_exit(int handle);
 extern int can_kill(int handle);
@@ -66,7 +66,7 @@ See header file `can_api.h` for a description of the provided functions.
 
 ### SVN Repo
 
-The CAN API V3 sources are maintained in a SVN repo to synchronized them between the different CAN API V3 wrapper repos via Git SVN bridge.
+The CAN API V3 sources are maintained in a SVN repo to synchronized them between the different CAN API V3 wrapper repos.
 
 ### License
 
