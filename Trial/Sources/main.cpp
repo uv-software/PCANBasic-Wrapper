@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  PCBUSB
+//  PCANBasic
 //
 //  Created by Uwe Vogt on 13.01.21.
 //  Copyright © 2021 UV Software, Berlin. All rights reserved.
@@ -528,6 +528,9 @@ static void verbose(const can_mode_t mode, const can_bitrate_t bitrate, const ca
             WaitForSingleObject(timer, INFINITE);
             CloseHandle(timer);
         }
+    }
+    else {
+        Sleep(0);
     }
  }
 #endif

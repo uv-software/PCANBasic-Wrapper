@@ -142,12 +142,7 @@ static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify);
 /*  -----------  variables  ----------------------------------------------
  */
 
-#ifdef _CANAPI_EXPORTS
-#define ATTRIB  __declspec(dllexport)
-#else
-#define ATTRIB
-#endif
-ATTRIB can_board_t can_boards[PCAN_BOARDS+1]=// list of CAN Interface boards:
+can_board_t can_boards[PCAN_BOARDS+1]=// list of CAN Interface boards:
 {
     {PCAN_USB1,                           "PCAN-USB1"},
     {PCAN_USB2,                           "PCAN-USB2"},
