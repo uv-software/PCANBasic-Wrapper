@@ -5,10 +5,8 @@
 //  Created by Uwe Vogt on 13.01.21.
 //  Copyright © 2021 UV Software, Berlin. All rights reserved.
 //
-
+#include "PCAN_Defines.h"
 #include "PCAN.h"
-
-#include "CANAPI_PeakCAN.h"
 
 #include <stdio.h>
 #include <string.h>

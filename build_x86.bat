@@ -25,9 +25,9 @@ copy .\Libraries\CANAPI\Release\u3canpcb.lib %BIN%
 
 set INC=".\Includes"
 if not exist %INC% mkdir %INC%
-copy .\Sources\PCAN.h %INC%
-copy .\Sources\CANAPI\can_api.h %INC%
+copy .\Sources\PCAN*.h %INC%
 copy .\Sources\CANAPI\CANAPI*.h %INC%
+copy .\Sources\CANAPI\can_api.h %INC%
 
 :end
 popd
