@@ -1,6 +1,6 @@
-### Wrapper Library for PEAK PCAN&reg; Interfaces (Windows&reg;)
+### CAN API V3 Wrapper Library for PEAK PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2021   Uwe Vogt, UV Software, Berlin (info@uv-software.de)_
+_Copyright &copy; 2005-2021   Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 # CAN API V3 for PCAN Interfaces
 
@@ -13,39 +13,49 @@ The wrapper library is build upon the PCANBasic DLL.
 
 ### CAN Interface API, Version 3
 
-```C
-#if (OPTION_CANAPI_LIBRARY != 0)
-extern int can_test(int32_t library, int32_t board, uint8_t mode, const void *param, int *result);
-extern int can_init(int32_t library, int32_t board, uint8_t mode, const void *param);
-#else
-extern int can_test(int32_t board, uint8_t mode, const void *param, int *result);
-extern int can_init(int32_t board, uint8_t mode, const void *param);
-#endif
-extern int can_exit(int handle);
-extern int can_kill(int handle);
+In case of doubt the source code:
 
-extern int can_start(int handle, const can_bitrate_t *bitrate);
-extern int can_reset(int handle);
+```C++
+/// \name   PCAN API
+/// \brief  CAN API V3 driver for PEAK PCAN interfaces
+/// \note   See CCANAPI for a description of the overridden methods
+/// \{
+class CPCAN : public CCANAPI {
+public:
+    // constructor / destructor
+    CPCAN();
+    ~CPCAN();
 
-extern int can_write(int handle, const can_message_t *message, uint16_t timeout);
-extern int can_read(int handle, can_message_t *message, uint16_t timeout);
+    // CCANAPI overrides
+    static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state);
+    static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, EChannelState &state);
 
-extern int can_status(int handle, uint8_t *status);
-extern int can_busload(int handle, uint8_t *load, uint8_t *status);
+    CANAPI_Return_t InitializeChannel(int32_t channel, can_mode_t opMode, const void *param = NULL);
+    CANAPI_Return_t TeardownChannel();
+    CANAPI_Return_t SignalChannel();
 
-extern int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed);
-extern int can_property(int handle, uint16_t param, void *value, uint32_t nbyte);
+    CANAPI_Return_t StartController(CANAPI_Bitrate_t bitrate);
+    CANAPI_Return_t ResetController();
 
-extern char *can_hardware(int handle);
-extern char *can_software(int handle);
+    CANAPI_Return_t WriteMessage(CANAPI_Message_t message, uint16_t timeout = 0U);
+    CANAPI_Return_t ReadMessage(CANAPI_Message_t &message, uint16_t timeout = CANREAD_INFINITE);
 
-#if (OPTION_CANAPI_LIBRARY != 0)
-extern char *can_library(int handle);
-#endif
-extern char* can_version(void);
+    CANAPI_Return_t GetStatus(CANAPI_Status_t &status);
+    CANAPI_Return_t GetBusLoad(uint8_t &load);
+
+    CANAPI_Return_t GetBitrate(CANAPI_Bitrate_t &bitrate);
+    CANAPI_Return_t GetBusSpeed(CANAPI_BusSpeed_t &speed);
+
+    CANAPI_Return_t GetProperty(uint16_t param, void *value, uint32_t nbytes);
+    CANAPI_Return_t SetProperty(uint16_t param, const void *value, uint32_t nbytes);
+
+    char *GetHardwareVersion();  // (for compatibility reasons)
+    char *GetFirmwareVersion();  // (for compatibility reasons)
+    static char *GetVersion();  // (for compatibility reasons)
+};
+/// \}
 ```
-See header file `can_api.h` for a description of the provided functions.
-
+See header file `PCAN.h` for a description of the provided methods.
 
 ## Build Targets
 
@@ -56,11 +66,21 @@ C:\Projects\CAN\DRV\Drivers\PCANBbasic>build_no.bat
 ```
 Repeat this step after each `git commit`, `git pull`, `git clone`, etc.
 
-_Tbd._
+To build all 32-bit targets (x86) run the script `build_86.bat`.
+```
+C:\Users\haumea>cd C:\Projects\CAN\DRV\Drivers\PCANBbasic
+C:\Projects\CAN\DRV\Drivers\PCANBbasic>build_86.bat
+```
 
-#### pcan (DLL)
+To build all 64-bit targets (x64) run the script `build_86.bat`.
+```
+C:\Users\haumea>cd C:\Projects\CAN\DRV\Drivers\PCANBbasic
+C:\Projects\CAN\DRV\Drivers\PCANBbasic>build_64.bat
+```
 
-___pcan___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C++__ applications.
+#### uvpcan (DLL)
+
+___uvpcan___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C++__ applications.
 See header file `PCAN.h` for a description of all class members.
 
 #### u3canpcb (DLL)
@@ -153,13 +173,7 @@ _If you connect your CAN device to a real CAN network when using this library, y
 
 ### Contact
 
-Uwe Vogt \
-UV Software \
-Chausseestrasse 33a \
-10115 Berlin \
-Germany
-
-E-Mail: mailto://info@uv-software.de \
-Internet: https://www.uv-software.de
+E-Mail: mailto://info@uv-software.com \
+Internet: https://www.uv-software.com
 
 ##### *Enjoy!*

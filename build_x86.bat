@@ -12,16 +12,23 @@ rem pause
 call msbuild.exe .\Trial\pcb_test.vcxproj /t:Clean;Build /p:"Configuration=Debug";"Platform=Win32"
 if errorlevel 1 goto end
 
-call msbuild.exe .\Libraries\CANAPI\uvcanpcb.vcxproj /t:Clean;Build /p:"Configuration=Release";"Platform=Win32"
+call msbuild.exe .\Libraries\CANAPI\uvcanpcb.vcxproj /t:Clean;Build /p:"Configuration=Release_dll";"Platform=Win32"
+if errorlevel 1 goto end
+
+call msbuild.exe .\Libraries\CANAPI\uvcanpcb.vcxproj /t:Clean;Build /p:"Configuration=Release_lib";"Platform=Win32"
 if errorlevel 1 goto end
 
 echo Copying artifacts...
 set BIN=".\Binaries"
 if not exist %BIN% mkdir %BIN%
-set BIN=".\Binaries\x86"
+set BIN="%BIN%\x86"
 if not exist %BIN% mkdir %BIN%
-copy .\Libraries\CANAPI\Release\u3canpcb.dll %BIN%
-copy .\Libraries\CANAPI\Release\u3canpcb.lib %BIN%
+copy .\Libraries\CANAPI\Release_dll\u3canpcb.dll %BIN%
+copy .\Libraries\CANAPI\Release_dll\u3canpcb.lib %BIN%
+set BIN="%BIN%\lib"
+if not exist %BIN% mkdir %BIN%
+copy .\Libraries\CANAPI\Release_lib\u3canpcb.lib %BIN%
+echo Static library (x86) > %BIN%\readme.txt
 
 set INC=".\Includes"
 if not exist %INC% mkdir %INC%
