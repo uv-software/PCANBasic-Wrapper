@@ -40,7 +40,7 @@
 /// \brief  CAN API V3 driver for PEAK PCAN-Basic interfaces
 /// \note   See CCANAPI for a description of the overridden methods
 /// \{
-class CPCAN : public CCANAPI {
+class CANCPP CPCAN : public CCANAPI {
 private:
     CANAPI_OpMode_t m_OpMode;  ///< CAN operation mode
     CANAPI_Bitrate_t m_Bitrate;  ///< CAN bitrate settings

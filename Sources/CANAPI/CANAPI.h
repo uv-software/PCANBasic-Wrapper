@@ -44,7 +44,7 @@
 //
 /// \author      $Author: haumea $
 //
-/// \version     $Rev: 952 $
+/// \version     $Rev: 971 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -54,6 +54,20 @@
 
 #include "CANAPI_Defines.h"
 #include "CANAPI_Types.h"
+
+#if (CAN_API_SPEC != 0x300)
+#error Requires version 3.0 of CANAPI_Types.h
+#endif
+#if (OPTION_CAN_2_0_ONLY != 0)
+#error Requires CAN FD message format
+#endif
+#if (OPTION_CANCPP_DLLEXPORT != 0)
+#define CANCPP  __declspec(dllexport)
+#elif (OPTION_CANCPP_DLLIMPORT != 0)
+#define CANCPP  __declspec(dllimport)
+#else
+#define CANCPP
+#endif
 
 /// \name   Aliases
 /// \brief  CAN API V3 Data-types.
@@ -95,7 +109,7 @@ typedef int CANAPI_Return_t;
 /// \name   CAN API V3
 /// \brief  An abstract class for CAN API V3 campatible CAN driver implementations.
 /// \{
-class CCANAPI {
+class CANCPP CCANAPI {
 public:
     /// \brief  CAN channel states
     enum EChannelState {
@@ -363,4 +377,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 952 2021-01-17 13:41:26Z haumea $  Copyright (C) UV Software //
+// $Id: CANAPI.h 971 2021-01-24 15:19:00Z haumea $  Copyright (C) UV Software //
