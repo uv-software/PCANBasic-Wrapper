@@ -1,5 +1,5 @@
 //
-//  CAN Interface API, Version 3 (for PEAK PCAN-Basic Interfaces)
+//  CAN Interface API, Version 3 (for PEAK PCAN Interfaces)
 //
 //  Copyright (C) 2010-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
@@ -51,7 +51,7 @@
 #else
 #error Unsupported architecture
 #endif
-static const char version[] = "CAN API V3 for PEAK PCAN-Basic Interfaces, Version " VERSION_STRING;
+static const char version[] = "CAN API V3 for PEAK PCAN Interfaces, Version " VERSION_STRING;
 
 #if (OPTION_PCAN_DYLIB != 0)
 __attribute__((constructor))

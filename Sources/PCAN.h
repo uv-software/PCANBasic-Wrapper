@@ -1,5 +1,5 @@
 //
-//  CAN Interface API, Version 3 (for PEAK PCAN-Basic Interfaces)
+//  CAN Interface API, Version 3 (for PEAK PCAN Interfaces)
 //
 //  Copyright (C) 2010-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
