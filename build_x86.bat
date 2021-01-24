@@ -29,21 +29,22 @@ set BIN=".\Binaries"
 if not exist %BIN% mkdir %BIN%
 set BIN="%BIN%\x86"
 if not exist %BIN% mkdir %BIN%
-copy .\Libraries\CANAPI\Release_dll\u3canpcb.dll %BIN%
-copy .\Libraries\CANAPI\Release_dll\u3canpcb.lib %BIN%
-copy .\Libraries\UVPCAN\Release_dll\uvpcan.dll %BIN%
-copy .\Libraries\UVPCAN\Release_dll\uvpcan.lib %BIN%
+copy /Y .\Libraries\CANAPI\Release_dll\u3canpcb.dll %BIN%
+copy /Y .\Libraries\CANAPI\Release_dll\u3canpcb.lib %BIN%
+copy /Y .\Libraries\UVPCAN\Release_dll\uvpcan.dll %BIN%
+copy /Y .\Libraries\UVPCAN\Release_dll\uvpcan.lib %BIN%
 set BIN="%BIN%\lib"
 if not exist %BIN% mkdir %BIN%
-copy .\Libraries\CANAPI\Release_lib\u3canpcb.lib %BIN%
-copy .\Libraries\UVPCAN\Release_lib\uvpcan.lib %BIN%
-echo Static library (x86) > %BIN%\readme.txt
+copy /Y .\Libraries\CANAPI\Release_lib\u3canpcb.lib %BIN%
+copy /Y .\Libraries\UVPCAN\Release_lib\uvpcan.lib %BIN%
+copy /Y .\Sources\PCAN_Basic\x86\PCANBasic.lib %BIN%
+echo Static libraries (x86) > %BIN%\readme.txt
 
 set INC=".\Includes"
 if not exist %INC% mkdir %INC%
-copy .\Sources\PCAN*.h %INC%
-copy .\Sources\CANAPI\CANAPI*.h %INC%
-copy .\Sources\CANAPI\can_api.h %INC%
+copy /Y .\Sources\PCAN*.h %INC%
+copy /Y .\Sources\CANAPI\CANAPI*.h %INC%
+copy /Y .\Sources\CANAPI\can_api.h %INC%
 
 :end
 popd
