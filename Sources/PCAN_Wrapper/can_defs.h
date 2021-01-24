@@ -28,6 +28,7 @@
 /*  -----------  includes  ------------------------------------------------
  */
 
+#include "CANAPI_Defines.h"
 #include "PCAN_Defines.h"
 
 

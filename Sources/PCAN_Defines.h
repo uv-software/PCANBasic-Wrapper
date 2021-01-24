@@ -18,17 +18,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with CAN API V3.  If not, see <http://www.gnu.org/licenses/>.
  */
- /** @file        CANAPI_PeakCAN.h
-  *
-  *  @brief       CAN API V3 for generic CAN Interfaces - PEAK PCAN Interface
-  *
-  *  @remarks     Only PCAN-USB devices are considered!
-  *
-  *  @author      $Author: haumea $
-  *
-  *  @version     $Rev: 951 $
-  *
-  *  @addtogroup  can_api
+ /** @addtogroup  can_api
   *  @{
   */
 #ifndef CANAPI_PEAKCAN_H_INCLUDED
@@ -118,11 +108,11 @@ extern "C" {
  *  @{ */
 #define PCAN_LIB_ID              400      /**< library ID (CAN/COP API V1 compatible) */
 #if defined(_WIN32) || defined (_WIN64)
- #define PCAN_LIB_BASIC                   "PCANBasic.dll"
- #define PCAN_LIB_WRAPPER                 "u3canpcb.dll"
+ #define PCAN_LIB_BASIC         "PCANBasic.dll"
+ #define PCAN_LIB_WRAPPER       "u3canpcb.dll"
 #elif defined(__APPLE__)
- #define PCAN_LIB_BASIC                   "libPCBUSB.dylib"
- #define PCAN_LIB_WRAPPER                 "libUVCANPCB.dylib"
+ #define PCAN_LIB_BASIC         "libPCBUSB.dylib"
+ #define PCAN_LIB_WRAPPER       "libUVCANPCB.dylib"
 #else
 #error Platform not supported
 #endif
@@ -130,16 +120,11 @@ extern "C" {
 
 /** @name  Miscellaneous
  *  @brief More or less useful stuff
- *  @{ */                               // TODO: to be moved or removed
-#define PCAN_LIB_VENDOR                 "PEAK-System Technik GmbH, Darmstadt"
-#define CAN_API_VENDOR                  "UV Software, Berlin"
-#define CAN_API_AUTHOR                  "Uwe Vogt, UV Software"
-#define CAN_API_WEBSITE                 "www.uv-software.com"
-#define CAN_API_CONTACT                 "info@uv-software.com"
-#define CAN_API_LICENSE                 "GNU Lesser General Public License, Version 3"
-#define CAN_API_COPYRIGHT               "Copyright (C) 2005-20%02u, UV Software, Berlin"
-#define CAN_API_HAZARD_NOTE             "Do not connect your CAN device to a real CAN network when using this program.\n" \
-                                        "This can damage your application."
+ *  @{ */
+#define PCAN_LIB_VENDOR         "PEAK-System Technik GmbH, Darmstadt"
+#define PCAN_LIB_WEBSITE        "www.peak-system.com"
+#define PCAN_LIB_HAZARD_NOTE    "Do not connect your CAN device to a real CAN network when using this program.\n" \
+                                "This can damage your application."
 /** @} */
 
 /*  -----------  types  --------------------------------------------------

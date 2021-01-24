@@ -22,9 +22,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces - Data Types and Defines
  *
- *  @author      $Author: haumea $
+ *  @author      $Author: eris $
  *
- *  @version     $Rev: 952 $
+ *  @version     $Rev: 969 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -325,7 +325,8 @@ extern "C" {
 #define CANPROP_SET_FMT_RX_PROMPT  162U /**< set formatter option: prompt for received messages (char[6+1]) */
 #define CANPROP_SET_FMT_TX_PROMPT  163U /**< set formatter option: prompt for sent messages (char[6+1]) */
 #endif
-/* - -  access to vendor-specific propUrties  - - - - - - - - - - - - - */
+#define CANPROP_GET_CPP_BACKDOOR   255U /**< get device handle from CCANAPI derived class (int32_t) */
+/* - -  access to vendor-specific properties  - - - - - - - - - - - - - */
 #define CANPROP_GET_VENDOR_PROP    256U /**< get a vendor-specific property value (void*) */
 #define CANPROP_SET_VENDOR_PROP    512U /**< set a vendor-specific property value (void*) */
 #define CANPROP_VENDOR_PROP_RANGE  256U /**< range for vendor-specific property values */
