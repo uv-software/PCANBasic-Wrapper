@@ -202,7 +202,7 @@ int main(int argc, const char * argv[]) {
             fprintf(stderr, "+++ error: myDriver.GetProperty(PCAN_PROPERTY_PATCH_NO) returned %i\n", retVal);
         retVal = myDriver.GetProperty(PCAN_PROPERTY_BUILD_NO, (void *)&u32Val, sizeof(uint32_t));
         if (retVal == CCANAPI::NoError)
-            fprintf(stdout, ">>> myDriver.GetProperty(PCAN_PROPERTY_BUILD_NO): value = %" PRIx32 "\n", (uint32_t)u32Val);
+            fprintf(stdout, ">>> myDriver.GetProperty(PCAN_PROPERTY_BUILD_NO): value = 0x%" PRIx32 "\n", (uint32_t)u32Val);
         else
             fprintf(stderr, "+++ error: myDriver.GetProperty(PCAN_PROPERTY_BUILD_NO) returned %i\n", retVal);
         retVal = myDriver.GetProperty(PCAN_PROPERTY_LIBRARY_ID, (void *)&i32Val, sizeof(int32_t));

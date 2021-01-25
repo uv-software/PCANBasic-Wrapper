@@ -44,7 +44,7 @@
 //
 /// \author      $Author: haumea $
 //
-/// \version     $Rev: 971 $
+/// \version     $Rev: 972 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -296,21 +296,21 @@ public:
     //
     /// \param[in]   param    - property id to be read
     /// \param[out]  value    - pointer to a buffer for the value to be read
-    /// \param[in]   nbytes   - size of the given buffer in bytes
+    /// \param[in]   nbyte   -  size of the given buffer in byte
     //
     /// \returns     0 if successful, or a negative value on error.
     //
-    virtual CANAPI_Return_t GetProperty(uint16_t param, void *value, uint32_t nbytes) = 0;
+    virtual CANAPI_Return_t GetProperty(uint16_t param, void *value, uint32_t nbyte) = 0;
 
     /// \brief       modifies a property value of the CAN interface.
     //
     /// \param[in]   param    - property id to be written
     /// \param[in]   value    - pointer to a buffer with the value to be written
-    /// \param[in]   nbytes   - size of the given buffer in bytes
+    /// \param[in]   nbyte   -  size of the given buffer in byte
     //
     /// \returns     0 if successful, or a negative value on error.
     //
-    virtual CANAPI_Return_t SetProperty(uint16_t param, const void *value, uint32_t nbytes) = 0;
+    virtual CANAPI_Return_t SetProperty(uint16_t param, const void *value, uint32_t nbyte) = 0;
 
     /// \brief       retrieves the hardware version of the CAN controller
     ///              board as a zero-terminated string.
@@ -377,4 +377,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 971 2021-01-24 15:19:00Z haumea $  Copyright (C) UV Software //
+// $Id: CANAPI.h 972 2021-01-25 15:21:13Z haumea $  Copyright (C) UV Software //

@@ -27,7 +27,7 @@ if %errorlevel% == 0 (
     git log -1 --pretty=format:"#define BUILD_NO 0x%%h" > build_no.txt
     type build_no.txt >> Sources/build_no.h
     erase /Q build_no.txt >nul 2>nul
-    echo U >> Sources/build_no.h
+    echo  /* git hash */ >> Sources/build_no.h
 ) else (
     echo #define BUILD_NO 0xDEADC0DE >> Sources/build_no.h
 )
