@@ -24,6 +24,12 @@ if errorlevel 1 goto end
 call msbuild.exe .\Libraries\UVPCAN\uvpcan.vcxproj /t:Clean;Build /p:"Configuration=Release_lib";"Platform=x64"
 if errorlevel 1 goto end
 
+call msbuild.exe .\Utilities\can_moni\can_moni.vcxproj /t:Clean;Build /p:"Configuration=Release";"Platform=x64"
+if errorlevel 1 goto end
+
+call msbuild.exe .\Utilities\can_test\can_test.vcxproj /t:Clean;Build /p:"Configuration=Release";"Platform=x64"
+if errorlevel 1 goto end
+
 echo Copying artifacts...
 set BIN=".\Binaries"
 if not exist %BIN% mkdir %BIN%
@@ -33,6 +39,8 @@ copy /Y .\Libraries\CANAPI\x64\Release_dll\u3canpcb.dll %BIN%
 copy /Y .\Libraries\CANAPI\x64\Release_dll\u3canpcb.lib %BIN%
 copy /Y .\Libraries\UVPCAN\x64\Release_dll\uvpcan.dll %BIN%
 copy /Y .\Libraries\UVPCAN\x64\Release_dll\uvpcan.lib %BIN%
+copy /Y .\Utilities\can_moni\x64\Release\can_moni.exe %BIN%
+copy /Y .\Utilities\can_test\x64\Release\can_test.exe %BIN%
 set BIN="%BIN%\lib"
 if not exist %BIN% mkdir %BIN%
 copy /Y .\Libraries\CANAPI\x64\Release_lib\u3canpcb.lib %BIN%
