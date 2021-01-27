@@ -479,11 +479,9 @@ static void verbose(const can_mode_t mode, const can_bitrate_t bitrate, const ca
     if(bitrate.btr.frequency > 0) {
         fprintf(stdout, "Baudrate: %.0fkbps@%.1f%%",
             speed.nominal.speed / 1000., speed.nominal.samplepoint * 100.);
-#if (OPTION_CAN_2_0_ONLY == 0)
         if(/*speed.data.brse*/mode.fdoe && mode.brse)
             fprintf(stdout, ":%.0fkbps@%.1f%%",
                 speed.data.speed / 1000., speed.data.samplepoint * 100.);
-#endif
         fprintf(stdout, " (f_clock=%i,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,nom_sam=%u",
             bitrate.btr.frequency,
             bitrate.btr.nominal.brp,
@@ -491,14 +489,12 @@ static void verbose(const can_mode_t mode, const can_bitrate_t bitrate, const ca
             bitrate.btr.nominal.tseg2,
             bitrate.btr.nominal.sjw,
             bitrate.btr.nominal.sam);
-#if (OPTION_CAN_2_0_ONLY == 0)
         if(mode.fdoe && mode.brse)
             fprintf(stdout, ",data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
                 bitrate.btr.data.brp,
                 bitrate.btr.data.tseg1,
                 bitrate.btr.data.tseg2,
                 bitrate.btr.data.sjw);
-#endif
         fprintf(stdout, ")\n");
     }
     else {

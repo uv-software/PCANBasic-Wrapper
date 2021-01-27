@@ -103,12 +103,10 @@ CPCAN::CPCAN() {
     m_Bitrate.btr.nominal.tseg2 = 0;
     m_Bitrate.btr.nominal.sjw = 0;
     m_Bitrate.btr.nominal.sam = 0;
-#ifndef OPTION_CAN_2_0_ONLY
     m_Bitrate.btr.data.brp = m_Bitrate.btr.nominal.brp;
     m_Bitrate.btr.data.tseg1 = m_Bitrate.btr.nominal.tseg1;
     m_Bitrate.btr.data.tseg2 = m_Bitrate.btr.nominal.tseg2;
     m_Bitrate.btr.data.sjw = m_Bitrate.btr.nominal.sjw;
-#endif
     m_Counter.u64TxMessages = 0U;
     m_Counter.u64RxMessages = 0U;
     m_Counter.u64ErrorFrames = 0U;

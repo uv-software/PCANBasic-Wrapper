@@ -37,14 +37,18 @@
 /// \note        Set define OPTION_CANAPI_LIBRARY to a non-zero value to compile
 ///              the master loader library (e.g. in the build environment). Or
 ///              optionally set define OPTION_CANAPI_DRIVER to a non-zero value
-///              to compile a driver library.
-//               
-/// \note        Set define OPTION_CAN_2_0_ONLY to a non-zero value to compile
-///              with CAN 2.0 frame format only (e.g. in the build environment).
+///              to compile a driver/wrapper library.
 //
+/// \note        Set define OPTION_CANCPP_DLLEXPORT to a non-zero value to compile
+///              as a dynamic link library (e.g. in the build environment).
+///              In your project set define OPTION_CANCPP_DLLIMPORT to a non-zero
+///              value to load the dynamic link library at run-time. Or set it to
+///              zero to compile your program with the CAN API source files or to
+///              link your program with the static library at compile-time.
+///
 /// \author      $Author: haumea $
 //
-/// \version     $Rev: 972 $
+/// \version     $Rev: 980 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -58,8 +62,10 @@
 #if (CAN_API_SPEC != 0x300)
 #error Requires version 3.0 of CANAPI_Types.h
 #endif
-#if (OPTION_CAN_2_0_ONLY != 0)
-#error Requires CAN FD message format
+#if (OPTION_CANAPI_LIBRARY == 0)
+#if  (OPTION_CANAPI_DRIVER == 0)
+#define OPTION_CANAPI_DRIVER  1
+#endif
 #endif
 #if (OPTION_CANCPP_DLLEXPORT != 0)
 #define CANCPP  __declspec(dllexport)
@@ -377,4 +383,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 972 2021-01-25 15:21:13Z haumea $  Copyright (C) UV Software //
+// $Id: CANAPI.h 980 2021-01-27 10:15:44Z haumea $  Copyright (C) UV Software //

@@ -24,7 +24,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 979 $
+ *  @version     $Rev: 980 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -51,11 +51,14 @@ extern "C" {
 /** @note  Set define OPTION_CANAPI_LIBRARY to a non-zero value to compile
  *         the master loader library (e.g. in the build environment). Or
  *         optionally set define OPTION_CANAPI_DRIVER to a non-zero value
- *         to compile a driver library.
+ *         to compile a driver/wrapper library.
  */
 /** @note  Set define OPTION_CAN_2_0_ONLY to a non-zero value to compile
  *         with CAN 2.0 frame format only (e.g. in the build environment).
  */
+#if (OPTION_CAN_2_0_ONLY != 0)
+#warning Compilation with with legacy CAN 2.0 frame format!
+#endif
 
 /*  -----------  defines  ------------------------------------------------
  */

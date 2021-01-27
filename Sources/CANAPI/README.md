@@ -2,7 +2,7 @@
 
 _Copyright &copy; 2004-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
-Version $Rev: 973 $
+Version $Rev: 979 $
 
 # A CAN Interface Wrapper Specification
 
@@ -58,7 +58,7 @@ extern char *can_software(int handle);
 #if (OPTION_CANAPI_LIBRARY != 0)
 extern char *can_library(int handle);
 #endif
-extern char* can_version();
+extern char* can_version(void);
 ```
 See header file `can_api.h` for a description of the provided functions.
 
