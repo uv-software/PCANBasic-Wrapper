@@ -18,16 +18,6 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with PCANBasic-Wrapper.  If not, see <https://www.gnu.org/licenses/>.
 //
-#include "PCAN.h"
-#include "can_defs.h"
-#include "can_api.h"
-#include "can_btr.h"
-
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <assert.h>
-
 #include "build_no.h"
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
@@ -52,6 +42,22 @@
 #error Unsupported architecture
 #endif
 static const char version[] = "CAN API V3 for PEAK PCAN Interfaces, Version " VERSION_STRING;
+
+#ifdef _MSC_VER
+//no Microsoft extensions please!
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
+#endif
+#include "PCAN.h"
+#include "can_defs.h"
+#include "can_api.h"
+#include "can_btr.h"
+
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <assert.h>
 
 #if (OPTION_PCAN_DYLIB != 0)
 __attribute__((constructor))
@@ -132,7 +138,7 @@ CANAPI_Return_t CPCAN::ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, ECh
 
 EXPORT
 CANAPI_Return_t CPCAN::InitializeChannel(int32_t channel, can_mode_t opMode, const void *param) {
-    // shutdown the CAN interface
+    // initialize the CAN interface
     CANAPI_Return_t rc = CANERR_FATAL;
     CANAPI_Handle_t hnd = can_init(channel, opMode.byte, param);
     if (0 <= hnd) {
@@ -228,15 +234,27 @@ CANAPI_Return_t CPCAN::GetBusSpeed(CANAPI_BusSpeed_t &speed) {
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::GetProperty(uint16_t param, void *value, uint32_t nbytes) {
+CANAPI_Return_t CPCAN::GetProperty(uint16_t param, void *value, uint32_t nbyte) {
+    // backdoor access to the CAN handle (Careful with That Axe, Eugene)
+    if (CANPROP_GET_CPP_BACKDOOR == param) {
+        CANAPI_Return_t rc = CANERR_ILLPARA;
+        if (NULL == value) {
+            rc = CANERR_NULLPTR;
+        }
+        else if (nbyte == sizeof(int32_t)) {
+            *(int32_t*)value = (int32_t)m_pPCAN->m_Handle;
+            rc = CANERR_NOERROR;
+        }
+        return rc;
+    }
     // retrieve a property value of the CAN interface
-    return can_property(m_pPCAN->m_Handle, param, value, nbytes);
+    return can_property(m_pPCAN->m_Handle, param, value, nbyte);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::SetProperty(uint16_t param, const void *value, uint32_t nbytes) {
+CANAPI_Return_t CPCAN::SetProperty(uint16_t param, const void *value, uint32_t nbyte) {
     // modify a property value of the CAN interface
-    return can_property(m_pPCAN->m_Handle, param, (void*)value, nbytes);
+    return can_property(m_pPCAN->m_Handle, param, (void*)value, nbyte);
 }
 
 EXPORT
