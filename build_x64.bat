@@ -15,13 +15,13 @@ if errorlevel 1 goto end
 call msbuild.exe .\Libraries\CANAPI\uvcanpcb.vcxproj /t:Clean;Build /p:"Configuration=Release_dll";"Platform=x64"
 if errorlevel 1 goto end
 
-call msbuild.exe .\Libraries\CANAPI\uvcanpcb.vcxproj /t:Clean;Build /p:"Configuration=Release_lib";"Platform=x64"
+call msbuild.exe .\Libraries\CANAPI\uvcanpcb.vcxproj /t:Clean;Build /p:"Configuration=Debug_lib";"Platform=x64"
 if errorlevel 1 goto end
 
 call msbuild.exe .\Libraries\UVPCAN\uvpcan.vcxproj /t:Clean;Build /p:"Configuration=Release_dll";"Platform=x64"
 if errorlevel 1 goto end
 
-call msbuild.exe .\Libraries\UVPCAN\uvpcan.vcxproj /t:Clean;Build /p:"Configuration=Release_lib";"Platform=x64"
+call msbuild.exe .\Libraries\UVPCAN\uvpcan.vcxproj /t:Clean;Build /p:"Configuration=Debug_lib";"Platform=x64"
 if errorlevel 1 goto end
 
 call msbuild.exe .\Utilities\can_moni\can_moni.vcxproj /t:Clean;Build /p:"Configuration=Release";"Platform=x64"
@@ -43,8 +43,10 @@ copy /Y .\Utilities\can_moni\x64\Release\can_moni.exe %BIN%
 copy /Y .\Utilities\can_test\x64\Release\can_test.exe %BIN%
 set BIN="%BIN%\lib"
 if not exist %BIN% mkdir %BIN%
-copy /Y .\Libraries\CANAPI\x64\Release_lib\u3canpcb.lib %BIN%
-copy /Y .\Libraries\UVPCAN\x64\Release_lib\uvpcan.lib %BIN%
+copy /Y .\Libraries\CANAPI\x64\Debug_lib\u3canpcb.lib %BIN%
+copy /Y .\Libraries\CANAPI\x64\Debug_lib\u3canpcb.pdb %BIN%
+copy /Y .\Libraries\UVPCAN\x64\Debug_lib\uvpcan.lib %BIN%
+copy /Y .\Libraries\UVPCAN\x64\Debug_lib\uvpcan.pdb %BIN%
 copy /Y .\Sources\PCAN_Basic\x64\PCANBasic.lib %BIN%
 echo Static libraries (x86) > %BIN%\readme.txt
 
