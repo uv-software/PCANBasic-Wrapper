@@ -8,8 +8,8 @@ CAN API V3 is a wrapper specification to have a uniform CAN Interface API for va
 
 ## PCANBasic-Wrapper
 
-This repo contains the source code for a CAN API V3 compatible wrapper library under Windows for PCAN Interfaces from PEAK-System Technik GmbH.
-The wrapper library is build upon the PCANBasic DLL.
+This repo contains the source code for a CAN API V3 compatible wrapper library under Windows for PCAN Interfaces from Peak-System Technik GmbH.
+The wrapper library is build upon PEAK´s PCANBasic DLL.
 
 ### CAN Interface API, Version 3
 
@@ -107,7 +107,7 @@ Type `can_test /?` to display all program options.
 
 - Windows 10 (x64 operating systems)
 
-### Development Environments
+### Development Environment
 
 - Microsoft Visual Studio Community 2017 (Version 15.9)
 
@@ -129,6 +129,8 @@ Type `can_test /?` to display all program options.
 
 The PCANBasic DLL can be downloaded form [Peak-System](https://www.peak-system.com/) website.
 Please note the copyright and license agreements.
+
+A version for macOS&reg; can be downloaded at [GitHub](https://github.com/mac-can/PCBUSB-Wrapper).
 
 ### Licenses
 
@@ -165,6 +167,7 @@ along with PCANBasic-Wrapper.  If not, see <http://www.gnu.org/licenses/>.
 ### Trademarks
 
 Windows is a registered trademark of Microsoft Corporation in the United States and/or other countries. \
+Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. \
 PCAN is a registered trademark of PEAK-System Technik GmbH, Darmstadt, Germany.
 
 ### Hazard Note

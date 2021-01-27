@@ -1,5 +1,5 @@
 __CAN Tester for PEAK PCAN Interfaces, Version 0.4.0__ \
-Copyright &copy; 2005-2010,2014-2021 by Uwe Vogt, UV Software, Berlin
+Copyright &copy; 2008-2010,2014-2021 by Uwe Vogt, UV Software, Berlin
 
 ```
 Usage:

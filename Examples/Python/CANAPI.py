@@ -2,7 +2,7 @@
 #
 #   CAN Interface API, Version 3 (Interface Definition)
 #
-#   Copyright (C) 2004-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+#   Copyright (C) 2005-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 #
 #   This file is part of CAN API V3.
 #

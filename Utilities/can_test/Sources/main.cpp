@@ -1,7 +1,7 @@
 //
 //  CAN Tester for PEAK PCAN Interfaces
 //
-//  Copyright (C) 2005-2010,2014-2021  Uwe Vogt, UV Software, Berlin (info@mac-can.com)
+//  Copyright (C) 2008-2010,2014-2021  Uwe Vogt, UV Software, Berlin (info@mac-can.com)
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #error Unsupported architecture
 #endif
 static const char APPLICATION[] = "CAN Tester for PEAK PCAN Interfaces, Version " VERSION_STRING;
-static const char COPYRIGHT[]   = "Copyright (C) 2005-2010,2014-2021 by Uwe Vogt, UV Software, Berlin";
+static const char COPYRIGHT[]   = "Copyright (C) 2008-2010,2014-2021 by Uwe Vogt, UV Software, Berlin";
 static const char WARRANTY[]    = "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
                                   "This is free software, and you are welcome to redistribute it\n" \
                                   "under certain conditions; type `/ABOUT' for details.";
