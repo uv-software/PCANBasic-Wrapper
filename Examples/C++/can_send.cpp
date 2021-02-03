@@ -4,7 +4,6 @@
 #else
 #include <windows.h>
 #endif
-#define OPTION_CANAPI_DRIVER  1
 #include "can_api.h"
 
 #ifndef CHANNEL

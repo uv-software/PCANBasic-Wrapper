@@ -3,7 +3,7 @@ echo /*  -- Do not commit this file -- > Sources/build_no.h
 echo  * >> Sources/build_no.h
 echo  *  CAN Interface API, Version 3 (for PEAK PCAN Interfaces) >> Sources/build_no.h
 echo  * >> Sources/build_no.h
-echo  *  Copyright (C) 2005-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.de) >> Sources/build_no.h
+echo  *  Copyright (C) 2005-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com) >> Sources/build_no.h
 echo  * >> Sources/build_no.h
 echo  *  This file is part of PCANBasic-Wrapper. >> Sources/build_no.h
 echo  * >> Sources/build_no.h

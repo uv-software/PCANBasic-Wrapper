@@ -13,8 +13,8 @@ Libraries/CANAPI/x64
 Libraries/CANAPI/x86
 Libraries/CANAPI/Debug*
 Libraries/CANAPI/Release*
-Libraries/CANAPI/*.aps
 Libraries/CANAPI/*.sln
+Libraries/CANAPI/*.aps
 Libraries/CANAPI/*.vcxproj.user
 Libraries/UVPCAN/.vs
 Libraries/UVPCAN/x64
