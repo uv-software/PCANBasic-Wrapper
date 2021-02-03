@@ -61,21 +61,21 @@ See header file `PCAN.h` for a description of the provided methods.
 
 Important note: _To build any of the following build targets run the script_ `build_no.bat` _to generate a pseudo build number._
 ```
-C:\Users\haumea>cd C:\Projects\CAN\DRV\Drivers\PCANBbasic
-C:\Projects\CAN\DRV\Drivers\PCANBbasic>build_no.bat
+C:\Users\haumea>cd C:\Projects\CAN\Drivers\PCANBbasic
+C:\Projects\CAN\Drivers\PCANBbasic>build_no.bat
 ```
 Repeat this step after each `git commit`, `git pull`, `git clone`, etc.
 
 To build all 32-bit targets (x86) run the script `build_86.bat`.
 ```
-C:\Users\haumea>cd C:\Projects\CAN\DRV\Drivers\PCANBbasic
-C:\Projects\CAN\DRV\Drivers\PCANBbasic>build_86.bat
+C:\Users\haumea>cd C:\Projects\CAN\Drivers\PCANBbasic
+C:\Projects\CAN\Drivers\PCANBbasic>build_86.bat
 ```
 
 To build all 64-bit targets (x64) run the script `build_86.bat`.
 ```
-C:\Users\haumea>cd C:\Projects\CAN\DRV\Drivers\PCANBbasic
-C:\Projects\CAN\DRV\Drivers\PCANBbasic>build_64.bat
+C:\Users\haumea>cd C:\Projects\CAN\Drivers\PCANBbasic
+C:\Projects\CAN\Drivers\PCANBbasic>build_64.bat
 ```
 
 #### uvpcan (DLL)
