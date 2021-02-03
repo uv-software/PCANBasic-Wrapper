@@ -24,7 +24,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 980 $
+ *  @version     $Rev: 984 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -343,6 +343,8 @@ extern "C" {
 #define CANPROP_GET_CHANNEL_DLLNAME 244U /**< get file name of the DLL at actual index in the interface list (char[256]) */
 #define CANPROP_GET_CHANNEL_VENDOR_ID 245U /**< get library id at actual index in the interface list (int32_t) */
 #define CANPROP_GET_CHANNEL_VENDOR_NAME 246U /**< get vendor name at actual index in the interface list (char[256]) */
+/* - -  search path for JSON files (for C++ wrapper classes)  - - - - - */
+#define CANPROP_SET_SEARCH_PATH    253U /**< set search path for interface configuration files (char[256]) */
 /* - -  access to device handle (for C++ wrapper classes) - - - - - - - */
 #define CANPROP_GET_CPP_BACKDOOR   255U /**< get device handle (int32_t) */
 /* - -  access to vendor-specific properties  - - - - - - - - - - - - - */
