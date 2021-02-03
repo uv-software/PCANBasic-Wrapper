@@ -1095,32 +1095,32 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
     /* CAN library properties */
     switch(param) {
     case CANPROP_GET_SPEC:              // version of the wrapper specification (uint16_t)
-        if(nbyte == sizeof(uint16_t)) {
+        if(nbyte >= sizeof(uint16_t)) {
             *(uint16_t*)value = (uint16_t)CAN_API_SPEC;
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_VERSION:           // version number of the library (uint16_t)
-        if(nbyte == sizeof(uint16_t)) {
+        if(nbyte >= sizeof(uint16_t)) {
             *(uint16_t*)value = ((uint16_t)VERSION_MAJOR << 8)
                               | ((uint16_t)VERSION_MINOR & 0xFu);
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_PATCH_NO:          // patch number of the library (uint8_t)
-        if(nbyte == sizeof(uint8_t)) {
+        if(nbyte >= sizeof(uint8_t)) {
             *(uint8_t*)value = (uint8_t)VERSION_PATCH;
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_BUILD_NO:          // build number of the library (uint32_t)
-        if(nbyte == sizeof(uint32_t)) {
+        if(nbyte >= sizeof(uint32_t)) {
             *(uint32_t*)value = (uint32_t)VERSION_BUILD;
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_LIBRARY_ID:        // library id of the library (int32_t)
-        if(nbyte == sizeof(int32_t)) {
+        if(nbyte >= sizeof(int32_t)) {
             *(int32_t*)value = (int32_t)PCAN_LIB_ID;
             rc = CANERR_NOERROR;
         }
@@ -1163,7 +1163,7 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
             rc = CANERR_RESOURCE;
         break;
     case CANPROP_GET_CHANNEL_TYPE:      // get device type at actual index in the interface list (int32_t)
-        if(nbyte == sizeof(int32_t)) {
+        if(nbyte >= sizeof(int32_t)) {
             if((0 <= idx_board) && (idx_board < PCAN_BOARDS) &&
                 (can_boards[idx_board].type != EOF)) {
                 *(int32_t*)value = (int32_t)can_boards[idx_board].type;
@@ -1193,7 +1193,7 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
         }
         break;
     case CANPROP_GET_CHANNEL_VENDOR_ID: // get library id at actual index in the interface list (int32_t)
-        if(nbyte == sizeof(int32_t)) {
+        if(nbyte >= sizeof(int32_t)) {
             *(int32_t*)value = (int32_t)PCAN_LIB_ID;
             rc = CANERR_NOERROR;
         }
@@ -1248,7 +1248,7 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
     /* CAN interface properties */
     switch(param) {
     case CANPROP_GET_DEVICE_TYPE:       // device type of the CAN interface (int32_t)
-        if(nbyte == sizeof(int32_t)) {
+        if(nbyte >= sizeof(int32_t)) {
             *(int32_t*)value = (int32_t)can[handle].board;
             rc = CANERR_NOERROR;
         }
@@ -1267,7 +1267,7 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
             rc = CANERR_FATAL;
         break;
     case CANPROP_GET_DEVICE_PARAM:      // device parameter of the CAN interface (char[256])
-        if(nbyte == sizeof(struct _pcan_param)) {
+        if(nbyte >= sizeof(struct _pcan_param)) {
             ((struct _pcan_param*)value)->type = (uint8_t)can[handle].brd_type;
             ((struct _pcan_param*)value)->port = (uint32_t)can[handle].brd_port;
             ((struct _pcan_param*)value)->irq = (uint16_t)can[handle].brd_irq;
@@ -1276,21 +1276,21 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         break;
     case CANPROP_GET_OP_CAPABILITY:     // supported operation modes of the CAN controller (uint8_t)
         if((rc = pcan_capability(can[handle].board, &mode)) == CANERR_NOERROR) {
-            if(nbyte == sizeof(uint8_t)) {
+            if(nbyte >= sizeof(uint8_t)) {
                 *(uint8_t*)value = (uint8_t)mode.byte;
                 rc = CANERR_NOERROR;
             }
         }
         break;
     case CANPROP_GET_OP_MODE:           // active operation mode of the CAN controller (uint8_t)
-        if(nbyte == sizeof(uint8_t)) {
+        if(nbyte >= sizeof(uint8_t)) {
             *(uint8_t*)value = (uint8_t)can[handle].mode.byte;
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_BITRATE:           // active bit-rate of the CAN controller (can_bitrate_t)
         if(((rc = can_bitrate(handle, &bitrate, NULL)) == CANERR_NOERROR) || (rc == CANERR_OFFLINE)) {
-            if(nbyte == sizeof(can_bitrate_t)) {
+            if(nbyte >= sizeof(can_bitrate_t)) {
                 memcpy(value, &bitrate, sizeof(can_bitrate_t));
                 rc = CANERR_NOERROR;
             }
@@ -1298,7 +1298,7 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         break;
     case CANPROP_GET_SPEED:             // active bus speed of the CAN controller (can_speed_t)
         if(((rc = can_bitrate(handle, NULL, &speed)) == CANERR_NOERROR) || (rc == CANERR_OFFLINE)) {
-            if(nbyte == sizeof(can_speed_t)) {
+            if(nbyte >= sizeof(can_speed_t)) {
                 memcpy(value, &speed, sizeof(can_speed_t));
                 rc = CANERR_NOERROR;
             }
@@ -1306,7 +1306,7 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         break;
     case CANPROP_GET_STATUS:            // current status register of the CAN controller (uint8_t)
         if((rc = can_status(handle, &status)) == CANERR_NOERROR) {
-            if(nbyte == sizeof(uint8_t)) {
+            if(nbyte >= sizeof(uint8_t)) {
                 *(uint8_t*)value = (uint8_t)status;
                 rc = CANERR_NOERROR;
             }
@@ -1314,26 +1314,26 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         break;
     case CANPROP_GET_BUSLOAD:           // current bus load of the CAN controller (uint8_t)
         if((rc = can_busload(handle, &load, NULL)) == CANERR_NOERROR) {
-            if(nbyte == sizeof(uint8_t)) {
+            if(nbyte >= sizeof(uint8_t)) {
                 *(uint8_t*)value = (uint8_t)load;
                 rc = CANERR_NOERROR;
             }
         }
         break;
     case CANPROP_GET_TX_COUNTER:        // total number of sent messages (uint64_t)
-        if(nbyte == sizeof(uint64_t)) {
+        if(nbyte >= sizeof(uint64_t)) {
             *(uint64_t*)value = (uint64_t)can[handle].counters.tx;
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_RX_COUNTER:        // total number of reveiced messages (uint64_t)
-        if(nbyte == sizeof(uint64_t)) {
+        if(nbyte >= sizeof(uint64_t)) {
             *(uint64_t*)value = (uint64_t)can[handle].counters.rx;
             rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_ERR_COUNTER:       // total number of reveiced error frames (uint64_t)
-        if(nbyte == sizeof(uint64_t)) {
+        if(nbyte >= sizeof(uint64_t)) {
             *(uint64_t*)value = (uint64_t)can[handle].counters.err;
             rc = CANERR_NOERROR;
         }

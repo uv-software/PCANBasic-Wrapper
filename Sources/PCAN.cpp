@@ -239,7 +239,7 @@ CANAPI_Return_t CPCAN::GetProperty(uint16_t param, void *value, uint32_t nbyte) 
         if (NULL == value) {
             rc = CANERR_NULLPTR;
         }
-        else if (nbyte == sizeof(int32_t)) {
+        else if ((size_t)nbyte >= sizeof(int32_t)) {
             *(int32_t*)value = (int32_t)m_pPCAN->m_Handle;
             rc = CANERR_NOERROR;
         }
