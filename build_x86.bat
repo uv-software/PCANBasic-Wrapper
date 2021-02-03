@@ -18,10 +18,10 @@ if errorlevel 1 goto end
 call msbuild.exe .\Libraries\CANAPI\uvcanpcb.vcxproj /t:Clean;Build /p:"Configuration=Debug_lib";"Platform=Win32"
 if errorlevel 1 goto end
 
-call msbuild.exe .\Libraries\UVPCAN\uvpcan.vcxproj /t:Clean;Build /p:"Configuration=Release_dll";"Platform=Win32"
+call msbuild.exe .\Libraries\UVPCAN\PeakCAN.vcxproj /t:Clean;Build /p:"Configuration=Release_dll";"Platform=Win32"
 if errorlevel 1 goto end
 
-call msbuild.exe .\Libraries\UVPCAN\uvpcan.vcxproj /t:Clean;Build /p:"Configuration=Debug_lib";"Platform=Win32"
+call msbuild.exe .\Libraries\UVPCAN\PeakCAN.vcxproj /t:Clean;Build /p:"Configuration=Debug_lib";"Platform=Win32"
 if errorlevel 1 goto end
 
 echo Copying artifacts...
@@ -31,14 +31,14 @@ set BIN="%BIN%\x86"
 if not exist %BIN% mkdir %BIN%
 copy /Y .\Libraries\CANAPI\Release_dll\u3canpcb.dll %BIN%
 copy /Y .\Libraries\CANAPI\Release_dll\u3canpcb.lib %BIN%
-copy /Y .\Libraries\UVPCAN\Release_dll\uvpcan.dll %BIN%
-copy /Y .\Libraries\UVPCAN\Release_dll\uvpcan.lib %BIN%
+copy /Y .\Libraries\UVPCAN\Release_dll\uvPeakCAN.dll %BIN%
+copy /Y .\Libraries\UVPCAN\Release_dll\uvPeakCAN.lib %BIN%
 set BIN="%BIN%\lib"
 if not exist %BIN% mkdir %BIN%
 copy /Y .\Libraries\CANAPI\Debug_lib\u3canpcb.lib %BIN%
-copy /Y .\Libraries\CANAPI\Debug_lib\u3canpcb.pdb %BIN%
-copy /Y .\Libraries\UVPCAN\Debug_lib\uvpcan.lib %BIN%
-copy /Y .\Libraries\UVPCAN\Debug_lib\uvpcan.pdb %BIN%
+copy /Y .\Libraries\CANAPI\Debug_lib\uvcanpcb.pdb %BIN%\u3canpcb.pdb
+copy /Y .\Libraries\UVPCAN\Debug_lib\uvPeakCAN.lib %BIN%
+copy /Y .\Libraries\UVPCAN\Debug_lib\PeakCAN.pdb %BIN%\uvPeakCAN.pdb
 copy /Y .\Sources\PCAN_Basic\x86\PCANBasic.lib %BIN%
 echo Static libraries (x86) > %BIN%\readme.txt
 
