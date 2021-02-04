@@ -16,15 +16,15 @@ The wrapper library is build upon PEAK´s PCANBasic DLL.
 In case of doubt the source code:
 
 ```C++
-/// \name   PCAN API
+/// \name   PeakCAN API
 /// \brief  CAN API V3 driver for PEAK PCAN interfaces
 /// \note   See CCANAPI for a description of the overridden methods
 /// \{
-class CPCAN : public CCANAPI {
+class CPeakCAN : public CCANAPI {
 public:
     // constructor / destructor
-    CPCAN();
-    ~CPCAN();
+    CPeakCAN();
+    ~CPeakCAN();
 
     // CCANAPI overrides
     static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state);
