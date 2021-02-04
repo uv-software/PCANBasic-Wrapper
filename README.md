@@ -46,8 +46,8 @@ public:
     CANAPI_Return_t GetBitrate(CANAPI_Bitrate_t &bitrate);
     CANAPI_Return_t GetBusSpeed(CANAPI_BusSpeed_t &speed);
 
-    CANAPI_Return_t GetProperty(uint16_t param, void *value, uint32_t nbytes);
-    CANAPI_Return_t SetProperty(uint16_t param, const void *value, uint32_t nbytes);
+    CANAPI_Return_t GetProperty(uint16_t param, void *value, uint32_t nbyte);
+    CANAPI_Return_t SetProperty(uint16_t param, const void *value, uint32_t nbyte);
 
     char *GetHardwareVersion();  // (for compatibility reasons)
     char *GetFirmwareVersion();  // (for compatibility reasons)
@@ -55,33 +55,33 @@ public:
 };
 /// \}
 ```
-See header file `PCAN.h` for a description of the provided methods.
+See header file `PeakCAN.h` for a description of the provided methods.
 
 ## Build Targets
 
 Important note: _To build any of the following build targets run the script_ `build_no.bat` _to generate a pseudo build number._
 ```
-C:\Users\haumea>cd C:\Projects\CAN\Drivers\PCANBbasic
-C:\Projects\CAN\Drivers\PCANBbasic>build_no.bat
+C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
+C:\Projects\CAN\Drivers\PeakCAN>build_no.bat
 ```
 Repeat this step after each `git commit`, `git pull`, `git clone`, etc.
 
 To build all 32-bit targets (x86) run the script `build_86.bat`.
 ```
-C:\Users\haumea>cd C:\Projects\CAN\Drivers\PCANBbasic
-C:\Projects\CAN\Drivers\PCANBbasic>build_86.bat
+C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
+C:\Projects\CAN\Drivers\PeakCAN>build_86.bat
 ```
 
 To build all 64-bit targets (x64) run the script `build_86.bat`.
 ```
-C:\Users\haumea>cd C:\Projects\CAN\Drivers\PCANBbasic
-C:\Projects\CAN\Drivers\PCANBbasic>build_64.bat
+C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
+C:\Projects\CAN\Drivers\PeakCAN>build_64.bat
 ```
 
-#### uvpcan (DLL)
+#### uvPeakCAN (DLL)
 
-___uvpcan___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C++__ applications.
-See header file `PCAN.h` for a description of all class members.
+___uvPeakCAN___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C++__ applications.
+See header file `PeakCAN.h` for a description of all class members.
 
 #### u3canpcb (DLL)
 
