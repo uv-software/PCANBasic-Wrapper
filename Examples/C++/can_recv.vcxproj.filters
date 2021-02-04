@@ -29,7 +29,7 @@
     <ClInclude Include="..\..\Includes\CANAPI_Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Includes\PCAN.h">
+    <ClInclude Include="..\..\Includes\PeakCAN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Includes\PCAN_Defines.h">

@@ -18,10 +18,10 @@ if errorlevel 1 goto end
 call msbuild.exe .\Libraries\CANAPI\uvcanpcb.vcxproj /t:Clean;Build /p:"Configuration=Debug_lib";"Platform=Win32"
 if errorlevel 1 goto end
 
-call msbuild.exe .\Libraries\UVPCAN\PeakCAN.vcxproj /t:Clean;Build /p:"Configuration=Release_dll";"Platform=Win32"
+call msbuild.exe .\Libraries\PeakCAN\PeakCAN.vcxproj /t:Clean;Build /p:"Configuration=Release_dll";"Platform=Win32"
 if errorlevel 1 goto end
 
-call msbuild.exe .\Libraries\UVPCAN\PeakCAN.vcxproj /t:Clean;Build /p:"Configuration=Debug_lib";"Platform=Win32"
+call msbuild.exe .\Libraries\PeakCAN\PeakCAN.vcxproj /t:Clean;Build /p:"Configuration=Debug_lib";"Platform=Win32"
 if errorlevel 1 goto end
 
 echo Copying artifacts...
@@ -31,21 +31,21 @@ set BIN="%BIN%\x86"
 if not exist %BIN% mkdir %BIN%
 copy /Y .\Libraries\CANAPI\Release_dll\u3canpcb.dll %BIN%
 copy /Y .\Libraries\CANAPI\Release_dll\u3canpcb.lib %BIN%
-copy /Y .\Libraries\UVPCAN\Release_dll\uvPeakCAN.dll %BIN%
-copy /Y .\Libraries\UVPCAN\Release_dll\uvPeakCAN.lib %BIN%
+copy /Y .\Libraries\PeakCAN\Release_dll\uvPeakCAN.dll %BIN%
+copy /Y .\Libraries\PeakCAN\Release_dll\uvPeakCAN.lib %BIN%
 set BIN="%BIN%\lib"
 if not exist %BIN% mkdir %BIN%
 copy /Y .\Libraries\CANAPI\Debug_lib\u3canpcb.lib %BIN%
-copy /Y .\Libraries\CANAPI\Debug_lib\uvcanpcb.pdb %BIN%\u3canpcb.pdb
-copy /Y .\Libraries\UVPCAN\Debug_lib\uvPeakCAN.lib %BIN%
-copy /Y .\Libraries\UVPCAN\Debug_lib\PeakCAN.pdb %BIN%\uvPeakCAN.pdb
-copy /Y .\Sources\PCAN_Basic\x86\PCANBasic.lib %BIN%
+copy /Y .\Libraries\CANAPI\Debug_lib\uvcanpcb.pdb %BIN%
+copy /Y .\Libraries\PeakCAN\Debug_lib\uvPeakCAN.lib %BIN%
+copy /Y .\Libraries\PeakCAN\Debug_lib\PeakCAN.pdb %BIN%
+copy /Y .\Sources\PCANBasic\x86\PCANBasic.lib %BIN%
 echo Static libraries (x86) > %BIN%\readme.txt
 
 echo Copying header files...
 set INC=".\Includes"
 if not exist %INC% mkdir %INC%
-copy /Y .\Sources\PCAN*.h %INC%
+copy /Y .\Sources\PeakCAN*.h %INC%
 copy /Y .\Sources\CANAPI\CANAPI.h %INC%
 copy /Y .\Sources\CANAPI\CANAPI_Types.h %INC%
 copy /Y .\Sources\CANAPI\CANAPI_Defines.h %INC%

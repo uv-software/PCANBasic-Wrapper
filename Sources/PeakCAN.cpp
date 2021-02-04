@@ -49,7 +49,7 @@ static const char version[] = "CAN API V3 for PEAK PCAN Interfaces, Version " VE
 #define _CRT_SECURE_NO_WARNINGS 1
 #endif
 #endif
-#include "PCAN.h"
+#include "PeakCAN.h"
 #include "can_defs.h"
 #include "can_api.h"
 #include "can_btr.h"
@@ -85,17 +85,17 @@ static void _finalizer() {
 #define SPRINTF_S(buf,size,format,...)  sprintf_s(buf,size,format,__VA_ARGS__)
 #endif
 
-struct CPCAN::SPCAN {
+struct CPeakCAN::SCAN {
     can_handle_t m_Handle;
     // constructor/destructor
-    SPCAN() {
+    SCAN() {
         m_Handle = -1;
     }
-    ~SPCAN() {}
+    ~SCAN() {}
 };
 
 EXPORT
-CPCAN::CPCAN() {
+CPeakCAN::CPeakCAN() {
     m_OpMode.byte = CANMODE_DEFAULT;
     m_Bitrate.index = CANBTR_INDEX_250K;
     m_Bitrate.btr.nominal.brp = 0;
@@ -111,16 +111,16 @@ CPCAN::CPCAN() {
     m_Counter.u64RxMessages = 0U;
     m_Counter.u64ErrorFrames = 0U;
     // the PCANBasic interface
-    m_pPCAN = new SPCAN();
+    m_pCAN = new SCAN();
 }
 
 EXPORT
-CPCAN::~CPCAN() {
-    delete m_pPCAN;
+CPeakCAN::~CPeakCAN() {
+    delete m_pCAN;
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state) {
+CANAPI_Return_t CPeakCAN::ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state) {
     // test the CAN interface (hardware and driver)
     int result = CANBRD_NOT_TESTABLE;
     CANAPI_Return_t rc = can_test(channel, opMode.byte, param, &result);
@@ -129,18 +129,18 @@ CANAPI_Return_t CPCAN::ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, con
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, EChannelState &state) {
+CANAPI_Return_t CPeakCAN::ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, EChannelState &state) {
     // delegate this function call
     return ProbeChannel(channel, opMode, NULL, state);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::InitializeChannel(int32_t channel, can_mode_t opMode, const void *param) {
+CANAPI_Return_t CPeakCAN::InitializeChannel(int32_t channel, can_mode_t opMode, const void *param) {
     // initialize the CAN interface
     CANAPI_Return_t rc = CANERR_FATAL;
     CANAPI_Handle_t hnd = can_init(channel, opMode.byte, param);
     if (0 <= hnd) {
-        m_pPCAN->m_Handle = hnd;  // we got a handle
+        m_pCAN->m_Handle = hnd;  // we got a handle
         m_OpMode = opMode;
         rc = CANERR_NOERROR;
     } else {
@@ -150,25 +150,25 @@ CANAPI_Return_t CPCAN::InitializeChannel(int32_t channel, can_mode_t opMode, con
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::TeardownChannel() {
+CANAPI_Return_t CPeakCAN::TeardownChannel() {
     // shutdown the CAN interface
-    CANAPI_Return_t rc = can_exit(m_pPCAN->m_Handle);
+    CANAPI_Return_t rc = can_exit(m_pCAN->m_Handle);
     if (CANERR_NOERROR == rc) {
-        m_pPCAN->m_Handle = -1;  // invalidate the handle
+        m_pCAN->m_Handle = -1;  // invalidate the handle
     }
     return rc;
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::SignalChannel() {
+CANAPI_Return_t CPeakCAN::SignalChannel() {
     // signal waiting event objects of the CAN interface
-    return can_kill(m_pPCAN->m_Handle);
+    return can_kill(m_pCAN->m_Handle);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::StartController(CANAPI_Bitrate_t bitrate) {
+CANAPI_Return_t CPeakCAN::StartController(CANAPI_Bitrate_t bitrate) {
     // start the CAN controller with the given bit-rate settings
-    CANAPI_Return_t rc = can_start(m_pPCAN->m_Handle, &bitrate);
+    CANAPI_Return_t rc = can_start(m_pCAN->m_Handle, &bitrate);
     if (CANERR_NOERROR == rc) {
         m_Bitrate = bitrate;
         memset(&m_Counter, 0, sizeof(m_Counter));
@@ -177,15 +177,15 @@ CANAPI_Return_t CPCAN::StartController(CANAPI_Bitrate_t bitrate) {
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::ResetController() {
+CANAPI_Return_t CPeakCAN::ResetController() {
     // stop any operation of the CAN controller
-    return can_reset(m_pPCAN->m_Handle);
+    return can_reset(m_pCAN->m_Handle);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::WriteMessage(CANAPI_Message_t message, uint16_t timeout) {
+CANAPI_Return_t CPeakCAN::WriteMessage(CANAPI_Message_t message, uint16_t timeout) {
     // transmit a message over the CAN bus
-    CANAPI_Return_t rc = can_write(m_pPCAN->m_Handle, &message, timeout);
+    CANAPI_Return_t rc = can_write(m_pCAN->m_Handle, &message, timeout);
     if (CANERR_NOERROR == rc) {
         m_Counter.u64TxMessages++;
     }
@@ -193,9 +193,9 @@ CANAPI_Return_t CPCAN::WriteMessage(CANAPI_Message_t message, uint16_t timeout) 
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::ReadMessage(CANAPI_Message_t &message, uint16_t timeout) {
+CANAPI_Return_t CPeakCAN::ReadMessage(CANAPI_Message_t &message, uint16_t timeout) {
     // read one message from the message queue of the CAN interface, if any
-    CANAPI_Return_t rc = can_read(m_pPCAN->m_Handle, &message, timeout);
+    CANAPI_Return_t rc = can_read(m_pCAN->m_Handle, &message, timeout);
     if (CANERR_NOERROR == rc) {
         m_Counter.u64RxMessages += !message.sts ? 1U : 0U;
         m_Counter.u64ErrorFrames += message.sts ? 1U : 0U;
@@ -204,21 +204,21 @@ CANAPI_Return_t CPCAN::ReadMessage(CANAPI_Message_t &message, uint16_t timeout) 
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::GetStatus(CANAPI_Status_t &status) {
+CANAPI_Return_t CPeakCAN::GetStatus(CANAPI_Status_t &status) {
     // retrieve the status register of the CAN interface
-    return can_status(m_pPCAN->m_Handle, &status.byte);
+    return can_status(m_pCAN->m_Handle, &status.byte);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::GetBusLoad(uint8_t &load) {
+CANAPI_Return_t CPeakCAN::GetBusLoad(uint8_t &load) {
     // retrieve the bus-load (in percent) of the CAN interface
-    return can_busload(m_pPCAN->m_Handle, &load, NULL);
+    return can_busload(m_pCAN->m_Handle, &load, NULL);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::GetBitrate(CANAPI_Bitrate_t &bitrate) {
+CANAPI_Return_t CPeakCAN::GetBitrate(CANAPI_Bitrate_t &bitrate) {
     // retrieve the bit-rate setting of the CAN interface
-    CANAPI_Return_t rc = can_bitrate(m_pPCAN->m_Handle, &bitrate, NULL);
+    CANAPI_Return_t rc = can_bitrate(m_pCAN->m_Handle, &bitrate, NULL);
     if (CANERR_NOERROR == rc) {
         m_Bitrate = bitrate;
     }
@@ -226,13 +226,13 @@ CANAPI_Return_t CPCAN::GetBitrate(CANAPI_Bitrate_t &bitrate) {
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::GetBusSpeed(CANAPI_BusSpeed_t &speed) {
+CANAPI_Return_t CPeakCAN::GetBusSpeed(CANAPI_BusSpeed_t &speed) {
     // retrieve the transmission rate of the CAN interface
-    return can_bitrate(m_pPCAN->m_Handle, &m_Bitrate, &speed);
+    return can_bitrate(m_pCAN->m_Handle, &m_Bitrate, &speed);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::GetProperty(uint16_t param, void *value, uint32_t nbyte) {
+CANAPI_Return_t CPeakCAN::GetProperty(uint16_t param, void *value, uint32_t nbyte) {
     // backdoor access to the CAN handle (Careful with That Axe, Eugene)
     if (CANPROP_GET_CPP_BACKDOOR == param) {
         CANAPI_Return_t rc = CANERR_ILLPARA;
@@ -240,35 +240,35 @@ CANAPI_Return_t CPCAN::GetProperty(uint16_t param, void *value, uint32_t nbyte) 
             rc = CANERR_NULLPTR;
         }
         else if ((size_t)nbyte >= sizeof(int32_t)) {
-            *(int32_t*)value = (int32_t)m_pPCAN->m_Handle;
+            *(int32_t*)value = (int32_t)m_pCAN->m_Handle;
             rc = CANERR_NOERROR;
         }
         return rc;
     }
     // retrieve a property value of the CAN interface
-    return can_property(m_pPCAN->m_Handle, param, value, nbyte);
+    return can_property(m_pCAN->m_Handle, param, value, nbyte);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::SetProperty(uint16_t param, const void *value, uint32_t nbyte) {
+CANAPI_Return_t CPeakCAN::SetProperty(uint16_t param, const void *value, uint32_t nbyte) {
     // modify a property value of the CAN interface
-    return can_property(m_pPCAN->m_Handle, param, (void*)value, nbyte);
+    return can_property(m_pCAN->m_Handle, param, (void*)value, nbyte);
 }
 
 EXPORT
-char *CPCAN::GetHardwareVersion() {
+char *CPeakCAN::GetHardwareVersion() {
     // retrieve the hardware version of the CAN controller
-    return can_hardware(m_pPCAN->m_Handle);
+    return can_hardware(m_pCAN->m_Handle);
 }
 
 EXPORT
-char *CPCAN::GetFirmwareVersion() {
+char *CPeakCAN::GetFirmwareVersion() {
     // retrieve the firmware version of the CAN controller
-    return can_software(m_pPCAN->m_Handle);
+    return can_software(m_pCAN->m_Handle);
 }
 
 EXPORT
-char *CPCAN::GetVersion() {
+char *CPeakCAN::GetVersion() {
     // get driver version
     return (char *)&version[0];
 }
@@ -276,36 +276,36 @@ char *CPCAN::GetVersion() {
 //  Methods for bit-rate conversion
 //
 EXPORT
-CANAPI_Return_t CPCAN::MapIndex2Bitrate(int32_t index, CANAPI_Bitrate_t &bitrate) {
+CANAPI_Return_t CPeakCAN::MapIndex2Bitrate(int32_t index, CANAPI_Bitrate_t &bitrate) {
     return (CANAPI_Return_t)btr_index2bitrate(index, &bitrate);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::MapString2Bitrate(const char *string, CANAPI_Bitrate_t &bitrate) {
+CANAPI_Return_t CPeakCAN::MapString2Bitrate(const char *string, CANAPI_Bitrate_t &bitrate) {
     bool brse = false;
     // TODO: rework function 'btr_string2bitrate'
     return (CANAPI_Return_t)btr_string2bitrate((btr_string_t)string, &bitrate, &brse);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::MapBitrate2String(CANAPI_Bitrate_t bitrate, char *string, size_t length) {
+CANAPI_Return_t CPeakCAN::MapBitrate2String(CANAPI_Bitrate_t bitrate, char *string, size_t length) {
     (void) length;
     // TODO: rework function 'btr_bitrate2string'
     return (CANAPI_Return_t)btr_bitrate2string(&bitrate, false, (btr_string_t)string);
 }
 
 EXPORT
-CANAPI_Return_t CPCAN::MapBitrate2Speed(CANAPI_Bitrate_t bitrate, CANAPI_BusSpeed_t &speed) {
+CANAPI_Return_t CPeakCAN::MapBitrate2Speed(CANAPI_Bitrate_t bitrate, CANAPI_BusSpeed_t &speed) {
     // TODO: rework function 'btr_bitrate2speed'
     return (CANAPI_Return_t)btr_bitrate2speed(&bitrate, false, false, &speed);
 }
 
 //  Private methodes
 //
-CANAPI_Return_t CPCAN::MapBitrate2Sja1000(CANAPI_Bitrate_t bitrate, uint16_t &btr0btr1) {
+CANAPI_Return_t CPeakCAN::MapBitrate2Sja1000(CANAPI_Bitrate_t bitrate, uint16_t &btr0btr1) {
     return (CANAPI_Return_t)btr_bitrate2sja1000(&bitrate, &btr0btr1);
 }
 
-CANAPI_Return_t CPCAN::MapSja10002Bitrate(uint16_t btr0btr1, CANAPI_Bitrate_t &bitrate) {
+CANAPI_Return_t CPeakCAN::MapSja10002Bitrate(uint16_t btr0btr1, CANAPI_Bitrate_t &bitrate) {
     return (CANAPI_Return_t)btr_sja10002bitrate(btr0btr1, &bitrate);
 }

@@ -32,7 +32,7 @@
     <ClInclude Include="..\..\Sources\build_no.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Sources\PCAN.h">
+    <ClInclude Include="..\..\Sources\PeakCAN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Sources\PCAN_Defines.h">

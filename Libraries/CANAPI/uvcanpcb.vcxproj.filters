@@ -35,7 +35,7 @@
     <ClCompile Include="uvcanpcb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Sources\PCAN_Wrapper\can_api.c">
+    <ClCompile Include="..\..\Sources\Wrapper\can_api.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Sources\CANAPI\can_btr.c">

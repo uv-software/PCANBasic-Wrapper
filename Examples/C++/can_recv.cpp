@@ -2,7 +2,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#include "PCAN.h"
+#include "PeakCAN.h"
 
 #ifndef CHANNEL
 #define CHANNEL  0x51

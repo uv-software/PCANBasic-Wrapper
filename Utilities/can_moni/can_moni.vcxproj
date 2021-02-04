@@ -30,7 +30,7 @@
     <ClInclude Include="..\..\Sources\CANAPI\CANAPI.h" />
     <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Defines.h" />
     <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Types.h" />
-    <ClInclude Include="..\..\Sources\PCAN.h" />
+    <ClInclude Include="..\..\Sources\PeakCAN.h" />
     <ClInclude Include="..\..\Sources\PCAN_Defines.h" />
     <ClInclude Include="Sources\Message.h" />
     <ClInclude Include="Sources\Timer.h" />
@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANCPP_DLLIMPORT=0;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\PCAN_Wrapper;..\..\Sources\PCAN_Basic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANCPP_DLLIMPORT=0;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\PCAN_Wrapper;..\..\Sources\PCAN_Basic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,7 +144,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANCPP_DLLIMPORT=1;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\PCAN_Wrapper;..\..\Sources\PCAN_Basic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,7 +165,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANCPP_DLLIMPORT=1;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\PCAN_Wrapper;..\..\Sources\PCAN_Basic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

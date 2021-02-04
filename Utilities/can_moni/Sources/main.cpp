@@ -50,8 +50,8 @@ static const char LICENSE[]     = "This program is free software: you can redist
                                   "along with this program.  If not, see <http://www.gnu.org/licenses/>.";
 #define basename(x)  "can_moni" // FIXME: Where is my `basename' function?
 
-#include "PCAN_Defines.h"
-#include "PCAN.h"
+#include "PeakCAN_Defines.h"
+#include "PeakCAN.h"
 #include "Timer.h"
 #include "Message.h"
 
@@ -143,7 +143,7 @@ static char* option[MAX_OPTIONS] = {
 
 static int get_exclusion(const char *arg);  // TODO: make it a member function
 
-class CCanDriver : public CPCAN {
+class CCanDriver : public CPeakCAN {
 public:
     uint64_t ReceptionLoop();
 public:
@@ -162,26 +162,26 @@ public:
     } m_CanDevices[];
 };
 const CCanDriver::TCanVendor CCanDriver::m_CanVendors[] = {
-    {PCAN_LIBRARY_ID, (char *)"PEAK" },
+    {PEAKCAN_LIBRARY_ID, (char *)"PEAK" },
     {EOF, NULL}
 };
 const CCanDriver::TCanDevice CCanDriver::m_CanDevices[] = {
-    {PCAN_LIBRARY_ID, PCAN_USB1, (char *)"PCAN-USB1" },
-    {PCAN_LIBRARY_ID, PCAN_USB2, (char *)"PCAN-USB2" },
-    {PCAN_LIBRARY_ID, PCAN_USB3, (char *)"PCAN-USB3" },
-    {PCAN_LIBRARY_ID, PCAN_USB4, (char *)"PCAN-USB4" },
-    {PCAN_LIBRARY_ID, PCAN_USB5, (char *)"PCAN-USB5" },
-    {PCAN_LIBRARY_ID, PCAN_USB6, (char *)"PCAN-USB6" },
-    {PCAN_LIBRARY_ID, PCAN_USB7, (char *)"PCAN-USB7" },
-    {PCAN_LIBRARY_ID, PCAN_USB8, (char *)"PCAN-USB8" },
-    {PCAN_LIBRARY_ID, PCAN_USB9, (char *)"PCAN-USB9" },
-    {PCAN_LIBRARY_ID, PCAN_USB10, (char *)"PCAN-USB10" },
-    {PCAN_LIBRARY_ID, PCAN_USB11, (char *)"PCAN-USB11" },
-    {PCAN_LIBRARY_ID, PCAN_USB12, (char *)"PCAN-USB12" },
-    {PCAN_LIBRARY_ID, PCAN_USB13, (char *)"PCAN-USB13" },
-    {PCAN_LIBRARY_ID, PCAN_USB14, (char *)"PCAN-USB14" },
-    {PCAN_LIBRARY_ID, PCAN_USB15, (char *)"PCAN-USB15" },
-    {PCAN_LIBRARY_ID, PCAN_USB16, (char *)"PCAN-USB16" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB1, (char *)"PCAN-USB1" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB2, (char *)"PCAN-USB2" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB3, (char *)"PCAN-USB3" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB4, (char *)"PCAN-USB4" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB5, (char *)"PCAN-USB5" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB6, (char *)"PCAN-USB6" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB7, (char *)"PCAN-USB7" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB8, (char *)"PCAN-USB8" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB9, (char *)"PCAN-USB9" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB10, (char *)"PCAN-USB10" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB11, (char *)"PCAN-USB11" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB12, (char *)"PCAN-USB12" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB13, (char *)"PCAN-USB13" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB14, (char *)"PCAN-USB14" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB15, (char *)"PCAN-USB15" },
+    {PEAKCAN_LIBRARY_ID, PCAN_USB16, (char *)"PCAN-USB16" },
     {EOF, EOF, NULL}
 };
 

@@ -18,29 +18,29 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with PCANBasic-Wrapper.  If not, see <https://www.gnu.org/licenses/>.
 //
-#ifndef PCAN_H_INCLUDED
-#define PCAN_H_INCLUDED
+#ifndef PEAKCAN_H_INCLUDED
+#define PEAKCAN_H_INCLUDED
 
 #include "CANAPI.h"
 
 /// \name   PCAN
 /// \brief  PCAN dynamic library
 /// \{
-#define PCAN_LIBRARY_ID  CANLIB_PCANBASIC
-#define PCAN_LIBRARY_NAME  CANDLL_PCANBASIC
-#define PCAN_LIBRARY_VENDOR  "UV Software, Berlin"
-#define PCAN_LIBRARY_LICENSE  "GNU Lesser General Public License, Version 3"
-#define PCAN_LIBRARY_COPYRIGHT  "Copyright (C) 2010-2021  Uwe Vogt, UV Software, Berlin"
-#define PCAN_LIBRARY_HAZARD_NOTE  "If you connect your CAN device to a real CAN network when using this library,\n" \
+#define PEAKCAN_LIBRARY_ID  CANLIB_PCANBASIC
+#define PEAKCAN_LIBRARY_NAME  CANDLL_PCANBASIC
+#define PEAKCAN_LIBRARY_VENDOR  "UV Software, Berlin"
+#define PEAKCAN_LIBRARY_LICENSE  "GNU Lesser General Public License, Version 3"
+#define PEAKCAN_LIBRARY_COPYRIGHT  "Copyright (C) 2010-2021  Uwe Vogt, UV Software, Berlin"
+#define PEAKCAN_LIBRARY_HAZARD_NOTE  "If you connect your CAN device to a real CAN network when using this library,\n" \
                                   "you might damage your application."
 /// \}
 
 
-/// \name   PCAN API
+/// \name   PeakCAN API
 /// \brief  CAN API V3 driver for PEAK PCAN-Basic interfaces
 /// \note   See CCANAPI for a description of the overridden methods
 /// \{
-class CANCPP CPCAN : public CCANAPI {
+class CANCPP CPeakCAN : public CCANAPI {
 private:
     CANAPI_OpMode_t m_OpMode;  ///< CAN operation mode
     CANAPI_Bitrate_t m_Bitrate;  ///< CAN bitrate settings
@@ -50,12 +50,12 @@ private:
         uint64_t u64ErrorFrames;  ///< number of received status messages
     } m_Counter;
     // opaque data type
-    struct SPCAN;  ///< C++ forward declaration
-    SPCAN *m_pPCAN;  ///< PCANBasic interface
+    struct SCAN;  ///< C++ forward declaration
+    SCAN *m_pCAN;  ///< PCANBasic interface
 public:
     // constructor / destructor
-    CPCAN();
-    ~CPCAN();
+    CPeakCAN();
+    ~CPeakCAN();
     // CPCAN-specific error codes (CAN API V3 extension)
     enum EErrorCodes {
         // note: range 0...-99 is reserved by CAN API V3
@@ -118,34 +118,34 @@ public:
 /// \name   PCAN Property IDs
 /// \brief  Properties that can be read (or written)
 /// \{
-#define PCAN_PROPERTY_CANAPI              (CANPROP_GET_SPEC)
-#define PCAN_PROPERTY_VERSION             (CANPROP_GET_VERSION)
-#define PCAN_PROPERTY_PATCH_NO            (CANPROP_GET_PATCH_NO)
-#define PCAN_PROPERTY_BUILD_NO            (CANPROP_GET_BUILD_NO)
-#define PCAN_PROPERTY_LIBRARY_ID          (CANPROP_GET_LIBRARY_ID)
-#define PCAN_PROPERTY_LIBRARY_NAME        (CANPROP_GET_LIBRARY_DLLNAME)
-#define PCAN_PROPERTY_LIBRARY_VENDOR      (CANPROP_GET_LIBRARY_VENDOR)
-#define PCAN_PROPERTY_DEVICE_TYPE         (CANPROP_GET_DEVICE_TYPE)
-#define PCAN_PROPERTY_DEVICE_NAME         (CANPROP_GET_DEVICE_NAME)
-#define PCAN_PROPERTY_DEVICE_VENDOR       (CANPROP_GET_DEVICE_VENDOR)
-#define PCAN_PROPERTY_DEVICE_DLLNAME      (CANPROP_GET_DEVICE_DLLNAME)
-#define PCAN_PROPERTY_OP_CAPABILITY       (CANPROP_GET_OP_CAPABILITY)
-#define PCAN_PROPERTY_OP_MODE             (CANPROP_GET_OP_MODE)
-#define PCAN_PROPERTY_BITRATE             (CANPROP_GET_BITRATE)
-#define PCAN_PROPERTY_SPEED               (CANPROP_GET_SPEED)
-#define PCAN_PROPERTY_STATUS              (CANPROP_GET_STATUS)
-#define PCAN_PROPERTY_BUSLOAD             (CANPROP_GET_BUSLOAD)
-#define PCAN_PROPERTY_TX_COUNTER          (CANPROP_GET_TX_COUNTER)
-#define PCAN_PROPERTY_RX_COUNTER          (CANPROP_GET_RX_COUNTER)
-#define PCAN_PROPERTY_ERR_COUNTER         (CANPROP_GET_ERR_COUNTER)
-#define PCAN_PROPERTY_DEVICE_ID           (CANPROP_GET_VENDOR_PROP + 0x01U)
-#define PCAN_PROPERTY_API_VERSION         (CANPROP_GET_VENDOR_PROP + 0x05U)
-#define PCAN_PROPERTY_CHANNEL_VERSION     (CANPROP_GET_VENDOR_PROP + 0x06U)
-#define PCAN_PROPERTY_HARDWARE_NAME       (CANPROP_GET_VENDOR_PROP + 0x0EU)
-//#define PCAN_PROPERTY_BOOTLOADER_VERSION  (CANPROP_GET_VENDOR_PROP + 0x??U)
-//#define PCAN_PROPERTY_SERIAL_NUMBER       (CANPROP_GET_VENDOR_PROP + 0x??U)
-//#define PCAN_PROPERTY_VID_PID             (CANPROP_GET_VENDOR_PROP + 0x??U)
-//#define PCAN_PROPERTY_CLOCK_DOMAIN        (CANPROP_GET_VENDOR_PROP + 0x??U)
+#define PEAKCAN_PROPERTY_CANAPI              (CANPROP_GET_SPEC)
+#define PEAKCAN_PROPERTY_VERSION             (CANPROP_GET_VERSION)
+#define PEAKCAN_PROPERTY_PATCH_NO            (CANPROP_GET_PATCH_NO)
+#define PEAKCAN_PROPERTY_BUILD_NO            (CANPROP_GET_BUILD_NO)
+#define PEAKCAN_PROPERTY_LIBRARY_ID          (CANPROP_GET_LIBRARY_ID)
+#define PEAKCAN_PROPERTY_LIBRARY_NAME        (CANPROP_GET_LIBRARY_DLLNAME)
+#define PEAKCAN_PROPERTY_LIBRARY_VENDOR      (CANPROP_GET_LIBRARY_VENDOR)
+#define PEAKCAN_PROPERTY_DEVICE_TYPE         (CANPROP_GET_DEVICE_TYPE)
+#define PEAKCAN_PROPERTY_DEVICE_NAME         (CANPROP_GET_DEVICE_NAME)
+#define PEAKCAN_PROPERTY_DEVICE_VENDOR       (CANPROP_GET_DEVICE_VENDOR)
+#define PEAKCAN_PROPERTY_DEVICE_DLLNAME      (CANPROP_GET_DEVICE_DLLNAME)
+#define PEAKCAN_PROPERTY_OP_CAPABILITY       (CANPROP_GET_OP_CAPABILITY)
+#define PEAKCAN_PROPERTY_OP_MODE             (CANPROP_GET_OP_MODE)
+#define PEAKCAN_PROPERTY_BITRATE             (CANPROP_GET_BITRATE)
+#define PEAKCAN_PROPERTY_SPEED               (CANPROP_GET_SPEED)
+#define PEAKCAN_PROPERTY_STATUS              (CANPROP_GET_STATUS)
+#define PEAKCAN_PROPERTY_BUSLOAD             (CANPROP_GET_BUSLOAD)
+#define PEAKCAN_PROPERTY_TX_COUNTER          (CANPROP_GET_TX_COUNTER)
+#define PEAKCAN_PROPERTY_RX_COUNTER          (CANPROP_GET_RX_COUNTER)
+#define PEAKCAN_PROPERTY_ERR_COUNTER         (CANPROP_GET_ERR_COUNTER)
+#define PEAKCAN_PROPERTY_DEVICE_ID           (CANPROP_GET_VENDOR_PROP + 0x01U)
+#define PEAKCAN_PROPERTY_API_VERSION         (CANPROP_GET_VENDOR_PROP + 0x05U)
+#define PEAKCAN_PROPERTY_CHANNEL_VERSION     (CANPROP_GET_VENDOR_PROP + 0x06U)
+#define PEAKCAN_PROPERTY_HARDWARE_NAME       (CANPROP_GET_VENDOR_PROP + 0x0EU)
+//#define PEAKCAN_PROPERTY_BOOTLOADER_VERSION  (CANPROP_GET_VENDOR_PROP + 0x??U)
+//#define PEAKCAN_PROPERTY_SERIAL_NUMBER       (CANPROP_GET_VENDOR_PROP + 0x??U)
+//#define PEAKCAN_PROPERTY_VID_PID             (CANPROP_GET_VENDOR_PROP + 0x??U)
+//#define PEAKCAN_PROPERTY_CLOCK_DOMAIN        (CANPROP_GET_VENDOR_PROP + 0x??U)
 // TODO: insert coin here
 /// \}
-#endif // PCAN_H_INCLUDED
+#endif // PEAKCAN_H_INCLUDED
