@@ -42,10 +42,12 @@ int main(int argc, const char * argv[]) {
         message.data[5] = (uint8_t)((uint64_t)i >> 40);
         message.data[6] = (uint8_t)((uint64_t)i >> 48);
         message.data[7] = (uint8_t)((uint64_t)i >> 56);
-        if ((result = can_write(handle, &message, 0U)) < 0) {
-            std::cerr << "+++ error: interface could not be stopped" << std::endl;
-            goto reset;;
-        }
+        do {
+            if (((result = can_write(handle, &message, 0U)) < 0) && (result != CANERR_TX_BUSY)) {
+                std::cerr << "\n+++ error: message could not be sent" << std::endl;
+                goto reset;;
+            }
+        } while (result == CANERR_TX_BUSY);
     }
 #if !defined(_WIN32) && !defined(_WIN64)
     usleep(1000000);  // afterburner

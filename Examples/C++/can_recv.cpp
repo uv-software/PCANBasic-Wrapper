@@ -14,7 +14,7 @@
 static void sigterm(int signo);
 static volatile int running = 1;
 
-static CPCAN myDriver = CPCAN();
+static CPeakCAN myDriver = CPeakCAN();
 
 int main(int argc, const char * argv[]) {
     CANAPI_OpMode_t opMode = {};
@@ -25,7 +25,7 @@ int main(int argc, const char * argv[]) {
     CANAPI_Return_t retVal = 0;
     int frames = 0;
 
-    std::cout << CPCAN::GetVersion() << std::endl;
+    std::cout << CPeakCAN::GetVersion() << std::endl;
     if((signal(SIGINT, sigterm) == SIG_ERR) ||
 #if !defined(_WIN32) && !defined(_WIN64)
        (signal(SIGHUP, sigterm) == SIG_ERR) ||
@@ -67,6 +67,7 @@ int main(int argc, const char * argv[]) {
 teardown:
     if ((retVal = myDriver.TeardownChannel()) != CCANAPI::NoError)
         std::cerr << "+++ error: interface could not be shutdown" << std::endl;
+    std::cerr << "Cheers!" << std::endl;
     return retVal;
 }
 
