@@ -36,9 +36,9 @@ copy /Y .\Libraries\PeakCAN\Release_dll\uvPeakCAN.lib %BIN%
 set BIN="%BIN%\lib"
 if not exist %BIN% mkdir %BIN%
 copy /Y .\Libraries\CANAPI\Debug_lib\u3canpcb.lib %BIN%
-copy /Y .\Libraries\CANAPI\Debug_lib\uvcanpcb.pdb %BIN%
+copy /Y .\Libraries\CANAPI\Debug_lib\u3canpcb.pdb %BIN%
 copy /Y .\Libraries\PeakCAN\Debug_lib\uvPeakCAN.lib %BIN%
-copy /Y .\Libraries\PeakCAN\Debug_lib\PeakCAN.pdb %BIN%
+copy /Y .\Libraries\PeakCAN\Debug_lib\uvPeakCAN.pdb %BIN%
 copy /Y .\Sources\PCANBasic\x86\PCANBasic.lib %BIN%
 echo Static libraries (x86) > %BIN%\readme.txt
 
