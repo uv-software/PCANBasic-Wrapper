@@ -52,8 +52,8 @@ Options:
               data_tseg2=<value>   Time segment 2 (FD data)
               data_sjw=<value>     Sync. jump width (FD data).
 Hazard note:
-  Do not connect your CAN device to a real CAN network when using this program.
-  This can damage your application.
+  If you connect your CAN device to a real CAN network when using this program,
+  you might damage your application.
 ```
 
 This program is free software: you can redistribute it and/or modify

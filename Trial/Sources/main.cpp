@@ -70,10 +70,10 @@ int main(int argc, const char * argv[]) {
     CANAPI_Bitrate_t bitrate = {};
     bitrate.index = CANBTR_INDEX_250K;
     can_message_t message = {};
-    message.id = 0x55AU,
-    message.xtd = 0,
-    message.rtr = 0,
-    message.dlc = CAN_MAX_DLC,
+    message.id = 0x55AU;
+    message.xtd = 0;
+    message.rtr = 0;
+    message.dlc = CAN_MAX_DLC;
     message.data[0] = 0x11;
     message.data[1] = 0x22;
     message.data[2] = 0x33;
@@ -85,7 +85,7 @@ int main(int argc, const char * argv[]) {
     message.timestamp.tv_sec = 0;
     message.timestamp.tv_nsec = 0;
     CANAPI_Return_t retVal = 0;
-    int32_t channel = PCAN_USB1;
+    int32_t channel = (int32_t)PCAN_USB1;
     uint16_t timeout = CANREAD_INFINITE;
     unsigned int delay = 0U;
     CCANAPI::EChannelState state;
@@ -106,22 +106,22 @@ int main(int argc, const char * argv[]) {
     int option_transmit = OPTION_NO;
     for (int i = 1, opt = 0; i < argc; i++) {
         /* PCAN-USB channel */
-        if (!strcmp(argv[i], "PCAN-USB1")) channel = PCAN_USB1;
-        if (!strcmp(argv[i], "PCAN-USB2")) channel = PCAN_USB2;
-        if (!strcmp(argv[i], "PCAN-USB3")) channel = PCAN_USB3;
-        if (!strcmp(argv[i], "PCAN-USB4")) channel = PCAN_USB4;
-        if (!strcmp(argv[i], "PCAN-USB5")) channel = PCAN_USB5;
-        if (!strcmp(argv[i], "PCAN-USB6")) channel = PCAN_USB6;
-        if (!strcmp(argv[i], "PCAN-USB7")) channel = PCAN_USB7;
-        if (!strcmp(argv[i], "PCAN-USB8")) channel = PCAN_USB8;
-        if (!strcmp(argv[i], "PCAN-USB9")) channel = PCAN_USB9;
-        if (!strcmp(argv[i], "PCAN-USB10")) channel = PCAN_USB10;
-        if (!strcmp(argv[i], "PCAN-USB11")) channel = PCAN_USB11;
-        if (!strcmp(argv[i], "PCAN-USB12")) channel = PCAN_USB12;
-        if (!strcmp(argv[i], "PCAN-USB13")) channel = PCAN_USB13;
-        if (!strcmp(argv[i], "PCAN-USB14")) channel = PCAN_USB14;
-        if (!strcmp(argv[i], "PCAN-USB15")) channel = PCAN_USB15;
-        if (!strcmp(argv[i], "PCAN-USB16")) channel = PCAN_USB16;
+        if (!strcmp(argv[i], "PCAN-USB1")) channel = (int32_t)PCAN_USB1;
+        if (!strcmp(argv[i], "PCAN-USB2")) channel = (int32_t)PCAN_USB2;
+        if (!strcmp(argv[i], "PCAN-USB3")) channel = (int32_t)PCAN_USB3;
+        if (!strcmp(argv[i], "PCAN-USB4")) channel = (int32_t)PCAN_USB4;
+        if (!strcmp(argv[i], "PCAN-USB5")) channel = (int32_t)PCAN_USB5;
+        if (!strcmp(argv[i], "PCAN-USB6")) channel = (int32_t)PCAN_USB6;
+        if (!strcmp(argv[i], "PCAN-USB7")) channel = (int32_t)PCAN_USB7;
+        if (!strcmp(argv[i], "PCAN-USB8")) channel = (int32_t)PCAN_USB8;
+        if (!strcmp(argv[i], "PCAN-USB9")) channel = (int32_t)PCAN_USB9;
+        if (!strcmp(argv[i], "PCAN-USB10")) channel = (int32_t)PCAN_USB10;
+        if (!strcmp(argv[i], "PCAN-USB11")) channel = (int32_t)PCAN_USB11;
+        if (!strcmp(argv[i], "PCAN-USB12")) channel = (int32_t)PCAN_USB12;
+        if (!strcmp(argv[i], "PCAN-USB13")) channel = (int32_t)PCAN_USB13;
+        if (!strcmp(argv[i], "PCAN-USB14")) channel = (int32_t)PCAN_USB14;
+        if (!strcmp(argv[i], "PCAN-USB15")) channel = (int32_t)PCAN_USB15;
+        if (!strcmp(argv[i], "PCAN-USB16")) channel = (int32_t)PCAN_USB16;
         /* baud rate (CAN 2.0) */
         if (!strcmp(argv[i], "BD:0") || !strcmp(argv[i], "BD:1000")) bitrate.index = CANBTR_INDEX_1M;
         if (!strcmp(argv[i], "BD:1") || !strcmp(argv[i], "BD:800")) bitrate.index = CANBTR_INDEX_800K;
@@ -396,7 +396,7 @@ int main(int argc, const char * argv[]) {
 #ifdef SECOND_CHANNEL
         if ((retVal = mySecond.ReadMessage(message, 0U)) == CCANAPI::NoError) {
             if (option_echo) {
-                fprintf(stdout, ">>> %i\t", frames++);
+                fprintf(stdout, ">2> %i\t", frames++);
                 fprintf(stdout, "%7li.%04li\t", (long)message.timestamp.tv_sec, message.timestamp.tv_nsec / 100000);
                 if (!opMode.fdoe)
                     fprintf(stdout, "%03x\t%c%c [%i]", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ', message.dlc);

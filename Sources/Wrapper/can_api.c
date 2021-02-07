@@ -1082,7 +1082,6 @@ static int string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, i
 static int lib_parameter(uint16_t param, void *value, size_t nbyte)
 {
     int rc = CANERR_ILLPARA;            // suppose an invalid parameter
-    int i = 0;                          // one always needs an i
 
     static int idx_board = EOF;         // actual index in the interface list
     TPCANStatus sts;                    // status or error code

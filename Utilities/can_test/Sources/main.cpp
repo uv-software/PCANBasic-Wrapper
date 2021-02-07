@@ -1193,8 +1193,8 @@ static void usage(FILE *stream, const char *program)
     fprintf(stream, "              data_tseg2=<value>   Time segment 2 (FD data)\n");
     fprintf(stream, "              data_sjw=<value>     Sync. jump width (FD data).\n");
     fprintf(stream, "Hazard note:\n");
-    fprintf(stream, "  Do not connect your CAN device to a real CAN network when using this program.\n");
-    fprintf(stream, "  This can damage your application.\n");
+    fprintf(stream, "  If you connect your CAN device to a real CAN network when using this program,\n");
+    fprintf(stream, "  you might damage your application.\n");
 }
 
 /** @brief       shows version information of the program.

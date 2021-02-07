@@ -61,5 +61,6 @@ reset:
 end:
     if ((result = can_exit(handle)) < 0)
         std::cerr << "+++ error: interface could not be shutdown" << std::endl;
+    std::cerr << "Cheers!" << std::endl;
     return result;
 }
