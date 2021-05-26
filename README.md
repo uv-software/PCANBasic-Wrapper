@@ -109,9 +109,9 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2019 (Version 16.8.4)
+- Microsoft Visual Studio Community 2019 (Version 16.10.0)
 
-### Supported CAN Hardware
+### Tested CAN Hardware
 
 - PCAN-USB - single channel, CAN 2.0 (Peak´s item no.: IPEH-002021, IPEH-002021)
 - PCAN-USB FD - single channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004022)
@@ -123,46 +123,23 @@ Type `can_test /?` to display all program options.
 
 ## Known Bugs and Caveats
 
-- ...
+For a list of known bugs and caveats see tab [Issues](https://github.com/uv-software/PCANBasic-Wrapper/issues) in the GitHub repo.
 
 ## This and That
 
-The PCANBasic DLL can be downloaded form [Peak-System](https://www.peak-system.com/) website.
+The PCANBasic DLL can be downloaded form [Peak-System](https://www.peak-system.com/) website. \
 Please note the copyright and license agreements.
 
-A version for macOS&reg; can be downloaded at [GitHub](https://github.com/mac-can/PCBUSB-Wrapper).
+A version for macOS&reg; can be downloaded from / cloned at [GitHub](https://github.com/mac-can/PCBUSB-Wrapper).
 
-### Licenses
+### Dual-License
 
-#### CAN API V3 License
+This work is dual-licensed under the terms of the BSD 2-Clause "Simplified" License
+and under the terms of the GNU General Public License v3.0 (or any later version).
+You can choose between one of them if you use this work in whole or in part.
 
-CAN API V3 is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+`SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later`
 
-CAN API V3 is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with CAN API V3.  If not, see <http://www.gnu.org/licenses/>.
-
-#### PCANBasic-Wrapper License
-
-PCANBasic-Wrapper is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-PCANBasic-Wrapper is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with PCANBasic-Wrapper.  If not, see <http://www.gnu.org/licenses/>.
 
 ### Trademarks
 
