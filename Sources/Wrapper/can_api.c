@@ -569,8 +569,14 @@ int can_write(int handle, const can_msg_t *msg, uint16_t timeout)
     if(can[handle].status.can_stopped)  // must be running
         return CANERR_OFFLINE;
 
-    // TODO: check for identifier range (std and xtd)
-
+    if(msg->xtd) {
+        if(msg->id > CAN_MAX_XTD_ID)    // valid 29-bit identifier
+            return CANERR_ILLPARA;
+    }
+    else {
+        if(msg->id > CAN_MAX_STD_ID)    // valid 11-bit identifier
+            return CANERR_ILLPARA;
+    }
     if(!can[handle].mode.fdoe) {
         if(msg->dlc > CAN_MAX_LEN)      //   data length 0 .. 8
             return CANERR_ILLPARA;
