@@ -153,7 +153,7 @@ typedef struct {                        // PCAN interface:
  */
 
 static int pcan_error(TPCANStatus);     // PCAN specific errors
-static int pcan_capability(TPCANHandle board, can_mode_t *capability);
+static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability);
 
 static int bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr1);
 static int register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate);
@@ -206,6 +206,9 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
     can_mode_t capa;                    // channel capability
     int used = 0;                       // own used channel
     int i;
+
+    if((board < 0) || (65535 < board))  // PCAN handle is of type WORD!
+        return pcan_error(PCAN_ERROR_ILLCLIENT);
 
     if(!init) {                         // when not init before:
         for(i = 0; i < PCAN_MAX_HANDLES; i++) {
@@ -266,6 +269,9 @@ int can_init(int32_t board, uint8_t mode, const void *param)
     DWORD port = 0;                     // board parameter: I/O port address
     WORD  irq = 0;                      // board parameter: interrupt number
     int i;
+
+    if((board < 0) || (65535 < board))  // PCAN handle is of type WORD!
+        return pcan_error(PCAN_ERROR_ILLCLIENT);
 
     if(!init) {                         // when not init before:
         for(i = 0; i < PCAN_MAX_HANDLES; i++) {
@@ -940,7 +946,7 @@ static int pcan_error(TPCANStatus status)
     return PCAN_ERR_UNKNOWN;
 }
 
-static int pcan_capability(TPCANHandle board, can_mode_t *capability)
+static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability)
 {
     TPCANStatus rc;                     // return value
     DWORD features;                     // channel features
@@ -950,7 +956,7 @@ static int pcan_capability(TPCANHandle board, can_mode_t *capability)
 
     if((rc = CAN_GetValue((TPCANHandle)board, PCAN_CHANNEL_FEATURES,
                           (void*)&features, sizeof(features))) != PCAN_ERROR_OK)
-        return pcan_error(rc);
+        return rc;
 
     capability->fdoe = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
     capability->brse = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
@@ -966,7 +972,7 @@ static int pcan_capability(TPCANHandle board, can_mode_t *capability)
     capability->err = 1;  // PCAN_ALLOW_ERROR_FRAMES available since version 4.2.0
     capability->mon = 1;  // PCAN_LISTEN_ONLY available since version 1.0.0
 
-    return CANERR_NOERROR;
+    return PCAN_ERROR_OK;
 }
 
 static int index2bitrate(int index, can_bitrate_t *bitrate)
@@ -1303,11 +1309,12 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         }
         break;
     case CANPROP_GET_OP_CAPABILITY:     // supported operation modes of the CAN controller (uint8_t)
-        if((rc = pcan_capability(can[handle].board, &mode)) == CANERR_NOERROR) {
-            if(nbyte >= sizeof(uint8_t)) {
+        if(nbyte >= sizeof(uint8_t)) {
+            if((sts = pcan_capability(can[handle].board, &mode)) == PCAN_ERROR_OK) {
                 *(uint8_t*)value = (uint8_t)mode.byte;
                 rc = CANERR_NOERROR;
-            }
+            } else
+                rc = pcan_error(sts);
         }
         break;
     case CANPROP_GET_OP_MODE:           // active operation mode of the CAN controller (uint8_t)
