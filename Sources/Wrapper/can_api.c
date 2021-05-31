@@ -250,10 +250,12 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
     if(((condition == PCAN_CHANNEL_AVAILABLE) || (condition == PCAN_CHANNEL_PCANVIEW)) ||
        (/*(condition == PCAN_CHANNEL_OCCUPIED) ||*/ used)) {   // FIXME: issue TC07_47_9w - returns PCAN_ERROR_INITIALIZE when channel used by another process
         // get operation capability from CAN board
-        if ((rc = pcan_capability((TPCANHandle)board, &capa)) != PCAN_ERROR_OK)
+        if((rc = pcan_capability((TPCANHandle)board, &capa)) != PCAN_ERROR_OK)
             return pcan_error(rc);
         // check given operation mode against the operation capability
-        if ((mode & ~capa.byte) != 0)
+        if((mode & ~capa.byte) != 0)
+            return CANERR_ILLPARA;
+        if((mode & CANMODE_BRSE) && !(mode & CANMODE_FDOE))
             return CANERR_ILLPARA;
     }
     (void)param;
@@ -302,9 +304,11 @@ int can_init(int32_t board, uint8_t mode, const void *param)
         return CANERR_HANDLE;
 
     /* get operation capabilit from channel check with given operation mode */
-    if ((rc = pcan_capability((TPCANHandle)board, &capa)) != PCAN_ERROR_OK)
+    if((rc = pcan_capability((TPCANHandle)board, &capa)) != PCAN_ERROR_OK)
         return pcan_error(rc);
-    if ((mode & ~capa.byte) != 0)
+    if((mode & ~capa.byte) != 0)
+        return CANERR_ILLPARA;
+    if((mode & CANMODE_BRSE) && !(mode & CANMODE_FDOE))
         return CANERR_ILLPARA;
 #if defined(_WIN32) || defined(_WIN64)
     /* one event handle per channel */
