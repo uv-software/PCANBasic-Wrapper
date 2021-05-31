@@ -203,7 +203,7 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
 {
     TPCANStatus rc;                     // return value
     DWORD condition;                    // channel condition
-    DWORD features;                     // channel features
+    can_mode_t capa;                    // channel capability
     int used = 0;                       // own used channel
     int i;
 
@@ -245,25 +245,13 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
             *result = CANBRD_NOT_TESTABLE;// guess borad is not testable
     }
     if(((condition == PCAN_CHANNEL_AVAILABLE) || (condition == PCAN_CHANNEL_PCANVIEW)) ||
-       (/*(condition == PCAN_CHANNEL_OCCUPIED) ||*/ used)) {
-        // FIXME: issue TC07_47_9w - returns PCAN_ERROR_INITIALIZE when channel used by another process
-        if((rc = CAN_GetValue((TPCANHandle)board, PCAN_CHANNEL_FEATURES,
-                              (void*)&features, sizeof(features))) != PCAN_ERROR_OK)
+       (/*(condition == PCAN_CHANNEL_OCCUPIED) ||*/ used)) {   // FIXME: issue TC07_47_9w - returns PCAN_ERROR_INITIALIZE when channel used by another process
+        // get operation capability from CAN board
+        if ((rc = pcan_capability((TPCANHandle)board, &capa)) != PCAN_ERROR_OK)
             return pcan_error(rc);
-        if((mode & CANMODE_FDOE) && !(features & FEATURE_FD_CAPABLE))
-            return CANERR_ILLPARA; // CAN FD operation requested, but not supported
-        if((mode & CANMODE_BRSE) && !(mode & CANMODE_FDOE))
-            return CANERR_ILLPARA; // bit-rate switching requested, but CAN FD not enabled
-        /*if((mode & CANMODE_NISO)) {} // This can not be determined (FIXME) */
-#if (0)
-        /*if((mode & CANMODE_NXTD)) {} // PCAN_ACCEPTANCE_FILTER_29BIT available since version 4.2.0 */
-        /*if((mode & CANMODE_NRTR)) {} // PCAN_ALLOW_RTR_FRAMES available since version 4.2.0 */
-#else
-        if((mode & CANMODE_NXTD)) return CANERR_ILLPARA; // acceptance filtering not supported!
-        if((mode & CANMODE_NRTR)) return CANERR_ILLPARA; // suppressing RTR frames not supported!
-#endif
-        /*if((mode & CANMODE_ERR)) {}  // PCAN_ALLOW_ERROR_FRAMES available since version 4.2.0 */
-        /*if((mode & CANMODE_MON)) {}  // PCAN_LISTEN_ONLY available since version 1.0.0 */
+        // check given operation mode against the operation capability
+        if ((mode & ~capa.byte) != 0)
+            return CANERR_ILLPARA;
     }
     (void)param;
     return CANERR_NOERROR;
@@ -273,6 +261,7 @@ int can_init(int32_t board, uint8_t mode, const void *param)
 {
     TPCANStatus rc;                     // return value
     DWORD value;                        // parameter value
+    can_mode_t capa;                    // board capability
     BYTE  type = 0;                     // board type (none PnP hardware)
     DWORD port = 0;                     // board parameter: I/O port address
     WORD  irq = 0;                      // board parameter: interrupt number
@@ -306,6 +295,11 @@ int can_init(int32_t board, uint8_t mode, const void *param)
     if(!IS_HANDLE_VALID(i))             // no free handle found
         return CANERR_HANDLE;
 
+    /* get operation capabilit from channel check with given operation mode */
+    if ((rc = pcan_capability((TPCANHandle)board, &capa)) != PCAN_ERROR_OK)
+        return pcan_error(rc);
+    if ((mode & ~capa.byte) != 0)
+        return CANERR_ILLPARA;
 #if defined(_WIN32) || defined(_WIN64)
     /* one event handle per channel */
     if((can[i].event = CreateEvent(     // create an event handle
@@ -574,6 +568,8 @@ int can_write(int handle, const can_msg_t *msg, uint16_t timeout)
         return CANERR_NULLPTR;
     if(can[handle].status.can_stopped)  // must be running
         return CANERR_OFFLINE;
+
+    // TODO: check for identifier range (std and xtd)
 
     if(!can[handle].mode.fdoe) {
         if(msg->dlc > CAN_MAX_LEN)      //   data length 0 .. 8
@@ -953,7 +949,7 @@ static int pcan_capability(TPCANHandle board, can_mode_t *capability)
     capability->fdoe = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
     capability->brse = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
     capability->niso = 0; // This can not be determined (FIXME)
-    capability->shrd = 0; // This feature is not supported (TODO: clarify)
+    capability->shrd = 0; // This feature is not supported (PCANBasic)
 #if (0)
     capability->nxtd = 1; // PCAN_ACCEPTANCE_FILTER_29BIT available since version 4.2.0
     capability->nrtr = 1; // PCAN_ALLOW_RTR_FRAMES available since version 4.2.0
