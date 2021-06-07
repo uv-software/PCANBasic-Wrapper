@@ -51,19 +51,18 @@ int main(int argc, const char * argv[]) {
                 fprintf(stdout, "%03X\t%c%c [%u] ", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ', message.dlc);
             else
                 fprintf(stdout, "%03X\t%c%c%c%c%c [%u] ", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ',
-                        message.fdf ? 'F' : ' ', message.brs ? 'B' : ' ', message.esi ? 'E' :' ', CCANAPI::DLc2Len(message.dlc));
-            for (uint8_t i = 0; i < CCANAPI::DLc2Len(message.dlc); i++)
+                        message.fdf ? 'F' : ' ', message.brs ? 'B' : ' ', message.esi ? 'E' :' ', CCANAPI::Dlc2Len(message.dlc));
+            for (uint8_t i = 0; i < CCANAPI::Dlc2Len(message.dlc); i++)
                 fprintf(stdout, " %02X", message.data[i]);
             if (message.sts)
                 fprintf(stdout, " <<< status frame");
             fprintf(stdout, "\n");
         }
         else if (retVal != CCANAPI::ReceiverEmpty) {
-            fprintf(stderr, "+++ error: read message returned %i", retVal);
+            fprintf(stderr, "+++ error: read message returned %i\n", retVal);
             running = 0;
         }
     }
-    std::cout << std::endl;
 teardown:
     if ((retVal = myDriver.TeardownChannel()) != CCANAPI::NoError)
         std::cerr << "+++ error: interface could not be shutdown" << std::endl;
