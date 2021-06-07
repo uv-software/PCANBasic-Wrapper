@@ -579,14 +579,21 @@ int can_write(int handle, const can_msg_t *msg, uint16_t timeout)
     if(can[handle].status.can_stopped)  // must be running
         return CANERR_OFFLINE;
 
-    if(msg->xtd) {
-        if(msg->id > CAN_MAX_XTD_ID)    // valid 29-bit identifier
-            return CANERR_ILLPARA;
-    }
-    else {
-        if(msg->id > CAN_MAX_STD_ID)    // valid 11-bit identifier
-            return CANERR_ILLPARA;
-    }
+    if (msg->id > (uint32_t)(msg->xtd ? CAN_MAX_XTD_ID : CAN_MAX_STD_ID))
+        return CANERR_ILLPARA;          // invalid identifier
+    if (msg->xtd && can[handle].mode.nxtd)
+        return CANERR_ILLPARA;          // suppress extended frames
+    if (msg->rtr && can[handle].mode.nrtr)
+        return CANERR_ILLPARA;          // suppress remote frames
+    if (msg->fdf && !can[handle].mode.fdoe)
+        return CANERR_ILLPARA;          // long frames only with CAN FD
+    if (msg->brs && !can[handle].mode.brse)
+        return CANERR_ILLPARA;          // fast frames only with CAN FD
+    if (msg->brs && !msg->fdf)
+        return CANERR_ILLPARA;          // bit-rate switching only with CAN FD
+    if (msg->sts)
+        return CANERR_ILLPARA;          // error frames cannot be sent
+
     if(!can[handle].mode.fdoe) {
         if(msg->dlc > CAN_MAX_LEN)      //   data length 0 .. 8
             return CANERR_ILLPARA;
