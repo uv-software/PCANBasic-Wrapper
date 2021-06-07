@@ -1276,7 +1276,6 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
     uint8_t status = 0U;
     uint8_t load = 0U;
     TPCANStatus sts;
-    int i;
 
     assert(IS_HANDLE_VALID(handle));    // just to make sure
 
@@ -1292,17 +1291,13 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         }
         break;
     case CANPROP_GET_DEVICE_NAME:       // device name of the CAN interface (char[256])
-        for(i = 0; i < PCAN_BOARDS; i++) {
-            if(can_boards[i].type == (int32_t)can[handle].board) {
-                if((nbyte > strlen(can_boards[i].name)) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
-                    strcpy((char*)value, can_boards[i].name);
-                    rc = CANERR_NOERROR;
-                    break;
-                }
-            }
+        if(nbyte <= CANPROP_MAX_BUFFER_SIZE) {
+            if((sts = CAN_GetValue(can[handle].board, (BYTE)PCAN_HARDWARE_NAME,
+                (void*)value, (DWORD)nbyte)) == PCAN_ERROR_OK)
+                rc = CANERR_NOERROR;
+            else
+                rc = pcan_error(sts);
         }
-        if((i == PCAN_BOARDS) || (rc != CANERR_NOERROR))
-            rc = CANERR_FATAL;
         break;
     case CANPROP_GET_DEVICE_PARAM:      // device parameter of the CAN interface (char[256])
         if(nbyte >= sizeof(struct _pcan_param)) {
@@ -1328,32 +1323,32 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         }
         break;
     case CANPROP_GET_BITRATE:           // active bit-rate of the CAN controller (can_bitrate_t)
-        if(((rc = can_bitrate(handle, &bitrate, NULL)) == CANERR_NOERROR) || (rc == CANERR_OFFLINE)) {
-            if(nbyte >= sizeof(can_bitrate_t)) {
+        if(nbyte >= sizeof(can_bitrate_t)) {
+            if(((rc = can_bitrate(handle, &bitrate, NULL)) == CANERR_NOERROR) || (rc == CANERR_OFFLINE)) {
                 memcpy(value, &bitrate, sizeof(can_bitrate_t));
                 rc = CANERR_NOERROR;
             }
         }
         break;
     case CANPROP_GET_SPEED:             // active bus speed of the CAN controller (can_speed_t)
-        if(((rc = can_bitrate(handle, NULL, &speed)) == CANERR_NOERROR) || (rc == CANERR_OFFLINE)) {
-            if(nbyte >= sizeof(can_speed_t)) {
+        if(nbyte >= sizeof(can_speed_t)) {
+            if(((rc = can_bitrate(handle, NULL, &speed)) == CANERR_NOERROR) || (rc == CANERR_OFFLINE)) {
                 memcpy(value, &speed, sizeof(can_speed_t));
                 rc = CANERR_NOERROR;
             }
         }
         break;
     case CANPROP_GET_STATUS:            // current status register of the CAN controller (uint8_t)
-        if((rc = can_status(handle, &status)) == CANERR_NOERROR) {
-            if(nbyte >= sizeof(uint8_t)) {
+        if(nbyte >= sizeof(uint8_t)) {
+            if((rc = can_status(handle, &status)) == CANERR_NOERROR) {
                 *(uint8_t*)value = (uint8_t)status;
                 rc = CANERR_NOERROR;
             }
         }
         break;
     case CANPROP_GET_BUSLOAD:           // current bus load of the CAN controller (uint8_t)
-        if((rc = can_busload(handle, &load, NULL)) == CANERR_NOERROR) {
-            if(nbyte >= sizeof(uint8_t)) {
+        if(nbyte >= sizeof(uint8_t)) {
+            if((rc = can_busload(handle, &load, NULL)) == CANERR_NOERROR) {
                 *(uint8_t*)value = (uint8_t)load;
                 rc = CANERR_NOERROR;
             }
