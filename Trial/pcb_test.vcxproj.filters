@@ -53,9 +53,6 @@
     <ClInclude Include="..\Sources\PeakCAN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Sources\PCAN_Defines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Sources\CANAPI\CANAPI_Defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
