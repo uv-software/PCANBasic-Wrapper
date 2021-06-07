@@ -73,9 +73,9 @@
 ///              zero to compile your program with the CAN API source files or to
 ///              link your program with the static library at compile-time.
 ///
-/// \author      $Author: eris $
+/// \author      $Author: haumea $
 //
-/// \version     $Rev: 993 $
+/// \version     $Rev: 998 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -171,6 +171,7 @@ public:
         NullPointer = CANERR_NULLPTR,  ///< null-pointer assignment
         NotInitialized = CANERR_NOTINIT,  ///< not initialized
         AlreadyInitialized = CANERR_YETINIT,  ///< already initialized
+        InvalidLibrary = CANERR_LIBRARY, ///< illegal library
         NotSupported = CANERR_NOTSUPP,  ///< not supported
         FatalError = CANERR_FATAL,  ///< fatal error
         VendorSpecific = CANERR_VENDOR  ///< offset for vendor-specific error code
@@ -410,4 +411,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 993 2021-05-25 16:32:29Z eris $  Copyright (c) UV Software //
+// $Id: CANAPI.h 998 2021-05-31 16:37:28Z haumea $  Copyright (c) UV Software //
