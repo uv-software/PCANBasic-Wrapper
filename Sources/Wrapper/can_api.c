@@ -155,10 +155,11 @@ typedef struct {                        // PCAN interface:
 static int pcan_error(TPCANStatus);     // PCAN specific errors
 static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability);
 
-static int bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr1);
-static int register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate);
-static int bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, int brse);
-static int string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, int brse);
+static int map_index2bitrate(int index, can_bitrate_t* bitrate);
+static int map_bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr1);
+static int map_register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate);
+static int map_bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, int brse);
+static int map_string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, int brse);
 
 static int lib_parameter(uint16_t param, void *value, size_t nbyte);
 static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte);
@@ -469,11 +470,11 @@ int can_start(int handle, const can_bitrate_t *bitrate)
         }
     }
     else if (!can[handle].mode.fdoe) {  // btr0btr1 for CAN 2.0
-        if (bitrate2register(bitrate, &btr0btr1) != CANERR_NOERROR)
+        if (map_bitrate2register(bitrate, &btr0btr1) != CANERR_NOERROR)
             return CANERR_BAUDRATE;
     }
     else {                              // a string for CAN FD
-        if (bitrate2string(bitrate, string, can[handle].mode.brse) != CANERR_NOERROR)
+        if (map_bitrate2string(bitrate, string, can[handle].mode.brse) != CANERR_NOERROR)
             return CANERR_BAUDRATE;
     }
     /* note: to (re-)start the CAN controller, we have to reinitialize it */
@@ -835,14 +836,14 @@ int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed)
         if ((rc = CAN_GetValue(can[handle].board, PCAN_BITRATE_INFO,
                              (void*)&btr0btr1, sizeof(TPCANBaudrate))) != PCAN_ERROR_OK)
             return pcan_error(rc);
-        if ((rc = register2bitrate(btr0btr1, &temporary)) != CANERR_NOERROR)
+        if ((rc = map_register2bitrate(btr0btr1, &temporary)) != CANERR_NOERROR)
             return rc;
     }
     else {                              // CAN FD
         if ((rc = CAN_GetValue(can[handle].board, PCAN_BITRATE_INFO_FD,
                              (void*)string, PCAN_MAX_BUFFER_SIZE)) != PCAN_ERROR_OK)
             return pcan_error(rc);
-        if ((rc = string2bitrate(string, &temporary, can[handle].mode.brse)) != CANERR_NOERROR)
+        if ((rc = map_string2bitrate(string, &temporary, can[handle].mode.brse)) != CANERR_NOERROR)
             return rc;
     }
     if (bitrate) {
@@ -986,9 +987,11 @@ static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability)
     return PCAN_ERROR_OK;
 }
 
-static int index2bitrate(int index, can_bitrate_t *bitrate)
+static int map_index2bitrate(int index, can_bitrate_t *bitrate)
 {
     TPCANBaudrate btr0btr1 = 0x0000u;
+
+    assert(bitrate);
 
     switch (index) {
     case CANBTR_INDEX_1M: btr0btr1 = PCAN_BAUD_1M; break;
@@ -1002,11 +1005,14 @@ static int index2bitrate(int index, can_bitrate_t *bitrate)
     case CANBTR_INDEX_10K: btr0btr1 = PCAN_BAUD_10K; break;
     /*default: return CANERR_BAUDRATE;  // take it easy! */
     }
-    return register2bitrate(btr0btr1, bitrate);
+    return map_register2bitrate(btr0btr1, bitrate);
 }
 
-static int bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr1)
+static int map_bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr1)
 {
+    assert(bitrate);
+    assert(btr0btr1);
+
     if (bitrate->btr.frequency != (int32_t)CANBTR_FREQ_SJA1000) // SJA1000 @ 8MHz
         return CANERR_BAUDRATE;
     if ((bitrate->btr.nominal.brp < CANBTR_SJA1000_BRP_MIN) || (CANBTR_SJA1000_BRP_MAX < bitrate->btr.nominal.brp))
@@ -1030,8 +1036,10 @@ static int bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr
     return CANERR_NOERROR;
 }
 
-static int register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate)
+static int map_register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate)
 {
+    assert(bitrate);
+
     bitrate->btr.frequency = (int32_t)CANBTR_FREQ_SJA1000; // SJA1000 @ 8MHz
     bitrate->btr.nominal.sjw = (uint16_t)((btr0btr1 & 0xC000u) >> 14) + 1u;
     bitrate->btr.nominal.brp = (uint16_t)((btr0btr1 & 0x3F00u) >> 8) + 1u;
@@ -1045,8 +1053,11 @@ static int register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate
     return CANERR_NOERROR;
 }
 
-static int bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, int brse)
+static int map_bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, int brse)
 {
+    assert(bitrate);
+    assert(string);
+
     if ((bitrate->btr.nominal.brp < CANBTR_NOMINAL_BRP_MIN) || (CANBTR_NOMINAL_BRP_MAX < bitrate->btr.nominal.brp))
         return CANERR_BAUDRATE;
     if ((bitrate->btr.nominal.tseg1 < CANBTR_NOMINAL_TSEG1_MIN) || (CANBTR_NOMINAL_TSEG1_MAX < bitrate->btr.nominal.tseg1))
@@ -1091,11 +1102,14 @@ static int bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, i
     return CANERR_NOERROR;
 }
 
-static int string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, int brse)
+static int map_string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, int brse)
 {
     long unsigned freq = 0;
     int unsigned nom_brp = 0, nom_tseg1 = 0, nom_tseg2 = 0, nom_sjw = 0/*, nom_sam = 0*/;
     int unsigned data_brp = 0, data_tseg1 = 0, data_tseg2 = 0, data_sjw = 0/*, data_ssp_offset = 0*/;
+
+    assert(string);
+    assert(bitrate);
 
     // TODO: rework this!
     if (sscanf(string, "f_clock=%lu,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,"
@@ -1182,18 +1196,20 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
             rc = CANERR_NOERROR;
         }
         break;
+	/* *** **
     case CANPROP_GET_DEVICE_VENDOR:     // vendor name of the CAN interface (char[256])
         if ((nbyte > strlen(PCAN_LIB_VENDOR)) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
             strcpy((char*)value, PCAN_LIB_VENDOR);
             rc = CANERR_NOERROR;
         }
         break;
-    case CANPROP_GET_DEVICE_DLLNAME:    // file name of the CAN interface (char[256])
+    case CANPROP_GET_DEVICE_DLLNAME:    // file name of the CAN interface DLL (char[256])
         if ((nbyte > strlen(PCAN_LIB_BASIC)) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
             strcpy((char*)value, PCAN_LIB_BASIC);
             rc = CANERR_NOERROR;
         }
         break;
+	** *** */
     case CANPROP_SET_FIRST_CHANNEL:     // set index to the first entry in the interface list (NULL)
         idx_board = 0;
         rc = (can_boards[idx_board].type != EOF) ? CANERR_NOERROR : CANERR_RESOURCE;
@@ -1207,7 +1223,7 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
         else
             rc = CANERR_RESOURCE;
         break;
-    case CANPROP_GET_CHANNEL_TYPE:      // get device type at actual index in the interface list (int32_t)
+    case CANPROP_GET_CHANNEL_NO:        // get channel no. at actual index in the interface list (int32_t)
         if (nbyte >= sizeof(int32_t)) {
             if ((0 <= idx_board) && (idx_board < PCAN_BOARDS) &&
                 (can_boards[idx_board].type != EOF)) {
@@ -1218,8 +1234,8 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
                 rc = CANERR_RESOURCE;
         }
         break;
-    case CANPROP_GET_CHANNEL_NAME:      // get device name at actual index in the interface list (char[256])
-        if (nbyte <= CANPROP_MAX_BUFFER_SIZE) {
+    case CANPROP_GET_CHANNEL_NAME:      // get channel name at actual index in the interface list (char[256])
+        if ((0U < nbyte) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
             if ((0 <= idx_board) && (idx_board < PCAN_BOARDS) &&
                 (can_boards[idx_board].type != EOF)) {
                 strncpy((char*)value, can_boards[idx_board].name, nbyte);
@@ -1231,24 +1247,58 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
         }
         break;
     case CANPROP_GET_CHANNEL_DLLNAME:   // get file name of the DLL at actual index in the interface list (char[256])
-        if (nbyte <= CANPROP_MAX_BUFFER_SIZE) {
-            strncpy((char*)value, PCAN_LIB_BASIC, nbyte);
-            ((char*)value)[(nbyte - 1)] = '\0';
-            rc = CANERR_NOERROR;
+        if ((0U < nbyte) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
+            if ((0 <= idx_board) && (idx_board < PCAN_BOARDS) &&
+                (can_boards[idx_board].type != EOF)) {
+                strncpy((char*)value, PCAN_LIB_BASIC, nbyte);
+                ((char*)value)[(nbyte - 1)] = '\0';
+                rc = CANERR_NOERROR;
+            }
+            else
+                rc = CANERR_RESOURCE;
         }
         break;
     case CANPROP_GET_CHANNEL_VENDOR_ID: // get library id at actual index in the interface list (int32_t)
         if (nbyte >= sizeof(int32_t)) {
-            *(int32_t*)value = (int32_t)PCAN_LIB_ID;
-            rc = CANERR_NOERROR;
+            if ((0 <= idx_board) && (idx_board < PCAN_BOARDS) &&
+                (can_boards[idx_board].type != EOF)) {
+                *(int32_t*)value = (int32_t)PCAN_LIB_ID;
+                rc = CANERR_NOERROR;
+            }
+            else
+                rc = CANERR_RESOURCE;
         }
         break;
     case CANPROP_GET_CHANNEL_VENDOR_NAME: // get vendor name at actual index in the interface list (char[256])
-        if (nbyte <= CANPROP_MAX_BUFFER_SIZE) {
-            strncpy((char*)value, PCAN_LIB_VENDOR, nbyte);
-            ((char*)value)[(nbyte - 1)] = '\0';
-            rc = CANERR_NOERROR;
+        if ((0U < nbyte) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
+            if ((0 <= idx_board) && (idx_board < PCAN_BOARDS) &&
+                (can_boards[idx_board].type != EOF)) {
+                strncpy((char*)value, PCAN_LIB_VENDOR, nbyte);
+                ((char*)value)[(nbyte - 1)] = '\0';
+                rc = CANERR_NOERROR;
+            }
+            else
+                rc = CANERR_RESOURCE;
         }
+        break;
+    case CANPROP_GET_DEVICE_TYPE:       // device type of the CAN interface (int32_t)
+    case CANPROP_GET_DEVICE_NAME:       // device name of the CAN interface (char[256])
+    case CANPROP_GET_DEVICE_VENDOR:     // vendor name of the CAN interface (char[256])
+    case CANPROP_GET_DEVICE_DLLNAME:    // file name of the CAN interface DLL (char[256])
+    case CANPROP_GET_OP_CAPABILITY:     // supported operation modes of the CAN controller (uint8_t)
+    case CANPROP_GET_OP_MODE:           // active operation mode of the CAN controller (uint8_t)
+    case CANPROP_GET_BITRATE:           // active bit-rate of the CAN controller (can_bitrate_t)
+    case CANPROP_GET_SPEED:             // active bus speed of the CAN controller (can_speed_t)
+    case CANPROP_GET_STATUS:            // current status register of the CAN controller (uint8_t)
+    case CANPROP_GET_BUSLOAD:           // current bus load of the CAN controller (uint8_t)
+    case CANPROP_GET_TX_COUNTER:        // total number of sent messages (uint64_t)
+    case CANPROP_GET_RX_COUNTER:        // total number of reveiced messages (uint64_t)
+    case CANPROP_GET_ERR_COUNTER:       // total number of reveiced error frames (uint64_t)
+        // note: a device parameter requires a valid handle.
+        if (!init)
+            rc = CANERR_NOTINIT;
+        else
+            rc = CANERR_HANDLE;
         break;
     default:
         if ((CANPROP_GET_VENDOR_PROP <= param) &&  // get a vendor-specific property value (void*)
@@ -1286,9 +1336,11 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
 
     assert(IS_HANDLE_VALID(handle));    // just to make sure
 
-    if (value == NULL)                  // check for null-pointer
+    if (value == NULL) {                // check for null-pointer
+        if ((param != CANPROP_SET_FIRST_CHANNEL) &&
+           (param != CANPROP_SET_NEXT_CHANNEL))
         return CANERR_NULLPTR;
-
+    }
     /* CAN interface properties */
     switch (param) {
     case CANPROP_GET_DEVICE_TYPE:       // device type of the CAN interface (int32_t)
@@ -1304,6 +1356,18 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
                 rc = CANERR_NOERROR;
             else
                 rc = pcan_error(sts);
+        }
+        break;
+    case CANPROP_GET_DEVICE_VENDOR:     // vendor name of the CAN interface (char[256])
+        if ((nbyte > strlen(PCAN_LIB_VENDOR)) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
+            strcpy((char*)value, PCAN_LIB_VENDOR);
+            rc = CANERR_NOERROR;
+        }
+        break;
+    case CANPROP_GET_DEVICE_DLLNAME:    // file name of the CAN interface DLL (char[256])
+        if ((nbyte > strlen(PCAN_LIB_BASIC)) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
+            strcpy((char*)value, PCAN_LIB_BASIC);
+            rc = CANERR_NOERROR;
         }
         break;
     case CANPROP_GET_DEVICE_PARAM:      // device parameter of the CAN interface (char[256])
@@ -1410,10 +1474,12 @@ static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify)
     can_bitrate_t temporary;            // bit-rate settings
     int rc;
 
+    assert(bitrate);
+    assert(speed);
     memset(&temporary, 0, sizeof(can_bitrate_t));
 
     if (bitrate->index <= 0) {
-        if ((rc = index2bitrate(bitrate->index, &temporary)) != CANERR_NOERROR)
+        if ((rc = map_index2bitrate(bitrate->index, &temporary)) != CANERR_NOERROR)
             return rc;
         if (modify)                     // translate index to bit-rate
             memcpy(bitrate, &temporary, sizeof(can_bitrate_t));

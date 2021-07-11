@@ -49,9 +49,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces - Data Types and Defines
  *
- *  @author      $Author: eris $
+ *  @author      $Author: haumea $
  *
- *  @version     $Rev: 993 $
+ *  @version     $Rev: 1010 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -368,8 +368,8 @@ extern "C" {
 #endif
 #define CANPROP_SET_FIRST_CHANNEL  240U /**< set index to the first entry in the interface list (int32_t) */
 #define CANPROP_SET_NEXT_CHANNEL   241U /**< set index to the next entry in the interface list (NULL) */
-#define CANPROP_GET_CHANNEL_TYPE   242U /**< get device type at actual index in the interface list (int32_t) */
-#define CANPROP_GET_CHANNEL_NAME   243U /**< get device name at actual index in the interface list (char[256]) */
+#define CANPROP_GET_CHANNEL_NO     242U /**< get channel no. at actual index in the interface list (int32_t) */
+#define CANPROP_GET_CHANNEL_NAME   243U /**< get channel name at actual index in the interface list (char[256]) */
 #define CANPROP_GET_CHANNEL_DLLNAME 244U /**< get file name of the DLL at actual index in the interface list (char[256]) */
 #define CANPROP_GET_CHANNEL_VENDOR_ID 245U /**< get library id at actual index in the interface list (int32_t) */
 #define CANPROP_GET_CHANNEL_VENDOR_NAME 246U /**< get vendor name at actual index in the interface list (char[256]) */
@@ -383,6 +383,9 @@ extern "C" {
 #define CANPROP_VENDOR_PROP_RANGE  256U /**< range for vendor-specific property values */
 #define CANPROP_MAX_BUFFER_SIZE    256U /**< max. buffer size for property values */
 #define CANPROP_MAX_STRING_LENGTH 1024U /**< max. length of a formatted message */
+/* - -  aliases  - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+#define CANPROP_GET_DEVICE_CHANNEL      CANPROP_GET_DEVICE_TYPE
+#define CANPROP_GET_CHANNEL_TYPE        CANPROP_GET_CHANNEL_NO
 /** @} */
 
 /** @name  Property Values
