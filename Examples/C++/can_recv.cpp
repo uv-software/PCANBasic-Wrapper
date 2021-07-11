@@ -34,37 +34,37 @@ int main(int argc, const char * argv[]) {
         perror("+++ error");
         return errno;
     }
-    if ((retVal = myDriver.InitializeChannel(CHANNEL, opMode)) != CCANAPI::NoError) {
+    if ((retVal = myDriver.InitializeChannel(CHANNEL, opMode)) != CCanApi::NoError) {
         std::cerr << "+++ error: interface could not be initialized" << std::endl;
         return retVal;
     }
-    if ((retVal = myDriver.StartController(bitrate)) != CCANAPI::NoError) {
+    if ((retVal = myDriver.StartController(bitrate)) != CCanApi::NoError) {
         std::cerr << "+++ error: interface could not be started" << std::endl;
         goto teardown;
     }
     std::cout << "Press Ctrl+C to abort..." << std::endl;
     while (running) {
-        if ((retVal = myDriver.ReadMessage(message, CANREAD_INFINITE)) == CCANAPI::NoError) {
+        if ((retVal = myDriver.ReadMessage(message, CANREAD_INFINITE)) == CCanApi::NoError) {
             fprintf(stdout, "%i\t", frames++);
             fprintf(stdout, "%7li.%04li\t", (long)message.timestamp.tv_sec, message.timestamp.tv_nsec / 100000);
             if (!opMode.fdoe)
                 fprintf(stdout, "%03X\t%c%c [%u] ", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ', message.dlc);
             else
                 fprintf(stdout, "%03X\t%c%c%c%c%c [%u] ", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ',
-                        message.fdf ? 'F' : ' ', message.brs ? 'B' : ' ', message.esi ? 'E' :' ', CCANAPI::Dlc2Len(message.dlc));
-            for (uint8_t i = 0; i < CCANAPI::Dlc2Len(message.dlc); i++)
+                        message.fdf ? 'F' : ' ', message.brs ? 'B' : ' ', message.esi ? 'E' :' ', CCanApi::Dlc2Len(message.dlc));
+            for (uint8_t i = 0; i < CCanApi::Dlc2Len(message.dlc); i++)
                 fprintf(stdout, " %02X", message.data[i]);
             if (message.sts)
                 fprintf(stdout, " <<< status frame");
             fprintf(stdout, "\n");
         }
-        else if (retVal != CCANAPI::ReceiverEmpty) {
+        else if (retVal != CCanApi::ReceiverEmpty) {
             fprintf(stderr, "+++ error: read message returned %i\n", retVal);
             running = 0;
         }
     }
 teardown:
-    if ((retVal = myDriver.TeardownChannel()) != CCANAPI::NoError)
+    if ((retVal = myDriver.TeardownChannel()) != CCanApi::NoError)
         std::cerr << "+++ error: interface could not be shutdown" << std::endl;
     std::cerr << "Cheers!" << std::endl;
     return retVal;
