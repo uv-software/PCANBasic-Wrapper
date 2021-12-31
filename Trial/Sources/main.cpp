@@ -48,7 +48,7 @@
 #endif
 static void sigterm(int signo);
 
-static void verbose(const can_mode_t mode, const can_bitrate_t bitrate, const can_speed_t speed);
+static void verbose(const can_mode_t &mode, const can_bitrate_t &bitrate, const can_speed_t &speed);
 
 static volatile int running = 1;
 
@@ -287,7 +287,7 @@ int main(int argc, const char * argv[]) {
             fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_NUM_CHANNELS) returned %i\n", retVal);
         retVal = myDriver.GetProperty(CANPROP_GET_CAN_CHANNEL, (void *)&u8Val, sizeof(uint8_t));
         if (retVal == CCanApi::NoError)
-            fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_CAN_CHANNEL): value = %d\n", u8Val + 1U);
+            fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_CAN_CHANNEL): value = %u\n", u8Val + 1U);
         else
             fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_CAN_CHANNEL) returned %i\n", retVal);
         // vendor-specific properties
@@ -321,7 +321,7 @@ int main(int argc, const char * argv[]) {
         retVal = myDriver.GetProperty(CANPROP_GET_CAN_CLOCKS, (void *)clocks, CANPROP_MAX_BUFFER_SIZE);
         if (retVal == CCanApi::NoError) {
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_CAN_CLOCKS): array =");
-            for (int i = 0; (clocks[i] != EOF) && (i < (int)(CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t))); i++)
+            for (int i = 0; (i < (int)(CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t))) && (clocks[i] != EOF); i++)
                 fprintf(stdout, "%s%.1f", i ? ", " : " [", (float)clocks[i] / (float)1000000);
             fprintf(stdout, "] MHz\n");
         } else
@@ -521,7 +521,7 @@ end:
     return retVal;
 }
 
-static void verbose(const can_mode_t mode, const can_bitrate_t bitrate, const can_speed_t speed)
+static void verbose(const can_mode_t &mode, const can_bitrate_t &bitrate, const can_speed_t &speed)
 {
     fprintf(stdout, "Op.-Mode: 0x%02X (fdoe=%u,brse=%u,niso=%u,shrd=%u,nxtd=%u,nrtr=%u,err=%u,mon=%u)\n",
             mode.byte, mode.fdoe, mode.brse, mode.niso, mode.shrd, mode.nxtd, mode.nrtr, mode.err, mode.mon);
