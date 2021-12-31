@@ -149,9 +149,9 @@ extern "C" {
  *  @brief More or less useful stuff
  *  @{ */
 #define PCAN_LIB_VENDOR         "PEAK-System Technik GmbH, Darmstadt"
-#define PCAN_LIB_WEBSITE        "www.peak-system.com"
-#define PCAN_LIB_HAZARD_NOTE    "Do not connect your CAN device to a real CAN network when using this program.\n" \
-                                "This can damage your application."
+#define PCAN_LIB_WEBSITE        "https://www.peak-system.com/"
+#define PCAN_LIB_HAZARD_NOTE    "If you connect your CAN device to a real CAN network when using this library,\n" \
+                                "you might damage your application."
 /** @} */
 
 /*  -----------  types  --------------------------------------------------
@@ -172,8 +172,8 @@ typedef struct can_pcan_param_t_ {      /* device parameters: */
 #endif /* CANAPI_PEAKCAN_H_INCLUDED */
 /** @}
  */
- /*  ----------------------------------------------------------------------
-  *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
-  *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903
-  *  E-Mail: uwe.vogt@uv-software.de,  Homepage: http://www.uv-software.de/
-  */
+/*  ----------------------------------------------------------------------
+ *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
+ *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903
+ *  E-Mail: uwe.vogt@uv-software.de,  Homepage: http://www.uv-software.de/
+ */

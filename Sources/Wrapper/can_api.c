@@ -53,7 +53,7 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    2
+#define VERSION_PATCH    99
 #else
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    2
@@ -90,12 +90,31 @@ static const char version[] = "CAN API V3 for PEAK PCAN Interfaces, Version " VE
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #include "PCANBasic.h"
+#else
+#include <unistd.h>
+#include <sys/select.h>
+#include "PCBUSB.h"
+#endif
 
 
 /*  -----------  options  ------------------------------------------------
  */
+#if (OPTION_CANAPI_PCBUSB_DYLIB != 0)
+__attribute__((constructor))
+static void _initializer() {
+    // default initializer
+}
+__attribute__((destructor))
+static void _finalizer() {
+    // default finalizer
+}
+#define EXPORT  __attribute__((visibility("default")))
+#else
+#define EXPORT
+#endif
 
 
 /*  -----------  defines  ------------------------------------------------
@@ -170,6 +189,7 @@ static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify);
 /*  -----------  variables  ----------------------------------------------
  */
 
+EXPORT
 can_board_t can_boards[PCAN_BOARDS+1]=// list of CAN Interface boards:
 {
     {PCAN_USB1,                           "PCAN-USB1"},
@@ -180,6 +200,7 @@ can_board_t can_boards[PCAN_BOARDS+1]=// list of CAN Interface boards:
     {PCAN_USB6,                           "PCAN-USB6"},
     {PCAN_USB7,                           "PCAN-USB7"},
     {PCAN_USB8,                           "PCAN-USB8"},
+#ifndef __APPLE__
     {PCAN_USB9,                           "PCAN-USB9"},
     {PCAN_USB10,                          "PCAN-USB10"},
     {PCAN_USB11,                          "PCAN-USB11"},
@@ -188,18 +209,19 @@ can_board_t can_boards[PCAN_BOARDS+1]=// list of CAN Interface boards:
     {PCAN_USB14,                          "PCAN-USB14"},
     {PCAN_USB15,                          "PCAN-USB15"},
     {PCAN_USB16,                          "PCAN-USB16"},
+#endif
     {EOF, NULL}
 };
 static const uint8_t dlc_table[16] = {  // DLC to length
     0,1,2,3,4,5,6,7,8,12,16,20,24,32,48,64
 };
 static can_interface_t can[PCAN_MAX_HANDLES]; // interface handles
-static int init = 0;                    // initialization flag
+static int init =  0;  // initialization flag
 
 
 /*  -----------  functions  ----------------------------------------------
  */
-
+EXPORT
 int can_test(int32_t board, uint8_t mode, const void *param, int *result)
 {
     TPCANStatus rc;                     // return value
@@ -263,6 +285,7 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
     return CANERR_NOERROR;
 }
 
+EXPORT
 int can_init(int32_t board, uint8_t mode, const void *param)
 {
     TPCANStatus rc;                     // return value
@@ -357,6 +380,7 @@ int can_init(int32_t board, uint8_t mode, const void *param)
     return i;                           // return the handle
 }
 
+EXPORT
 int can_exit(int handle)
 {
     TPCANStatus rc;                     // return value
@@ -411,6 +435,7 @@ int can_exit(int handle)
     return CANERR_NOERROR;
 }
 
+EXPORT
 int can_kill(int handle)
 {
     int i;
@@ -436,6 +461,7 @@ int can_kill(int handle)
     return CANERR_NOERROR;
 }
 
+EXPORT
 int can_start(int handle, const can_bitrate_t *bitrate)
 {
     TPCANBaudrate btr0btr1 = 0x011CU;   // btr0btr1 value
@@ -535,6 +561,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
     return CANERR_NOERROR;
 }
 
+EXPORT
 int can_reset(int handle)
 {
     TPCANStatus rc;                     // return value
@@ -561,6 +588,7 @@ int can_reset(int handle)
     return CANERR_NOERROR;
 }
 
+EXPORT
 int can_write(int handle, const can_msg_t *msg, uint16_t timeout)
 {
     TPCANMsg can_msg;                   // the message (CAN 2.0)
@@ -646,6 +674,7 @@ int can_write(int handle, const can_msg_t *msg, uint16_t timeout)
     return CANERR_NOERROR;
 }
 
+EXPORT
 int can_read(int handle, can_msg_t *msg, uint16_t timeout)
 {
     TPCANMsg can_msg;                   // the message (CAN 2.0)
@@ -768,6 +797,7 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
     return CANERR_NOERROR;
 }
 
+EXPORT
 int can_status(int handle, uint8_t *status)
 {
     TPCANStatus rc;                     // represents a status
@@ -797,6 +827,7 @@ int can_status(int handle, uint8_t *status)
     return CANERR_NOERROR;
 }
 
+EXPORT
 int can_busload(int handle, uint8_t *load, uint8_t *status)
 {
     float busload = 0.0;                // bus-load (in [percent])
@@ -816,6 +847,7 @@ int can_busload(int handle, uint8_t *load, uint8_t *status)
      return can_status(handle, status); // status-register
 }
 
+EXPORT
 int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed)
 {
     TPCANBaudrate btr0btr1 = 0x011CU;   // btr0btr1 value
@@ -862,6 +894,7 @@ int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed)
     return rc;
 }
 
+EXPORT
 int can_property(int handle, uint16_t param, void *value, uint32_t nbyte)
 {
     if (!init || !IS_HANDLE_VALID(handle)) {
@@ -877,6 +910,7 @@ int can_property(int handle, uint16_t param, void *value, uint32_t nbyte)
     return drv_parameter(handle, param, value, (size_t)nbyte);
 }
 
+EXPORT
 char *can_hardware(int handle)
 {
     static char hardware[256] = "";     // hardware version
@@ -907,6 +941,7 @@ char *can_hardware(int handle)
     return (char*)hardware;             // hardware version
 }
 
+EXPORT
 char *can_software(int handle)
 {
     static char software[256] = "";     // software version
@@ -1541,6 +1576,7 @@ static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify)
 /*  -----------  revision control  ---------------------------------------
  */
 
+EXPORT
 char* can_version(void)
 {
     return (char*)version;

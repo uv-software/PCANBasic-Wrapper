@@ -49,7 +49,7 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    2
+#define VERSION_PATCH    99
 #else
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    2
@@ -85,6 +85,7 @@ static const char version[] = "CAN API V3 for PEAK PCAN Interfaces, Version " VE
 #include <stdlib.h>
 #include <errno.h>
 #include <assert.h>
+#include <limits.h>
 
 #if (OPTION_PCAN_DYLIB != 0)
 __attribute__((constructor))
@@ -133,6 +134,7 @@ CPeakCAN::CPeakCAN() {
 
 EXPORT
 CPeakCAN::~CPeakCAN() {
+    // set CAN contoller into INIT mode and close USB device
     (void)TeardownChannel();
 }
 
