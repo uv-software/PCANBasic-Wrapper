@@ -8,12 +8,12 @@
 //
 //  ------------------------------------------------------------------
 //  Author : Keneth Wagner
-//	Last change: 15.10.2020 Wagner
+//  Last change: 2021-10-01
 //
 //  Language: ANSI-C
 //  ------------------------------------------------------------------
 //
-//  Copyright (C) 1999-2020  PEAK-System Technik GmbH, Darmstadt
+//  Copyright (C) 1999-2021  PEAK-System Technik GmbH, Darmstadt
 //  more Info at http://www.peak-system.com 
 //
 #ifndef __PCANBASICH__
@@ -26,7 +26,7 @@
 // Currently defined and supported PCAN channels
 //
 #define PCAN_NONEBUS                  0x00U  // Undefined/default value for a PCAN bus
-							          
+
 #define PCAN_ISABUS1                  0x21U  // PCAN-ISA interface, channel 1
 #define PCAN_ISABUS2                  0x22U  // PCAN-ISA interface, channel 2
 #define PCAN_ISABUS3                  0x23U  // PCAN-ISA interface, channel 3
@@ -35,26 +35,26 @@
 #define PCAN_ISABUS6                  0x26U  // PCAN-ISA interface, channel 6
 #define PCAN_ISABUS7                  0x27U  // PCAN-ISA interface, channel 7
 #define PCAN_ISABUS8                  0x28U  // PCAN-ISA interface, channel 8
-							          
+
 #define PCAN_DNGBUS1                  0x31U  // PCAN-Dongle/LPT interface, channel 1
-							          
+
 #define PCAN_PCIBUS1                  0x41U  // PCAN-PCI interface, channel 1
 #define PCAN_PCIBUS2                  0x42U  // PCAN-PCI interface, channel 2
 #define PCAN_PCIBUS3                  0x43U  // PCAN-PCI interface, channel 3
 #define PCAN_PCIBUS4                  0x44U  // PCAN-PCI interface, channel 4
 #define PCAN_PCIBUS5                  0x45U  // PCAN-PCI interface, channel 5
-#define PCAN_PCIBUS6	              0x46U  // PCAN-PCI interface, channel 6
-#define PCAN_PCIBUS7	              0x47U  // PCAN-PCI interface, channel 7
-#define PCAN_PCIBUS8	              0x48U  // PCAN-PCI interface, channel 8
+#define PCAN_PCIBUS6                  0x46U  // PCAN-PCI interface, channel 6
+#define PCAN_PCIBUS7                  0x47U  // PCAN-PCI interface, channel 7
+#define PCAN_PCIBUS8                  0x48U  // PCAN-PCI interface, channel 8
 #define PCAN_PCIBUS9                  0x409U  // PCAN-PCI interface, channel 9
 #define PCAN_PCIBUS10                 0x40AU  // PCAN-PCI interface, channel 10
 #define PCAN_PCIBUS11                 0x40BU  // PCAN-PCI interface, channel 11
 #define PCAN_PCIBUS12                 0x40CU  // PCAN-PCI interface, channel 12
 #define PCAN_PCIBUS13                 0x40DU  // PCAN-PCI interface, channel 13
-#define PCAN_PCIBUS14	              0x40EU  // PCAN-PCI interface, channel 14
-#define PCAN_PCIBUS15	              0x40FU  // PCAN-PCI interface, channel 15
-#define PCAN_PCIBUS16	              0x410U  // PCAN-PCI interface, channel 16
-							          
+#define PCAN_PCIBUS14                 0x40EU  // PCAN-PCI interface, channel 14
+#define PCAN_PCIBUS15                 0x40FU  // PCAN-PCI interface, channel 15
+#define PCAN_PCIBUS16                 0x410U  // PCAN-PCI interface, channel 16
+
 #define PCAN_USBBUS1                  0x51U  // PCAN-USB interface, channel 1
 #define PCAN_USBBUS2                  0x52U  // PCAN-USB interface, channel 2
 #define PCAN_USBBUS3                  0x53U  // PCAN-USB interface, channel 3
@@ -71,10 +71,10 @@
 #define PCAN_USBBUS14                 0x50EU  // PCAN-USB interface, channel 14
 #define PCAN_USBBUS15                 0x50FU  // PCAN-USB interface, channel 15
 #define PCAN_USBBUS16                 0x510U  // PCAN-USB interface, channel 16
-							          
+
 #define PCAN_PCCBUS1                  0x61U  // PCAN-PC Card interface, channel 1
 #define PCAN_PCCBUS2                  0x62U  // PCAN-PC Card interface, channel 2
-							          
+
 #define PCAN_LANBUS1                  0x801U  // PCAN-LAN interface, channel 1
 #define PCAN_LANBUS2                  0x802U  // PCAN-LAN interface, channel 2
 #define PCAN_LANBUS3                  0x803U  // PCAN-LAN interface, channel 3
@@ -124,8 +124,8 @@
 #define PCAN_ERROR_INITIALIZE         0x4000000U  // Channel is not initialized [Value was changed from 0x40000 to 0x4000000]
 #define PCAN_ERROR_ILLOPERATION       0x8000000U  // Invalid operation [Value was changed from 0x80000 to 0x8000000]
 
-// PCAN devices					        
-//								        
+// PCAN devices
+//
 #define PCAN_NONE                     0x00U  // Undefined, unknown or not selected PCAN device value
 #define PCAN_PEAKCAN                  0x01U  // PCAN Non-PnP devices. NOT USED WITHIN PCAN-Basic API
 #define PCAN_ISA                      0x02U  // PCAN-ISA, PCAN-PC/104, and PCAN-PC/104-Plus
@@ -181,6 +181,8 @@
 #define PCAN_FIRMWARE_VERSION         0x29U  // Get the version of the firmware used by the device associated with a PCAN-Channel
 #define PCAN_ATTACHED_CHANNELS_COUNT  0x2AU  // Get the amount of PCAN channels attached to a system
 #define PCAN_ATTACHED_CHANNELS        0x2BU  // Get information about PCAN channels attached to a system
+#define PCAN_ALLOW_ECHO_FRAMES        0x2CU  // Echo messages reception status within a PCAN-Channel
+#define PCAN_DEVICE_PART_NUMBER       0x2DU  // Get the part number associated to a device
 
 // DEPRECATED parameters
 //
@@ -197,7 +199,7 @@
 #define PCAN_CHANNEL_AVAILABLE        0x01U  // The PCAN-Channel handle is available to be connected (PnP Hardware: it means furthermore that the hardware is plugged-in)
 #define PCAN_CHANNEL_OCCUPIED         0x02U  // The PCAN-Channel handle is valid, and is already being used
 #define PCAN_CHANNEL_PCANVIEW         (PCAN_CHANNEL_AVAILABLE |  PCAN_CHANNEL_OCCUPIED) // The PCAN-Channel handle is already being used by a PCAN-View application, but is available to connect
-								      
+
 #define LOG_FUNCTION_DEFAULT          0x00U    // Logs system exceptions / errors
 #define LOG_FUNCTION_ENTRY            0x01U    // Logs the entries to the PCAN-Basic API functions 
 #define LOG_FUNCTION_PARAMETERS       0x02U    // Logs the parameters passed to the PCAN-Basic API functions 
@@ -205,42 +207,43 @@
 #define LOG_FUNCTION_WRITE            0x08U    // Logs the CAN messages passed to the CAN_Write function
 #define LOG_FUNCTION_READ             0x10U    // Logs the CAN messages received within the CAN_Read function
 #define LOG_FUNCTION_ALL              0xFFFFU  // Logs all possible information within the PCAN-Basic API functions
-								      
+
 #define TRACE_FILE_SINGLE             0x00U  // A single file is written until it size reaches PAN_TRACE_SIZE
 #define TRACE_FILE_SEGMENTED          0x01U  // Traced data is distributed in several files with size PAN_TRACE_SIZE
 #define TRACE_FILE_DATE               0x02U  // Includes the date into the name of the trace file
 #define TRACE_FILE_TIME               0x04U  // Includes the start time into the name of the trace file
 #define TRACE_FILE_OVERWRITE          0x80U  // Causes the overwriting of available traces (same name)
-								      
+
 #define FEATURE_FD_CAPABLE            0x01U  // Device supports flexible data-rate (CAN-FD)
 #define FEATURE_DELAY_CAPABLE         0x02U  // Device supports a delay between sending frames (FPGA based USB devices)
 #define FEATURE_IO_CAPABLE            0x04U  // Device supports I/O functionality for electronic circuits (USB-Chip devices)
-								      
+
 #define SERVICE_STATUS_STOPPED        0x01U  // The service is not running
 #define SERVICE_STATUS_RUNNING        0x04U  // The service is running
 
 // Other constants
 //
 #define MAX_LENGTH_HARDWARE_NAME      33     // Maximum length of the name of a device: 32 characters + terminator
-#define MAX_LENGTH_VERSION_STRING     18     // Maximum length of a version string: 17 characters + terminator
-								      
-// PCAN message types			      
-//								      
+#define MAX_LENGTH_VERSION_STRING     256    // Maximum length of a version string: 255 characters + terminator
+
+// PCAN message types
+//
 #define PCAN_MESSAGE_STANDARD         0x00U  // The PCAN message is a CAN Standard Frame (11-bit identifier)
 #define PCAN_MESSAGE_RTR              0x01U  // The PCAN message is a CAN Remote-Transfer-Request Frame
 #define PCAN_MESSAGE_EXTENDED         0x02U  // The PCAN message is a CAN Extended Frame (29-bit identifier)
 #define PCAN_MESSAGE_FD               0x04U  // The PCAN message represents a FD frame in terms of CiA Specs
 #define PCAN_MESSAGE_BRS              0x08U  // The PCAN message represents a FD bit rate switch (CAN data at a higher bit rate)
 #define PCAN_MESSAGE_ESI              0x10U  // The PCAN message represents a FD error state indicator(CAN FD transmitter was error active)
+#define PCAN_MESSAGE_ECHO	          0x20U  // The PCAN message represents an echo CAN Frame
 #define PCAN_MESSAGE_ERRFRAME         0x40U  // The PCAN message represents an error frame
 #define PCAN_MESSAGE_STATUS           0x80U  // The PCAN message represents a PCAN status message
 
 // LookUp Parameters
 //
-#define LOOKUP_DEVICE_TYPE		    __T("devicetype")       // Lookup channel by Device type (see PCAN devices e.g. PCAN_USB)
-#define LOOKUP_DEVICE_ID			__T("deviceid")         // Lookup channel by device id
-#define LOOKUP_CONTROLLER_NUMBER	__T("controllernumber") // Lookup channel by CAN controller 0-based index
-#define LOOKUP_IP_ADDRESS			__T("ipaddress")        // Lookup channel by IP address (LAN channels only)
+#define LOOKUP_DEVICE_TYPE          __T("devicetype")       // Lookup channel by Device type (see PCAN devices e.g. PCAN_USB)
+#define LOOKUP_DEVICE_ID            __T("deviceid")         // Lookup channel by device id
+#define LOOKUP_CONTROLLER_NUMBER    __T("controllernumber") // Lookup channel by CAN controller 0-based index
+#define LOOKUP_IP_ADDRESS           __T("ipaddress")        // Lookup channel by IP address (LAN channels only)
 
 // Frame Type / Initialization Mode
 //
@@ -385,8 +388,8 @@ TPCANStatus __stdcall CAN_Initialize(
         TPCANHandle Channel, 
         TPCANBaudrate Btr0Btr1, 
         TPCANType HwType _DEF_ARG,
-		DWORD IOPort _DEF_ARG, 
-		WORD Interrupt _DEF_ARG);
+        DWORD IOPort _DEF_ARG, 
+        WORD Interrupt _DEF_ARG);
 
 
 /// <summary>
@@ -405,7 +408,7 @@ TPCANStatus __stdcall CAN_Initialize(
 /// <returns>"A TPCANStatus error code"</returns>
 TPCANStatus __stdcall CAN_InitializeFD(
     TPCANHandle Channel,
-	TPCANBitrateFD BitrateFD);
+    TPCANBitrateFD BitrateFD);
 
 
 /// <summary>
@@ -466,8 +469,8 @@ TPCANStatus __stdcall CAN_Read(
 /// <returns>"A TPCANStatus error code"</returns>
 TPCANStatus __stdcall CAN_ReadFD(
     TPCANHandle Channel,
-	TPCANMsgFD* MessageBuffer, 
-	TPCANTimestampFD *TimestampBuffer);
+    TPCANMsgFD* MessageBuffer, 
+    TPCANTimestampFD *TimestampBuffer);
 
 
 /// <summary>
@@ -489,7 +492,7 @@ TPCANStatus __stdcall CAN_Write(
 /// <returns>"A TPCANStatus error code"</returns>
 TPCANStatus __stdcall CAN_WriteFD(
     TPCANHandle Channel,
-	TPCANMsgFD* MessageBuffer);
+    TPCANMsgFD* MessageBuffer);
 
 
 /// <summary>
@@ -544,7 +547,7 @@ TPCANStatus __stdcall CAN_SetValue(
         TPCANHandle Channel,
         TPCANParameter Parameter,
         void* Buffer,
-		DWORD BufferLength);
+        DWORD BufferLength);
 
 
 /// <summary>

@@ -1121,7 +1121,7 @@ static int map_bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD strin
         if ((bitrate->btr.data.sjw < CANBTR_DATA_SJW_MIN) || (CANBTR_DATA_SJW_MAX < bitrate->btr.data.sjw))
             return CANERR_BAUDRATE;
         if (sprintf(string, "f_clock=%i,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,nom_sam=%u,"
-                                     "data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
+                                      "data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
                             bitrate->btr.frequency,
                             bitrate->btr.nominal.brp,
                             bitrate->btr.nominal.tseg1,
@@ -1148,9 +1148,9 @@ static int map_string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrat
 
     // TODO: rework this!
     if (sscanf(string, "f_clock=%lu,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,"
-                                 "data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
-                           &freq, &nom_brp, &nom_tseg1, &nom_tseg2, &nom_sjw,
-                                 &data_brp, &data_tseg1, &data_tseg2, &data_sjw) != 9)
+                                  "data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
+                            &freq, &nom_brp, &nom_tseg1, &nom_tseg2, &nom_sjw,
+                                  &data_brp, &data_tseg1, &data_tseg2, &data_sjw) != 9)
         return CANERR_BAUDRATE;
     bitrate->btr.frequency = (int32_t)freq;
     bitrate->btr.nominal.brp = (uint16_t)nom_brp;
