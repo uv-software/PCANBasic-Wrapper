@@ -84,7 +84,7 @@ int main(int argc, const char * argv[]) {
     uint16_t timeout = CANREAD_INFINITE;
     unsigned int delay = 0U;
     CCanApi::EChannelState state;
-    int32_t clocks[CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t)];
+    //int32_t clocks[CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t)];
     char szVal[CANPROP_MAX_BUFFER_SIZE];
     uint16_t u16Val;
     uint32_t u32Val;
@@ -280,6 +280,7 @@ int main(int argc, const char * argv[]) {
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_DEVICE_DLLNAME): value = '%s'\n", szVal);
         else
             fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_DEVICE_DLLNAME) returned %i\n", retVal);
+#if (0)
         retVal = myDriver.GetProperty(CANPROP_GET_NUM_CHANNELS, (void *)&u8Val, sizeof(uint8_t));
         if (retVal == CCanApi::NoError)
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_NUM_CHANNELS): value = %d\n", u8Val);
@@ -290,6 +291,7 @@ int main(int argc, const char * argv[]) {
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_CAN_CHANNEL): value = %u\n", u8Val + 1U);
         else
             fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_CAN_CHANNEL) returned %i\n", retVal);
+#endif
         // vendor-specific properties
         retVal = myDriver.GetProperty(PEAKCAN_PROPERTY_DEVICE_ID, (void *)&u32Val, sizeof(uint32_t));
         if (retVal == CCanApi::NoError)
@@ -301,23 +303,27 @@ int main(int argc, const char * argv[]) {
             fprintf(stdout, ">>> myDriver.GetProperty(PEAKCAN_PROPERTY_API_VERSION): value = '%s'\n", szVal);
         else
             fprintf(stderr, "+++ error: myDriver.GetProperty(PEAKCAN_PROPERTY_API_VERSION) returned %i\n", retVal);
-#if (0)
         retVal = myDriver.GetProperty(PEAKCAN_PROPERTY_CHANNEL_VERSION, (void *)szVal, CANPROP_MAX_BUFFER_SIZE);
         if (retVal == CCanApi::NoError)
             fprintf(stdout, ">>> myDriver.GetProperty(PEAKCAN_PROPERTY_CHANNEL_VERSION): value = '%s'\n", szVal);
         else
             fprintf(stderr, "+++ error: myDriver.GetProperty(PEAKCAN_PROPERTY_CHANNEL_VERSION) returned %i\n", retVal);
-#endif
         retVal = myDriver.GetProperty(PEAKCAN_PROPERTY_HARDWARE_NAME, (void *)szVal, CANPROP_MAX_BUFFER_SIZE);
         if (retVal == CCanApi::NoError)
             fprintf(stdout, ">>> myDriver.GetProperty(PEAKCAN_PROPERTY_HARDWARE_NAME): value = '%s'\n", szVal);
         else
             fprintf(stderr, "+++ error: myDriver.GetProperty(PEAKCAN_PROPERTY_HARDWARE_NAME) returned %i\n", retVal);
+//        retVal = myDriver.GetProperty(PEAKCAN_PROPERTY_SERIAL_NUMBER, (void *)szVal, CANPROP_MAX_BUFFER_SIZE);
+//        if (retVal == CCanApi::NoError)
+//            fprintf(stdout, ">>> myDriver.GetProperty(PEAKCAN_PROPERTY_SERIAL_NUMBER): value = '%s'\n", szVal);
+//        else
+//            fprintf(stderr, "+++ error: myDriver.GetProperty(PEAKCAN_PROPERTY_SERIAL_NUMBER) returned %i\n", retVal);
 //        retVal = myDriver.GetProperty(PEAKCAN_PROPERTY_CLOCK_DOMAIN, (void *)&i32Val, sizeof(int32_t));
 //        if (retVal == CCanApi::NoError)
 //            fprintf(stdout, ">>> myDriver.GetProperty(PEAKCAN_PROPERTY_CLOCK_DOMAIN): value = %d\n", i32Val);
 //        else
 //            fprintf(stderr, "+++ error: myDriver.GetProperty(PEAKCAN_PROPERTY_CLOCK_DOMAIN) returned %i\n", retVal);
+#if (0)
         retVal = myDriver.GetProperty(CANPROP_GET_CAN_CLOCKS, (void *)clocks, CANPROP_MAX_BUFFER_SIZE);
         if (retVal == CCanApi::NoError) {
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_CAN_CLOCKS): array =");
@@ -326,6 +332,7 @@ int main(int argc, const char * argv[]) {
             fprintf(stdout, "] MHz\n");
         } else
             fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_CAN_CLOCKS) returned %i\n", retVal);
+#endif
         retVal = myDriver.GetProperty(CANPROP_GET_OP_CAPABILITY, (void *)&u8Val, sizeof(uint8_t));
         if (retVal == CCanApi::NoError)
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_OP_CAPABILITY): value = 0x%02X\n", u8Val);

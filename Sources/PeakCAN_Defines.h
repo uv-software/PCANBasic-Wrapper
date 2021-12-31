@@ -118,12 +118,13 @@ extern "C" {
 /** @name  CAN API Property Value
  *  @brief PCAN-Pasic parameter to be read or written
  *  @{ */
-#define PCAN_PROP_DEVICE_ID      0x01U  /**< Device identifier parameter */
-#define PCAN_PROP_API_VERSION    0x05U  /**< PCAN-Basic API version parameter */
-#define PCAN_PROP_CHANNEL_VERSION 0x06U /**< PCAN device channel version parameter */
-#define PCAN_PROP_HARDWARE_NAME  0x0EU  /**< PCAN hardware name parameter */
-//#define PCAN_PROP_SERIAL_NUMBER  0x??U  /**< Tbd. */
-//#define PCAN_PROP_CLOCK_DOMAIN   0x??U  /**< Tbd. */
+#define PCAN_DEVICE_ID           0x01U  //!< Device identifier parameter
+#define PCAN_API_VERSION         0x05U  //!< PCAN-Basic API version parameter
+#define PCAN_CHANNEL_VERSION     0x06U  //!< PCAN device channel version parameter
+#define PCAN_HARDWARE_NAME       0x0EU  //!< PCAN hardware name parameter
+#define PCAN_CONTROLLER_NUMBER   0x10U  //!< CAN-Controller number of a PCAN-Channel
+//#define PCAN_SERIAL_NUMBER       0x??U
+//#define PCAN_CLOCK_DOMAIN        0x??U
 // TODO: define more or all parameters
 // ...
 #define PCAN_MAX_BUFFER_SIZE     256U   /**< max. buffer size for CAN_GetValue/CAN_SetValue */
