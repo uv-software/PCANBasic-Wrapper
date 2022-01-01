@@ -232,7 +232,7 @@ int main(int argc, const char * argv[]) {
             retVal = myDriver.GetProperty(CANPROP_GET_CHANNEL_NO, (void *)&i32Val, sizeof(int32_t));
             if (retVal == CCanApi::NoError) {
                 retVal = CPeakCAN::ProbeChannel(i32Val, opMode, state);
-                fprintf(stdout, ">>> CCANAPI.ProbeChannel(%i): state = %s", i32Val,
+                fprintf(stdout, ">>> CCanApi.ProbeChannel(%i): state = %s", i32Val,
                                 (state == CCanApi::ChannelOccupied) ? "occupied" :
                                 (state == CCanApi::ChannelAvailable) ? "available" :
                                 (state == CCanApi::ChannelNotAvailable) ? "not available" : "not testable");

@@ -144,7 +144,9 @@ You can choose between one of them if you use this work in whole or in part.
 
 Windows is a registered trademark of Microsoft Corporation in the United States and/or other countries. \
 Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. \
-PCAN is a registered trademark of PEAK-System Technik GmbH, Darmstadt, Germany.
+PCAN is a registered trademark of PEAK-System Technik GmbH, Darmstadt, Germany. \
+All other company, product and service names mentioned herein are trademarks, registered trademarks or service marks of their respective owners.
+
 
 ### Hazard Note
 
