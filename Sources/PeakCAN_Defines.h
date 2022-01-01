@@ -2,7 +2,7 @@
 /*
  *  CAN Interface API, Version 3 (PEAK PCAN Interface)
  *
- *  Copyright (C) 2005-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (C) 2005-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
