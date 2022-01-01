@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2021 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 # CAN API V3 for PCAN Interfaces
 
@@ -17,20 +17,20 @@ In case of doubt the source code:
 
 ```C++
 /// \name   PeakCAN API
-/// \brief  CAN API V3 driver for PEAK PCAN interfaces
-/// \note   See CCANAPI for a description of the overridden methods
+/// \brief  CAN API V3 driver for PEAK PCAN-Basic interfaces
+/// \note   See CCanApi for a description of the overridden methods
 /// \{
-class CPeakCAN : public CCANAPI {
+class CPeakCAN : public CCanApi {
 public:
     // constructor / destructor
     CPeakCAN();
     ~CPeakCAN();
 
-    // CCANAPI overrides
-    static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state);
-    static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, EChannelState &state);
+    // CCanApi overrides
+    static CANAPI_Return_t ProbeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, const void *param, EChannelState &state);
+    static CANAPI_Return_t ProbeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, EChannelState &state);
 
-    CANAPI_Return_t InitializeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param = NULL);
+    CANAPI_Return_t InitializeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, const void *param = NULL);
     CANAPI_Return_t TeardownChannel();
     CANAPI_Return_t SignalChannel();
 
@@ -109,7 +109,7 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2019 (Version 16.10.0)
+- Microsoft Visual Studio Community 2019 (Version 16.11.8)
 
 ### Tested CAN Hardware
 
@@ -119,7 +119,7 @@ Type `can_test /?` to display all program options.
 
 ### Required PCANBasic DLL
 
-- Version 4.5 or later _(Latest is Greatest!)_
+- Version 4.6 or later _(Latest is Greatest!)_
 
 ## Known Bugs and Caveats
 
@@ -140,7 +140,6 @@ You can choose between one of them if you use this work in whole or in part.
 
 `SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later`
 
-
 ### Trademarks
 
 Windows is a registered trademark of Microsoft Corporation in the United States and/or other countries. \
@@ -155,5 +154,3 @@ _If you connect your CAN device to a real CAN network when using this library, y
 
 E-Mail: mailto://info@uv-software.com \
 Internet: https://www.uv-software.com
-
-##### *Enjoy!*

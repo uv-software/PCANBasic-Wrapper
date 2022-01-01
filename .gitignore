@@ -43,6 +43,10 @@ Utilities/can_test/Debug
 Utilities/can_test/Release
 Utilities/can_test/*.sln
 Utilities/can_test/*.vcxproj.user
+PeakCANBasic-cppcheck-build-dir
+artifacts
 Binaries
 Includes
 Testing
+*.pdf
+*.log

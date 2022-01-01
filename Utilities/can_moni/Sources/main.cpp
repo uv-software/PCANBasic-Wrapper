@@ -2,7 +2,7 @@
 //
 //  CAN Monitor for PEAK PCAN Interfaces
 //
-//  Copyright (c) 2008-2010,2017-2021 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2008-2010,2017-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include "build_no.h"
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    1
+#define VERSION_PATCH    2
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
@@ -35,7 +35,7 @@
 #error Unsupported architecture
 #endif
 static const char APPLICATION[] = "CAN Monitor for PEAK PCAN Interfaces, Version " VERSION_STRING;
-static const char COPYRIGHT[]   = "Copyright (c) 2008-2010,2017-2021 by Uwe Vogt, UV Software, Berlin";
+static const char COPYRIGHT[]   = "Copyright (c) 2008-2010,2017-2022 by Uwe Vogt, UV Software, Berlin";
 static const char WARRANTY[]    = "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
                                   "This is free software, and you are welcome to redistribute it\n" \
                                   "under certain conditions; type `/ABOUT' for details.";
@@ -51,7 +51,6 @@ static const char LICENSE[]     = "This program is free software: you can redist
                                   "along with this program.  If not, see <http://www.gnu.org/licenses/>.";
 #define basename(x)  "can_moni" // FIXME: Where is my `basename' function?
 
-#include "PeakCAN_Defines.h"
 #include "PeakCAN.h"
 #include "Timer.h"
 #include "Message.h"
@@ -278,11 +277,11 @@ int main(int argc, const char * argv[]) {
             case 10:   case 10000:   bitrate.index = CANBTR_INDEX_10K; break;
             default:                 bitrate.index = -baudrate; break;
             }
-            if (CCanDriver::MapIndex2Bitrate(bitrate.index, bitrate) != CCANAPI::NoError) {
+            if (CCanDriver::MapIndex2Bitrate(bitrate.index, bitrate) != CCanApi::NoError) {
                 fprintf(stderr, "%s: illegal argument for option /BAUDRATE\n", basename(argv[0]));
                 return 1;
             }
-            if (CCanDriver::MapBitrate2Speed(bitrate, speed) != CCANAPI::NoError) {
+            if (CCanDriver::MapBitrate2Speed(bitrate, speed) != CCanApi::NoError) {
                 fprintf(stderr, "%s: illegal argument for option /BAUDRATE\n", basename(argv[0]));
                 return 1;
             }
@@ -297,11 +296,11 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /BITRATE\n", basename(argv[0]));
                 return 1;
             }
-            if (CCanDriver::MapString2Bitrate(optarg, bitrate) != CCANAPI::NoError) {
+            if (CCanDriver::MapString2Bitrate(optarg, bitrate) != CCanApi::NoError) {
                 fprintf(stderr, "%s: illegal argument for option /BITRATE\n", basename(argv[0]));
                 return 1;
             }
-            if (CCanDriver::MapBitrate2Speed(bitrate, speed) != CCANAPI::NoError) {
+            if (CCanDriver::MapBitrate2Speed(bitrate, speed) != CCanApi::NoError) {
                 fprintf(stderr, "%s: illegal argument for option /BITRATE\n", basename(argv[0]));
                 return 1;
             }
@@ -692,10 +691,10 @@ int main(int argc, const char * argv[]) {
     fprintf(stdout, "Hardware=%s...", CCanDriver::m_CanDevices[channel].name);
     fflush (stdout);
     retVal = canDriver.InitializeChannel(CCanDriver::m_CanDevices[channel].adapter, opMode);
-    if (retVal != CCANAPI::NoError) {
+    if (retVal != CCanApi::NoError) {
         fprintf(stdout, "FAILED!\n");
         fprintf(stderr, "+++ error: CAN Controller could not be initialized (%i)\n", retVal);
-        if (retVal == CCANAPI::NotSupported)
+        if (retVal == CCanApi::NotSupported)
             fprintf(stderr, " - possibly CAN operating mode %02Xh not supported", opMode.byte);
         fputc('\n', stderr);
         goto finalize;
@@ -724,7 +723,7 @@ int main(int argc, const char * argv[]) {
     }
     fflush(stdout);
     retVal = canDriver.StartController(bitrate);
-    if (retVal != CCANAPI::NoError) {
+    if (retVal != CCanApi::NoError) {
         fprintf(stdout, "FAILED!\n");
         fprintf(stderr, "+++ error: CAN Controller could not be started (%i)\n", retVal);
         goto teardown;
@@ -742,7 +741,7 @@ int main(int argc, const char * argv[]) {
 teardown:
     /* - teardown the interface*/
     retVal = canDriver.TeardownChannel();
-    if (retVal != CCANAPI::NoError) {
+    if (retVal != CCanApi::NoError) {
         fprintf(stderr, "+++ error: CAN Controller could not be reset (%i)\n", retVal);
         goto finalize;
     }
@@ -807,15 +806,15 @@ int CCanDriver::TestCanDevices(CANAPI_OpMode_t opMode, const char *vendor) {
             fflush(stdout);
             EChannelState state;
             CANAPI_Return_t retVal = CCanDriver::ProbeChannel(CCanDriver::m_CanDevices[i].adapter, opMode, state);
-            if ((retVal == CCANAPI::NoError) || (retVal == CCANAPI::IllegalParameter)) {
+            if ((retVal == CCanApi::NoError) || (retVal == CCanApi::IllegalParameter)) {
                 CTimer::Delay(333U * CTimer::MSEC);  // to fake probing a hardware
                 switch (state) {
-                    case CCANAPI::ChannelOccupied: fprintf(stdout, "occupied\n"); n++; break;
-                    case CCANAPI::ChannelAvailable: fprintf(stdout, "available\n"); n++; break;
-                    case CCANAPI::ChannelNotAvailable: fprintf(stdout, "not available\n"); break;
+                    case CCanApi::ChannelOccupied: fprintf(stdout, "occupied\n"); n++; break;
+                    case CCanApi::ChannelAvailable: fprintf(stdout, "available\n"); n++; break;
+                    case CCanApi::ChannelNotAvailable: fprintf(stdout, "not available\n"); break;
                     default: fprintf(stdout, "not testable\n"); break;
                 }
-                if (retVal == CCANAPI::IllegalParameter)
+                if (retVal == CCanApi::IllegalParameter)
                     fprintf(stderr, "+++ warning: CAN operation mode not supported (%02x)\n", opMode.byte);
             } else
                 fprintf(stdout, "FAILED!\n");
@@ -834,7 +833,7 @@ uint64_t CCanDriver::ReceptionLoop() {
 
     fprintf(stderr, "\nPress ^C to abort.\n\n");
     while(running) {
-        if ((retVal = ReadMessage(message)) == CCANAPI::NoError) {
+        if ((retVal = ReadMessage(message)) == CCanApi::NoError) {
             if ((((message.id < MAX_ID) && can_id[message.id]) || ((message.id >= MAX_ID) && can_id_xtd)) &&
                 !message.sts) {
                 (void)CCanMessage::Format(message, ++frames, string, CANPROP_MAX_STRING_LENGTH);
@@ -994,5 +993,5 @@ static void version(FILE *stream, const char *program)
 {
     fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, LICENSE);
     (void)program;
-    fprintf(stream, "Written by Uwe Vogt, UV Software, Berlin <http://www.uv-software.com/>\n");
+    fprintf(stream, "Written by Uwe Vogt, UV Software, Berlin <https://uv-software.com/>\n");
 }

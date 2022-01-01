@@ -2,7 +2,7 @@
 /*
  *  CAN Interface API, Version 3 (PEAK PCAN Interface)
  *
- *  Copyright (C) 2005-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (C) 2005-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
@@ -118,12 +118,13 @@ extern "C" {
 /** @name  CAN API Property Value
  *  @brief PCAN-Pasic parameter to be read or written
  *  @{ */
-#define PCAN_PROP_DEVICE_ID      0x01U  /**< Device identifier parameter */
-#define PCAN_PROP_API_VERSION    0x05U  /**< PCAN-Basic API version parameter */
-#define PCAN_PROP_CHANNEL_VERSION 0x06U /**< PCAN device channel version parameter */
-#define PCAN_PROP_HARDWARE_NAME  0x0EU  /**< PCAN hardware name parameter */
-//#define PCAN_PROP_SERIAL_NUMBER  0x??U  /**< Tbd. */
-//#define PCAN_PROP_CLOCK_DOMAIN   0x??U  /**< Tbd. */
+#define PCAN_DEVICE_ID           0x01U  //!< Device identifier parameter
+#define PCAN_API_VERSION         0x05U  //!< PCAN-Basic API version parameter
+#define PCAN_CHANNEL_VERSION     0x06U  //!< PCAN device channel version parameter
+#define PCAN_HARDWARE_NAME       0x0EU  //!< PCAN hardware name parameter
+#define PCAN_CONTROLLER_NUMBER   0x10U  //!< CAN-Controller number of a PCAN-Channel
+//#define PCAN_SERIAL_NUMBER       0x??U
+//#define PCAN_CLOCK_DOMAIN        0x??U
 // TODO: define more or all parameters
 // ...
 #define PCAN_MAX_BUFFER_SIZE     256U   /**< max. buffer size for CAN_GetValue/CAN_SetValue */
@@ -149,9 +150,9 @@ extern "C" {
  *  @brief More or less useful stuff
  *  @{ */
 #define PCAN_LIB_VENDOR         "PEAK-System Technik GmbH, Darmstadt"
-#define PCAN_LIB_WEBSITE        "www.peak-system.com"
-#define PCAN_LIB_HAZARD_NOTE    "Do not connect your CAN device to a real CAN network when using this program.\n" \
-                                "This can damage your application."
+#define PCAN_LIB_WEBSITE        "https://www.peak-system.com/"
+#define PCAN_LIB_HAZARD_NOTE    "If you connect your CAN device to a real CAN network when using this library,\n" \
+                                "you might damage your application."
 /** @} */
 
 /*  -----------  types  --------------------------------------------------
@@ -172,8 +173,8 @@ typedef struct can_pcan_param_t_ {      /* device parameters: */
 #endif /* CANAPI_PEAKCAN_H_INCLUDED */
 /** @}
  */
- /*  ----------------------------------------------------------------------
-  *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
-  *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903
-  *  E-Mail: uwe.vogt@uv-software.de,  Homepage: http://www.uv-software.de/
-  */
+/*  ----------------------------------------------------------------------
+ *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
+ *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903
+ *  E-Mail: uwe.vogt@uv-software.de,  Homepage: http://www.uv-software.de/
+ */

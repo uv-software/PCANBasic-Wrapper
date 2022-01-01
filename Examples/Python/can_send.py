@@ -1,8 +1,25 @@
 #!/usr/bin/env python3
 from CANAPI import *
-from time import sleep
 import argparse
+import signal
 import sys
+from time import sleep
+
+
+# ^C handler to abort the reception loop and exit
+#
+def sigterm(signo, frame):
+    print()
+#    print('>>> can.kill()')
+#    result = can.kill()
+#    if result < 0:
+#        print('+++ error: can.kill returned {}'.format(result))
+    print('>>> can.exit()')
+    result = can.exit()
+    if result < 0:
+        sys.exit('+++ error: can.exit returned {}'.format(result))
+    else:
+        sys.exit(0)
 
 
 # CAN API V3 driver library
@@ -42,6 +59,10 @@ message.fdf = 0
 message.brs = 0
 message.sts = 0
 message.dlc = 8
+
+# install ^C handler
+signal.signal(signal.SIGTERM, sigterm)
+signal.signal(signal.SIGINT, sigterm)
 
 # load the driver library
 print(CANAPI.version())
@@ -91,7 +112,10 @@ for i in range(num):
     for j in range(len(data)):
         message.data[j] = data[j]
     message.dlc = 8
-    res = can.write(message)
+    while True:
+        res = can.write(message)
+        if res != CANERR_TX_BUSY:
+            break
     if res < CANERR_NOERROR:
         print('+++ error: can.write returned {}'.format(res))
         break

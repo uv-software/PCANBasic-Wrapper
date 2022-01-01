@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Interface Definition)
 //
-//  Copyright (C) 2004-2021 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2021 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -58,7 +58,7 @@
 ///              of a CAN API V3 wrapper library for a CAN adapter from an
 ///              arbitrary vendor.
 //
-/// \remarks     Additionally the class CCANAPI provides static methods for
+/// \remarks     Additionally the class CCanApi provides static methods for
 ///              bit-rate conversion using CiA bit-timing indexes as a base.
 //
 /// \note        Set define OPTION_CANAPI_LIBRARY to a non-zero value to compile
@@ -73,9 +73,9 @@
 ///              zero to compile your program with the CAN API source files or to
 ///              link your program with the static library at compile-time.
 ///
-/// \author      $Author: haumea $
+/// \author      $Author: eris $
 //
-/// \version     $Rev: 998 $
+/// \version     $Rev: 1013 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -142,7 +142,7 @@ typedef int CANAPI_Return_t;
 /// \name   CAN API V3
 /// \brief  An abstract class for CAN API V3 campatible CAN driver implementations.
 /// \{
-class CANCPP CCANAPI {
+class CANCPP CCanApi {
 public:
     /// \brief  CAN channel states
     enum EChannelState {
@@ -196,11 +196,11 @@ public:
     /// \returns     0 if successful, or a negative value on error.
     //
 #if (OPTION_CANAPI_LIBRARY != 0)
-    static CANAPI_Return_t ProbeChannel(int32_t library, int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state);
-    static CANAPI_Return_t ProbeChannel(int32_t library, int32_t channel, CANAPI_OpMode_t opMode, EChannelState &state);
+    static CANAPI_Return_t ProbeChannel(int32_t library, int32_t channel, const CANAPI_OpMode_t &opMode, const void *param, EChannelState &state);
+    static CANAPI_Return_t ProbeChannel(int32_t library, int32_t channel, const CANAPI_OpMode_t &opMode, EChannelState &state);
 #else
-    static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param, EChannelState &state);
-    static CANAPI_Return_t ProbeChannel(int32_t channel, CANAPI_OpMode_t opMode, EChannelState &state);
+    static CANAPI_Return_t ProbeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, const void *param, EChannelState &state);
+    static CANAPI_Return_t ProbeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, EChannelState &state);
 #endif
 
     /// \brief       initializes the CAN interface (hardware and driver) given by
@@ -217,9 +217,9 @@ public:
     ///              or a negative value on error.
     //
 #if (OPTION_CANAPI_LIBRARY != 0)
-    virtual CANAPI_Return_t InitializeChannel(int32_t library, int32_t channel, CANAPI_OpMode_t opMode, const void *param = NULL) = 0;
+    virtual CANAPI_Return_t InitializeChannel(int32_t library, int32_t channel, const CANAPI_OpMode_t &opMode, const void *param = NULL) = 0;
 #else
-    virtual CANAPI_Return_t InitializeChannel(int32_t channel, CANAPI_OpMode_t opMode, const void *param = NULL) = 0;
+    virtual CANAPI_Return_t InitializeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, const void *param = NULL) = 0;
 #endif
 
     /// \brief       stops any operation of the CAN interface and sets the operation
@@ -411,4 +411,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 998 2021-05-31 16:37:28Z haumea $  Copyright (c) UV Software //
+// $Id: CANAPI.h 1013 2021-12-13 21:34:15Z eris $  Copyright (c) UV Software //
