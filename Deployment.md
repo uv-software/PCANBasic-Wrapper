@@ -1,6 +1,6 @@
 ### Wrapper Library for PEAK PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2021  Uwe Vogt, UV Software, Berlin (info@uv-software.de)_
+_Copyright &copy; 2005-2022  Uwe Vogt, UV Software, Berlin (info@uv-software.de)_
 _All rights reserved._
 
 # Deployment
@@ -77,20 +77,24 @@ _All rights reserved._
 5. Update and build the CAN API V3 GoogleTest:
   - `C:\Users\haumea>cd C:\Projects\CAN\Library\Testing\Windows`
   - `C:\Projects\CAN\Library\Testing\Windows>build_86.bat`
-6. Run the CAN API V3 GoogleTest with the CAN Leaf Pro device:
-  - `C:\Projects\CAN\Library\Testing\Windows>Debug\can_testing --can_path=C:\Projects\CAN\API\json --can_dut1="Kvaser CAN Channel 0" --can_dut2="Kvaser CAN Channel 1"  --gtest_output=xml:TestReport_LeafPro.xml --gtest_filter=-SmokeTest.* --sunnyday_traffic=2048` [...]
+6. Run the CAN API V3 GoogleTest with two PCAN-USB device:
+  - `C:\Projects\CAN\Library\Testing\Windows>Debug\can_testing --can_path=C:\Projects\CAN\API\json --can_dut1=PCAN-USB1 --can_dut2=PCAN-USB2  --gtest_output=xml:TestReport_PCAN-USB.xml --gtest_filter=-SmokeTest.* --sunnyday_traffic=2048` [...]
   - _If there is any error then **stop** here or create an issue for each error in the repo._
   - Copy the test report into the binaries directory `$(PROJROOT)\Binaries`.
-7. Run the CAN API V3 GoogleTest with the CAN Leaf Light device:
-  - `C:\Projects\CAN\Library\Testing\Windows>Debug\can_testing --can_path=C:\Projects\CAN\API\json --can_dut1="Kvaser CAN Channel 1" --can_dut2="Kvaser CAN Channel 0"  --gtest_output=xml:TestReport_LeafLight.xml --gtest_filter=-SmokeTest.* --sunnyday_traffic=2048` [...]
+6. Run the CAN API V3 GoogleTest with two PCAN-USB FD device:
+  - `C:\Projects\CAN\Library\Testing\Windows>Debug\can_testing --can_path=C:\Projects\CAN\API\json --can_dut1=PCAN-USB3 --can_dut2=PCAN-USB4  --gtest_output=xml:TestReport_PCAN-USB_FD.xml --gtest_filter=-SmokeTest.* --sunnyday_traffic=2048` [...]
   - _If there is any error then **stop** here or create an issue for each error in the repo._
   - Copy the test report into the binaries directory `$(PROJROOT)\Binaries`.
-8. Pack the artifacts into a .zip-archive, e.g. `artifacts.zip`:
+6. Run the CAN API V3 GoogleTest with the dual-channel PCAN-USB Pro FDdevice:
+  - `C:\Projects\CAN\Library\Testing\Windows>Debug\can_testing --can_path=C:\Projects\CAN\API\json --can_dut1=PCAN-USB5 --can_dut2=PCAN-USB6  --gtest_output=xml:TestReport_PCAN-USB_Pro_FD.xml --gtest_filter=-SmokeTest.* --sunnyday_traffic=2048` [...]
+  - _If there is any error then **stop** here or create an issue for each error in the repo._
+  - Copy the test report into the binaries directory `$(PROJROOT)\Binaries`.
+7. Pack the artifacts into a .zip-archive, e.g. `artifacts.zip`:
   - `$(PROJROOT)\Binaries\*.*`
   - `$(PROJROOT)\Includes\*.*`
   - `$(PROJROOT)\README.md`
   - `$(PROJROOT)\LICENSE`
-9. Double check and update the [`README.md`](https://github.com/uv-software/PeakCAN-Wrapper/blob/main/README.md) on GitHub (or insert just a blank).
+8. Double check and update the [`README.md`](https://github.com/uv-software/PeakCAN-Wrapper/blob/main/README.md) on GitHub (or insert just a blank).
 
 ### Procedure
 
