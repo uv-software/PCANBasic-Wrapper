@@ -290,7 +290,7 @@ char *CPeakCAN::GetHardwareVersion() {
 EXPORT
 char *CPeakCAN::GetFirmwareVersion() {
     // retrieve the firmware version of the CAN controller
-    return can_software(m_Handle);
+    return can_firmware(m_Handle);
 }
 
 EXPORT
