@@ -49,7 +49,7 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    9
+#define VERSION_PATCH    2
 #else
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    2
@@ -290,7 +290,7 @@ char *CPeakCAN::GetHardwareVersion() {
 EXPORT
 char *CPeakCAN::GetFirmwareVersion() {
     // retrieve the firmware version of the CAN controller
-    return can_software(m_Handle);
+    return can_firmware(m_Handle);
 }
 
 EXPORT
