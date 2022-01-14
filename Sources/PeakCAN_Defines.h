@@ -91,6 +91,8 @@ extern "C" {
 #define PCAN_USB15             0x50FU   /**< PCAN-USB interface, channel 15 */
 #define PCAN_USB16             0x510U   /**< PCAN-USB interface, channel 16 */
 #define PCAN_BOARDS              16     /**< number of PCAN interface boards */
+
+#define PCAN_BOARD_TYPE(x)     ((((x) > 0x0FFU) ? (x) >> 8 : (x) >> 4) & 0xFU)
 /** @} */
 
 /** @name  CAN API Error Codes
@@ -138,9 +140,13 @@ extern "C" {
 #if defined(_WIN32) || defined (_WIN64)
  #define PCAN_LIB_BASIC         "PCANBasic.dll"
  #define PCAN_LIB_WRAPPER       "u3canpcb.dll"
+ #define PCAN_LIB_MIN_MAJOR      4U
+ #define PCAN_LIB_MIN_MINOR      0U
 #elif defined(__APPLE__)
  #define PCAN_LIB_BASIC         "libPCBUSB.dylib"
  #define PCAN_LIB_WRAPPER       "libUVCANPCB.dylib"
+ #define PCAN_LIB_MIN_MAJOR      0U
+ #define PCAN_LIB_MIN_MINOR      9U
 #else
 #error Platform not supported
 #endif

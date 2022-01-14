@@ -53,11 +53,11 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    2
+#define VERSION_PATCH    99
 #else
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    2
-#define VERSION_PATCH    2
+#define VERSION_PATCH    3
 #endif
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
@@ -1239,7 +1239,6 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
             rc = CANERR_NOERROR;
         }
         break;
-	/* *** **
     case CANPROP_GET_DEVICE_VENDOR:     // vendor name of the CAN interface (char[256])
         if ((nbyte > strlen(PCAN_LIB_VENDOR)) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
             strcpy((char*)value, PCAN_LIB_VENDOR);
@@ -1252,7 +1251,6 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
             rc = CANERR_NOERROR;
         }
         break;
-	** *** */
     case CANPROP_SET_FIRST_CHANNEL:     // set index to the first entry in the interface list (NULL)
         idx_board = 0;
         rc = (can_boards[idx_board].type != EOF) ? CANERR_NOERROR : CANERR_RESOURCE;
@@ -1326,8 +1324,6 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
         break;
     case CANPROP_GET_DEVICE_TYPE:       // device type of the CAN interface (int32_t)
     case CANPROP_GET_DEVICE_NAME:       // device name of the CAN interface (char[256])
-    case CANPROP_GET_DEVICE_VENDOR:     // vendor name of the CAN interface (char[256])
-    case CANPROP_GET_DEVICE_DLLNAME:    // file name of the CAN interface DLL (char[256])
     case CANPROP_GET_OP_CAPABILITY:     // supported operation modes of the CAN controller (uint8_t)
     case CANPROP_GET_OP_MODE:           // active operation mode of the CAN controller (uint8_t)
     case CANPROP_GET_BITRATE:           // active bit-rate of the CAN controller (can_bitrate_t)
@@ -1394,7 +1390,7 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
     switch (param) {
     case CANPROP_GET_DEVICE_TYPE:       // device type of the CAN interface (int32_t)
         if (nbyte >= sizeof(int32_t)) {
-            *(int32_t*)value = (int32_t)can[handle].board;
+            *(int32_t*)value = (int32_t)PCAN_BOARD_TYPE(can[handle].board);
             rc = CANERR_NOERROR;
         }
         break;

@@ -229,10 +229,10 @@ int main(int argc, const char * argv[]) {
     if (option_test) {
         retVal = myDriver.SetProperty(CANPROP_SET_FIRST_CHANNEL, (void *)NULL, 0U);
         while (retVal == CCanApi::NoError) {
-            retVal = myDriver.GetProperty(CANPROP_GET_CHANNEL_NO, (void *)&i32Val, sizeof(int32_t));
+            retVal = myDriver.GetProperty(CANPROP_GET_CHANNEL_TYPE, (void *)&i32Val, sizeof(int32_t));
             if (retVal == CCanApi::NoError) {
                 retVal = CPeakCAN::ProbeChannel(i32Val, opMode, state);
-                fprintf(stdout, ">>> CCanApi.ProbeChannel(%i): state = %s", i32Val,
+                fprintf(stdout, ">>> CCanApi::ProbeChannel(%i): state = %s", i32Val,
                                 (state == CCanApi::ChannelOccupied) ? "occupied" :
                                 (state == CCanApi::ChannelAvailable) ? "available" :
                                 (state == CCanApi::ChannelNotAvailable) ? "not available" : "not testable");
@@ -260,11 +260,11 @@ int main(int argc, const char * argv[]) {
         fprintf(stdout, "%s", (retVal == CCanApi::IllegalParameter) ? " (warning: Op.-Mode not supported)\n" : "\n");
     }
     if (option_info) {
-        retVal = myDriver.GetProperty(CANPROP_GET_DEVICE_CHANNEL, (void *)&i32Val, sizeof(int32_t));
+        retVal = myDriver.GetProperty(CANPROP_GET_DEVICE_TYPE, (void *)&i32Val, sizeof(int32_t));
         if (retVal == CCanApi::NoError)
-            fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_DEVICE_CHANNEL): value = 0x%02X\n", i32Val);
+            fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_DEVICE_TYPE): value = %d\n", i32Val);
         else
-            fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_DEVICE_CHANNEL) returned %i\n", retVal);
+            fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_DEVICE_TYPE) returned %i\n", retVal);
         retVal = myDriver.GetProperty(CANPROP_GET_DEVICE_NAME, (void *)szVal, CANPROP_MAX_BUFFER_SIZE);
         if (retVal == CCanApi::NoError)
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_DEVICE_NAME): value = '%s'\n", szVal);
@@ -493,7 +493,7 @@ retry:
         if ((myDriver.GetProperty(CANPROP_GET_RCV_QUEUE_SIZE, (void *)&u32QueSize, sizeof(uint32_t)) == CCanApi::NoError) &&
             (myDriver.GetProperty(CANPROP_GET_RCV_QUEUE_HIGH, (void *)&u32QueHigh, sizeof(uint32_t)) == CCanApi::NoError) &&
             (myDriver.GetProperty(CANPROP_GET_RCV_QUEUE_OVFL, (void *)&u64QueOvfl, sizeof(uint64_t)) == CCanApi::NoError))
-            fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_QUEUE_*): size = %" PRIu32 " high = %" PRIu32 " overflows = %" PRIu64 "\n", u32QueSize, u32QueHigh, u64QueOvfl);
+            fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_QUEUE_*): SIZE = %" PRIu32 " HIGH = %" PRIu32 " OVFL = %" PRIu64 "\n", u32QueSize, u32QueHigh, u64QueOvfl);
     }
     if (option_info) {
         char *hardware = myDriver.GetHardwareVersion();
