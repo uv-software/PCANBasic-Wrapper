@@ -83,6 +83,7 @@ int main(int argc, const char * argv[]) {
     int32_t channel = (int32_t)PCAN_USB1;
     uint16_t timeout = CANREAD_INFINITE;
     unsigned int delay = 0U;
+    CCanApi::SChannelInfo info;
     CCanApi::EChannelState state;
     //int32_t clocks[CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t)];
     char szVal[CANPROP_MAX_BUFFER_SIZE];
@@ -227,6 +228,18 @@ int main(int argc, const char * argv[]) {
             return 0;
     }
     if (option_test) {
+#if (1)
+        bool result = CPeakCAN::GetFirstChannel(info);
+        while (result) {
+            retVal = CPeakCAN::ProbeChannel(info.m_nChannelNo, opMode, state);
+            fprintf(stdout, ">>> CCanAPI::ProbeChannel(%i): state = %s", info.m_nChannelNo,
+                            (state == CCanApi::ChannelOccupied) ? "occupied" :
+                            (state == CCanApi::ChannelAvailable) ? "available" :
+                            (state == CCanApi::ChannelNotAvailable) ? "not available" : "not testable");
+            fprintf(stdout, "%s", (retVal == CCanApi::IllegalParameter) ? " (warning: Op.-Mode not supported)\n" : "\n");
+            result = CPeakCAN::GetNextChannel(info);
+        }
+#else
         retVal = myDriver.SetProperty(CANPROP_SET_FIRST_CHANNEL, (void *)NULL, 0U);
         while (retVal == CCanApi::NoError) {
             retVal = myDriver.GetProperty(CANPROP_GET_CHANNEL_TYPE, (void *)&i32Val, sizeof(int32_t));
@@ -240,6 +253,7 @@ int main(int argc, const char * argv[]) {
             }
             retVal = myDriver.SetProperty(CANPROP_SET_NEXT_CHANNEL, (void *)NULL, 0U);
         }
+#endif
         if (option_exit)
             return 0;
     }
