@@ -700,6 +700,10 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
     if (can[handle].status.can_stopped) // must be running
         return CANERR_OFFLINE;
 
+    memset(msg, 0, sizeof(can_msg_t));  // invalidate the message
+    msg->id = 0xFFFFFFFFU;
+    msg->sts = 1;
+
     if (!can[handle].mode.fdoe)
         rc = CAN_Read(can[handle].board, &can_msg, &timestamp);
     else
@@ -742,6 +746,7 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
     }
     if (!can[handle].mode.fdoe) {       // CAN 2.0 message:
         if ((can_msg.MSGTYPE & PCAN_MESSAGE_STATUS)) {
+            // TODO: encode status message (status)
             can[handle].status.bus_off = (can_msg.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
             can[handle].status.bus_error = (can_msg.DATA[3] & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
             can[handle].status.warning_level = (can_msg.DATA[3] & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
@@ -750,6 +755,7 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
             return CANERR_RX_EMPTY;     //   receiver empty
         }
         if ((can_msg.MSGTYPE & PCAN_MESSAGE_ERRFRAME))  {
+            // TODO: encode status message (error frame)
             can[handle].status.receiver_empty = 1;
             can[handle].counters.err++;
             return CANERR_ERR_FRAME;    //   error frame received
@@ -760,6 +766,7 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
         msg->fdf = 0;
         msg->brs = 0;
         msg->esi = 0;
+        msg->sts = 0;
         msg->dlc = (uint8_t)can_msg.LEN;
         memcpy(msg->data, can_msg.DATA, CAN_MAX_LEN);
         msec = ((uint64_t)timestamp.millis_overflow << 32) + (uint64_t)timestamp.millis;
@@ -786,6 +793,7 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
         msg->fdf = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_FD) ? 1 : 0;
         msg->brs = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_BRS) ? 1 : 0;
         msg->esi = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_ESI) ? 1 : 0;
+        msg->sts = 0;
         msg->dlc = (uint8_t)can_msg_fd.DLC;
         memcpy(msg->data, can_msg_fd.DATA, CANFD_MAX_LEN);
         msg->timestamp.tv_sec = (time_t)(timestamp_fd / 1000000ull);
