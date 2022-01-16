@@ -141,7 +141,7 @@ extern "C" {
  #define PCAN_LIB_BASIC         "PCANBasic.dll"
  #define PCAN_LIB_WRAPPER       "u3canpcb.dll"
  #define PCAN_LIB_MIN_MAJOR      4U
- #define PCAN_LIB_MIN_MINOR      0U
+ #define PCAN_LIB_MIN_MINOR      5U
 #elif defined(__APPLE__)
  #define PCAN_LIB_BASIC         "libPCBUSB.dylib"
  #define PCAN_LIB_WRAPPER       "libUVCANPCB.dylib"
