@@ -53,7 +53,7 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    99
+#define VERSION_PATCH    3
 #else
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    2
@@ -1022,13 +1022,13 @@ static int pcan_compatibility(void) {
     unsigned int major = 0, minor = 0;  // channel version
     char version[256] = "0.0.0.0";
 
-    /* (§1) get library version (as a string) */
+    /* get library version (as a string) */
     if ((sts = CAN_GetValue(PCAN_NONEBUS, PCAN_API_VERSION, (void*)version, 256)) != PCAN_ERROR_OK)
         return pcan_error(sts);
-    /* (§2) extract major and minor revision */
+    /* extract major and minor revision */
     if (sscanf(version, "%u.%u", &major, &minor) != 2)
         return CANERR_FATAL;
-    /* (§3) check for minimal required version */
+    /* check for minimal required version */
     if ((major != PCAN_LIB_MIN_MAJOR) || (minor < PCAN_LIB_MIN_MINOR))
         return CANERR_LIBRARY;
 

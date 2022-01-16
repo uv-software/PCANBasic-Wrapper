@@ -20,7 +20,7 @@
 #include "build_no.h"
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    99
+#define VERSION_PATCH    3
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
@@ -732,7 +732,7 @@ int main(int argc, const char * argv[]) {
         fprintf(stdout, "FAILED!\n");
         fprintf(stderr, "+++ error: CAN Controller could not be initialized (%i)", retVal);
         if (retVal == CCanApi::NotSupported)
-            fprintf(stderr, " - possibly CAN operating mode %02Xh not supported", opMode.byte);
+            fprintf(stderr, "\n           - possibly CAN operating mode %02Xh not supported", opMode.byte);
         fputc('\n', stderr);
         goto finalize;
     }
