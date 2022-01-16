@@ -27,6 +27,9 @@ public:
     ~CPeakCAN();
 
     // CCanApi overrides
+    static bool GetFirstChannel(SChannelInfo &info, void *param = NULL);
+    static bool GetNextChannel(SChannelInfo &info, void *param = NULL);
+
     static CANAPI_Return_t ProbeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, const void *param, EChannelState &state);
     static CANAPI_Return_t ProbeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, EChannelState &state);
 
@@ -119,7 +122,7 @@ Type `can_test /?` to display all program options.
 
 ### Required PCANBasic DLL
 
-- Version 4.6 or later _(Latest is Greatest!)_
+- Version 4.5 or later _(Latest is Greatest!)_
 
 ## Known Bugs and Caveats
 
