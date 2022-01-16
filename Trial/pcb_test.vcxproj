@@ -33,6 +33,7 @@
     <ClInclude Include="..\Sources\CANAPI\can_btr.h" />
     <ClInclude Include="..\Sources\PeakCAN.h" />
     <ClInclude Include="..\Sources\PCANBasic\PCANBasic.h" />
+    <ClInclude Include="..\Sources\PeakCAN_Defines.h" />
     <ClInclude Include="..\Sources\Wrapper\can_defs.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

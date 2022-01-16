@@ -1507,9 +1507,17 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         }
         break;
     case CANPROP_GET_NUM_CHANNELS:      // numbers of CAN channels on the CAN interface (uint8_t)
-    case CANPROP_GET_CAN_CHANNEL:       // active CAN channel on the CAN interface (uint8_t)
         // TODO: insert coin here
         rc = CANERR_NOTSUPP;
+        break;
+    case CANPROP_GET_CAN_CHANNEL:       // active CAN channel on the CAN interface (uint8_t)
+        if (nbyte >= sizeof(uint8_t)) {
+            if ((sts = CAN_GetValue(can[handle].board, (BYTE)PCAN_CONTROLLER_NUMBER,
+                (void*)value, (DWORD)nbyte)) == PCAN_ERROR_OK)
+                rc = CANERR_NOERROR;
+            else
+                rc = pcan_error(sts);
+        }
         break;
     case CANPROP_GET_TX_COUNTER:        // total number of sent messages (uint64_t)
         if (nbyte >= sizeof(uint64_t)) {
