@@ -287,6 +287,13 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
         if ((mode & CANMODE_BRSE) && !(mode & CANMODE_FDOE))
             return CANERR_ILLPARA;
     }
+    for (i = 0; i < PCAN_MAX_HANDLES; i++) {  // any open handle?
+        if (can[i].board != PCAN_NONEBUS)
+            break;
+    }
+    if (i == PCAN_MAX_HANDLES) {        // if no open handle then
+        init = 0;                       //   clear initialization flag
+    }
     (void)param;
     return CANERR_NOERROR;
 }
@@ -440,6 +447,13 @@ int can_exit(int handle)
 #endif
             }
         }
+    }
+    for (i = 0; i < PCAN_MAX_HANDLES; i++) {  // any open handle?
+        if (can[i].board != PCAN_NONEBUS)
+            break;
+    }
+    if (i == PCAN_MAX_HANDLES) {        // if no open handle then
+        init = 0;                       //   clear initialization flag
     }
     return CANERR_NOERROR;
 }
