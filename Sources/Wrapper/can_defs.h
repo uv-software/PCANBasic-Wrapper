@@ -61,17 +61,17 @@
 
 /*  -----------  options  ------------------------------------------------
  */
-/* note: all options move into header PeakCAN_Defines.h */
+/* note: all options moved into header PeakCAN_Defines.h */
 
 
 /*  -----------  defines  ------------------------------------------------
  */
-/* note: all defines move into header PeakCAN_Defines.h */
+/* note: all defines moved into header PeakCAN_Defines.h */
 
 
 /*  -----------  types  --------------------------------------------------
  */
-/* note: all type definitions move into header PeakCAN_Defines.h */
+/* note: all type definitions moved into header PeakCAN_Defines.h */
 
 
 #endif /* CAN_DEFS_H_INCLUDED */

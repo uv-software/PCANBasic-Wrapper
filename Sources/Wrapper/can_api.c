@@ -583,7 +583,7 @@ int can_reset(int handle)
     if (can[handle].board == PCAN_NONEBUS) // must be an opened handle
         return CANERR_HANDLE;
 
-    if (can[handle].status.can_stopped) { // when running then go bus off
+    if (!can[handle].status.can_stopped) { // when running then go bus off
         /* note: we turn off the receiver and the transmitter to do that! */
         value = PCAN_PARAMETER_OFF;     //   receiver off
         if ((rc = CAN_SetValue(can[handle].board, PCAN_RECEIVE_STATUS, (void*)&value, sizeof(value))) != PCAN_ERROR_OK)
