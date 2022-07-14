@@ -1037,15 +1037,15 @@ static int pcan_compatibility(void) {
 
 static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability)
 {
-    TPCANStatus rc;                     // return value
+    TPCANStatus sts;                    // channel status
     DWORD features;                     // channel features
 
     assert(capability);
     capability->byte = 0x00U;
 
-    if ((rc = CAN_GetValue((TPCANHandle)board, PCAN_CHANNEL_FEATURES,
+    if ((sts = CAN_GetValue((TPCANHandle)board, PCAN_CHANNEL_FEATURES,
                           (void*)&features, sizeof(features))) != PCAN_ERROR_OK)
-        return rc;
+        return sts;
 
     capability->fdoe = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
     capability->brse = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
@@ -1123,10 +1123,10 @@ static int map_register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bit
     bitrate->btr.nominal.sam = (uint16_t)((btr0btr1 & 0x0080u) >> 7) + 0u;
     bitrate->btr.nominal.tseg2 = (uint16_t)((btr0btr1 & 0x0070u) >> 4) + 1u;
     bitrate->btr.nominal.tseg1 = (uint16_t)((btr0btr1 & 0x000Fu) >> 0) + 1u;
-    bitrate->btr.data.brp = 0;
-    bitrate->btr.data.tseg1 = 0;
-    bitrate->btr.data.tseg2 = 0;
-    bitrate->btr.data.sjw = 0;
+    bitrate->btr.data.brp = 0u;
+    bitrate->btr.data.tseg1 = 0u;
+    bitrate->btr.data.tseg2 = 0u;
+    bitrate->btr.data.sjw = 0u;
     return CANERR_NOERROR;
 }
 
@@ -1135,6 +1135,13 @@ static int map_bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD strin
     assert(bitrate);
     assert(string);
 
+    if ((bitrate->btr.frequency != CANBTR_FREQ_80MHz) &&
+        (bitrate->btr.frequency != CANBTR_FREQ_60MHz) &&
+        (bitrate->btr.frequency != CANBTR_FREQ_40MHz) &&
+        (bitrate->btr.frequency != CANBTR_FREQ_30MHz) &&
+        (bitrate->btr.frequency != CANBTR_FREQ_24MHz) &&
+        (bitrate->btr.frequency != CANBTR_FREQ_20MHz))
+        return CANERR_BAUDRATE;
     if ((bitrate->btr.nominal.brp < CANBTR_NOMINAL_BRP_MIN) || (CANBTR_NOMINAL_BRP_MAX < bitrate->btr.nominal.brp))
         return CANERR_BAUDRATE;
     if ((bitrate->btr.nominal.tseg1 < CANBTR_NOMINAL_TSEG1_MIN) || (CANBTR_NOMINAL_TSEG1_MAX < bitrate->btr.nominal.tseg1))
