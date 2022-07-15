@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2022  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 # CAN API V3 for PCAN Interfaces
 
@@ -112,7 +112,7 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2019 (Version 16.11.8)
+- Microsoft Visual Studio Community 2019 (Version 16.11.17)
 
 ### Tested CAN Hardware
 
