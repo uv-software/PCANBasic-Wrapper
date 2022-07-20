@@ -16,10 +16,10 @@
 #else
  #include <windows.h>
 #endif
-
 #include <inttypes.h>
 
 //#define SECOND_CHANNEL
+#define ISSUE_198   (0)
 
 #define BITRATE_1M(x)    do {x.btr.frequency=8000000;x.btr.nominal.brp=1; x.btr.nominal.tseg1=5; x.btr.nominal.tseg2=2;x.btr.nominal.sjw=1;x.btr.nominal.sam=0;} while(0)
 #define BITRATE_800K(x)  do {x.btr.frequency=8000000;x.btr.nominal.brp=1; x.btr.nominal.tseg1=7; x.btr.nominal.tseg2=2;x.btr.nominal.sjw=1;x.btr.nominal.sam=0;} while(0)
@@ -31,6 +31,7 @@
 #define BITRATE_20K(x)   do {x.btr.frequency=8000000;x.btr.nominal.brp=20;x.btr.nominal.tseg1=16;x.btr.nominal.tseg2=3;x.btr.nominal.sjw=2;x.btr.nominal.sam=0;} while(0)
 #define BITRATE_10K(x)   do {x.btr.frequency=8000000;x.btr.nominal.brp=40;x.btr.nominal.tseg1=16;x.btr.nominal.tseg2=3;x.btr.nominal.sjw=2;x.btr.nominal.sam=0;} while(0)
 #define BITRATE_5K(x)    do {x.btr.frequency=8000000;x.btr.nominal.brp=64;x.btr.nominal.tseg1=16;x.btr.nominal.tseg2=8;x.btr.nominal.sjw=2;x.btr.nominal.sam=0;} while(0)
+
 #define BITRATE_FD_1M(x)      do {x.btr.frequency=80000000;x.btr.nominal.brp=2;x.btr.nominal.tseg1=31; x.btr.nominal.tseg2=8; x.btr.nominal.sjw=8; } while(0)
 #define BITRATE_FD_500K(x)    do {x.btr.frequency=80000000;x.btr.nominal.brp=2;x.btr.nominal.tseg1=63; x.btr.nominal.tseg2=16;x.btr.nominal.sjw=16;} while(0)
 #define BITRATE_FD_250K(x)    do {x.btr.frequency=80000000;x.btr.nominal.brp=2;x.btr.nominal.tseg1=127;x.btr.nominal.tseg2=32;x.btr.nominal.sjw=32;} while(0)
@@ -50,6 +51,8 @@
 
 #if defined(_WIN32) || defined(_WIN64)
  static void usleep(unsigned int usec);
+ /* useconds_t: to be compatible with macOS */
+ typedef unsigned int  useconds_t;
 #endif
 static void sigterm(int signo);
 
@@ -87,7 +90,7 @@ int main(int argc, const char * argv[]) {
     CANAPI_Return_t retVal = 0;
     int32_t channel = (int32_t)PCAN_USB1;
     uint16_t timeout = CANREAD_INFINITE;
-    unsigned int delay = 0U;
+    useconds_t delay = 0U;
     CCanApi::SChannelInfo info;
     CCanApi::EChannelState state;
     //int32_t clocks[CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t)];
@@ -103,10 +106,12 @@ int main(int argc, const char * argv[]) {
     int option_exit = OPTION_NO;
     int option_echo = OPTION_YES;
     int option_stop = OPTION_NO;
-    int option_check = OPTION_NO;
+    int option_check = ISSUE_198;
     int option_retry = OPTION_NO;
     int option_repeat = OPTION_NO;
     int option_transmit = OPTION_NO;
+//    int option_trace = OPTION_NO;
+//    int option_log = OPTION_NO;
     uint64_t received = 0ULL;
     uint64_t expected = 0ULL;
 
@@ -166,11 +171,15 @@ int main(int argc, const char * argv[]) {
         if (!strcmp(argv[i], "BLOCKING")) timeout = CANREAD_INFINITE;
         /* transmit messages */
         if ((sscanf(argv[i], "%i", &opt) == 1) && (opt > 0)) option_transmit = opt;
-        if (!strncmp(argv[i], "C:", 2) && sscanf(argv[i], "C:%i", &opt) == 1) delay = (unsigned int)opt * 1000U;
-        if (!strncmp(argv[i], "U:", 2) && sscanf(argv[i], "U:%i", &opt) == 1) delay = (unsigned int)opt;
+        if (!strncmp(argv[i], "C:", 2) && sscanf(argv[i], "C:%i", &opt) == 1) delay = (useconds_t)opt * 1000U;
+        if (!strncmp(argv[i], "U:", 2) && sscanf(argv[i], "U:%i", &opt) == 1) delay = (useconds_t)opt;
         /* receive messages */
         if (!strcmp(argv[i], "STOP")) option_stop = OPTION_YES;
+#if (ISSUE_198 == 0)
         if (!strcmp(argv[i], "CHECK")) option_check = OPTION_YES;
+#else
+        if (!strcmp(argv[i], "IGNORE")) option_check = OPTION_NO;
+#endif
         if (!strcmp(argv[i], "RETRY")) option_retry = OPTION_YES;
         if (!strcmp(argv[i], "REPEAT")) option_repeat = OPTION_YES;
         if (!strcmp(argv[i], "SILENT")) option_echo = OPTION_NO;
@@ -195,6 +204,7 @@ int main(int argc, const char * argv[]) {
         if (!strcmp(argv[i], "RTR:OFF")) opMode.nrtr = 1;
     }
     fprintf(stdout, ">>> %s\n", CPeakCAN::GetVersion());
+
     if((signal(SIGINT, sigterm) == SIG_ERR) ||
 #if !defined(_WIN32) && !defined(_WIN64)
        (signal(SIGHUP, sigterm) == SIG_ERR) ||
@@ -350,14 +360,22 @@ int main(int argc, const char * argv[]) {
 //            fprintf(stdout, ">>> myDriver.GetProperty(PEAKCAN_PROPERTY_CLOCK_DOMAIN): value = %d\n", i32Val);
 //        else
 //            fprintf(stderr, "+++ error: myDriver.GetProperty(PEAKCAN_PROPERTY_CLOCK_DOMAIN) returned %i\n", retVal);
-//        retVal = myDriver.GetProperty(PEAKCAN_PROPERTY_CLOCKS, (void *)clocks, CANPROP_MAX_BUFFER_SIZE);
-//        if (retVal == CCanApi::NoError) {
-//            fprintf(stdout, ">>> myDriver.GetProperty(PEAKCAN_PROPERTY_CLOCKS): array =");
-//            for (int i = 0; (clocks[i] != EOF) && (i < (int)(CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t))); i++)
-//                fprintf(stdout, "%s%.1f", i ? ", " : " [", (float)clocks[i] / (float)1000000);
-//            fprintf(stdout, "] MHz\n");
-//        } else
-//            fprintf(stderr, "+++ error: myDriver.GetProperty(PEAKCAN_PROPERTY_CLOCKS) returned %i\n", retVal);
+#if (0)
+        retVal = myDriver.GetProperty(PEAKCAN_PROPERTY_CAN_CLOCK_DOMAINS, (void *)clocks, CANPROP_MAX_BUFFER_SIZE);
+        if (retVal == CCanApi::NoError) {
+            fprintf(stdout, ">>> myDriver.GetProperty(PEAKCAN_PROPERTY_CAN_CLOCK_DOMAINS): array =");
+            for (int i = 0; (clocks[i] != EOF) && (i < (int)(CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t))); i++)
+                fprintf(stdout, "%s%.1f", i ? ", " : " [", (float)clocks[i] / (float)1000000);
+            fprintf(stdout, "]\n");
+        }
+        //else [optional property]
+        //    fprintf(stderr, "+++ error: myDriver.GetProperty(PEAKCAN_PROPERTY_CAN_CLOCK_DOMAINS) returned %i\n", retVal);
+#endif
+        retVal = myDriver.GetProperty(CANPROP_GET_CAN_CLOCK, (void *)&i32Val, sizeof(int32_t));
+        if (retVal == CCanApi::NoError)
+            fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_CAN_CLOCK): value = %d\n", i32Val);
+        //else [optional property]
+        //    fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_CAN_CLOCK) returned %i\n", retVal);
         retVal = myDriver.GetProperty(CANPROP_GET_OP_CAPABILITY, (void *)&u8Val, sizeof(uint8_t));
         if (retVal == CCanApi::NoError)
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_OP_CAPABILITY): value = 0x%02X\n", u8Val);
