@@ -49,9 +49,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces - Data Types and Defines
  *
- *  @author      $Author: haumea $
+ *  @author      $Author: makemake $
  *
- *  @version     $Rev: 1044 $
+ *  @version     $Rev: 1078 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -309,6 +309,7 @@ extern "C" {
 #define CANPROP_GET_BUSLOAD         20U /**< current bus load of the CAN controller (uint16_t) */
 #define CANPROP_GET_NUM_CHANNELS    21U /**< numbers of CAN channels on the CAN interface (uint8_t) */
 #define CANPROP_GET_CAN_CHANNEL     22U /**< active CAN channel on the CAN interface (uint8_t) */
+#define CANPROP_GET_CAN_CLOCK       23U /**< frequency of the CAN controller clock in [Hz] (int32_t) */
 #define CANPROP_GET_TX_COUNTER      24U /**< total number of sent messages (uint64_t) */
 #define CANPROP_GET_RX_COUNTER      25U /**< total number of received messages (uint64_t) */
 #define CANPROP_GET_ERR_COUNTER     26U /**< total number of received error frames (uint64_t) */
@@ -389,6 +390,7 @@ extern "C" {
 #define CANPROP_GET_VENDOR_PROP    256U /**< offset to get a vendor-specific property value (void*) */
 #define CANPROP_SET_VENDOR_PROP    512U /**< offset to set a vendor-specific property value (void*) */
 #define CANPROP_VENDOR_PROP_RANGE  256U /**< range for vendor-specific property values */
+#define CANPROP_DRIVER_SPECIFIC 0x8000U /**< offset for driver-specific property values */
 #define CANPROP_MAX_BUFFER_SIZE    256U /**< max. buffer size for property values */
 #define CANPROP_MAX_STRING_LENGTH 1024U /**< max. length of a formatted message */
 /* - -  aliases (legacy names)  - - - - - - - - - - - - - - - - - - - - */
