@@ -72,7 +72,7 @@
 #else
 #error Unsupported architecture
 #endif
-static const char version[] = "CAN API V3 for PEAK PCAN Interfaces, Version " VERSION_STRING;
+static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
 
 
 /*  -----------  includes  -----------------------------------------------
@@ -468,15 +468,15 @@ int can_kill(int handle)
     if (handle != CANKILL_ALL) {
         if (!IS_HANDLE_VALID(handle))   // must be a valid handle
             return CANERR_HANDLE;
-        if ((can[handle].board != PCAN_NONEBUS) &&
-           (can[handle].event != NULL)) {
+        if (can[handle].board == PCAN_NONEBUS) // must be an opened handle
+            return CANERR_HANDLE;
+        if (can[handle].event != NULL)
             SetEvent(can[handle].event);  // signal event oject
-        }
     }
     else {
         for (i = 0; i < PCAN_MAX_HANDLES; i++) {
-            if ((can[i].board != PCAN_NONEBUS) &&
-               (can[i].event != NULL))  {
+            if ((can[i].board != PCAN_NONEBUS) // must be an opened handle
+            &&  (can[i].event != NULL)) {
                 SetEvent(can[i].event); //   signal all event ojects
             }
         }
@@ -492,6 +492,8 @@ int can_start(int handle, const can_bitrate_t *bitrate)
     DWORD value;                        // parameter value
     //UINT64 filter;                       // for 29-bit filter
     TPCANStatus rc;                     // return value
+
+    strcpy(string, "");                 // empty string
 
     if (!init)                          // must be initialized
         return CANERR_NOTINIT;
@@ -517,6 +519,8 @@ int can_start(int handle, const can_bitrate_t *bitrate)
         case CANBTR_INDEX_10K: btr0btr1 = PCAN_BAUD_10K; break;
         default: return CANERR_BAUDRATE;
         }
+        if (can[handle].mode.fdoe)      //   btr0btr1 not in CAN FD
+            return CANERR_BAUDRATE;
     }
     else if (!can[handle].mode.fdoe) {  // btr0btr1 for CAN 2.0
         if (map_bitrate2register(bitrate, &btr0btr1) != CANERR_NOERROR)
@@ -850,6 +854,7 @@ int can_status(int handle, uint8_t *status)
         can[handle].status.warning_level = (rc & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
         can[handle].status.message_lost |= (rc & (PCAN_ERROR_OVERRUN | PCAN_ERROR_QOVERRUN)) != PCAN_ERROR_OK;
         can[handle].status.transmitter_busy |= (rc & (PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL)) != PCAN_ERROR_OK;
+        // TODO: can[handle].status.queue_overrun = ...
     }
     if (status)                         // status-register
       *status = can[handle].status.byte;
@@ -928,6 +933,7 @@ EXPORT
 int can_property(int handle, uint16_t param, void *value, uint32_t nbyte)
 {
     if (!init || !IS_HANDLE_VALID(handle)) {
+        // note: library properties can be queried w/o a handle
         return lib_parameter(param, value, (size_t)nbyte);
     }
     if (!init)                          // must be initialized
@@ -936,7 +942,7 @@ int can_property(int handle, uint16_t param, void *value, uint32_t nbyte)
         return CANERR_HANDLE;
     if (can[handle].board == PCAN_NONEBUS) // must be an opened handle
         return CANERR_HANDLE;
-
+    // note: device properties must be queried with a valid handle
     return drv_parameter(handle, param, value, (size_t)nbyte);
 }
 
@@ -1034,13 +1040,13 @@ static int pcan_error(TPCANStatus status)
 static int pcan_compatibility(void) {
     TPCANStatus sts;                    // channel status
     unsigned int major = 0, minor = 0;  // channel version
-    char version[256] = "0.0.0.0";
+    char api[256] = "0.0.0.0";          // PCANBasic version
 
     /* get library version (as a string) */
-    if ((sts = CAN_GetValue(PCAN_NONEBUS, PCAN_API_VERSION, (void*)version, 256)) != PCAN_ERROR_OK)
+    if ((sts = CAN_GetValue(PCAN_NONEBUS, PCAN_API_VERSION, (void*)api, 256)) != PCAN_ERROR_OK)
         return pcan_error(sts);
     /* extract major and minor revision */
-    if (sscanf(version, "%u.%u", &major, &minor) != 2)
+    if (sscanf(api, "%u.%u", &major, &minor) != 2)
         return CANERR_FATAL;
     /* check for minimal required version */
     if ((major != PCAN_LIB_MIN_MAJOR) || (minor < PCAN_LIB_MIN_MINOR))
@@ -1114,7 +1120,7 @@ static int map_bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr
         return CANERR_BAUDRATE;
     if ((bitrate->btr.nominal.sjw < CANBTR_SJA1000_SJW_MIN) || (CANBTR_SJA1000_SJW_MAX < bitrate->btr.nominal.sjw))
         return CANERR_BAUDRATE;
-    if (/*(bitrate->btr.nominal.sam < CANBTR_SJA1000_SAM_MIN) ||*/ (CANBTR_SJA1000_SAM_MAX < bitrate->btr.nominal.sam))
+    if ((bitrate->btr.nominal.sam != CANBTR_SJA1000_SAM_SINGLE) && (bitrate->btr.nominal.sam != CANBTR_SJA1000_SAM_TRIPLE))
         return CANERR_BAUDRATE;
     /* +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ */
     /* |  SJW  |          BRP          |SAM|   TSEG2   |     TSEG1     | */
@@ -1387,6 +1393,7 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
     case CANPROP_GET_BUSLOAD:           // current bus load of the CAN controller (uint16_t)
     case CANPROP_GET_NUM_CHANNELS:      // numbers of CAN channels on the CAN interface (uint8_t)
     case CANPROP_GET_CAN_CHANNEL:       // active CAN channel on the CAN interface (uint8_t)
+    case CANPROP_GET_CAN_CLOCK:         // frequency of the CAN controller clock in [Hz] (int32_t)
     case CANPROP_GET_TX_COUNTER:        // total number of sent messages (uint64_t)
     case CANPROP_GET_RX_COUNTER:        // total number of reveiced messages (uint64_t)
     case CANPROP_GET_ERR_COUNTER:       // total number of reveiced error frames (uint64_t)
@@ -1520,9 +1527,9 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         if (nbyte >= sizeof(uint8_t)) {
             if ((rc = can_busload(handle, &load, NULL)) == CANERR_NOERROR) {
                 if (nbyte > sizeof(uint8_t))
-                    *(uint16_t*)value = (uint16_t)load * 100U;  // 0 - 10000 ==> 0.00% - 100.00%
+                    *(uint16_t*)value = (uint16_t)load * 100U;  // 0..10000 ==> 0.00%..100.00%
                 else
-                    *(uint8_t*)value = (uint8_t)load;           // 0  -  100 ==> 0.00% - 100.00%
+                    *(uint8_t*)value = (uint8_t)load;           // 0..100% (note: legacy resolution)
                 rc = CANERR_NOERROR;
             }
         }
@@ -1539,6 +1546,10 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
             else
                 rc = pcan_error(sts);
         }
+        break;
+    case CANPROP_GET_CAN_CLOCK:         // frequency of the CAN controller clock in [Hz] (int32_t)
+        // TODO: insert coin here
+        rc = CANERR_NOTSUPP;
         break;
     case CANPROP_GET_TX_COUNTER:        // total number of sent messages (uint64_t)
         if (nbyte >= sizeof(uint64_t)) {

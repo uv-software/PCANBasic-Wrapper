@@ -68,7 +68,7 @@
 #else
 #error Unsupported architecture
 #endif
-static const char version[] = "CAN API V3 for PEAK PCAN Interfaces, Version " VERSION_STRING;
+static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
 
 #ifdef _MSC_VER
 //no Microsoft extensions please!
