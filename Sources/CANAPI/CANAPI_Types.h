@@ -51,7 +51,7 @@
  *
  *  @author      $Author: makemake $
  *
- *  @version     $Rev: 1078 $
+ *  @version     $Rev: 1082 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -177,6 +177,8 @@ extern "C" {
 #define CANBTR_NOMINAL_TSEG2_MAX  128U  /**< max. time segment 2 (after SP) */
 #define CANBTR_NOMINAL_SJW_MIN      1U  /**< min. syncronization jump width */
 #define CANBTR_NOMINAL_SJW_MAX    128U  /**< max. syncronization jump width */
+#define CANBTR_NOMINAL_SAM_SINGLE   0U  /**< single: the bus is sampled once */
+#define CANBTR_NOMINAL_SAM_TRIPLE   1U  /**< triple: the bus is sampled three times */
 /** @} */
 
 /** @name  CAN FD Data Bit-rate Settings
@@ -190,6 +192,7 @@ extern "C" {
 #define CANBTR_DATA_TSEG2_MAX      16U  /**< max. time segment 2 (after SP) */
 #define CANBTR_DATA_SJW_MIN         1U  /**< min. syncronization jump width */
 #define CANBTR_DATA_SJW_MAX        16U  /**< max. syncronization jump width */
+#define CANBTR_DATA_SAM_UNDEFINED   0U  /**< number of samples not defined for CAN FD */
 /** @} */
 
 /** @name  SJA1000 Bit-rate Settings (CAN 2.0 only)
@@ -203,8 +206,8 @@ extern "C" {
 #define CANBTR_SJA1000_TSEG2_MAX    8U  /**< max. time segment 2 (after SP) */
 #define CANBTR_SJA1000_SJW_MIN      1U  /**< min. syncronization jump width */
 #define CANBTR_SJA1000_SJW_MAX      4U  /**< max. syncronization jump width */
-#define CANBTR_SJA1000_SAM_MIN      0U  /**< single: the bus is sampled once */
-#define CANBTR_SJA1000_SAM_MAX      1U  /**< triple: the bus is sampled three times */
+#define CANBTR_SJA1000_SAM_SINGLE   0U  /**< single: the bus is sampled once */
+#define CANBTR_SJA1000_SAM_TRIPLE   1U  /**< triple: the bus is sampled three times */
 /** @} */
 
 /** @name  CAN Mode Flags
