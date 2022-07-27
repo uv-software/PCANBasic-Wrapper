@@ -9,7 +9,7 @@ CAN API V3 is a wrapper specification to have a uniform CAN Interface API for va
 ## PCANBasic-Wrapper
 
 This repo contains the source code for a CAN API V3 compatible wrapper library under Windows for PCAN Interfaces from Peak-System Technik GmbH.
-The wrapper library is build upon PEAK´s PCANBasic DLL.
+The wrapper library is build upon Peak´s PCANBasic DLL.
 
 ### CAN Interface API, Version 3
 
@@ -156,7 +156,7 @@ You can choose between one of them if you use this work in whole or in part.
 ### Trademarks
 
 Windows is a registered trademark of Microsoft Corporation in the United States and/or other countries. \
-PCAN is a registered trademark of PEAK-System Technik GmbH, Darmstadt, Germany. \
+PCAN is a registered trademark of Peak-System Technik GmbH, Darmstadt, Germany. \
 Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. \
 Linux is a registered trademark of Linus Torvalds. \
 All other company, product and service names mentioned herein may be trademarks, registered trademarks or service marks of their respective owners.
