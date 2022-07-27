@@ -730,6 +730,7 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
     msg->id = 0xFFFFFFFFU;
     msg->sts = 1;
 
+repeat:
     if (!can[handle].mode.fdoe)
         rc = CAN_Read(can[handle].board, &can_msg, &timestamp);
     else
@@ -786,6 +787,10 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
             can[handle].counters.err++;
             return CANERR_ERR_FRAME;    //   error frame received
         }
+        if ((can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) && can[handle].mode.nxtd)
+            goto repeat;                //   refuse extended frames
+        if ((can_msg.MSGTYPE & PCAN_MESSAGE_RTR) && can[handle].mode.nrtr)
+            goto repeat;                //   refuse remote frames
         msg->id = (int32_t)can_msg.ID;
         msg->xtd = (can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
         msg->rtr = (can_msg.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
@@ -809,10 +814,15 @@ int can_read(int handle, can_msg_t *msg, uint16_t timeout)
             return CANERR_RX_EMPTY;     //   receiver empty
         }
         if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_ERRFRAME)) {
+            // TODO: encode status message (error frame)
             can[handle].status.receiver_empty = 1;
             can[handle].counters.err++;
             return CANERR_ERR_FRAME;    //   error frame received
         }
+        if ((can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) && can[handle].mode.nxtd)
+            goto repeat;                //   refuse extended frames
+        if ((can_msg.MSGTYPE & PCAN_MESSAGE_RTR) && can[handle].mode.nrtr)
+            goto repeat;                //   refuse remote frames
         msg->id = (int32_t)can_msg_fd.ID;
         msg->xtd = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
         msg->rtr = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
@@ -1075,8 +1085,8 @@ static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability)
     capability->nxtd = 1; // PCAN_ACCEPTANCE_FILTER_29BIT available since version 4.2.0
     capability->nrtr = 1; // PCAN_ALLOW_RTR_FRAMES available since version 4.2.0
 #else
-    capability->nxtd = 0; // This feature is not supported (TODO: acceptance filtering)
-    capability->nrtr = 0; // This feature is not supported (TODO: suppress RTR frames)
+    capability->nxtd = 1; // Suppress XTD frames (software solution)
+    capability->nrtr = 1; // Suppress RTR frames (software solution)
 #endif
     capability->err = 1;  // PCAN_ALLOW_ERROR_FRAMES available since version 4.2.0
     capability->mon = 1;  // PCAN_LISTEN_ONLY available since version 1.0.0
