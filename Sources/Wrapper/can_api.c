@@ -72,7 +72,7 @@
 #else
 #error Unsupported architecture
 #endif
-static const char version[] = "CAN API V3 for PEAK PCAN Interfaces, Version " VERSION_STRING;
+static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
 
 
 /*  -----------  includes  -----------------------------------------------
@@ -854,6 +854,7 @@ int can_status(int handle, uint8_t *status)
         can[handle].status.warning_level = (rc & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
         can[handle].status.message_lost |= (rc & (PCAN_ERROR_OVERRUN | PCAN_ERROR_QOVERRUN)) != PCAN_ERROR_OK;
         can[handle].status.transmitter_busy |= (rc & (PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL)) != PCAN_ERROR_OK;
+        // TODO: can[handle].status.queue_overrun = ...
     }
     if (status)                         // status-register
       *status = can[handle].status.byte;
@@ -1119,7 +1120,7 @@ static int map_bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr
         return CANERR_BAUDRATE;
     if ((bitrate->btr.nominal.sjw < CANBTR_SJA1000_SJW_MIN) || (CANBTR_SJA1000_SJW_MAX < bitrate->btr.nominal.sjw))
         return CANERR_BAUDRATE;
-    if (/*(bitrate->btr.nominal.sam < CANBTR_SJA1000_SAM_MIN) ||*/ (CANBTR_SJA1000_SAM_MAX < bitrate->btr.nominal.sam))
+    if ((bitrate->btr.nominal.sam != CANBTR_SJA1000_SAM_SINGLE) && (bitrate->btr.nominal.sam != CANBTR_SJA1000_SAM_TRIPLE))
         return CANERR_BAUDRATE;
     /* +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ */
     /* |  SJW  |          BRP          |SAM|   TSEG2   |     TSEG1     | */
@@ -1524,11 +1525,11 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         break;
     case CANPROP_GET_BUSLOAD:           // current bus load of the CAN controller (uint16_t)
         if (nbyte >= sizeof(uint8_t)) {
-            if ((rc = can_busload(handle, &load, NULL)) == CANERR_NOERROR) {  // FIXME: legacy resolution
+            if ((rc = can_busload(handle, &load, NULL)) == CANERR_NOERROR) {
                 if (nbyte > sizeof(uint8_t))
-                    *(uint16_t*)value = (uint16_t)load * 100U;  // 0 - 10000 ==> 0.00% - 100.00%
+                    *(uint16_t*)value = (uint16_t)load * 100U;  // 0..10000 ==> 0.00%..100.00%
                 else
-                    *(uint8_t*)value = (uint8_t)load;           // 0  -  100 ==> 0.00% - 100.00%
+                    *(uint8_t*)value = (uint8_t)load;           // 0..100% (note: legacy resolution)
                 rc = CANERR_NOERROR;
             }
         }
@@ -1547,7 +1548,7 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         }
         break;
     case CANPROP_GET_CAN_CLOCK:         // frequency of the CAN controller clock in [Hz] (int32_t)
-       // TODO: insert coin here
+        // TODO: insert coin here
         rc = CANERR_NOTSUPP;
         break;
     case CANPROP_GET_TX_COUNTER:        // total number of sent messages (uint64_t)
