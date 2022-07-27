@@ -45,9 +45,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with PCANBasic-Wrapper.  If not, see <http://www.gnu.org/licenses/>.
  */
- /** @addtogroup  can_api
-  *  @{
-  */
+/** @addtogroup  can_api
+ *  @{
+ */
 #ifndef CANAPI_PEAKCAN_H_INCLUDED
 #define CANAPI_PEAKCAN_H_INCLUDED
 
@@ -126,7 +126,7 @@ extern "C" {
 #define PCAN_HARDWARE_NAME       0x0EU  //!< PCAN hardware name parameter
 #define PCAN_CONTROLLER_NUMBER   0x10U  //!< CAN-Controller number of a PCAN-Channel
 //#define PCAN_SERIAL_NUMBER       0x??U
-//#define PCAN_CLOCK_DOMAIN        0x??U
+//#define PCAN_CLOCK_DOMAINS       0x??U
 // TODO: define more or all parameters
 // ...
 #define PCAN_MAX_BUFFER_SIZE     256U   /**< max. buffer size for CAN_GetValue/CAN_SetValue */
