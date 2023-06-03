@@ -8,12 +8,12 @@
 //
 //  ------------------------------------------------------------------
 //  Author : Keneth Wagner
-//  Last change: 2021-10-01
+//  Last change: 2022-11-17
 //
 //  Language: ANSI-C
 //  ------------------------------------------------------------------
 //
-//  Copyright (C) 1999-2021  PEAK-System Technik GmbH, Darmstadt
+//  Copyright (C) 1999-2022  PEAK-System Technik GmbH, Darmstadt
 //  more Info at http://www.peak-system.com 
 //
 #ifndef __PCANBASICH__
@@ -213,6 +213,7 @@
 #define TRACE_FILE_DATE               0x02U  // Includes the date into the name of the trace file
 #define TRACE_FILE_TIME               0x04U  // Includes the start time into the name of the trace file
 #define TRACE_FILE_OVERWRITE          0x80U  // Causes the overwriting of available traces (same name)
+#define TRACE_FILE_DATA_LENGTH        0x100U // Causes using the data length column ('l') instead of the DLC column ('L') in the trace file
 
 #define FEATURE_FD_CAPABLE            0x01U  // Device supports flexible data-rate (CAN-FD)
 #define FEATURE_DELAY_CAPABLE         0x02U  // Device supports a delay between sending frames (FPGA based USB devices)
