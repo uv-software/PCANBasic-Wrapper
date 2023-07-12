@@ -8,12 +8,12 @@
 //
 //  ------------------------------------------------------------------
 //  Author : Keneth Wagner
-//  Last change: 2022-11-17
+//  Last change: 2023-06-01
 //
 //  Language: ANSI-C
 //  ------------------------------------------------------------------
 //
-//  Copyright (C) 1999-2022  PEAK-System Technik GmbH, Darmstadt
+//  Copyright (C) 1999-2023  PEAK-System Technik GmbH, Darmstadt
 //  more Info at http://www.peak-system.com 
 //
 #ifndef __PCANBASICH__
@@ -332,7 +332,7 @@ typedef struct tagTPCANMsg
 } TPCANMsg;
 
 // Represents a timestamp of a received PCAN message
-// Total Microseconds = micros + 1000 * millis + 0x100000000 * 1000 * millis_overflow
+// Total Microseconds = micros + (1000ULL * millis) + (0x100000000ULL * 1000ULL * millis_overflow)
 //
 typedef struct tagTPCANTimestamp
 {
