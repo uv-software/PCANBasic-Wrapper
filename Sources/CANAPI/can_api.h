@@ -2,7 +2,7 @@
 /*
  *  CAN Interface API, Version 3 (generic)
  *
- *  Copyright (c) 2004-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of CAN API V3.
@@ -51,7 +51,7 @@
  *
  *  @author      $Author: makemake $
  *
- *  @version     $Rev: 1053 $
+ *  @version     $Rev: 1086 $
  *
  *  @defgroup    can_api CAN Interface API, Version 3
  *  @{
@@ -324,7 +324,8 @@ CANAPI int can_reset(int handle);
  *  @retval      CANERR_ILLPARA   - illegal data length code
  *  @retval      CANERR_OFFLINE   - interface not started
  *  @retval      CANERR_TX_BUSY   - transmitter busy
- *  @retval      others           - vendor-specific
+ *  @retval      CANERR_QUE_OVR - transmit queue overrun
+  *  @retval      others           - vendor-specific
  */
 CANAPI int can_write(int handle, const can_message_t *message, uint16_t timeout);
 
@@ -347,6 +348,7 @@ CANAPI int can_write(int handle, const can_message_t *message, uint16_t timeout)
  *  @retval      CANERR_NULLPTR   - null-pointer assignment
  *  @retval      CANERR_OFFLINE   - interface not started
  *  @retval      CANERR_RX_EMPTY  - message queue empty
+ *  @retval      CANERR_QUE_OVR - reveive queue overrun
  *  @retval      CANERR_ERR_FRAME - error frame received
  *  @retval      others           - vendor-specific
  */

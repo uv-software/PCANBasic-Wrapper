@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Interface Definition)
 //
-//  Copyright (c) 2004-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -75,7 +75,7 @@
 ///
 /// \author      $Author: makemake $
 //
-/// \version     $Rev: 1033 $
+/// \version     $Rev: 1086 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -153,9 +153,10 @@ public:
         ControllerOffline = CANERR_OFFLINE,  ///< not started
         ControllerOnline = CANERR_ONLINE,  ///< already started
         MessageLost = CANERR_MSG_LST,  ///< message lost
+        ErrorFrame = CANERR_ERR_FRAME,  ///< error frame
         TransmitterBusy = CANERR_TX_BUSY,  ///< transmitter busy
         ReceiverEmpty = CANERR_RX_EMPTY,  ///< receiver empty
-        ErrorFrame = CANERR_ERR_FRAME,  ///< error frame
+        QueueOverrun = CANERR_QUE_OVR,  ///< queue overrun
         Timeout = CANERR_TIMEOUT,  ///< timed out
         ResourceError = CANERR_RESOURCE,  ///< resource allocation
         InvalidBaudrate = CANERR_BAUDRATE,  ///<  illegal baudrate
@@ -478,4 +479,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 1033 2022-01-11 19:58:04Z makemake $  Copyright (c) UV Software //
+// $Id: CANAPI.h 1086 2023-07-06 17:40:06Z makemake $  Copyright (c) UV Software //
