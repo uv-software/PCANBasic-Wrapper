@@ -2,7 +2,7 @@
 //
 //  CAN Tester for PEAK PCAN Interfaces
 //
-//  Copyright (c) 2008-2010,2014-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2008-2010,2014-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include "build_no.h"
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    4
+#define VERSION_PATCH    99
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
@@ -35,7 +35,7 @@
 #error Unsupported architecture
 #endif
 static const char APPLICATION[] = "CAN Tester for PEAK PCAN Interfaces, Version " VERSION_STRING;
-static const char COPYRIGHT[]   = "Copyright (c) 2008-2010,2014-2022 by Uwe Vogt, UV Software, Berlin";
+static const char COPYRIGHT[]   = "Copyright (c) 2008-2010,2014-2023 by Uwe Vogt, UV Software, Berlin";
 static const char WARRANTY[]    = "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
                                   "This is free software, and you are welcome to redistribute it\n" \
                                   "under certain conditions; type `/ABOUT' for details.";
@@ -164,44 +164,6 @@ public:
 public:
     static int ListCanDevices(void);
     static int TestCanDevices(CANAPI_OpMode_t opMode);
-#if (0)
-    // list of CAN interface vendors
-    static const struct TCanVendor {
-        int32_t id;
-        char *name;
-    } m_CanVendors[];
-    // list of CAN interface devices
-    static const struct TCanDevice {
-        int32_t library;
-        int32_t adapter;
-        char *name;
-    } m_CanDevices[];
-};
-const CCanDriver::TCanVendor CCanDriver::m_CanVendors[] = {
-    {PEAKCAN_LIBRARY_ID, (char *)"PEAK" },
-    {EOF, NULL}
-};
-const CCanDriver::TCanDevice CCanDriver::m_CanDevices[] = {
-    {PEAKCAN_LIBRARY_ID, PCAN_USB1, (char *)"PCAN-USB1" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB2, (char *)"PCAN-USB2" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB3, (char *)"PCAN-USB3" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB4, (char *)"PCAN-USB4" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB5, (char *)"PCAN-USB5" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB6, (char *)"PCAN-USB6" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB7, (char *)"PCAN-USB7" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB8, (char *)"PCAN-USB8" },
-#ifndef __APPLE__
-    {PEAKCAN_LIBRARY_ID, PCAN_USB9, (char *)"PCAN-USB9" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB10, (char *)"PCAN-USB10" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB11, (char *)"PCAN-USB11" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB12, (char *)"PCAN-USB12" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB13, (char *)"PCAN-USB13" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB14, (char *)"PCAN-USB14" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB15, (char *)"PCAN-USB15" },
-    {PEAKCAN_LIBRARY_ID, PCAN_USB16, (char *)"PCAN-USB16" },
-#endif
-    {EOF, EOF, NULL}
-#endif
 };
 
 static void sigterm(int signo);
@@ -226,8 +188,8 @@ int main(int argc, const char * argv[]) {
     int verbose = 0;
     time_t txtime = 0;
     int txframes = 0;
-    int id = 0x100; int c = 0;
-    int dlc = 8; int d = 0;
+    int can_id = 0x100; int c = 0;
+    int can_dlc = 8; int d = 0;
     int delay = 0; int t = 0;
     int number = 0; int n = 0;
     int stop_on_error = 0;
@@ -556,7 +518,7 @@ int main(int argc, const char * argv[]) {
                 return 1;
             }
             if (!d) /* let the tester generate messages of arbitrary length */
-                dlc = 0;
+                can_dlc = 0;
             mode = TxRANDOM;
             break;
         case CYCLE_STR:
@@ -609,11 +571,11 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /DLC\n", basename(argv[0]));
                 return 1;
             }
-            if (sscanf_s(optarg, "%li", &dlc) != 1) {
+            if (sscanf_s(optarg, "%li", &can_dlc) != 1) {
                 fprintf(stderr, "%s: illegal argument for option /DLC\n", basename(argv[0]));
                 return 1;
             }
-            if ((dlc < 0) || (CANFD_MAX_LEN < dlc)) {
+            if ((can_dlc < 0) || (CANFD_MAX_LEN < can_dlc)) {
                 fprintf(stderr, "%s: illegal argument for option /DLC\n", basename(argv[0]));
                 return 1;
             }
@@ -630,11 +592,11 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /CAN-ID\n", basename(argv[0]));
                 return 1;
             }
-            if (sscanf_s(optarg, "%li", &id) != 1) {
+            if (sscanf_s(optarg, "%li", &can_id) != 1) {
                 fprintf(stderr, "%s: illegal argument for option /CAN-ID\n", basename(argv[0]));
                 return 1;
             }
-            if ((id < 0x000) || (CAN_MAX_XTD_ID < id)) { // TODO: to be checked with --mode=NXTD
+            if ((can_id < 0x000) || (CAN_MAX_XTD_ID < can_id)) { // TODO: to be checked with --mode=NXTD
                 fprintf(stderr, "%s: illegal argument for option /CAN-ID\n", basename(argv[0]));
                 return 1;
             }
@@ -667,7 +629,6 @@ int main(int argc, const char * argv[]) {
         }
     }
     /* - check if one and only one <interface> is given */
-#if (1)
     for (i = 1; i < argc; i++) {
         if (!isOption(argc, (char**)argv, MAX_OPTIONS, option, i)) {
             if ((hw++)) {
@@ -691,46 +652,23 @@ int main(int argc, const char * argv[]) {
         fprintf(stderr, "%s: not enough arguments\n", basename(argv[0]));
         return 1;
     }
-#else
-    for (i = 1; i < argc; i++) {
-        if (!isOption(argc, (char**)argv, MAX_OPTIONS, option, i)) {
-            if ((hw++)) {
-                fprintf(stderr, "%s: too many arguments\n", basename(argv[0]));
-                return 1;
-            }
-            for (channel = 0; CCanDriver::m_CanDevices[channel].adapter != EOF; channel++) {
-                if (!_stricmp(argv[i], CCanDriver::m_CanDevices[channel].name))
-                    break;
-            }
-            if (CCanDriver::m_CanDevices[channel].adapter == EOF) {
-                fprintf(stderr, "%s: illegal argument\n", basename(argv[0]));
-                return 1;
-            }
-        }
-    }
-    if (!hw || ((CCanDriver::m_CanDevices[channel].adapter == EOF))) {
-        fprintf(stderr, "%s: not enough arguments\n", basename(argv[0]));
-        return 1;
-    }
-#endif
-    /* - check data length length and make CAN FD DLC (0x0..0xF) */
-    if (!opMode.fdoe && (dlc > CAN_MAX_LEN)) {
-        fprintf(stderr, "%s: illegal combination of options /MODE and /DLC\n", basename(argv[0]));
-        return 1;
-    }
-    else {
-        if (dlc > 48) dlc = 0xF;
-        else if (dlc > 32) dlc = 0xE;
-        else if (dlc > 24) dlc = 0xD;
-        else if (dlc > 20) dlc = 0xC;
-        else if (dlc > 16) dlc = 0xB;
-        else if (dlc > 12) dlc = 0xA;
-        else if (dlc > 8) dlc = 0x9;
-    }
     /* - check bit-timing index (n/a for CAN FD) */
     if (opMode.fdoe && (bitrate.btr.frequency <= 0)) {
         fprintf(stderr, "%s: illegal combination of options /MODE and /BAUDRATE\n", basename(argv[0]));
         return 1;
+    }
+    /* - check data length and make CAN FD DLC (0x0..0xF) */
+    if (!opMode.fdoe && (can_dlc > CAN_MAX_LEN)) {
+        fprintf(stderr, "%s: illegal combination of options /MODE and /DLC\n", basename(argv[0]));
+        return 1;
+    } else {
+        if (can_dlc > 48) can_dlc = 0xF;
+        else if (can_dlc > 32) can_dlc = 0xE;
+        else if (can_dlc > 24) can_dlc = 0xD;
+        else if (can_dlc > 20) can_dlc = 0xC;
+        else if (can_dlc > 16) can_dlc = 0xB;
+        else if (can_dlc > 12) can_dlc = 0xA;
+        else if (can_dlc > 8) can_dlc = 0x9;
     }
     /* - check operation mode flags */
     if ((mode != RxMODE) && opMode.mon) {
@@ -751,7 +689,6 @@ int main(int argc, const char * argv[]) {
     }
     /* CAN Tester for PEAK PCAN interfaces */
     fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
-
     /* - show operation mode and bit-rate settings */
     if (verbose) {
         fprintf(stdout, "Op.-mode=%s", (opMode.byte & CANMODE_FDOE) ? "CANFD" : "CAN2.0");
@@ -794,15 +731,9 @@ int main(int argc, const char * argv[]) {
         }
     }
     /* - initialize interface */
-#if (1)
     fprintf(stdout, "Hardware=%s...", channel.m_szDeviceName);
     fflush (stdout);
     retVal = canDriver.InitializeChannel(channel.m_nChannelNo, opMode);
-#else
-    fprintf(stdout, "Hardware=%s...", CCanDriver::m_CanDevices[channel].name);
-    fflush (stdout);
-    retVal = canDriver.InitializeChannel(CCanDriver::m_CanDevices[channel].adapter, opMode);
-#endif
     if (retVal != CCanApi::NoError) {
         fprintf(stdout, "FAILED!\n");
         fprintf(stderr, "+++ error: CAN Controller could not be initialized (%i)", retVal);
@@ -844,13 +775,13 @@ int main(int argc, const char * argv[]) {
     /* - do your job well: */
     switch (mode) {
     case TxMODE:    /* transmitter test (duration) */
-        (void)canDriver.TransmitterTest((time_t)txtime, opMode, (uint32_t)id, (uint8_t)dlc, (uint32_t)delay, (uint64_t)number);
+        (void)canDriver.TransmitterTest((time_t)txtime, opMode, (uint32_t)can_id, (uint8_t)can_dlc, (uint32_t)delay, (uint64_t)number);
         break;
     case TxFRAMES:  /* transmitter test (frames) */
-        (void)canDriver.TransmitterTest((uint64_t)txframes, opMode, false, (uint32_t)id, (uint8_t)dlc, (uint32_t)delay, (uint64_t)number);
+        (void)canDriver.TransmitterTest((uint64_t)txframes, opMode, false, (uint32_t)can_id, (uint8_t)can_dlc, (uint32_t)delay, (uint64_t)number);
         break;
     case TxRANDOM:  /* transmitter test (random) */
-        (void)canDriver.TransmitterTest((uint64_t)txframes, opMode, true, (uint32_t)id, (uint8_t)dlc, (uint32_t)delay, (uint64_t)number);
+        (void)canDriver.TransmitterTest((uint64_t)txframes, opMode, true, (uint32_t)can_id, (uint8_t)can_dlc, (uint32_t)delay, (uint64_t)number);
         break;
     default:        /* receiver test (abort with Ctrl+C) */
         (void)canDriver.ReceiverTest((bool)n, (uint64_t)number, (bool)stop_on_error);
