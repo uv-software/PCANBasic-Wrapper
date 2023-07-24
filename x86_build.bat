@@ -49,7 +49,9 @@ copy /Y .\Sources\PeakCAN*.h %INC%
 copy /Y .\Sources\CANAPI\CANAPI.h %INC%
 copy /Y .\Sources\CANAPI\CANAPI_Types.h %INC%
 copy /Y .\Sources\CANAPI\CANAPI_Defines.h %INC%
+copy /Y .\Sources\CANAPI\CANBTR_Defaults.h %INC%
 copy /Y .\Sources\CANAPI\can_api.h %INC%
+copy /Y .\Sources\CANAPI\can_btr.h %INC%
 
 call msbuild.exe .\Utilities\can_moni\can_moni.vcxproj /t:Clean;Build /p:"Configuration=Release";"Platform=Win32"
 if errorlevel 1 goto end

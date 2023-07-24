@@ -49,9 +49,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces
  *
- *  @author      $Author: makemake $
+ *  @author      $Author: eris $
  *
- *  @version     $Rev: 1086 $
+ *  @version     $Rev: 1090 $
  *
  *  @defgroup    can_api CAN Interface API, Version 3
  *  @{
@@ -72,6 +72,9 @@ extern "C" {
 /*  -----------  options  ------------------------------------------------
  */
 
+/** @name  Compiler Switches
+ *  @brief Options for conditional compilation.
+ *  @{ */
 /** @note  Set define OPTION_CANAPI_LIBRARY to a non-zero value to compile
  *         the master loader library (e.g. in the build environment). Or
  *         optionally set define OPTION_CANAPI_DRIVER to a non-zero value
@@ -84,6 +87,9 @@ extern "C" {
  *         zero to compile your program with the CAN API source files or to
  *         link your program with the static library at compile-time.
  */
+#ifndef OPTION_DISABLED
+#define OPTION_DISABLED  0  /**< if a define is not defined, it is automatically set to 0 */
+#endif
 #if (CAN_API_SPEC != 0x300)
 #error Requires version 3.0 of CANAPI_Types.h
 #endif
@@ -99,6 +105,7 @@ extern "C" {
 #else
 #define CANAPI  extern
 #endif
+/** @} */
 
 /*  -----------  defines  ------------------------------------------------
  */

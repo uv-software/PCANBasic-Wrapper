@@ -53,7 +53,7 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    99
+#define VERSION_PATCH    98
 #else
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    2
@@ -86,6 +86,7 @@ static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Versi
 #endif
 #include "can_defs.h"
 #include "can_api.h"
+#include "can_btr.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -99,13 +100,8 @@ static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Versi
 #include "PCBUSB.h"
 #endif
 
-
 /*  -----------  options  ------------------------------------------------
  */
-
-#if (OPTION_CAN_2_0_ONLY != 0)
-#error Compilation with legacy CAN 2.0 frame format!
-#endif
 
 #if (OPTION_CANAPI_PCBUSB_DYLIB != 0)
 __attribute__((constructor))
@@ -121,7 +117,6 @@ static void _finalizer() {
 #define EXPORT
 #endif
 
-
 /*  -----------  defines  ------------------------------------------------
  */
 
@@ -133,7 +128,7 @@ static void _finalizer() {
 #ifndef DLC2LEN
 #define DLC2LEN(x)              dlc_table[(x) & 0xF]
 #endif
-#ifdef  OPTION_PCAN_CiA_BIT_TIMING
+#if (OPTION_PCAN_BIT_TIMING == OPTION_DISABLED)
 #undef  PCAN_BAUD_100K
 #define PCAN_BAUD_100K          0x441Cu
 #undef  PCAN_BAUD_50K
@@ -170,6 +165,11 @@ typedef struct {                        // PCAN interface:
     can_mode_t mode;                    //   operation mode of the CAN channel
     can_status_t status;                //   8-bit status register
     can_counter_t counters;             //   statistical counters
+#if (0)
+    // TODO: ???
+    bool has_data;
+    bool has_sam;
+#endif
 }   can_interface_t;
 
 
@@ -929,8 +929,6 @@ int can_bitrate(int handle, can_bitrate_t *bitrate, can_speed_t *speed)
     if (speed) {
         if ((rc = calc_speed(&temporary, speed, 0)) != CANERR_NOERROR)
             return rc;
-        speed->nominal.fdoe = can[handle].mode.fdoe;
-        speed->data.brse = can[handle].mode.brse;
     }
     if (!can[handle].status.can_stopped)
         rc = CANERR_NOERROR;
@@ -960,7 +958,7 @@ EXPORT
 char *can_hardware(int handle)
 {
     static char hardware[256] = "";     // hardware version
-    char  str[256], *ptr;               // info string
+    char  str[256] = "", * ptr;         // info string
     DWORD dev = 0x0000UL;               // device number
 
     if (!init)                          // must be initialized
@@ -991,8 +989,8 @@ EXPORT
 char *can_firmware(int handle)
 {
     static char firmware[256] = "";     // firmware version
-    char  str[256], *ptr;               // info string
-    char  ver[256];                     // version
+    char  str[256] = "", * ptr;         // info string
+    char  ver[256] = "";                // version
 
     if (!init)                          // must be initialized
         return NULL;
@@ -1098,8 +1096,6 @@ static int map_index2bitrate(int index, can_bitrate_t *bitrate)
 {
     TPCANBaudrate btr0btr1 = 0x0000u;
 
-    assert(bitrate);
-
     switch (index) {
     case CANBTR_INDEX_1M: btr0btr1 = PCAN_BAUD_1M; break;
     case CANBTR_INDEX_800K: btr0btr1 = PCAN_BAUD_800K; break;
@@ -1110,13 +1106,16 @@ static int map_index2bitrate(int index, can_bitrate_t *bitrate)
     case CANBTR_INDEX_50K: btr0btr1 = PCAN_BAUD_50K; break;
     case CANBTR_INDEX_20K: btr0btr1 = PCAN_BAUD_20K; break;
     case CANBTR_INDEX_10K: btr0btr1 = PCAN_BAUD_10K; break;
-    /*default: return CANERR_BAUDRATE;  // take it easy! */
+    return CANERR_BAUDRATE;
     }
     return map_register2bitrate(btr0btr1, bitrate);
 }
 
 static int map_bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr0btr1)
 {
+#if (1)
+    return btr_bitrate2sja1000(bitrate, (btr_sja1000_t*)btr0btr1);  // note: 16-bit register
+#else
     assert(bitrate);
     assert(btr0btr1);
 
@@ -1141,10 +1140,14 @@ static int map_bitrate2register(const can_bitrate_t *bitrate, TPCANBaudrate *btr
                  (((TPCANBaudrate)(bitrate->btr.nominal.tseg2 - 1u) & 0x0007u) << 4) | \
                  (((TPCANBaudrate)(bitrate->btr.nominal.tseg1 - 1u) & 0x000Fu) << 0));
     return CANERR_NOERROR;
+#endif
 }
 
 static int map_register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bitrate)
 {
+#if (1)
+    return btr_sja10002bitrate((btr_sja1000_t)btr0btr1, bitrate);  // note: 16-bit register
+#else
     assert(bitrate);
 
     bitrate->btr.frequency = (int32_t)CANBTR_FREQ_SJA1000; // SJA1000 @ 8MHz
@@ -1158,10 +1161,14 @@ static int map_register2bitrate(const TPCANBaudrate btr0btr1, can_bitrate_t *bit
     bitrate->btr.data.tseg2 = 0u;
     bitrate->btr.data.sjw = 0u;
     return CANERR_NOERROR;
+#endif
 }
 
 static int map_bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD string, int brse)
 {
+#if (1)
+    return btr_bitrate2string(bitrate, (bool)brse, (bool)!brse, (btr_string_t)string, 256); // FIXME: size!
+#else
     assert(bitrate);
     assert(string);
 
@@ -1214,10 +1221,15 @@ static int map_bitrate2string(const can_bitrate_t *bitrate, TPCANBitrateFD strin
             return CANERR_BAUDRATE;
     }
     return CANERR_NOERROR;
+#endif
 }
 
 static int map_string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrate, int brse)
 {
+#if (1)
+    bool data, sam;  // note: these indicators will be igored
+    return btr_string2bitrate((btr_string_t)string, bitrate, &data, &sam);
+#else
     long unsigned freq = 0;
     int unsigned nom_brp = 0, nom_tseg1 = 0, nom_tseg2 = 0, nom_sjw = 0/*, nom_sam = 0*/;
     int unsigned data_brp = 0, data_tseg1 = 0, data_tseg2 = 0, data_sjw = 0/*, data_ssp_offset = 0*/;
@@ -1249,6 +1261,7 @@ static int map_string2bitrate(const TPCANBitrateFD string, can_bitrate_t *bitrat
         bitrate->btr.data.sjw = (uint16_t)0;
     }
     return CANERR_NOERROR;
+#endif
 }
 
 /*  - - - - - -  CAN API V3 properties  - - - - - - - - - - - - - - - - -
@@ -1613,6 +1626,10 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
  */
 static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify)
 {
+#if (1)
+    return btr_bitrate2speed(bitrate, speed);
+    (void)modify;
+#else
     can_bitrate_t temporary;            // bit-rate settings
     int rc;
 
@@ -1678,6 +1695,7 @@ static int calc_speed(can_bitrate_t *bitrate, can_speed_t *speed, int modify)
         speed->data.samplepoint = 0.0;
     }
     return CANERR_NOERROR;
+#endif
 }
 
 /*  -----------  revision control  ---------------------------------------

@@ -49,9 +49,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces - Data Types and Defines
  *
- *  @author      $Author: makemake $
+ *  @author      $Author: haumea $
  *
- *  @version     $Rev: 1087 $
+ *  @version     $Rev: 1096 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -75,6 +75,9 @@ extern "C" {
 /*  -----------  options  ------------------------------------------------
  */
 
+/** @name  Compiler Switches
+ *  @brief Options for conditional compilation.
+ *  @{ */
 /** @note  Set define OPTION_CANAPI_LIBRARY to a non-zero value to compile
  *         the master loader library (e.g. in the build environment). Or
  *         optionally set define OPTION_CANAPI_DRIVER to a non-zero value
@@ -83,13 +86,17 @@ extern "C" {
 /** @note  Set define OPTION_CAN_2_0_ONLY to a non-zero value to compile
  *         with CAN 2.0 frame format only (e.g. in the build environment).
  */
-#if (OPTION_CAN_2_0_ONLY != 0)
+#ifndef OPTION_DISABLED
+#define OPTION_DISABLED  0  /**< if a define is not defined, it is automatically set to 0 */
+#endif
+#if (OPTION_CAN_2_0_ONLY != OPTION_DISABLED)
 #ifdef _MSC_VER
-#pragma message ( "Compilation with with legacy CAN 2.0 frame format!" )
+#pragma message ( "Compilation with legacy CAN 2.0 frame format!" )
 #else
-#warning Compilation with with legacy CAN 2.0 frame format!
+#warning Compilation with legacy CAN 2.0 frame format!
 #endif
 #endif
+/** @} */
 
 /*  -----------  defines  ------------------------------------------------
  */
@@ -507,14 +514,14 @@ typedef union can_bitrate_t_ {
 typedef struct can_speed_t_ {
     struct {                            /*   nominal bus speed: */
 #if (OPTION_CAN_2_0_ONLY == 0)
-        bool  fdoe;                     /**<   CAN FD operation enabled */
+        bool  reserved;                 /**<   CAN FD operation enabled */
 #endif
         float speed;                    /**<   bus speed in [Bit/s] */
         float samplepoint;              /**<   sample point in [percent] */
     } nominal;                          /**< nominal bus speed */
 #if (OPTION_CAN_2_0_ONLY == 0)
     struct {                            /*   data bus speed: */
-        bool  brse;                     /**<   bit-rate switch enabled */
+        bool  reserved;                 /**<   bit-rate switch enabled */
         float speed;                    /**<   bus speed in [Bit/s] */
         float samplepoint;              /**<   sample point in [percent] */
     } data;                             /**< data bus speed */

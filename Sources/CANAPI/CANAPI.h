@@ -75,7 +75,7 @@
 ///
 /// \author      $Author: makemake $
 //
-/// \version     $Rev: 1086 $
+/// \version     $Rev: 1092 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -441,8 +441,8 @@ public:
 /// \{
 public:
     static CANAPI_Return_t MapIndex2Bitrate(int32_t index, CANAPI_Bitrate_t &bitrate);
-    static CANAPI_Return_t MapString2Bitrate(const char *string, CANAPI_Bitrate_t &bitrate);
-    static CANAPI_Return_t MapBitrate2String(CANAPI_Bitrate_t bitrate, char *string, size_t length);
+    static CANAPI_Return_t MapString2Bitrate(const char *string, CANAPI_Bitrate_t &bitrate, bool &data, bool &sam);
+    static CANAPI_Return_t MapBitrate2String(CANAPI_Bitrate_t bitrate, char *string, size_t length, bool data = false, bool sam = false);
     static CANAPI_Return_t MapBitrate2Speed(CANAPI_Bitrate_t bitrate, CANAPI_BusSpeed_t &speed);
 /// \}
 
@@ -479,4 +479,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 1086 2023-07-06 17:40:06Z makemake $  Copyright (c) UV Software //
+// $Id: CANAPI.h 1092 2023-07-23 15:29:40Z makemake $  Copyright (c) UV Software //

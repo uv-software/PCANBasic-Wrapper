@@ -2,7 +2,7 @@
 /*
  *  CAN Interface API, Version 3 (PEAK PCAN Interface)
  *
- *  Copyright (C) 2005-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (C) 2005-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
@@ -65,8 +65,32 @@ extern "C" {
 /*  -----------  options  ------------------------------------------------
  */
 
-#define OPTION_PCAN_CiA_BIT_TIMING      /* CiA bit-timing (from CANopen spec.) */
-
+/** @name  Compiler Switches
+ *  @brief Options for conditional compilation.
+ *  @{ */
+/** @note  Set define OPTION_CAN_2_0_ONLY to a non-zero value to compile
+ *         with CAN 2.0 frame format only (e.g. in the build environment).
+ */
+/** @note  Set define OPTION_PCAN_BIT_TIMING to a non-zero value to compile
+ *         with non CiA bit-timing (e.g. in the build environment).
+ */
+#ifndef OPTION_DISABLED
+#define OPTION_DISABLED  0  /**< if a define is not defined, it is automatically set to 0 */
+#endif
+#if (OPTION_CAN_2_0_ONLY != OPTION_DISABLED)
+#error Compilation with legacy CAN 2.0 frame format!
+#endif
+#ifndef OPTION_PCAN_BIT_TIMING
+#define OPTION_PCAN_BIT_TIMING OPTION_DISABLED
+#endif
+#if (OPTION_PCAN_BIT_TIMING != OPTION_DISABLED)
+#ifdef _MSC_VER
+#pragma message ( "Compilation with non CiA bit-timming!" )
+#else
+#warning Compilation with non CiA bit-timming!
+#endif
+#endif
+/** @} */
 
 /*  -----------  defines  ------------------------------------------------
  */

@@ -29,10 +29,12 @@
     <ClInclude Include="..\Sources\CANAPI\CANAPI.h" />
     <ClInclude Include="..\Sources\CANAPI\CANAPI_Defines.h" />
     <ClInclude Include="..\Sources\CANAPI\CANAPI_Types.h" />
+    <ClInclude Include="..\Sources\CANAPI\CANBTR_Defaults.h" />
     <ClInclude Include="..\Sources\CANAPI\can_api.h" />
     <ClInclude Include="..\Sources\CANAPI\can_btr.h" />
     <ClInclude Include="..\Sources\PeakCAN.h" />
     <ClInclude Include="..\Sources\PCANBasic\PCANBasic.h" />
+    <ClInclude Include="..\Sources\PeakCAN_Defaults.h" />
     <ClInclude Include="..\Sources\PeakCAN_Defines.h" />
     <ClInclude Include="..\Sources\Wrapper\can_defs.h" />
   </ItemGroup>
