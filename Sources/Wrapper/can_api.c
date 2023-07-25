@@ -492,27 +492,39 @@ int can_start(int handle, const can_bitrate_t *bitrate)
     if (!can[handle].status.can_stopped) // must be stopped!
         return CANERR_ONLINE;
 
-    if (bitrate->index <= 0) {          // btr0btr1 from index
+    if (bitrate->index <= 0) {          // btr0btr1 value from index:
         switch (bitrate->index) {
-        case CANBTR_INDEX_1M: btr0btr1 = PCAN_BAUD_1M; break;
-        case CANBTR_INDEX_800K: btr0btr1 = PCAN_BAUD_800K; break;
-        case CANBTR_INDEX_500K: btr0btr1 = PCAN_BAUD_500K; break;
-        case CANBTR_INDEX_250K: btr0btr1 = PCAN_BAUD_250K; break;
-        case CANBTR_INDEX_125K: btr0btr1 = PCAN_BAUD_125K; break;
-        case CANBTR_INDEX_100K: btr0btr1 = PCAN_BAUD_100K; break;
-        case CANBTR_INDEX_50K: btr0btr1 = PCAN_BAUD_50K; break;
-        case CANBTR_INDEX_20K: btr0btr1 = PCAN_BAUD_20K; break;
-        case CANBTR_INDEX_10K: btr0btr1 = PCAN_BAUD_10K; break;
-        default: return CANERR_BAUDRATE;
+            case CANBTR_INDEX_1M: btr0btr1 = PCAN_BAUD_1M; break;
+            case CANBTR_INDEX_800K: btr0btr1 = PCAN_BAUD_800K; break;
+            case CANBTR_INDEX_500K: btr0btr1 = PCAN_BAUD_500K; break;
+            case CANBTR_INDEX_250K: btr0btr1 = PCAN_BAUD_250K; break;
+            case CANBTR_INDEX_125K: btr0btr1 = PCAN_BAUD_125K; break;
+            case CANBTR_INDEX_100K: btr0btr1 = PCAN_BAUD_100K; break;
+            case CANBTR_INDEX_50K: btr0btr1 = PCAN_BAUD_50K; break;
+            case CANBTR_INDEX_20K: btr0btr1 = PCAN_BAUD_20K; break;
+            case CANBTR_INDEX_10K: btr0btr1 = PCAN_BAUD_10K; break;
+            default: return CANERR_BAUDRATE;
         }
-        if (can[handle].mode.fdoe)      //   btr0btr1 not in CAN FD
+        if (can[handle].mode.fdoe)      // note: btr0btr1 not allowed in CAN FD
             return CANERR_BAUDRATE;
     }
-    else if (!can[handle].mode.fdoe) {  // btr0btr1 for CAN 2.0
+    else if (!can[handle].mode.fdoe) {  // a btr0btr1 value for CAN 2.0:
+        /* note: clock and ranges are checkes by the converter */
         if (btr_bitrate2sja1000(bitrate, &btr0btr1) != CANERR_NOERROR)
             return CANERR_BAUDRATE;
     }
-    else {                              // a string for CAN FD
+    else {                              // a bit-rate string for CAN FD:
+        switch (bitrate->btr.frequency) {
+            case BTR_FREQ_80MHz: break;
+            case BTR_FREQ_60MHz: break;
+            case BTR_FREQ_40MHz: break;
+            case BTR_FREQ_30MHz: break;
+            case BTR_FREQ_24MHz: break;
+            case BTR_FREQ_20MHz: break;
+            default: return CANERR_BAUDRATE;
+        }
+        if (btr_check_bitrate(bitrate, can[handle].mode.fdoe, can[handle].mode.brse) != CANERR_NOERROR)
+            return CANERR_BAUDRATE;
         if (btr_bitrate2string(bitrate, can[handle].mode.brse, false, string, PCAN_MAX_BUFFER_SIZE) != CANERR_NOERROR)
             return CANERR_BAUDRATE;
     }
@@ -580,7 +592,7 @@ int can_reset(int handle)
     TPCANStatus rc;                     // return value
     DWORD value;                        // parameter value
 
-    if (!init)                          // must be initialized!
+    if (!init)                          // must be initialized
         return CANERR_NOTINIT;
     if (!IS_HANDLE_VALID(handle))       // must be a valid handle
         return CANERR_HANDLE;
@@ -945,7 +957,7 @@ EXPORT
 char *can_hardware(int handle)
 {
     static char hardware[256] = "";     // hardware version
-    char  str[256] = "", * ptr;         // info string
+    char  str[256] = "", *ptr;          // info string
     DWORD dev = 0x0000UL;               // device number
 
     if (!init)                          // must be initialized
@@ -976,7 +988,7 @@ EXPORT
 char *can_firmware(int handle)
 {
     static char firmware[256] = "";     // firmware version
-    char  str[256] = "", * ptr;         // info string
+    char  str[256] = "", *ptr;          // info string
     char  ver[256] = "";                // version
 
     if (!init)                          // must be initialized
@@ -1059,7 +1071,7 @@ static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability)
     capability->byte = 0x00U;
 
     if ((sts = CAN_GetValue((TPCANHandle)board, PCAN_CHANNEL_FEATURES,
-                          (void*)&features, sizeof(features))) != PCAN_ERROR_OK)
+                            (void*)&features, sizeof(features))) != PCAN_ERROR_OK)
         return sts;
 
     capability->fdoe = (features & FEATURE_FD_CAPABLE) ? 1 : 0;
