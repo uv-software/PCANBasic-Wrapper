@@ -49,6 +49,7 @@
 #define PEAKCAN_H_INCLUDED
 
 #include "PeakCAN_Defines.h"
+#include "PeakCAN_Defaults.h"
 #include "CANAPI.h"
 
 /// \name   PCAN
