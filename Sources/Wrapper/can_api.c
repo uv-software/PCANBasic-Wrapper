@@ -53,7 +53,7 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    98
+#define VERSION_PATCH    99
 #else
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    2
@@ -148,11 +148,17 @@ static void _finalizer() {
 /*  -----------  types  --------------------------------------------------
  */
 
-typedef struct {                        // frame conters:
+typedef struct {                        // frame counters:
     uint64_t tx;                        //   number of transmitted CAN frames
     uint64_t rx;                        //   number of received CAN frames
     uint64_t err;                       //   number of receiced error frames
 }   can_counter_t;
+
+typedef struct {                        // error code capture:
+    uint8_t lec;                        //   last error code
+    uint8_t rx_err;                     //   receive error counter
+    uint8_t tx_err;                     //   transmit error counter
+}   can_error_t;
 
 typedef struct {                        // PCAN interface:
     TPCANHandle board;                  //   board hardware channel handle
@@ -164,6 +170,7 @@ typedef struct {                        // PCAN interface:
 #endif
     can_mode_t mode;                    //   operation mode of the CAN channel
     can_status_t status;                //   8-bit status register
+    can_error_t error;                  //   error code capture
     can_counter_t counters;             //   statistical counters
 }   can_interface_t;
 
@@ -228,14 +235,17 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
     if (!init) {                        // when not init before:
         for (i = 0; i < PCAN_MAX_HANDLES; i++) {
             can[i].board = PCAN_NONEBUS;
-            can[i].brd_type = 0;
-            can[i].brd_port = 0;
-            can[i].brd_irq = 0;
+            can[i].brd_type = 0u;
+            can[i].brd_port = 0u;
+            can[i].brd_irq = 0u;
 #if defined(_WIN32) || defined(_WIN64)
             can[i].event = NULL;
 #endif
             can[i].mode.byte = CANMODE_DEFAULT;
             can[i].status.byte = CANSTAT_RESET;
+            can[i].error.lec = 0x00u;
+            can[i].error.rx_err = 0u;
+            can[i].error.tx_err = 0u;
             can[i].counters.tx = 0ull;
             can[i].counters.rx = 0ull;
             can[i].counters.err = 0ull;
@@ -301,14 +311,17 @@ int can_init(int32_t board, uint8_t mode, const void *param)
     if (!init) {                        // when not init before:
         for (i = 0; i < PCAN_MAX_HANDLES; i++) {
             can[i].board = PCAN_NONEBUS;
-            can[i].brd_type = 0;
-            can[i].brd_port = 0;
-            can[i].brd_irq = 0;
+            can[i].brd_type = 0u;
+            can[i].brd_port = 0u;
+            can[i].brd_irq = 0u;
 #if defined(_WIN32) || defined(_WIN64)
             can[i].event = NULL;
 #endif
             can[i].mode.byte = CANMODE_DEFAULT;
             can[i].status.byte = CANSTAT_RESET;
+            can[i].error.lec = 0x00u;
+            can[i].error.rx_err = 0u;
+            can[i].error.tx_err = 0u;
             can[i].counters.tx = 0ull;
             can[i].counters.rx = 0ull;
             can[i].counters.err = 0ull;
@@ -577,7 +590,10 @@ int can_start(int handle, const can_bitrate_t *bitrate)
         return pcan_error(rc);
     }
 #endif
-    can[handle].status.byte = 0x00;     // clear old status bits and counters
+    can[handle].status.byte = 0x00u;    // clear old status, errors and counters
+    can[handle].error.lec = 0x00u;
+    can[handle].error.rx_err = 0u;
+    can[handle].error.tx_err = 0u;
     can[handle].counters.tx = 0ull;
     can[handle].counters.rx = 0ull;
     can[handle].counters.err = 0ull;
@@ -763,73 +779,126 @@ repeat:
         return CANERR_RX_EMPTY;         //   receiver empty
 #endif
     }
-    /*if (rc != PCAN_ERROR_OK) { // Is this a good idea? */
-    if ((rc & ~(PCAN_ERROR_ANYBUSERR |
-               PCAN_ERROR_OVERRUN | PCAN_ERROR_QOVERRUN |
-               PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL))) {
-        return pcan_error(rc);          //   something's wrong
+    if ((rc & ~PCAN_ERROR_ANYBUSERR)) { // something went wrong
+        can[handle].status.receiver_empty = 1;
+        return pcan_error(rc);
     }
     if (!can[handle].mode.fdoe) {       // CAN 2.0 message:
-        if ((can_msg.MSGTYPE & PCAN_MESSAGE_STATUS)) {
-            // TODO: encode status message (status)
-            can[handle].status.bus_off = (can_msg.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
-            can[handle].status.bus_error = (can_msg.DATA[3] & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
-            can[handle].status.warning_level = (can_msg.DATA[3] & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
-            can[handle].status.message_lost |= (can_msg.DATA[3] & PCAN_ERROR_OVERRUN) != PCAN_ERROR_OK;
-            can[handle].status.receiver_empty = 1;
-            return CANERR_RX_EMPTY;     //   receiver empty
-        }
-        if ((can_msg.MSGTYPE & PCAN_MESSAGE_ERRFRAME))  {
-            // TODO: encode status message (error frame)
-            can[handle].status.receiver_empty = 1;
-            can[handle].counters.err++;
-            return CANERR_ERR_FRAME;    //   error frame received
-        }
         if ((can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) && can[handle].mode.nxtd)
             goto repeat;                //   refuse extended frames
         if ((can_msg.MSGTYPE & PCAN_MESSAGE_RTR) && can[handle].mode.nrtr)
             goto repeat;                //   refuse remote frames
-        msg->id = (int32_t)can_msg.ID;
-        msg->xtd = (can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
-        msg->rtr = (can_msg.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
-        msg->fdf = 0;
-        msg->brs = 0;
-        msg->esi = 0;
-        msg->sts = 0;
-        msg->dlc = (uint8_t)can_msg.LEN;
-        memcpy(msg->data, can_msg.DATA, CAN_MAX_LEN);
+        if ((can_msg.MSGTYPE & PCAN_MESSAGE_STATUS) && !can[handle].mode.err)
+            goto repeat;                //   refuse status frames
+        if ((can_msg.MSGTYPE & PCAN_MESSAGE_ERRFRAME) && !can[handle].mode.err)
+            goto repeat;                //   refuse error frames
+        if ((can_msg.MSGTYPE & PCAN_MESSAGE_STATUS)) {
+            can[handle].status.bus_off = ((can_msg.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK) ? 1 : 0;
+            can[handle].status.warning_level = ((can_msg.DATA[3] & PCAN_ERROR_BUSHEAVY) != PCAN_ERROR_OK) ? 1 : 0;
+            /* status message: ID=000h, DLC=4 (status, lec, rx errors, tx errors) */
+            msg->id = (int32_t)0;
+            msg->xtd = 0;
+            msg->rtr = 0;
+            msg->fdf = 0;
+            msg->brs = 0;
+            msg->esi = 0;
+            msg->sts = 1;
+            msg->dlc = 4u;
+            msg->data[0] = can[handle].status.byte;
+            msg->data[1] = can[handle].error.lec;
+            msg->data[2] = can[handle].error.rx_err;
+            msg->data[4] = can[handle].error.tx_err;
+        }
+        else if ((can_msg.MSGTYPE & PCAN_MESSAGE_ERRFRAME))  {
+            can[handle].error.lec = (uint8_t)can_msg.ID;  // TODO: 82527 encoding
+            can[handle].error.rx_err = can_msg.DATA[2];
+            can[handle].error.tx_err = can_msg.DATA[3];
+            can[handle].status.bus_error = can[handle].error.lec ? 1 : 0;
+            /* status message: ID=000h, DLC=4 (status, lec, rx errors, tx errors) */
+            msg->id = (int32_t)0;
+            msg->xtd = 0;
+            msg->rtr = 0;
+            msg->fdf = 0;
+            msg->brs = 0;
+            msg->esi = 0;
+            msg->sts = 1;
+            msg->dlc = 4u;
+            msg->data[0] = can[handle].status.byte;
+            msg->data[1] = can[handle].error.lec;
+            msg->data[2] = can[handle].error.rx_err;
+            msg->data[4] = can[handle].error.tx_err;
+        }
+        else {
+            msg->id = (int32_t)can_msg.ID;
+            msg->xtd = (can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
+            msg->rtr = (can_msg.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
+            msg->fdf = 0;
+            msg->brs = 0;
+            msg->esi = 0;
+            msg->sts = 0;
+            msg->dlc = (uint8_t)can_msg.LEN;
+            memcpy(msg->data, can_msg.DATA, CAN_MAX_LEN);
+        }
         msec = ((uint64_t)timestamp.millis_overflow << 32) + (uint64_t)timestamp.millis;
         msg->timestamp.tv_sec = (time_t)(msec / 1000ull);
         msg->timestamp.tv_nsec = ((((long)(msec % 1000ull)) * 1000L) + (long)timestamp.micros) * (long)1000;
     }
     else {                              // CAN FD message:
-        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_STATUS)) {
-            can[handle].status.bus_off = (can_msg_fd.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
-            can[handle].status.bus_error = (can_msg_fd.DATA[3] & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
-            can[handle].status.warning_level = (can_msg_fd.DATA[3] & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
-            can[handle].status.message_lost |= (can_msg_fd.DATA[3] & PCAN_ERROR_OVERRUN) != PCAN_ERROR_OK;
-            can[handle].status.receiver_empty = 1;
-            return CANERR_RX_EMPTY;     //   receiver empty
-        }
-        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_ERRFRAME)) {
-            // TODO: encode status message (error frame)
-            can[handle].status.receiver_empty = 1;
-            can[handle].counters.err++;
-            return CANERR_ERR_FRAME;    //   error frame received
-        }
-        if ((can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) && can[handle].mode.nxtd)
+        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED) && can[handle].mode.nxtd)
             goto repeat;                //   refuse extended frames
-        if ((can_msg.MSGTYPE & PCAN_MESSAGE_RTR) && can[handle].mode.nrtr)
-            goto repeat;                //   refuse remote frames
-        msg->id = (int32_t)can_msg_fd.ID;
-        msg->xtd = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
-        msg->rtr = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
-        msg->fdf = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_FD) ? 1 : 0;
-        msg->brs = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_BRS) ? 1 : 0;
-        msg->esi = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_ESI) ? 1 : 0;
-        msg->sts = 0;
-        msg->dlc = (uint8_t)can_msg_fd.DLC;
-        memcpy(msg->data, can_msg_fd.DATA, CANFD_MAX_LEN);
+        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR) && can[handle].mode.nrtr)
+            goto repeat;                //   refuse remote frames (n/a w/ fdoe)
+        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_STATUS) && !can[handle].mode.err)
+            goto repeat;                //   refuse status frames
+        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_ERRFRAME) && !can[handle].mode.err)
+            goto repeat;                //   refuse error frames
+        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_STATUS)) {
+            can[handle].status.bus_off = ((can_msg_fd.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK) ? 1 : 0;
+            can[handle].status.warning_level = ((can_msg_fd.DATA[1] & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK) ? 1 : 0;
+            /* status message: ID=000h, DLC=4 (status, lec, rx errors, tx errors) */
+            msg->id = (int32_t)0;
+            msg->xtd = 0;
+            msg->rtr = 0;
+            msg->fdf = 0;
+            msg->brs = 0;
+            msg->esi = 0;
+            msg->sts = 1;
+            msg->dlc = 4u;
+            msg->data[0] = can[handle].status.byte;
+            msg->data[1] = can[handle].error.lec;
+            msg->data[2] = can[handle].error.rx_err;
+            msg->data[4] = can[handle].error.tx_err;
+        }
+        else if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_ERRFRAME)) {
+            can[handle].error.lec = (uint8_t)can_msg_fd.ID;  // TODO: 82527 encoding
+            can[handle].error.rx_err = can_msg_fd.DATA[2];
+            can[handle].error.tx_err = can_msg_fd.DATA[3];
+            can[handle].status.bus_error = can[handle].error.lec ? 1 : 0;
+            /* status message: ID=000h, DLC=4 (status, lec, rx errors, tx errors) */
+            msg->id = (int32_t)0;
+            msg->xtd = 0;
+            msg->rtr = 0;
+            msg->fdf = 0;
+            msg->brs = 0;
+            msg->esi = 0;
+            msg->sts = 1;
+            msg->dlc = 4u;
+            msg->data[0] = can[handle].status.byte;
+            msg->data[1] = can[handle].error.lec;
+            msg->data[2] = can[handle].error.rx_err;
+            msg->data[4] = can[handle].error.tx_err;
+        }
+        else {
+            msg->id = (int32_t)can_msg_fd.ID;
+            msg->xtd = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
+            msg->rtr = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
+            msg->fdf = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_FD) ? 1 : 0;
+            msg->brs = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_BRS) ? 1 : 0;
+            msg->esi = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_ESI) ? 1 : 0;
+            msg->sts = 0;
+            msg->dlc = (uint8_t)can_msg_fd.DLC;
+            memcpy(msg->data, can_msg_fd.DATA, CANFD_MAX_LEN);
+        }
         msg->timestamp.tv_sec = (time_t)(timestamp_fd / 1000000ull);
         msg->timestamp.tv_nsec = (long)(timestamp_fd % 1000000ull) * (long)1000;
     }
@@ -857,12 +926,12 @@ int can_status(int handle, uint8_t *status)
                    PCAN_ERROR_OVERRUN | PCAN_ERROR_QOVERRUN |
                    PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL)))
             return pcan_error(rc);
-        can[handle].status.bus_off = (rc & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK;
-        can[handle].status.bus_error = (rc & PCAN_ERROR_BUSPASSIVE) != PCAN_ERROR_OK;
-        can[handle].status.warning_level = (rc & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK;
-        can[handle].status.message_lost |= (rc & (PCAN_ERROR_OVERRUN | PCAN_ERROR_QOVERRUN)) != PCAN_ERROR_OK;
-        can[handle].status.transmitter_busy |= (rc & (PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL)) != PCAN_ERROR_OK;
-        // TODO: can[handle].status.queue_overrun = ...
+        can[handle].status.bus_off = ((rc & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK) ? 1 : 0;
+        can[handle].status.bus_error = can[handle].error.lec ? 1 : 0;  // last eror code from error code capture (ECC)
+        can[handle].status.warning_level = ((rc & (PCAN_ERROR_BUSWARNING/*PCAN_ERROR_BUSHEAVY*/)) != PCAN_ERROR_OK) ? 1 : 0;
+        can[handle].status.transmitter_busy |= ((rc & (PCAN_ERROR_XMTFULL | PCAN_ERROR_QXMTFULL)) != PCAN_ERROR_OK) ? 1 : 0;
+        can[handle].status.message_lost |= ((rc & PCAN_ERROR_OVERRUN) != PCAN_ERROR_OK) ? 1 : 0;
+        can[handle].status.queue_overrun |= ((rc & PCAN_ERROR_QOVERRUN) != PCAN_ERROR_OK) ? 1 : 0;
     }
     if (status)                         // parameter 'status' is optional
       *status = can[handle].status.byte;
