@@ -51,7 +51,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 1096 $
+ *  @version     $Rev: 1128 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -250,7 +250,7 @@ extern "C" {
 #define CANERR_LEC_BIT1           (-14) /**< LEC - recessive bit error */
 #define CANERR_LEC_BIT0           (-15) /**< LEC - dominant bit error */
 #define CANERR_LEC_CRC            (-16) /**< LEC - checksum error */
-#define CANERR_ERR_FRAME          (-19) /**< USR - error frame */
+#define CANERR_RESERVED1          (-19) /**< RIP - error frame */
 #define CANERR_TX_BUSY            (-20) /**< USR - transmitter busy */
 #define CANERR_RX_EMPTY           (-30) /**< USR - receiver empty */
 #define CANERR_QUE_OVR            (-40) /**< USR - queue overrun */

@@ -73,9 +73,9 @@
 ///              zero to compile your program with the CAN API source files or to
 ///              link your program with the static library at compile-time.
 ///
-/// \author      $Author: makemake $
+/// \author      $Author: haumea $
 //
-/// \version     $Rev: 1092 $
+/// \version     $Rev: 1128 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -153,7 +153,6 @@ public:
         ControllerOffline = CANERR_OFFLINE,  ///< not started
         ControllerOnline = CANERR_ONLINE,  ///< already started
         MessageLost = CANERR_MSG_LST,  ///< message lost
-        ErrorFrame = CANERR_ERR_FRAME,  ///< error frame
         TransmitterBusy = CANERR_TX_BUSY,  ///< transmitter busy
         ReceiverEmpty = CANERR_RX_EMPTY,  ///< receiver empty
         QueueOverrun = CANERR_QUE_OVR,  ///< queue overrun
@@ -479,4 +478,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 1092 2023-07-23 15:29:40Z makemake $  Copyright (c) UV Software //
+// $Id: CANAPI.h 1128 2023-08-05 11:08:16Z haumea $  Copyright (c) UV Software //
