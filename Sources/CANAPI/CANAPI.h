@@ -75,7 +75,7 @@
 ///
 /// \author      $Author: haumea $
 //
-/// \version     $Rev: 1128 $
+/// \version     $Rev: 1143 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -457,7 +457,7 @@ public:
             0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 8U, 8U, 8U, 8U, 8U, 8U, 8U
 #endif
         };
-        return dlc_table[dlc & 0xFU];
+        return dlc_table[(dlc < 16U) ? dlc : 15U];
     }
     static uint8_t Len2Dlc(uint8_t len) {
 #if (OPTION_CAN_2_0_ONLY == 0)
@@ -478,4 +478,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 1128 2023-08-05 11:08:16Z haumea $  Copyright (c) UV Software //
+// $Id: CANAPI.h 1143 2023-08-13 17:50:24Z haumea $  Copyright (c) UV Software //
