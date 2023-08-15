@@ -55,9 +55,9 @@
  *               |  SJW  |          BRP          |SAM|   TSEG2   |     TSEG1     |<br>
  *               +-7-+-6-+-5-+---+---+---+---+-0-+-7-+-6-+---+-4-+-3-+---+---+-0-+<br>
  *
- *  @author      $Author: makemake $
+ *  @author      $Author: haumea $
  *
- *  @version     $Rev: 1092 $
+ *  @version     $Rev: 1149 $
  *
  *  @addtogroup  can_btr
  *  @{
@@ -582,7 +582,10 @@ static int scan_bitrate(const btr_string_t string, btr_bitrate_t *bitrate, bool 
         if (!strlen(key) || !strlen(value))
             return BTRERR_BAUDRATE;
         // convert <value> = [0-9]+
+        errno = 0;
         number = strtol(value, NULL, 10);
+        if (errno != 0)  // ERANGE or EINVAL
+            return BTRERR_BAUDRATE;
         // f_clock: 1..INT32_MAX
         if (!strcmp(key, "f_clock")) {
             if ((0L <= number) && (number <= (long)INT32_MAX))
