@@ -57,7 +57,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 1149 $
+ *  @version     $Rev: 1155 $
  *
  *  @addtogroup  can_btr
  *  @{
@@ -272,7 +272,7 @@ int btr_compare_bitrates(const btr_bitrate_t *bitrate1, const btr_bitrate_t *bit
         if (data_speed1 != data_speed2)
             return (data_speed1 < data_speed2) ? -2 : +2;
         if (cmp_sp && (data_sp1 != data_sp2))
-            return (data_sp1 != data_sp2) ? -4 : +4;
+            return (data_sp1 < data_sp2) ? -4 : +4;
     }
 #endif
     /* if the bit-rates are equal return 1*/
