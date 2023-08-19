@@ -1379,9 +1379,9 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         }
         break;
     case CANPROP_GET_DEVICE_NAME:       // device name of the CAN interface (char[256])
-        if (nbyte <= CANPROP_MAX_BUFFER_SIZE) {
+        if ((nbyte >= MAX_LENGTH_HARDWARE_NAME) && (nbyte <= CANPROP_MAX_BUFFER_SIZE)) {
             if ((sts = CAN_GetValue(can[handle].board, (BYTE)PCAN_HARDWARE_NAME,
-                (void*)value, (DWORD)nbyte)) == PCAN_ERROR_OK)
+                (void*)value, (DWORD)MAX_LENGTH_HARDWARE_NAME)) == PCAN_ERROR_OK)
                 rc = CANERR_NOERROR;
             else
                 rc = pcan_error(sts);
