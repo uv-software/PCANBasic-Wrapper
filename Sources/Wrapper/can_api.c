@@ -785,20 +785,20 @@ repeat:
     }
     else if ((rc & ~PCAN_ERROR_ANYBUSERR) == PCAN_ERROR_QOVERRUN) {
         can[handle].status.queue_overrun = 1;
-        /* queue has overrun, but we have a message */
+        /* note: queue has overrun, but we have a message */
     }
     if (!can[handle].mode.fdoe) {       // CAN 2.0 message:
         if ((can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) && can[handle].mode.nxtd)
             goto repeat;                //   refuse extended frames
         if ((can_msg.MSGTYPE & PCAN_MESSAGE_RTR) && can[handle].mode.nrtr)
             goto repeat;                //   refuse remote frames
-        if ((can_msg.MSGTYPE & PCAN_MESSAGE_STATUS) && !can[handle].mode.err)
-            goto repeat;                //   refuse status frames
-        if ((can_msg.MSGTYPE & PCAN_MESSAGE_ERRFRAME) && !can[handle].mode.err)
-            goto repeat;                //   refuse error frames
         if ((can_msg.MSGTYPE & PCAN_MESSAGE_STATUS)) {
+            /* update status register from status frame */
             can[handle].status.bus_off = ((can_msg.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK) ? 1 : 0;
             can[handle].status.warning_level = ((can_msg.DATA[3] & PCAN_ERROR_BUSHEAVY) != PCAN_ERROR_OK) ? 1 : 0;
+            /* refuse status message if suppressed by user */
+            if (!can[handle].mode.err)
+                goto repeat;
             /* status message: ID=000h, DLC=4 (status, lec, rx errors, tx errors) */
             msg->id = (int32_t)0;
             msg->xtd = 0;
@@ -812,12 +812,18 @@ repeat:
             msg->data[1] = can[handle].error.lec;
             msg->data[2] = can[handle].error.rx_err;
             msg->data[4] = can[handle].error.tx_err;
+            /* update error counter */
+            can[handle].counters.err++;
         }
         else if ((can_msg.MSGTYPE & PCAN_MESSAGE_ERRFRAME))  {
+            /* update status register from error frame */
             can[handle].error.lec = (uint8_t)can_msg.ID;  // TODO: 82527 encoding
             can[handle].error.rx_err = can_msg.DATA[2];
             can[handle].error.tx_err = can_msg.DATA[3];
             can[handle].status.bus_error = can[handle].error.lec ? 1 : 0;
+            /* refuse status message if suppressed by user */
+            if (!can[handle].mode.err)
+                goto repeat;
             /* status message: ID=000h, DLC=4 (status, lec, rx errors, tx errors) */
             msg->id = (int32_t)0;
             msg->xtd = 0;
@@ -831,8 +837,11 @@ repeat:
             msg->data[1] = can[handle].error.lec;
             msg->data[2] = can[handle].error.rx_err;
             msg->data[4] = can[handle].error.tx_err;
+            /* update error counter */
+            can[handle].counters.err++;
         }
         else {
+            /* decode PEAK CAN 2.0 message */
             msg->id = (int32_t)can_msg.ID;
             msg->xtd = (can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
             msg->rtr = (can_msg.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
@@ -842,7 +851,10 @@ repeat:
             msg->sts = 0;
             msg->dlc = (uint8_t)can_msg.LEN;
             memcpy(msg->data, can_msg.DATA, CAN_MAX_LEN);
+            /* update message counter */
+            can[handle].counters.rx++;
         }
+        /* time-stamp in nanoseconds since start of Windows */
         msec = ((uint64_t)timestamp.millis_overflow << 32) + (uint64_t)timestamp.millis;
         msg->timestamp.tv_sec = (time_t)(msec / 1000ull);
         msg->timestamp.tv_nsec = ((((long)(msec % 1000ull)) * 1000L) + (long)timestamp.micros) * (long)1000;
@@ -852,13 +864,13 @@ repeat:
             goto repeat;                //   refuse extended frames
         if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR) && can[handle].mode.nrtr)
             goto repeat;                //   refuse remote frames (n/a w/ fdoe)
-        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_STATUS) && !can[handle].mode.err)
-            goto repeat;                //   refuse status frames
-        if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_ERRFRAME) && !can[handle].mode.err)
-            goto repeat;                //   refuse error frames
         if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_STATUS)) {
+            /* update status register from status frame */
             can[handle].status.bus_off = ((can_msg_fd.DATA[3] & PCAN_ERROR_BUSOFF) != PCAN_ERROR_OK) ? 1 : 0;
-            can[handle].status.warning_level = ((can_msg_fd.DATA[1] & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK) ? 1 : 0;
+            can[handle].status.warning_level = ((can_msg_fd.DATA[3] & PCAN_ERROR_BUSWARNING) != PCAN_ERROR_OK) ? 1 : 0;
+            /* refuse status message if suppressed by user */
+            if (!can[handle].mode.err)
+                goto repeat;
             /* status message: ID=000h, DLC=4 (status, lec, rx errors, tx errors) */
             msg->id = (int32_t)0;
             msg->xtd = 0;
@@ -872,12 +884,18 @@ repeat:
             msg->data[1] = can[handle].error.lec;
             msg->data[2] = can[handle].error.rx_err;
             msg->data[4] = can[handle].error.tx_err;
+            /* update error counter */
+            can[handle].counters.err++;
         }
         else if ((can_msg_fd.MSGTYPE & PCAN_MESSAGE_ERRFRAME)) {
+            /* update status register from error frame */
             can[handle].error.lec = (uint8_t)can_msg_fd.ID;  // TODO: 82527 encoding
             can[handle].error.rx_err = can_msg_fd.DATA[2];
             can[handle].error.tx_err = can_msg_fd.DATA[3];
             can[handle].status.bus_error = can[handle].error.lec ? 1 : 0;
+            /* refuse status message if suppressed by user */
+            if (!can[handle].mode.err)
+                goto repeat;
             /* status message: ID=000h, DLC=4 (status, lec, rx errors, tx errors) */
             msg->id = (int32_t)0;
             msg->xtd = 0;
@@ -891,8 +909,11 @@ repeat:
             msg->data[1] = can[handle].error.lec;
             msg->data[2] = can[handle].error.rx_err;
             msg->data[4] = can[handle].error.tx_err;
+            /* update error counter */
+            can[handle].counters.err++;
         }
         else {
+            /* decode PEAK CAN FD message */
             msg->id = (int32_t)can_msg_fd.ID;
             msg->xtd = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_EXTENDED) ? 1 : 0;
             msg->rtr = (can_msg_fd.MSGTYPE & PCAN_MESSAGE_RTR) ? 1 : 0;
@@ -902,12 +923,14 @@ repeat:
             msg->sts = 0;
             msg->dlc = (uint8_t)can_msg_fd.DLC;
             memcpy(msg->data, can_msg_fd.DATA, CANFD_MAX_LEN);
+            /* update message counter */
+            can[handle].counters.rx++;
         }
+        /* time-stamp in nanoseconds since start of Windows */
         msg->timestamp.tv_sec = (time_t)(timestamp_fd / 1000000ull);
         msg->timestamp.tv_nsec = (long)(timestamp_fd % 1000000ull) * (long)1000;
     }
     can[handle].status.receiver_empty = 0; // message read
-    can[handle].counters.rx++;
 
     return CANERR_NOERROR;
 }

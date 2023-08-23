@@ -554,8 +554,12 @@ retry_write:
                             message.fdf ? 'F' : ' ', message.brs ? 'B' : ' ', message.esi ? 'E' :' ', CCanApi::Dlc2Len(message.dlc));
                 for (uint8_t i = 0; i < CCanApi::Dlc2Len(message.dlc); i++)
                     fprintf(stdout, " %02x", message.data[i]);
-                if (message.sts)
+                if (message.sts) {
                     fprintf(stdout, " <<< status frame");
+                    if (myDriver.GetStatus(status) == CCanApi::NoError) {
+                        fprintf(stdout, " (0x%02X)", status.byte);
+                    }
+                }
                 fprintf(stdout, "\n");
             } else {
                 if (!(frames++ % 2048)) {
