@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for Peak-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2022   Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 # CAN API V3 for PCAN Interfaces
 
@@ -75,16 +75,16 @@ C:\Projects\CAN\Drivers\PeakCAN>build_no.bat
 ```
 Repeat this step after each `git commit`, `git pull`, `git clone`, etc.
 
-To build all 32-bit targets (x86) run the script `build_86.bat`.
+To build all 32-bit targets (x86) run the script `x86_build.bat`.
 ```
 C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
-C:\Projects\CAN\Drivers\PeakCAN>build_86.bat
+C:\Projects\CAN\Drivers\PeakCAN>x86_build.bat
 ```
 
-To build all 64-bit targets (x64) run the script `build_86.bat`.
+To build all 64-bit targets (x64) run the script `x64_build.bat`.
 ```
 C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
-C:\Projects\CAN\Drivers\PeakCAN>build_64.bat
+C:\Projects\CAN\Drivers\PeakCAN>x64_build.bat
 ```
 
 #### uvPeakCAN (DLL)
@@ -118,17 +118,17 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2019 (Version 16.11.17)
+- Microsoft Visual Studio Community 2022 (Version 17.7.2)
+
+### Required PCANBasic DLL
+
+- Version 4.5 or later _(Latest is Greatest!)_
 
 ### Tested CAN Hardware
 
 - PCAN-USB - single channel, CAN 2.0 (Peak´s item no.: IPEH-002021, IPEH-002021)
 - PCAN-USB FD - single channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004022)
 - PCAN-USB Pro FD - dual channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004061)
-
-### Required PCANBasic DLL
-
-- Version 4.5 or later _(Latest is Greatest!)_
 
 ## Known Bugs and Caveats
 
