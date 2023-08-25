@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Testcases">
+      <UniqueIdentifier>{a6df7116-6157-49ca-ae6b-9432f7ffd2e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CAN API V3">
+      <UniqueIdentifier>{75fd856d-46fb-4278-9ff6-3a710f026db8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Peak CAN">
+      <UniqueIdentifier>{94f930d4-9c1c-40b2-b62c-d6cbfba03941}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Sources\pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC00_SmokeTest.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Bitrates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Options.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Progress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Properties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC01_ProbeChannel.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC02_InitializeChannel.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC03_StartController.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC04_ReadMessage.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC05_WriteMessage.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC06_ResetController.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC08_TeardownChannel.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC09_GetStatus.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC11_GetBitrate.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC12_GetProperty.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TCx1_CallSequences.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TCx2_BitrateConverter.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Sources\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\CANAPI.h">
+      <Filter>Header Files\CAN API V3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\CANAPI_Defines.h">
+      <Filter>Header Files\CAN API V3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\CANAPI_Types.h">
+      <Filter>Header Files\CAN API V3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\CANBTR_Defaults.h">
+      <Filter>Header Files\CAN API V3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\PeakCAN.h">
+      <Filter>Header Files\Peak CAN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\PeakCAN_Defaults.h">
+      <Filter>Header Files\Peak CAN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\PeakCAN_Defines.h">
+      <Filter>Header Files\Peak CAN</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Bitrates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Progress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Properties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

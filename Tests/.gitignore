@@ -1,0 +1,11 @@
+.svn
+.vs
+x64
+x86
+Debug
+Release
+TestSpecs
+*.sln
+*.vcxproj.user
+Sources/anykey.*
+

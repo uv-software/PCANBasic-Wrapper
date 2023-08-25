@@ -43,6 +43,14 @@ Utilities/can_test/Debug
 Utilities/can_test/Release
 Utilities/can_test/*.sln
 Utilities/can_test/*.vcxproj.user
+Tests/.vs
+Tests/x64
+Tests/x86
+Tests/Debug
+Tests/Release
+Tests/*.sln
+Tests/*.vcxproj.user
+Tests/TestSpecs
 PeakCANBasic-cppcheck-build-dir
 artifacts
 Binaries
