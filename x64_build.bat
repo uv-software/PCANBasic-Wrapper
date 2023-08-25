@@ -62,7 +62,7 @@ if errorlevel 1 goto end
 echo Copying utilities...
 set BIN=".\Binaries"
 if not exist %BIN% mkdir %BIN%
-set BIN="%BIN%\x86"
+set BIN="%BIN%\x64"
 if not exist %BIN% mkdir %BIN%
 copy /Y .\Utilities\can_moni\x64\Release\can_moni.exe %BIN%
 copy /Y .\Utilities\can_test\x64\Release\can_test.exe %BIN%
