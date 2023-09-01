@@ -31,8 +31,8 @@ _All rights reserved._
   - `$(PROJROOT)\Sources\Wrapper\can_api.cpp`
   - `$(PROJROOT)\Libraries\CANAPI\Resource.rc`
   - `$(PROJROOT)\Libraries\PeakCAN\Resource.rc`
-  - `$(PROJROOT)\Utilities\can_moni\Sources\main.cpp`
-  - `$(PROJROOT)\Utilities\can_test\Sources\main.cpp`
+  - `$(PROJROOT)\Utilities\can_moni\Driver.h`
+  - `$(PROJROOT)\Utilities\can_test\Driver.h`
 
 ### Procedure
 

@@ -1,48 +1,53 @@
-__CAN Monitor for PEAK PCAN Interfaces, Version 0.4.5__ \
+__CAN Monitor for Peak-System PCAN Interfaces, Version 0.4.6__ \
 Copyright &copy; 2007,2017-2023 by Uwe Vogt, UV Software, Berlin
 
 ```
-Usage:
-  can_moni <interface>  [/Time=(ZERO|ABS|REL)]
-                        [/Id=(HEX|DEC|OCT)]
-                        [/Data=(HEX|DEC|OCT)]
-                        [/Ascii=(ON|OFF)]
-                        [/Wraparound=(No|8|10|16|32|64)]
-                        [/eXclude=[~]<id>[-<id>]{,<id>[-<id>]}]
-                        [/RTR=(Yes|No)] [/XTD=(Yes|No)]
-                        [/ERR=(No|Yes) | /ERROR-FRAMES]
-                        [/MONitor=(No|Yes) | /LISTEN-ONLY]
-                        [/Mode=(2.0|FDf[+BRS])] [/SHARED] [/Verbose]
-                        [/BauDrate=<baudrate> | /BitRate=<bitrate>]
-  can_moni (/TEST-BOARDS | /TEST)
-  can_moni (/LIST-BOARDS | /LIST)
-  can_moni (/HELP  | /?)
-  can_moni (/ABOUT | /µ)
+Usage: can_moni <interface> [<option>...]
 Options:
-  <id>        CAN identifier (11-bit)
-  <interface> CAN interface board (list all with /LIST)
-  <baudrate>  CAN baud rate index (default=3):
-              0 = 1000 kbps
-              1 = 800 kbps
-              2 = 500 kbps
-              3 = 250 kbps
-              4 = 125 kbps
-              5 = 100 kbps
-              6 = 50 kbps
-              7 = 20 kbps
-              8 = 10 kbps
-  <bitrate>   Comma-separated <key>=<value>-list:
-              f_clock=<value>      Frequency in Hz or
-              f_clock_mhz=<value>  Frequency in MHz
-              nom_brp=<value>      Bit-rate prescaler (nominal)
-              nom_tseg1=<value>    Time segment 1 (nominal)
-              nom_tseg2=<value>    Time segment 2 (nominal)
-              nom_sjw=<value>      Sync. jump width (nominal)
-              nom_sam=<value>      Sampling (only SJA1000)
-              data_brp=<value>     Bit-rate prescaler (FD data)
-              data_tseg1=<value>   Time segment 1 (FD data)
-              data_tseg2=<value>   Time segment 2 (FD data)
-              data_sjw=<value>     Sync. jump width (FD data).
+  /Time=(ZERO|ABS|REL)                   absolute or relative time (default=0)
+  /Id=(HEX|DEC|OCT)                      display mode of CAN-IDs (default=HEX)
+  /Data=(HEX|DEC|OCT)                    display mode of data bytes (default=HEX)
+  /Ascii=(ON|OFF)                        display data bytes in ASCII (default=ON)
+  /Wraparound=(No|8|10|16|32|64)         wraparound after n data bytes (default=NO)
+  /eXclude=[~]<id>[-<id>]{,<id>[-<id>]}  exclude CAN-IDs: <id>[-<id>]{,<id>[-<id>]}
+  /Mode=(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode
+  /SHARED                                shared CAN controller access (if supported)
+  /MONitor=(No|Yes) | /LISTEN-ONLY       monitor mode (listen-only, transmitter is off)
+  /ERR=(No|Yes) | /ERROR-FRAMES          allow reception of error frames
+  /RTR=(Yes|No)                          allow remote frames (RTR frames)
+  /XTD=(Yes|No)                          allow extended frames (29-bit identifier)
+  /BauDrate=<baudrate>                   CAN bit-timing in kbps (default=250), or
+  /BitRate=<bitrate>                     CAN bit-rate settings (as a string)
+  /Verbose                               show detailed bit-rate settings
+  /LIST-BOARDS | /LIST                   list all supported CAN interfaces and exit
+  /TEST-BOARDS | /TEST                   list all available CAN interfaces and exit
+  /HELP | /?                             display this help screen and exit
+  /ABOUT | /µ                            show version information and exit
+Arguments:
+  <id>           CAN identifier (11-bit)
+  <interface>    CAN interface board (list all with /LIST)
+  <baudrate>     CAN baud rate index (default=3):
+                 0 = 1000 kbps
+                 1 = 800 kbps
+                 2 = 500 kbps
+                 3 = 250 kbps
+                 4 = 125 kbps
+                 5 = 100 kbps
+                 6 = 50 kbps
+                 7 = 20 kbps
+                 8 = 10 kbps
+  <bitrate>      comma-separated <key>=<value>-list:
+                 f_clock=<value>         frequency in Hz or
+                 f_clock_mhz=<value>     frequency in MHz
+                 nom_brp=<value>         bit-rate prescaler (nominal)
+                 nom_tseg1=<value>       time segment 1 (nominal)
+                 nom_tseg2=<value>       time segment 2 (nominal)
+                 nom_sjw=<value>         sync. jump width (nominal)
+                 nom_sam=<value>         sampling (only SJA1000)
+                 data_brp=<value>        bit-rate prescaler (FD data)
+                 data_tseg1=<value>      time segment 1 (FD data)
+                 data_tseg2=<value>      time segment 2 (FD data)
+                 data_sjw=<value>        sync. jump width (FD data).
 Hazard note:
   If you connect your CAN device to a real CAN network when using this program,
   you might damage your application.

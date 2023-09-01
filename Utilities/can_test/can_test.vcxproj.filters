@@ -47,5 +47,8 @@
     <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
