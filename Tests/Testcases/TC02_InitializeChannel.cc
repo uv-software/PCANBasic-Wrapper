@@ -503,8 +503,10 @@ TEST_F(InitializeChannel, GTEST_TESTCASE(CheckOperationModeCapability, GTEST_ENA
     EXPECT_TRUE(status.can_stopped);
     // @post:
     // @- start DUT1 with configured bit-rate settings
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
     if (opMode.fdoe) TEST_BITRATE_FD(bitrate);
     // @  note: 250kbps:2Mbps if DUT1 is CAN FD capable
+#endif
     retVal = dut1.StartController(bitrate);
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- get status of DUT1 and check to be in RUNNING state
@@ -911,4 +913,4 @@ TEST_F(InitializeChannel, GTEST_TESTCASE(WithInvalidLibraryId, GTEST_DISABLED)) 
 }
 #endif  // (OPTION_CANAPI_LIBRARY != OPTION_DISBALED)
 
-//  $Id: TC02_InitializeChannel.cc 1169 2023-08-22 19:55:08Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC02_InitializeChannel.cc 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin.

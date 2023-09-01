@@ -138,7 +138,7 @@ int COptions::ScanOptions(int argc, char* argv[], char* err, size_t len) {
     int opt_dut1 = 0;
     int opt_dut2 = 0;
     int opt_baud = 0;
-#if (OPTION_CAN_2_0_ONLY == 0)
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
     int opt_mode = 0;
     int opt_bitrate = 0;
 #endif
@@ -150,8 +150,10 @@ int COptions::ScanOptions(int argc, char* argv[], char* err, size_t len) {
     int run_callsequences = 0;
     char* opt = NULL;
     //char *arg = NULL;
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
     bool has_data = false;
     bool has_sam= false;
+#endif
     long baudrate = 0;
     long frames = 0;
 
@@ -256,7 +258,7 @@ int COptions::ScanOptions(int argc, char* argv[], char* err, size_t len) {
             }
         }
         // option: --can_mode=(CAN2.0|CANFD[+BRS])
-#if (OPTION_CAN_2_0_ONLY == 0)
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
         else if (strncmp(argv[i], OPTION_MODE, strlen(OPTION_MODE)) == 0)
         {
             if (opt_mode++) {
@@ -313,7 +315,7 @@ int COptions::ScanOptions(int argc, char* argv[], char* err, size_t len) {
                     snprintf(err, len, "duplicated option %s", OPTION_BAUD);
                 return false;
             }
-#if (OPTION_CAN_2_0_ONLY == 0)
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
             if (opt_bitrate) {
                 if (err)
                     snprintf(err, len, "option %s conflicts with option %s", OPTION_BAUD, OPTION_BITRATE);
@@ -371,7 +373,7 @@ int COptions::ScanOptions(int argc, char* argv[], char* err, size_t len) {
             }
         }
         // option: --can_bitrate=(<bitrate>|DEFAULT|FAST|SLOW))
-#if (OPTION_CAN_2_0_ONLY == 0)
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
         else if (strncmp(argv[i], OPTION_BITRATE, strlen(OPTION_BITRATE)) == 0)
         {
             if (opt_bitrate++) {
@@ -617,7 +619,7 @@ int COptions::ShowHelp() {
         std::cout << "      Search path for JSON files (default is current directory)." << std::endl;
         std::cout << "      This option must be given before option " << OPTION_DUT1 << " and " << OPTION_DUT2 << "." << std::endl;
 #endif
-#if (OPTION_CAN_2_0_ONLY == 0)
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
         std::cout << "  " << OPTION_MODE << "=(CAN2.0|CANFD[+BSR])" << std::endl;
         std::cout << "      CAN operation mode: CAN 2.0 or CAN FD format." <<  std::endl;
         std::cout << "              CAN2.0    = CAN classic (default)" << std::endl;
@@ -635,7 +637,7 @@ int COptions::ShowHelp() {
         std::cout << "              6 = 50 kBit/s" <<  std::endl;
         std::cout << "              7 = 20 kBit/s" <<  std::endl;
         std::cout << "              8 = 10 kBit/s" <<  std::endl;
-#if (OPTION_CAN_2_0_ONLY == 0)
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
         std::cout << "  " << OPTION_BITRATE << "=(<bitrate>|DEFAULT|FAST|SLOW)" <<  std::endl;
         std::cout << "      CAN bit-rate as a comma-separated <key>=<value>-list:" <<  std::endl;
         std::cout << "              f_clock=<value>      Frequency in Hz or" <<  std::endl;
@@ -684,4 +686,4 @@ int COptions::ShowHelp() {
     return m_fShowHelp;
 }
 
-// $Id: Options.cpp 1175 2023-08-24 10:37:18Z makemake $  Copyright (c) UV Software, Berlin //
+// $Id: Options.cpp 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin //

@@ -113,7 +113,11 @@ TEST_F(GetBitrate, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- compare configured and actual bit-rate settings
     // dut1.ShowBitrateSettings();
+#if (OPTION_CAN_2_0_ONLY != 0)
+    EXPECT_TRUE(CCanDevice::CompareBitrates(dut1.GetBitrate(), bitrate, false));
+#else
     EXPECT_TRUE(CCanDevice::CompareBitrates(dut1.GetBitrate(), bitrate, dut1.GetOpMode().brse));
+#endif
     // @post
     // @- send some frames to DUT2 and receive some frames from DUT2
     int32_t frames = g_Options.GetNumberOfTestFrames();
@@ -478,8 +482,10 @@ TEST_F(GetBitrate, GTEST_TESTCASE(WithVariousCanBitrateSettings, GTEST_ENABLED))
         }
         // @pre:
         // @- initialize DUT1 in CAN 2.0 operation mode
+#if (OPTION_CAN_2_0_ONLY == 0)
         opMode.fdoe = 0;
         opMode.brse = 0;
+#endif
         dut1.SetOpMode(opMode);
         // dut1.ShowOperationMode();
         dut1.SetBitrate(bitrate);
@@ -508,7 +514,11 @@ TEST_F(GetBitrate, GTEST_TESTCASE(WithVariousCanBitrateSettings, GTEST_ENABLED))
         EXPECT_EQ(CCanApi::NoError, retVal);
         // @- compare configured and actual bit-rate settings
         // dut1.ShowBitrateSettings();
+#if (OPTION_CAN_2_0_ONLY != 0)
+        EXPECT_TRUE(CCanDevice::CompareBitrates(dut1.GetBitrate(), bitrate, false));
+#else
         EXPECT_TRUE(CCanDevice::CompareBitrates(dut1.GetBitrate(), bitrate, dut1.GetOpMode().brse));
+#endif
         // @post
         if (!g_Options.Is3rdDevicePresent()) {
             counter.Clear();
@@ -647,4 +657,4 @@ TEST_F(GetBitrate, GTEST_TESTCASE(WithVariousCanFdBitrateSettings, GTEST_ENABLED
 }
 #endif  // (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
 
-//  $Id: TC11_GetBitrate.cc 1165 2023-08-22 06:57:25Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC11_GetBitrate.cc 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin.

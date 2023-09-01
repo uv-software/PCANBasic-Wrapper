@@ -242,8 +242,7 @@ TEST_F(SmokeTest, DefaultScenario) {
     CANAPI_Return_t retVal;
     
     // @pre:
-    // @- show some information
-    CCanDevice::ShowLibrayInformation("[   INFO   ]");
+    // @- show test configuration
     dut1.ShowDeviceInformation("[   DUT1   ]");
     dut2.ShowDeviceInformation("[   DUT2   ]");
     dut1.ShowOperationMode("[   MODE   ]");
@@ -252,10 +251,16 @@ TEST_F(SmokeTest, DefaultScenario) {
     retVal = dut1.ProbeChannel(state);
     ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut1.ProbeChannel() failed with error code " << retVal;
     ASSERT_EQ(CCanApi::ChannelAvailable, state) << "[  ERROR!  ] " << g_Options.GetDeviceName(DUT1) << " is not available";
+    // @- show channel information of DUT1
+    dut1.ShowChannelInformation("[   CH:1   ]");
+    dut1.ShowChannelCapabilities("[   CAPA   ]");
     // @- probe if DUT2 is present and not occupied
     retVal = dut2.ProbeChannel(state);
     ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut2.ProbeChannel() failed with error code " << retVal;
     ASSERT_EQ(CCanApi::ChannelAvailable, state) << "[  ERROR!  ] " << g_Options.GetDeviceName(DUT2) << " is not available";
+    // @- show channel information of DUT2
+    dut2.ShowChannelInformation("[   CH:2   ]");
+    dut2.ShowChannelCapabilities("[   CAPA   ]");
     // @- check if different channels have been selected
     ASSERT_TRUE((g_Options.GetChannelNo(DUT1) != g_Options.GetChannelNo(DUT2)) || \
                 (g_Options.GetLibraryId(DUT1) != g_Options.GetLibraryId(DUT2))) << "[  ERROR!  ] same channel selected twice";
@@ -295,4 +300,4 @@ TEST_F(SmokeTest, DefaultScenario) {
     // @end.
 }
 
-//  $Id: TC00_SmokeTest.cc 1173 2023-08-23 19:59:24Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC00_SmokeTest.cc 1185 2023-08-29 10:42:03Z haumea $  Copyright (c) UV Software, Berlin.

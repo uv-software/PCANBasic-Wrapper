@@ -1125,7 +1125,7 @@ TEST_F(WriteMessage, GTEST_TESTCASE(WithValidDataLengthCode, GTEST_ENABLED)) {
     CCounter counter = CCounter();
     // @- loop over all Data Length Codes (0 to 8 or 15 with +1)
 #if (OPTION_CAN_2_0_ONLY != 0)
-    for (uint8_t canDlc = 0x0U; canDlc <= (AN_MAX_DLC; canDlc++) {
+    for (uint8_t canDlc = 0x0U; canDlc <= CAN_MAX_DLC; canDlc++) {
 #else
     for (uint8_t canDlc = 0x0U; canDlc <= (trmMsg.fdf ? CANFD_MAX_DLC : CAN_MAX_DLC); canDlc++) {
 #endif
@@ -2195,4 +2195,4 @@ TEST_F(WriteMessage, GTEST_TESTCASE(WithFlagEsi, GTEST_ENABLED)) {
 }
 #endif  // (OPTION_CAN_2_0_ONLY == 0)
 
-//  $Id: TC05_WriteMessage.cc 1165 2023-08-22 06:57:25Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC05_WriteMessage.cc 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin.

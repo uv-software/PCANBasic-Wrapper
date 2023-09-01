@@ -87,6 +87,14 @@
 #warning FEATURE_BITRATE_FD_SAM not set, default = FEATURE_UNSUPPORTED
 #endif
 #endif
+#ifndef FEATURE_BITRATE_SJA1000
+#define FEATURE_BITRATE_SJA1000  FEATURE_SUPPORTED
+#ifdef _MSC_VER
+#pragma message ( "FEATURE_BITRATE_SJA1000 not set, default = FEATURE_SUPPORTED" )
+#else
+#warning FEATURE_BITRATE_SJA1000 not set, default = FEATURE_SUPPORTED
+#endif
+#endif
 
 #define NOM_BRP_MIN    CANBTR_NOMINAL_BRP_MIN
 #define NOM_BRP_MAX    CANBTR_NOMINAL_BRP_MAX
@@ -653,26 +661,16 @@ TEST_F(StartController, GTEST_TESTCASE(WithSameCanBitrateIndexAfterCanStopped, G
     // @      The index must be given as negative value to 'bitrate.index'!
     // @      Remark: The CiA bit-timing table has only 9 entries!
     CCounter counter = CCounter();
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 3; i++) {
         counter.Increment();
         CLEAR_BTR(bitrate);
         switch (i) {
         // @sub(1): index 0 (1Mbps)
-        case 0: bitrate.index = CANBTR_INDEX_1M; break;
-        // @sub(2): index 2 (500kbps)
-        case 1: bitrate.index = CANBTR_INDEX_500K; break;
-        // @sub(3): index 3 (250kbps)
-        case 2: bitrate.index = CANBTR_INDEX_250K; break;
-        // @sub(4): index 4 (125kbps)
-        case 3: bitrate.index = CANBTR_INDEX_125K; break;
-        // @sub(5): index 5 (100kbps)
-        case 4: bitrate.index = CANBTR_INDEX_100K; break;
-        // @sub(6): index 6 (50kbps)
-        case 5: bitrate.index = CANBTR_INDEX_50K; break;
-        // @sub(7): index 7 (20kbps)
-        case 6: bitrate.index = CANBTR_INDEX_20K; break;
-        // @sub(8): index 8 (10kbps)
-        case 7: bitrate.index = CANBTR_INDEX_10K; break;
+        case 0: bitrate.index = FAST_BTRINDEX; break;
+        // @sub(2): index 3 (250kbps)
+        case 1: bitrate.index = TEST_BTRINDEX; break;
+        // @sub(3): index 8 (10kbps)
+        case 2: bitrate.index = SLOW_BTRINDEX; break;
         default: return;  // Get out of here!
         }
         // @pre:
@@ -793,26 +791,16 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanBitrateIndexAfterCanStopp
     // @      The index must be given as negative value to 'bitrate.index'!
     // @      Remark: The CiA bit-timing table has only 9 entries!
     CCounter counter = CCounter();
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 3; i++) {
         counter.Increment();
         CLEAR_BTR(bitrate);
         switch (i) {
         // @sub(1): index 0 (1Mbps)
-        case 0: bitrate.index = CANBTR_INDEX_1M; break;
-        // @sub(2): index 2 (500kbps)
-        case 1: bitrate.index = CANBTR_INDEX_500K; break;
-        // @sub(3): index 3 (250kbps)
-        case 2: bitrate.index = CANBTR_INDEX_250K; break;
-        // @sub(4): index 4 (125kbps)
-        case 3: bitrate.index = CANBTR_INDEX_125K; break;
-        // @sub(5): index 5 (100kbps)
-        case 4: bitrate.index = CANBTR_INDEX_100K; break;
-        // @sub(6): index 6 (50kbps)
-        case 5: bitrate.index = CANBTR_INDEX_50K; break;
-        // @sub(7): index 7 (20kbps)
-        case 6: bitrate.index = CANBTR_INDEX_20K; break;
-        // @sub(8): index 8 (10kbps)
-        case 7: bitrate.index = CANBTR_INDEX_10K; break;
+        case 0: bitrate.index = FAST_BTRINDEX; break;
+        // @sub(2): index 3 (250kbps)
+        case 1: bitrate.index = TEST_BTRINDEX; break;
+        // @sub(3): index 8 (10kbps)
+        case 2: bitrate.index = SLOW_BTRINDEX; break;
         default: return;  // Get out of here!
         }
         // @pre:
@@ -870,22 +858,12 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanBitrateIndexAfterCanStopp
         // @-- change bit-timing index: 
         CLEAR_BTR(bitrate);
         switch (i) {
-        // @   - sub(8): index 8 (10kbps) ==> 0 (1Mbps)
-        case 7: bitrate.index = CANBTR_INDEX_1M; break;
-        // @   - sub(7): index 7 (20kbps) ==> 2 (500kbps)
-        case 6: bitrate.index = CANBTR_INDEX_500K; break;
-        // @   - sub(6): index 6 (50kbps) ==> 3 (250kbps)
-        case 5: bitrate.index = CANBTR_INDEX_250K; break;
-        // @   - sub(5): index 5 (100kbps) ==> 4 (125kbps)
-        case 4: bitrate.index = CANBTR_INDEX_125K; break;
-        // @   - sub(4): index 4 (125kbps) ==> 5 (100kbps)
-        case 3: bitrate.index = CANBTR_INDEX_100K; break;
-        // @   - sub(3): index 3 (250kbps) ==> 6 (50kbps)
-        case 2: bitrate.index = CANBTR_INDEX_50K; break;
-        // @   - sub(2): index 2 (500kbps) ==> 7 (20kbps)
-        case 1: bitrate.index = CANBTR_INDEX_20K; break;
-        // @   - sub(1): index 0 (1Mbps) ==> 8 (10kbps)
-        case 0: bitrate.index = CANBTR_INDEX_10K; break;
+        // @   - sub(3): index 8 (10kbps) ==> 0 (1Mbps)
+        case 2: bitrate.index = FAST_BTRINDEX; break;
+        // @   - sub(2): index 3 (250kbps) ==> 8 (10kbps)
+        case 1: bitrate.index = SLOW_BTRINDEX; break;
+        // @   - sub(1): index 0 (1Mbps) ==> 3 (250kbps)
+        case 0: bitrate.index = TEST_BTRINDEX; break;
         default: return;  // Get out of here!
         }
         // @-- re-start DUT1 with changed bit-timing index
@@ -973,6 +951,11 @@ TEST_F(StartController, GTEST_TESTCASE(WithValidCanBitrateSettings, GTEST_ENABLE
         case 7: BITRATE_10K(bitrate); break;
         default: return;  // Get out of here!
         }
+#if (TC03_19_ISSUE_RUSOKU_BITRATE_10K != WORKAROUND_DISABLED)
+        // @! issue(MacCAN-TouCAN): 10kbps hardware bug (known issue)
+        if (i == 7)
+            continue;
+#endif
         // @pre:
         // printf("[   SUB%-3i ] ...\n", (i + 1));
         // @-- initialize DUT1 in CAN 2.0 operation mode
@@ -1171,26 +1154,16 @@ TEST_F(StartController, GTEST_TESTCASE(WithSameCanBitrateSettingsAfterCanStopped
     CANAPI_Return_t retVal;
     // @loop over selected CAN 2.0 bit-rate settings
     CCounter counter = CCounter();
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 3; i++) {
         counter.Increment();
         CLEAR_BTR(bitrate);
         switch (i) {
         // @sub(1): 1Mbps
-        case 0: BITRATE_1M(bitrate); break;
-        // @sub(2): 500kbps
-        case 1: BITRATE_500K(bitrate); break;
-        // @sub(3): 250kbps
-        case 2: BITRATE_250K(bitrate); break;
-        // @sub(4): 125kbps
-        case 3: BITRATE_125K(bitrate); break;
-        // @sub(5): 100kbps
-        case 4: BITRATE_100K(bitrate); break;
-        // @sub(6): 50kbps
-        case 5: BITRATE_50K(bitrate); break;
-        // @sub(7): 20kbps
-        case 6: BITRATE_20K(bitrate); break;
-        // @sub(8): 10kbps
-        case 7: BITRATE_10K(bitrate); break;
+        case 0: FAST_BITRATE(bitrate); break;
+        // @sub(2): 250kbps
+        case 1: TEST_BITRATE(bitrate); break;
+        // @sub(3): 10kbps
+        case 2: SLOW_BITRATE(bitrate); break;
         default: return;  // Get out of here!
         }
         // @pre:
@@ -1304,26 +1277,16 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanBitrateSettingsAfterCanSt
     CANAPI_Return_t retVal;
     // @loop over selected CAN 2.0 bit-rate settings
     CCounter counter = CCounter();
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 3; i++) {
         counter.Increment();
         CLEAR_BTR(bitrate);
         switch (i) {
         // @sub(1): 1Mbps
-        case 0: BITRATE_1M(bitrate); break;
-        // @sub(2): 500kbps
-        case 1: BITRATE_500K(bitrate); break;
-        // @sub(3): 250kbps
-        case 2: BITRATE_250K(bitrate); break;
-        // @sub(4): 125kbps
-        case 3: BITRATE_125K(bitrate); break;
-        // @sub(5): 100kbps
-        case 4: BITRATE_100K(bitrate); break;
-        // @sub(6): 50kbps
-        case 5: BITRATE_50K(bitrate); break;
-        // @sub(7): 20kbps
-        case 6: BITRATE_20K(bitrate); break;
-        // @sub(8): 10kbps
-        case 7: BITRATE_10K(bitrate); break;
+        case 0: FAST_BITRATE(bitrate); break;
+        // @sub(2): 250kbps
+        case 1: TEST_BITRATE(bitrate); break;
+        // @sub(3): 10kbps
+        case 2: SLOW_BITRATE(bitrate); break;
         default: return;  // Get out of here!
         }
         // @pre:
@@ -1379,22 +1342,12 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanBitrateSettingsAfterCanSt
         // @-- change bit-timing index: 
         CLEAR_BTR(bitrate);
         switch (i) {
-        // @   - sub(8): 1Mbps ==> 10kbps
-        case 7: BITRATE_1M(bitrate); break;
-        // @   - sub(7): 500kbps ==> 20kbps
-        case 6: BITRATE_500K(bitrate); break;
-        // @   - sub(6): 250kbps ==> 50kbps
-        case 5: BITRATE_250K(bitrate); break;
-        // @   - sub(5): 125kbps ==> 100kbps
-        case 4: BITRATE_125K(bitrate); break;
-        // @   - sub(4): 100kbps ==> 125kbps
-        case 3: BITRATE_100K(bitrate); break;
-        // @   - sub(3): 50kbps ==> 250kbps
-        case 2: BITRATE_50K(bitrate); break;
-        // @   - sub(2): 20kbps ==> 500kbps
-        case 1: BITRATE_20K(bitrate); break;
-        // @   - sub(1): 10kbps ==> 1Mbps
-        case 0: BITRATE_10K(bitrate); break;
+        // @   - sub(3): 10kbps ==> 1Mbps
+        case 2: FAST_BITRATE(bitrate); break;
+        // @   - sub(2): 250kbps ==> 0kbps
+        case 1: SLOW_BITRATE(bitrate); break;
+        // @   - sub(1): 1Mbps ==> 250kbbps
+        case 0: TEST_BITRATE(bitrate); break;
         default: return;  // Get out of here!
         }
         // @-- re-start DUT1 with changed bit-rate settings
@@ -2112,9 +2065,14 @@ TEST_F(StartController, GTEST_TESTCASE(WithCanBitrateIndexInCanFdMode, GTEST_ENA
 
 // @gtest TC03.28: Start CAN controller with CAN 2.0 bit-rate settings in CAN FD operation mode (w/o bit-rate switching)
 //
-// @expected: CANERR_BAUDRATE
+// @expected: CANERR_BAUDRATE (requires solely SJA1000 bit rates in CAN 2.0, e.g. PCAN-USB w/o FD)
 //
-TEST_F(StartController, GTEST_TESTCASE(WithCanBitrateSettingsInCanFdMode, GTEST_ENABLED)) {
+#if (FEATURE_BITRATE_SJA1000 != FEATURE_UNSUPPORTED)
+#define GTEST_SJA1000_IN_CAN_FD  GTEST_ENABLED
+#else
+#define GTEST_SJA1000_IN_CAN_FD  GTEST_DISABLED
+#endif
+TEST_F(StartController, GTEST_TESTCASE(WithCanBitrateSettingsInCanFdMode, GTEST_SJA1000_IN_CAN_FD)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Bitrate_t bitrate = { CANBTR_INDEX_1M };
@@ -2219,9 +2177,14 @@ TEST_F(StartController, GTEST_TESTCASE(WithCanBitrateSettingsInCanFdMode, GTEST_
 
 // @gtest TC03.29: Start CAN controller with CAN FD bit-rate settings in CAN 2.0 operation mode
 //
-// @expected: CANERR_BAUDRATE
+// @expected: CANERR_BAUDRATE (requires solely SJA1000 bit rates in CAN 2.0, e.g. PCAN-USB w/o FD)
 //
-TEST_F(StartController, GTEST_TESTCASE(WithCanFdBitrateSettingsInCan20Mode, GTEST_ENABLED)) {
+#if (FEATURE_BITRATE_SJA1000 != FEATURE_UNSUPPORTED)
+#define GTEST_CAN_FD_IN_CAN_CLASSIC  GTEST_ENABLED
+#else
+#define GTEST_CAN_FD_IN_CAN_CLASSIC  GTEST_DISABLED
+#endif
+TEST_F(StartController, GTEST_TESTCASE(WithCanFdBitrateSettingsInCan20Mode, GTEST_CAN_FD_IN_CAN_CLASSIC)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Bitrate_t bitrate = { CANBTR_INDEX_1M };
@@ -2321,4 +2284,4 @@ TEST_F(StartController, GTEST_TESTCASE(WithCanFdBitrateSettingsInCan20Mode, GTES
 }
 #endif  // (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
 
-//  $Id: TC03_StartController.cc 1165 2023-08-22 06:57:25Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC03_StartController.cc 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin.

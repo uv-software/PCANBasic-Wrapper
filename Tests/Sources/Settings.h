@@ -66,18 +66,18 @@
 //  - default CAN operation mode (CAN 2.0)
 #define TEST_CANMODE   (uint8_t)CANMODE_DEFAULT
 //  - default CAN 2.0 bit-timing indexes
-#define TEST_BTRINDEX  (int32_t)CANBTR_INDEX_250K
-#define SLOW_BTRINDEX  (int32_t)CANBTR_INDEX_10K
-#define FAST_BTRINDEX  (int32_t)CANBTR_INDEX_1M
+#define TEST_BTRINDEX  (int32_t)CAN_INDEX_DEFAULT
+#define SLOW_BTRINDEX  (int32_t)CAN_INDEX_SLOWER
+#define FAST_BTRINDEX  (int32_t)CAN_INDEX_FASTER
 //  - default CAN 2.0 bit-rate settings
-#define TEST_BITRATE(x)  BITRATE_250K(x)
-#define SLOW_BITRATE(x)  BITRATE_125K(x)
-#define FAST_BITRATE(x)  BITRATE_1M(x)
+#define TEST_BITRATE(x)  CAN_BITRATE_DEFAULT(x)
+#define SLOW_BITRATE(x)  CAN_BITRATE_SLOWER(x)
+#define FAST_BITRATE(x)  CAN_BITRATE_FASTER(x)
 //  - default CAN FD bit-rate settings
 #if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
-#define TEST_BITRATE_FD(x)  BITRATE_FD_250K2M(x)
-#define SLOW_BITRATE_FD(x)  BITRATE_FD_125K1M(x)
-#define FAST_BITRATE_FD(x)  BITRATE_FD_1M8M(x)
+#define TEST_BITRATE_FD(x)  CAN_BITRATE_FD_DEFAULT(x)
+#define SLOW_BITRATE_FD(x)  CAN_BITRATE_FD_SLOWER(x)
+#define FAST_BITRATE_FD(x)  CAN_BITRATE_FD_FASTER(x)
 #endif
 //  general test defines
 //  - number of CAN frames to be send during test cases
@@ -158,4 +158,4 @@
 #endif
 #endif // SETTINGS_H_INCLUDED
 
-//  $Id: Settings.h 1171 2023-08-23 15:08:43Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: Settings.h 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin.
