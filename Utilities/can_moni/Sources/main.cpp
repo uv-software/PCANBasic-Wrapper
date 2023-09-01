@@ -893,7 +893,7 @@ static void usage(FILE *stream, const char *program)
 #endif
     fprintf(stream, "  /HELP | /?                             display this help screen and exit\n");
     fprintf(stream, "  /ABOUT | /\xE6                            show version information and exit\n");
-#if (1)
+#if (0)
     fprintf(stream, "Arguments:\n");
     fprintf(stream, "  <id>           CAN identifier (11-bit)\n");
     fprintf(stream, "  <interface>    CAN interface board (list all with /LIST)\n");

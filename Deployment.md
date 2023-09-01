@@ -1,4 +1,4 @@
-### CAN API V3 Wrapper Library for PEAK PCAN&reg; Interfaces (Windows&reg;)
+### CAN API V3 Wrapper Library for Peak-System PCAN&reg; Interfaces (Windows&reg;)
 
 _Copyright &copy; 2005-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.de)_ \
 _All rights reserved._

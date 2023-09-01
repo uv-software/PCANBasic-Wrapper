@@ -1118,7 +1118,7 @@ static void usage(FILE *stream, const char *program)
 #endif
     fprintf(stream, "  /HELP | /?                             display this help screen and exit\n");
     fprintf(stream, "  /ABOUT | /\xE6                            show version information and exit\n");
-#if (1)
+#if (0)
     fprintf(stream, "Arguments:\n");
     fprintf(stream, "  <frames>       send this number of messages (frames), or\n");
     fprintf(stream, "  <time>         send messages for the given time in seconds\n");

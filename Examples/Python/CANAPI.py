@@ -679,7 +679,7 @@ if __name__ == '__main__':
         lib = 'libUVCANPCB.dylib'
     elif platform.system() != 'Windows':
         # shared object library
-        lib = 'libuvcansoc.so.1'
+        lib = 'libuvcanpvb.so.1'
     else:
         # Windows DLL
         lib = 'u3canpcb.dll'

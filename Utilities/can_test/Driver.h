@@ -43,7 +43,7 @@
 #else
 #define CAN_FD_SUPPORTED   1  // don't touch that dial
 #endif
-#define TESTER_INTEFACE   "Peak PCAN Interfaces"
+#define TESTER_INTEFACE   "Peak-System PCAN Interfaces"
 #define TESTER_COPYRIGHT  "2008-2010,2014-2023 by Uwe Vogt, UV Software, Berlin"
 
 #include "PeakCAN.h"

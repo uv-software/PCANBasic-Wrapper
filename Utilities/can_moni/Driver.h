@@ -43,7 +43,7 @@
 #else
 #define CAN_FD_SUPPORTED   1  // don't touch that dial
 #endif
-#define MONITOR_INTEFACE  "Peak PCAN Interfaces"
+#define MONITOR_INTEFACE  "Peak-System PCAN Interfaces"
 #define MONITOR_COPYRIGHT "2007,2012-2023 by Uwe Vogt, UV Software, Berlin"
 
 #include "PeakCAN.h"
