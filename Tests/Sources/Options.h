@@ -78,6 +78,7 @@ private:
     bool m_fCanClassic;                 // execute only test cases in CAN Classic mode
     bool m_f3rdDevice;                  // a third device with default bit-rate is connected
     bool m_fRtrDevice;                  // a device that can answer RTR frames is connected
+    bool m_fRunQuick;                   // omit some long lasting test cases
     bool m_fShowHelp;                   // show help and exit
 public:
     // constructor / destructor
@@ -117,6 +118,9 @@ public:
     bool RunCanClassicOnly() {
         return m_fCanClassic;
     }
+    bool RunQuick() {
+        return m_fRunQuick;
+    }
     bool Is3rdDevicePresent() {
         return m_f3rdDevice;
     }
@@ -135,4 +139,4 @@ extern COptions g_Options;          // global access to testing options
 
 #endif // OPTIONS_H_INCLUDED
 
-// $Id: Options.h 1150 2023-08-15 17:22:48Z haumea $  Copyright (c) UV Software, Berlin.
+// $Id: Options.h 1193 2023-09-06 10:21:35Z haumea $  Copyright (c) UV Software, Berlin.

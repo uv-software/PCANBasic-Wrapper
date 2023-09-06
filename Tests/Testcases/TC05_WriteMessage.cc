@@ -2008,6 +2008,10 @@ TEST_F(WriteMessage, GTEST_TESTCASE(IfTransmitterBusy, GTEST_TRANSMITTER_BUSY)) 
     trmMsg.dlc = 0;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
+    // @
+    // @note: This test can take a very long time
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can take a very long time!";
     // @pre:
     // @- initialize DUT1 with configured settings
     retVal = dut1.InitializeChannel();
@@ -2166,8 +2170,11 @@ TEST_F(WriteMessage, GTEST_TESTCASE(WithFlagEsi, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- compare sent and received message
     EXPECT_TRUE(dut2.CompareMessages(trmMsg, rcvMsg));
-    // @  note: flag ESI should not be set in received message (?)
-    EXPECT_EQ(0, rcvMsg.esi);
+    // @  note: flag ESI should also be set in received message in CAN FD mode
+    if (dut2.GetOpMode().fdoe)
+        EXPECT_EQ(1, rcvMsg.esi);
+    else
+        EXPECT_EQ(0, rcvMsg.esi);
     // @post:
     counter.Clear();
     // @- send some frames to DUT2 and receive some frames from DUT2
@@ -2195,4 +2202,4 @@ TEST_F(WriteMessage, GTEST_TESTCASE(WithFlagEsi, GTEST_ENABLED)) {
 }
 #endif  // (OPTION_CAN_2_0_ONLY == 0)
 
-//  $Id: TC05_WriteMessage.cc 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC05_WriteMessage.cc 1193 2023-09-06 10:21:35Z haumea $  Copyright (c) UV Software, Berlin.

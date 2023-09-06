@@ -412,7 +412,7 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfInBusOffState, GTEST_ENABLED)) {
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
 #if (TC09_8_ISSUE_BUS_OFF == WORKAROUND_ENABLED)
-    ASSERT_TRUE(false) << "[  TC09.8  ] Bus off test runs into a hang up: investigation required!";
+    ASSERT_TRUE(false) << "[  TC09.8  ] No bus-off state from device!";
 #endif
     // @
     // @note: This test cannot run if there is another device on bus!
@@ -898,6 +898,10 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfTransmitterBusy, GTEST_TRANSMITTER_BUSY)) {
     trmMsg.dlc = 0;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
+    // @
+    // @note: This test can take a very long time
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can take a very long time!";
     // @pre:
     // @- initialize DUT1 with configured settings
     retVal = dut1.InitializeChannel();
@@ -1150,6 +1154,10 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_DISABLED)) {
     struct timespec t0 = {}, t1 = {};
     struct timespec m0 = {}, m1 = {};
 #endif
+    // @
+    // @note: This test can take a very long time
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can take a very long time!";
     // @pre:
     // @- initialize DUT1 with configured settings
     retVal = dut1.InitializeChannel();
@@ -1296,4 +1304,4 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_DISABLED)) {
     // @end.
 }
 
-//  $Id: TC09_GetStatus.cc 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC09_GetStatus.cc 1193 2023-09-06 10:21:35Z haumea $  Copyright (c) UV Software, Berlin.
