@@ -48,46 +48,23 @@
 #include "pch.h"
 #include <math.h>
 
-#ifndef CAN_FD_SUPPORTED
-#define CAN_FD_SUPPORTED  FEATURE_SUPPORTED
+#ifndef OPTION_CAN_2_0_ONLY
+#define OPTION_CAN_2_0_ONLY  OPTION_DISABLED
 #ifdef _MSC_VER
-#pragma message ( "CAN_FD_SUPPORTED not set, default = FEATURE_SUPPORTED" )
+#pragma message ( "OPTION_CAN_2_0_ONLY not set, default = OPTION_DISABLED" )
 #else
-#warning CAN_FD_SUPPORTED not set, default = FEATURE_SUPPORTED
+#warning OPTION_CAN_2_0_ONLY not set, default = OPTION_DISABLED
 #endif
 #endif
-#ifndef FEATURE_BITRATE_5K
-#define FEATURE_BITRATE_5K  FEATURE_SUPPORTED
+#ifndef FEATURE_BITRATE_SJA1000
+#define FEATURE_BITRATE_SJA1000  FEATURE_SUPPORTED
 #ifdef _MSC_VER
-#pragma message ( "FEATURE_BITRATE_5K not set, default = FEATURE_SUPPORTED" )
+#pragma message ( "FEATURE_BITRATE_SJA1000 not set, default = FEATURE_SUPPORTED" )
 #else
-#warning FEATURE_BITRATE_5K not set, default = FEATURE_SUPPORTED
+#warning FEATURE_BITRATE_SJA1000 not set, default = FEATURE_SUPPORTED
 #endif
 #endif
-#ifndef FEATURE_BITRATE_800K
-#define FEATURE_BITRATE_800K  FEATURE_SUPPORTED
-#ifdef _MSC_VER
-#pragma message ( "FEATURE_BITRATE_800K not set, default = FEATURE_SUPPORTED" )
-#else
-#warning FEATURE_BITRATE_800K not set, default = FEATURE_SUPPORTED
-#endif
-#endif
-#ifndef FEATURE_BITRATE_SAM
-#define FEATURE_BITRATE_SAM  FEATURE_SUPPORTED
-#ifdef _MSC_VER
-#pragma message ( "FEATURE_BITRATE_SAM not set, default = FEATURE_SUPPORTED" )
-#else
-#warning FEATURE_BITRATE_SAM not set, default = FEATURE_SUPPORTED
-#endif
-#endif
-#ifndef FEATURE_BITRATE_FD_SAM
-#define FEATURE_BITRATE_FD_SAM  FEATURE_UNSUPPORTED
-#ifdef _MSC_VER
-#pragma message ( "FEATURE_BITRATE_FD_SAM not set, default = FEATURE_UNSUPPORTED" )
-#else
-#warning FEATURE_BITRATE_FD_SAM not set, default = FEATURE_UNSUPPORTED
-#endif
-#endif
+#define SHOW_RESULT  0  // set to non-zero valus to see conversion results
 
 #define NOM_BRP_MIN     CANBTR_NOMINAL_BRP_MIN
 #define NOM_BRP_MAX     CANBTR_NOMINAL_BRP_MAX
@@ -112,8 +89,6 @@
 #define CLEAR_BTR(btr)  memset(&btr, 0, sizeof(CANAPI_Bitrate_t))
 #define CLEAR_BPS(bps)  memset(&bps, 0, sizeof(CANAPI_BusSpeed_t))
 
-#define SHOW_RESULT  0  // set to non-zero valus to see conversion results
-
 class BitrateConverter : public testing::Test {
     virtual void SetUp() {}
     virtual void TearDown() {}
@@ -136,7 +111,7 @@ protected:
                 if ((bitrate.btr.nominal.sam != NOM_SAM_SINGLE) && (NOM_SAM_TRIPLE != bitrate.btr.nominal.sam))
                     return false;
             }
-#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+#if (OPTION_CAN_2_0_ONLY == OPTION_DISABLED)
             if (data) {                         // CAN FD data phase settinge
                 if ((bitrate.btr.data.brp < DATA_BRP_MIN) || (DATA_BRP_MAX < bitrate.btr.data.brp))
                     return false;
@@ -337,25 +312,25 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithValidCan20Values, GTES
         CLEAR_BPS(speed);
         switch (i) {
         // @- sub(1): CAN 1000 kbps
-        case 0: BITRATE_1M(bitrate); break;
+        case 0: DEFAULT_CAN_BR_1M(bitrate); break;
         // @- sub(2): CAN 800 kbps
-        case 1: BITRATE_800K(bitrate); break;
+        case 1: DEFAULT_CAN_BR_800K(bitrate); break;
         // @- sub(3): CAN 500 kbps
-        case 2: BITRATE_500K(bitrate); break;
+        case 2: DEFAULT_CAN_BR_500K(bitrate); break;
         // @- sub(4): CAN 250 kbps
-        case 3: BITRATE_250K(bitrate); break;
+        case 3: DEFAULT_CAN_BR_250K(bitrate); break;
         // @- sub(5): CAN 125 kbps
-        case 4: BITRATE_125K(bitrate); break;
+        case 4: DEFAULT_CAN_BR_125K(bitrate); break;
         // @- sub(6): CAN 100 kbps
-        case 5: BITRATE_100K(bitrate); break;
+        case 5: DEFAULT_CAN_BR_100K(bitrate); break;
         // @- sub(7): CAN 50 kbps
-        case 6: BITRATE_50K(bitrate); break;
+        case 6: DEFAULT_CAN_BR_50K(bitrate); break;
         // @- sub(8): CAN 20 kbps
-        case 7: BITRATE_20K(bitrate); break;
+        case 7: DEFAULT_CAN_BR_20K(bitrate); break;
         // @- sub(9): CAN 10 kbps
-        case 8: BITRATE_10K(bitrate); break;
+        case 8: DEFAULT_CAN_BR_10K(bitrate); break;
         // @- sub(10): CAN 5 kbps
-        case 9: BITRATE_5K(bitrate); break;
+        case 9: DEFAULT_CAN_BR_5K(bitrate); break;
         default: return;  // Get out of here!
         }
         // @-- convert bit-rate settings into transmission rate
@@ -391,7 +366,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithInvalidCanValues, GTES
         counter.Increment();
         CLEAR_BTR(bitrate);
         CLEAR_BPS(speed);
-        BITRATE_250K(bitrate);
+        DEFAULT_CAN_BR_250K(bitrate);
         switch (i) {
         // @sub(1): CAN 250 kbps, but freq = INT32_MAX MHz
         case 0: bitrate.btr.frequency = INT32_MAX; break;
@@ -441,7 +416,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithInvalidCanValues, GTES
     // @end.
 }
 
-#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+#if (OPTION_CAN_2_0_ONLY == OPTION_DISABLED)
 // @gtest TCx2.3.5: Map bit-rate to speed with valid CAN FD bit-rate settings
 //
 // @expected: CANERR_NOERROR
@@ -463,21 +438,21 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithValidCanFdValues, GTES
         CLEAR_BPS(speed);
         switch (i) {
         // @sub(1): nominal 1Mbps (mode FDOE)
-        case 0: BITRATE_FD_1M(bitrate); break;
+        case 0: DEFAULT_CAN_FD_BR_1M(bitrate); break;
         // @sub(2): nominal 500kbps (mode FDOE)
-        case 1: BITRATE_FD_500K(bitrate); break;
+        case 1: DEFAULT_CAN_FD_BR_500K(bitrate); break;
         // @sub(3): nominal 250kbps (mode FDOE)
-        case 2: BITRATE_FD_250K(bitrate); break;
+        case 2: DEFAULT_CAN_FD_BR_250K(bitrate); break;
         // @sub(4): nominal 125kbps (mode FDOE)
-        case 3: BITRATE_FD_125K(bitrate); break;
+        case 3: DEFAULT_CAN_FD_BR_125K(bitrate); break;
         // @sub(5): nominal 1Mbps, data phase 8Mbps (mode FDOE+BRSE)
-        case 4: BITRATE_FD_1M8M(bitrate); break;
+        case 4: DEFAULT_CAN_FD_BR_1M8M(bitrate); break;
         // @sub(6): nominal 500kbps, data phase 4Mbps (mode FDOE+BRSE)
-        case 5: BITRATE_FD_500K4M(bitrate); break;
+        case 5: DEFAULT_CAN_FD_BR_500K4M(bitrate); break;
         // @sub(7): nominal 250kbps, data phase 2Mbps (mode FDOE+BRSE)
-        case 6: BITRATE_FD_250K2M(bitrate); break;
+        case 6: DEFAULT_CAN_FD_BR_250K2M(bitrate); break;
         // @sub(8): nominal 125kbps, data phase 1Mbps (mode FDOE+BRSE)
-        case 7: BITRATE_FD_125K1M(bitrate); break;
+        case 7: DEFAULT_CAN_FD_BR_125K1M(bitrate); break;
         default: return;  // Get out of here!
         }
         // @-- convert bit-rate settings into transmission rate
@@ -513,7 +488,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithInvalidCanFdValues, GT
         counter.Increment();
         CLEAR_BTR(bitrate);
         CLEAR_BPS(speed);
-        BITRATE_FD_250K2M(bitrate);
+        DEFAULT_CAN_FD_BR_250K2M(bitrate);
         switch (i) {
         // @sub(1): set all fields to 0 (note: 'frequency' == 0 is CiA Index 0, set to 1 instead)
         case 0: bitrate.btr.frequency = 1;
@@ -575,12 +550,10 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithInvalidCanFdValues, GT
         case 26: bitrate.btr.data.sjw = DATA_SJW_MAX + 1; break;
         // @sub(28): set field 'data.sjw' to UINT16_MAX
         case 27: bitrate.btr.data.sjw = UINT16_MAX; break;
-#if (FEATURE_BITRATE_FD_SAM != FEATURE_SUPPORTED)
         // @sub(29): set field 'sam' to 2 (optional)
         case 28: bitrate.btr.nominal.sam = 2; break;
         // @sub(30): set field 'sam' to UINT8_MAX (optional)
         case 29: bitrate.btr.nominal.sam = UINT8_MAX; break;
-#endif
         default: return;  // Get out of here!
         }
         // @-- convert bit-rate settings into transmission rate
@@ -596,7 +569,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithInvalidCanFdValues, GT
     counter.Clear();
     // @end.
 }
-#endif  // (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+#endif  // (OPTION_CAN_2_0_ONLY == OPTION_DISABLED)
 
 // @gtest TCx2.3.7: Map bit-rate to speed with NULL pointer as argument for parameter 'bitrate' and 'speed'
 //
@@ -631,12 +604,12 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithDivisonByZero, GTEST_E
     printf("  %.3f kbps @ %.1f%%\n",
         speed.nominal.speed / 1000.f, speed.nominal.samplepoint * 100.f);
 #endif
-#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+#if (OPTION_CAN_2_0_ONLY == OPTION_DISABLED)
     // @- sub(2): CAN FD 250 kbps : 2 Mbps with data BRP set to zero
     counter.Increment();
     CLEAR_BTR(bitrate);
     CLEAR_BPS(speed);
-    BITRATE_FD_250K2M(bitrate);
+    DEFAULT_CAN_FD_BR_250K2M(bitrate);
     bitrate.btr.data.brp = 0;
     // @-- convert bit-rate settings into transmission rate
     retVal = CCanDevice::MapBitrate2Speed(bitrate, speed);
@@ -655,9 +628,14 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithDivisonByZero, GTEST_E
 
 // @gtest TCx2.4.1: Map index to bit-rate with valid index(es)
 //
-// @expected: CANERR_
+// @expected: CANERR_NOERROR
 //
-TEST_F(BitrateConverter, GTEST_TESTCASE(IndexToBitrateWithValidIndexes, GTEST_ENABLED)) {
+#if (FEATURE_BITRATE_SJA1000 != FEATURE_UNSUPPORTED)
+#define GTEST_SJA1000_INDEXES_TO_BITRATE  GTEST_ENABLED
+#else
+#define GTEST_SJA1000_INDEXES_TO_BITRATE  GTEST_DISABLED
+#endif
+TEST_F(BitrateConverter, GTEST_TESTCASE(IndexToBitrateWithValidIndexes, GTEST_SJA1000_INDEXES_TO_BITRATE)) {
     CANAPI_Bitrate_t bitrate;
     CANAPI_BusSpeed_t speed;
     CANAPI_Return_t retVal;
@@ -946,7 +924,12 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(StringToBitrateWithNullPointerForString,
 //
 // @expected: CANERR_NOERROR
 //
-TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromValidIndexes, GTEST_ENABLED)) {
+#if (FEATURE_BITRATE_SJA1000 != FEATURE_UNSUPPORTED)
+#define GTEST_SJA1000_INDEXES_TO_STRING  GTEST_ENABLED
+#else
+#define GTEST_SJA1000_INDEXES_TO_STRING  GTEST_DISABLED
+#endif
+TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromValidIndexes, GTEST_SJA1000_INDEXES_TO_STRING)) {
     CANAPI_Bitrate_t source = {};
     CANAPI_Bitrate_t target = {};
     CANAPI_Return_t retVal;
@@ -1047,25 +1030,25 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromValidCanValues, GTEST
         CLEAR_BTR(target);
         switch (i) {
         // @- sub(1): CAN 1000 kbps
-        case 0: BITRATE_1M(source); break;
+        case 0: DEFAULT_CAN_BR_1M(source); break;
         // @- sub(2): CAN 800 kbps
-        case 1: BITRATE_800K(source); break;
+        case 1: DEFAULT_CAN_BR_800K(source); break;
         // @- sub(3): CAN 500 kbps
-        case 2: BITRATE_500K(source); break;
+        case 2: DEFAULT_CAN_BR_500K(source); break;
         // @- sub(4): CAN 250 kbps
-        case 3: BITRATE_250K(source); break;
+        case 3: DEFAULT_CAN_BR_250K(source); break;
         // @- sub(5): CAN 125 kbps
-        case 4: BITRATE_125K(source); break;
+        case 4: DEFAULT_CAN_BR_125K(source); break;
         // @- sub(6): CAN 100 kbps
-        case 5: BITRATE_100K(source); break;
+        case 5: DEFAULT_CAN_BR_100K(source); break;
         // @- sub(7): CAN 50 kbps
-        case 6: BITRATE_50K(source); break;
+        case 6: DEFAULT_CAN_BR_50K(source); break;
         // @- sub(8): CAN 20 kbps
-        case 7: BITRATE_20K(source); break;
+        case 7: DEFAULT_CAN_BR_20K(source); break;
         // @- sub(9): CAN 10 kbps
-        case 8: BITRATE_10K(source); break;
+        case 8: DEFAULT_CAN_BR_10K(source); break;
         // @- sub(10): CAN 5 kbps
-        case 9: BITRATE_5K(source); break;
+        case 9: DEFAULT_CAN_BR_5K(source); break;
         default: return;  // Get out of here!
         }
         // @- convert index to bit-timing table to string
@@ -1105,7 +1088,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanValues, GTE
         counter.Increment();
         CLEAR_BTR(source);
         CLEAR_BTR(target);
-        BITRATE_250K(source);
+        DEFAULT_CAN_BR_250K(source);
         switch (i) {
         // @sub(1): CAN 250 kbps, but freq = INT32_MAX MHz
         case 0: source.btr.frequency = INT32_MAX; break;
@@ -1157,6 +1140,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanValues, GTE
     // @end.
 }
 
+#if (OPTION_CAN_2_0_ONLY == OPTION_DISABLED)
 // @gtest TCx2.7.5: Print bit-rate strings from valid CAN FD bit-rate settings and BRS disabled
 //
 // @expected: CANERR_NOERROR
@@ -1180,13 +1164,13 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromValidCanFdValuesBrsDi
         CLEAR_BTR(target);
         switch (i) {
         // @sub(1): nominal 1Mbps (mode FDOE)
-        case 0: BITRATE_FD_1M(source); break;
+        case 0: DEFAULT_CAN_FD_BR_1M(source); break;
         // @sub(2): nominal 500kbps (mode FDOE)
-        case 1: BITRATE_FD_500K(source); break;
+        case 1: DEFAULT_CAN_FD_BR_500K(source); break;
         // @sub(3): nominal 250kbps (mode FDOE)
-        case 2: BITRATE_FD_250K(source); break;
+        case 2: DEFAULT_CAN_FD_BR_250K(source); break;
         // @sub(4): nominal 125kbps (mode FDOE)
-        case 3: BITRATE_FD_125K(source); break;
+        case 3: DEFAULT_CAN_FD_BR_125K(source); break;
         default: return;  // Get out of here!
         }
         // @- convert index to bit-timing table to string
@@ -1226,7 +1210,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanFdValuesBrs
         counter.Increment();
         CLEAR_BTR(source);
         CLEAR_BTR(target);
-        BITRATE_FD_250K(source);
+        DEFAULT_CAN_FD_BR_250K(source);
         switch (i) {
         // @sub(1): set all fields to 0 (note: 'frequency' == 0 is CiA Index 0, set to 1 instead)
         case 0: source.btr.frequency = 1;
@@ -1272,12 +1256,10 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanFdValuesBrs
         case 14: source.btr.nominal.sjw = NOM_SJW_MAX + 1; break;
         // @sub(16): set field 'sjw' to UINT16_MAX
         case 15: source.btr.nominal.sjw = UINT16_MAX; break;
-#if (FEATURE_BITRATE_FD_SAM != FEATURE_SUPPORTED)
         // @sub(17): set field 'sam' to 2 (optional)
         case 16: source.btr.nominal.sam = 2; break;
         // @sub(18): set field 'sam' to UINT8_MAX (optional)
         case 17: source.btr.nominal.sam = UINT8_MAX; break;
-#endif
         default: return;  // Get out of here!
         }
         // @- convert index to bit-timing table to string
@@ -1319,13 +1301,13 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromValidCanFdValuesBrsEn
         CLEAR_BTR(target);
         switch (i) {
         // @sub(1): nominal 1Mbps, data phase 8Mbps (mode FDOE+BRSE)
-        case 0: BITRATE_FD_1M8M(source); break;
+        case 0: DEFAULT_CAN_FD_BR_1M8M(source); break;
         // @sub(2): nominal 500kbps, data phase 4Mbps (mode FDOE+BRSE)
-        case 1: BITRATE_FD_500K4M(source); break;
+        case 1: DEFAULT_CAN_FD_BR_500K4M(source); break;
         // @sub(3): nominal 250kbps, data phase 2Mbps (mode FDOE+BRSE)
-        case 2: BITRATE_FD_250K2M(source); break;
+        case 2: DEFAULT_CAN_FD_BR_250K2M(source); break;
         // @sub(4): nominal 125kbps, data phase 1Mbps (mode FDOE+BRSE)
-        case 3: BITRATE_FD_125K1M(source); break;
+        case 3: DEFAULT_CAN_FD_BR_125K1M(source); break;
         default: return;  // Get out of here!
         }
         // @- convert index to bit-timing table to string
@@ -1365,7 +1347,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanFdValuesBrs
         counter.Increment();
         CLEAR_BTR(source);
         CLEAR_BTR(target);
-        BITRATE_FD_250K2M(source);
+        DEFAULT_CAN_FD_BR_250K2M(source);
         switch (i) {
         // @sub(1): set all fields to 0 (note: 'frequency' == 0 is CiA Index 0, set to 1 instead)
         case 0: source.btr.frequency = 1;
@@ -1443,7 +1425,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanFdValuesBrs
         case 26: source.btr.data.sjw = DATA_SJW_MAX + 1; break;
         // @sub(28): set field 'data.sjw' to UINT16_MAX
         case 27: source.btr.data.sjw = UINT16_MAX; break;
-#if (FEATURE_BITRATE_FD_SAM != FEATURE_SUPPORTED)
+#if (FEATURE_DEFAULT_CAN_BR_FD_SAM != FEATURE_SUPPORTED)
         // @sub(29): set field 'sam' to 2 (optional)
         case 28: source.btr.nominal.sam = 2; break;
         // @sub(30): set field 'sam' to UINT8_MAX (optional)
@@ -1466,6 +1448,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanFdValuesBrs
     counter.Clear();
     // @end.
 }
+#endif  // (OPTION_CAN_2_0_ONLY == OPTION_DISABLED)
 
 // @gtest TCx2.7.9: Print bit-rate to strings from well-formed bit-rate strings
 //
@@ -1619,4 +1602,4 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringWithNullPointerForString,
 //
 // @note: passing a pointer for 'btr0btr1' is not possible with the C++ API!
 
-//  $Id: TCx2_BitrateConverter.cc 1165 2023-08-22 06:57:25Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TCx2_BitrateConverter.cc 1188 2023-09-01 18:21:43Z haumea $  Copyright (c) UV Software, Berlin.

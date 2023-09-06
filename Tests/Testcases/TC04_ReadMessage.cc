@@ -47,6 +47,22 @@
 //
 #include "pch.h"
 
+#ifndef CAN_FD_SUPPORTED
+#define CAN_FD_SUPPORTED  FEATURE_SUPPORTED
+#ifdef _MSC_VER
+#pragma message ( "CAN_FD_SUPPORTED not set, default = FEATURE_SUPPORTED" )
+#else
+#warning CAN_FD_SUPPORTED not set, default = FEATURE_SUPPORTED
+#endif
+#endif
+#ifndef FEATURE_ERROR_FRAMES
+#define FEATURE_ERROR_FRAMES  FEATURE_SUPPORTED
+#ifdef _MSC_VER
+#pragma message ( "FEATURE_ERROR_FRAMES not set, default = FEATURE_SUPPORTED" )
+#else
+#warning FEATURE_ERROR_FRAMES not set, default = FEATURE_SUPPORTED
+#endif
+#endif
 #define TC04_8_DEBUG   0
 #define TC04_15_DEBUG  0
 #define TC04_16_DEBUG  0
@@ -680,6 +696,10 @@ TEST_F(ReadMessage, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_ENABLED)) {
     struct timespec t0 = {}, t1 = {};
     struct timespec m0 = {}, m1 = {};
 #endif
+    // @
+    // @note: This test can take a very long time
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can take a very long time!";
     // @pre:
     // @- initialize DUT1 with configured settings
     retVal = dut1.InitializeChannel();
@@ -773,6 +793,20 @@ TEST_F(ReadMessage, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_ENABLED)) {
     } while ((retVal == CCanApi::NoError) && !timer.Timeout());
     EXPECT_EQ(CCanApi::ReceiverEmpty, retVal);
     EXPECT_EQ((spam - TEST_QRCVFULL), (rcv + sts));
+#if (1)
+    // @- DUT2 send / DUT1 read one more message to catch the overrun flag
+    timer.Restart((DEVICE_SEND_TIMEOUT + DEVICE_SEND_TIMEOUT) * CTimer::MSEC);
+    do {
+        retVal = dut2.WriteMessage(trmMsg, DEVICE_SEND_TIMEOUT);
+        if (retVal == CCanApi::TransmitterBusy)
+            PCBUSB_QXMT_DELAY();
+    } while ((retVal == CCanApi::TransmitterBusy) && !timer.Timeout());
+    do {
+        // read message by message (with time-out)
+        retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
+    } while ((retVal == CCanApi::ReceiverEmpty) && !timer.Timeout());
+    // @- todo: check if this also works with PeakCAN driver/wrapper!
+#endif
     // @- get status of DUT1 and check if bit 'queue_overrun' is set
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
@@ -938,7 +972,7 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagXtdInOperationModeXtd, GTEST_ENABLED)
 
 // @gtest TC04.12: Read a CAN message with flag XTD set but operation mode NXTD is selected (suppress extended frames)
 //
-// @expected: CANERR_RX_EMPTY
+// @expected: CANERR_RX_EMPTY if suppressing extended frames is supported
 //
 TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagXtdInOperationModeNoXtd, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
@@ -965,7 +999,19 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagXtdInOperationModeNoXtd, GTEST_ENABLE
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
     // @pre:
-    // @- get configured operation mode and set bit NXTD
+    // @- initialize DUT1 with configured settings
+    retVal = dut1.InitializeChannel();
+    ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut1.InitializeChannel() failed with error code " << retVal;
+    // @- get operation capabilities from DUT1
+    retVal = dut1.GetOpCapabilities(opCapa);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- tear down DUT1 again
+    retVal = dut1.TeardownChannel();
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @ - check if supressing extended frames is supported
+    if (!opCapa.nxtd)
+        GTEST_SKIP() << "Supressing extended frames is not supported by DUT1!";
+    // @- set operation mode bit NXTD (suppress extended frames)
     opMode = dut1.GetOpMode();
     opMode.nxtd = 1;
     dut1.SetOpMode(opMode);
@@ -977,12 +1023,6 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagXtdInOperationModeNoXtd, GTEST_ENABLE
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
-    // @- get operation capabilities of DUT1
-    retVal = dut1.GetOpCapabilities(opCapa);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- check if supressing extended frames is supported
-    if (!opCapa.nxtd)
-        GTEST_SKIP() << "Supressing extended frames is not supported by DUT1!";
     // @- get operation mode of DUT1 and check bit NXTD is set
     retVal = dut1.GetOpMode(opMode);
     EXPECT_EQ(CCanApi::NoError, retVal);
@@ -1072,11 +1112,11 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagRtrInOperationModeRtr, GTEST_ENABLED)
     trmMsg.esi = 0;
     trmMsg.dlc = g_Options.GetOpMode(DUT1).fdoe ? CANFD_MAX_DLC : CAN_MAX_DLC;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
-#endif
     // @
     // @note: This test cannot run in CAN FD operation mode
     if (g_Options.GetOpMode(DUT1).fdoe || g_Options.GetOpMode(DUT2).fdoe)
-        GTEST_SKIP() << "This test run in CAN FD operation mode!";
+        GTEST_SKIP() << "This test cannot run in CAN FD operation mode!";
+#endif
     // @pre:
     // @- initialize DUT1 with configured settings
     retVal = dut1.InitializeChannel();
@@ -1125,13 +1165,30 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagRtrInOperationModeRtr, GTEST_ENABLED)
     // @- DUT2 send out one message with flag RTR
     retVal = dut2.WriteMessage(trmMsg);
     EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get status of DUT2 and check to be in RUNNING state
+    retVal = dut2.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
     // @- DUT1 read the message (with time-out)
     retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- compare sent and received message
-    EXPECT_TRUE(dut1.CompareMessages(trmMsg, rcvMsg));
+    // @- get status of DUT1 and check to be in RUNNING state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
+    // @- compare sent and received message (w/o dlc and data)
+    EXPECT_EQ(trmMsg.id, rcvMsg.id);
+    EXPECT_EQ(trmMsg.rtr, rcvMsg.rtr);
+    EXPECT_EQ(trmMsg.xtd, rcvMsg.xtd);
+    EXPECT_EQ(trmMsg.sts, rcvMsg.sts);
+#if (OPTION_CAN_2_0_ONLY == 0)
+    EXPECT_EQ(trmMsg.fdf, rcvMsg.fdf);
+    EXPECT_EQ(trmMsg.brs, rcvMsg.brs);
+    EXPECT_EQ(trmMsg.esi, rcvMsg.esi);
+#endif
     // @post:
     counter.Clear();
+    std::cout << "[   INFO   ] Received message with flag 'RTR' has DLC of " << (int)rcvMsg.dlc << std::endl;
     // @- send some frames to DUT2 and receive some frames from DUT2
     int32_t frames = g_Options.GetNumberOfTestFrames();
     EXPECT_EQ(frames, dut1.SendSomeFrames(dut2, frames));
@@ -1158,7 +1215,7 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagRtrInOperationModeRtr, GTEST_ENABLED)
 
 // @gtest TC04.14: Request a CAN message with flag RTR set but operation mode NRTR is selected (suppress remote frames)
 //
-// @expected: CANERR_RX_EMPTY
+// @expected: CANERR_RX_EMPTY if suppressing remote frames is supported
 //
 TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagRtrInOperationModeNoRtr, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
@@ -1183,14 +1240,26 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagRtrInOperationModeNoRtr, GTEST_ENABLE
     trmMsg.esi = 0;
     trmMsg.dlc = g_Options.GetOpMode(DUT1).fdoe ? CANFD_MAX_DLC : CAN_MAX_DLC;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
-#endif
     // @
     // @note: This test cannot run in CAN FD operation mode
     if (g_Options.GetOpMode(DUT1).fdoe || g_Options.GetOpMode(DUT2).fdoe)
-        GTEST_SKIP() << "This test run in CAN FD operation mode!";
+        GTEST_SKIP() << "This test cannot run in CAN FD operation mode!";
+#endif
     // @pre:
-    // @- get configured operation mode and set bit NRTR
-    opMode = dut1.GetOpMode();
+    // @- initialize DUT1 with configured settings
+    retVal = dut1.InitializeChannel();
+    ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut1.InitializeChannel() failed with error code " << retVal;
+    // @- get operation capabilities from DUT1
+    retVal = dut1.GetOpCapabilities(opCapa);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- tear down DUT1 again
+    retVal = dut1.TeardownChannel();
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @ - check if supressing remote frames is supported
+    if (!opCapa.nrtr)
+        GTEST_SKIP() << "Supressing remote frames is not supported by DUT1!";
+    // @- set operation mode bit NRTR (suppress remote frames)
+     opMode = dut1.GetOpMode();
     opMode.nrtr = 1;
     dut1.SetOpMode(opMode);
     // @- initialize DUT1 with configured settings
@@ -1201,12 +1270,6 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagRtrInOperationModeNoRtr, GTEST_ENABLE
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
-    // @- get operation capabilities of DUT1
-    retVal = dut1.GetOpCapabilities(opCapa);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- check if supressing remote frames is supported
-    if (!opCapa.nrtr)
-        GTEST_SKIP() << "Supressing remote frames is not supported by DUT1!";
     // @- get operation mode of DUT1 and check bit NRTR is not set
     retVal = dut1.GetOpMode(opMode);
     EXPECT_EQ(CCanApi::NoError, retVal);
@@ -1240,9 +1303,17 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagRtrInOperationModeNoRtr, GTEST_ENABLE
     // @- DUT2 send out one message with flag RTR
     retVal = dut2.WriteMessage(trmMsg);
     EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get status of DUT2 and check to be in RUNNING state
+    retVal = dut2.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
     // @- DUT1 wait in vain for the message
     retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
     EXPECT_EQ(CCanApi::ReceiverEmpty, retVal);
+    // @- get status of DUT1 and check to be in RUNNING state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
     // @post:
     counter.Clear();
     // @- send some frames to DUT2 and receive some frames from DUT2
@@ -1310,10 +1381,11 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagStsInOperationModeNoErr, GTEST_ENABLE
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT1 w/ slow bit-rate
-    if (!dut1.GetOpMode().fdoe)
-        SLOW_BITRATE(newBtr1);
-    else
-        SLOW_BITRATE_FD(newBtr1);
+    SLOW_BITRATE(newBtr1);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (dut1.GetOpMode().fdoe) SLOW_BITRATE_FD(newBtr1);
+    // @  note: w/ BRSE if DUT1 is CAN FD capable
+#endif
     oldBtr1 = dut1.GetBitrate();
     dut1.SetBitrate(newBtr1);
     // dut1.ShowBitrateSettings("[   DUT1   ]");
@@ -1332,10 +1404,11 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagStsInOperationModeNoErr, GTEST_ENABLE
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT2 w/ fast bit-rate
-    if (!dut2.GetOpMode().fdoe)
-        FAST_BITRATE(newBtr2);
-    else
-        FAST_BITRATE_FD(newBtr2);
+    FAST_BITRATE(newBtr2);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (dut2.GetOpMode().fdoe) FAST_BITRATE_FD(newBtr2);
+    // @  note: w/ BRSE if DUT2 is CAN FD capable
+#endif
     oldBtr2 = dut2.GetBitrate();
     dut2.SetBitrate(newBtr2);
     // dut2.ShowBitrateSettings("[   DUT2   ]");
@@ -1361,7 +1434,7 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagStsInOperationModeNoErr, GTEST_ENABLE
         EXPECT_EQ(CCanApi::NoError, retVal);
         EXPECT_FALSE(status.can_stopped);
         if (status.warning_level) {
-            // @-- DUT1 read recieve queue (expect a status frame)
+            // @-- DUT1 read recieve queue (expect empty)
             retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
             EXPECT_EQ(CCanApi::ReceiverEmpty, retVal);
         }
@@ -1486,10 +1559,11 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagStsInOperationModeErr, GTEST_STATUS_M
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT1 w/ slow bit-rate
-    if (!dut1.GetOpMode().fdoe)
-        SLOW_BITRATE(newBtr1);
-    else
-        SLOW_BITRATE_FD(newBtr1);
+    SLOW_BITRATE(newBtr1);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (opMode.fdoe) SLOW_BITRATE_FD(newBtr1);
+    // @  note: w/ BRSE if DUT1 is CAN FD capable
+#endif
     oldBtr1 = dut1.GetBitrate();
     dut1.SetBitrate(newBtr1);
     // dut1.ShowBitrateSettings("[   DUT1   ]");
@@ -1508,10 +1582,11 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagStsInOperationModeErr, GTEST_STATUS_M
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT2 w/ fast bit-rate
-    if (!dut2.GetOpMode().fdoe)
-        FAST_BITRATE(newBtr2);
-    else
-        FAST_BITRATE_FD(newBtr2);
+    FAST_BITRATE(newBtr2);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (opMode.fdoe) FAST_BITRATE_FD(newBtr2);
+    // @  note: w/ BRSE if DUT2 is CAN FD capable
+#endif
     oldBtr2 = dut2.GetBitrate();
     dut2.SetBitrate(newBtr2);
     // dut2.ShowBitrateSettings("[   DUT2   ]");
@@ -1539,8 +1614,18 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagStsInOperationModeErr, GTEST_STATUS_M
         if (status.warning_level) {
             // @-- DUT1 read recieve queue (expect a status frame)
             retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
+#if (TC04_16_ISSUE_KVASER_STATUS_MESSAGE != WORKAROUND_ENABLED)
             EXPECT_EQ(CCanApi::NoError, retVal);
             EXPECT_TRUE(rcvMsg.sts);
+#else
+            if (retVal != CCanApi::ReceiverEmpty) {
+                EXPECT_EQ(CCanApi::NoError, retVal);
+                EXPECT_TRUE(rcvMsg.sts);
+            } else {
+                // @!! issue(Kavser U100P): device does not send status frames
+                EXPECT_TRUE(false) << "[  TC04.16  ] Status message not received! (U100P issue)";
+            }
+#endif
         }
     } while ((i < TEST_MAX_EWRN) && !status.warning_level && !status.bus_off);
     EXPECT_TRUE(status.warning_level);
@@ -1627,8 +1712,24 @@ TEST_F(ReadMessage, GTEST_TESTCASE(InOperationModeListenOnly, GTEST_ENABLED)) {
     trmMsg.dlc = g_Options.GetOpMode(DUT1).fdoe ? CANFD_MAX_DLC : CAN_MAX_DLC;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
+    // @
+    // @note: This test cannot run in CAN FD operation mode
+    if (!g_Options.Is3rdDevicePresent())
+        GTEST_SKIP() << "This test can only run if there is a 3rd device present!";
     // @pre:
-    // @- get configured operation mode and set bit MON
+    // @- initialize DUT1 with configured settings
+    retVal = dut1.InitializeChannel();
+    ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut1.InitializeChannel() failed with error code " << retVal;
+    // @- get operation capabilities from DUT1
+    retVal = dut1.GetOpCapabilities(opCapa);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- tear down DUT1 again
+    retVal = dut1.TeardownChannel();
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @! exit test if listen-only mode is not supported
+    if (!opCapa.mon)
+        GTEST_SKIP() << "Listen-only mode is not supported by the device!";
+    // @- enable listen-only mode for DUT1
     opMode = dut1.GetOpMode();
     opMode.mon = 1;
     dut1.SetOpMode(opMode);
@@ -1640,12 +1741,6 @@ TEST_F(ReadMessage, GTEST_TESTCASE(InOperationModeListenOnly, GTEST_ENABLED)) {
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
-    // @- get operation capabilities of DUT1
-    retVal = dut1.GetOpCapabilities(opCapa);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- check if listen-only mode is supported
-    if (!opCapa.mon)
-        GTEST_SKIP() << "Listen-only mode is not supported by DUT1!";
     // @- get operation mode of DUT1 and check bit MON is set
     retVal = dut1.GetOpMode(opMode);
     EXPECT_EQ(CCanApi::NoError, retVal);
@@ -1679,17 +1774,26 @@ TEST_F(ReadMessage, GTEST_TESTCASE(InOperationModeListenOnly, GTEST_ENABLED)) {
     // @- DUT2 send out one message
     retVal = dut2.WriteMessage(trmMsg);
     EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get status of DUT2 and check to be in RUNNING state
+    retVal = dut2.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
     // @- DUT1 read the message (with time-out)
     retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
     EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get status of DUT1 and check to be in RUNNING state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
     // @- compare sent and received message
     EXPECT_TRUE(dut1.CompareMessages(trmMsg, rcvMsg));
     // @post:
     counter.Clear();
-    // @- send some frames to DUT2 and receive some frames from DUT2
-    int32_t frames = g_Options.GetNumberOfTestFrames();
-    EXPECT_EQ(CANERR_TIMEOUT, dut1.SendSomeFrames(dut2, frames));
-    EXPECT_EQ(frames, dut1.ReceiveSomeFrames(dut2, frames));
+    // @- todo: try to send some frames to DUT2 (should not succeed)
+    // @- todo: receive some frames from DUT2 (fix mode MON in Device.cpp)
+    //int32_t frames = g_Options.GetNumberOfTestFrames();
+    //EXPECT_EQ(CANERR_TIMEOUT, dut1.SendSomeFrames(dut2, frames));
+    //EXPECT_EQ(frames, dut1.ReceiveSomeFrames(dut2, frames));
     // @- get status of DUT1 and check to be in RUNNING state
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
@@ -1845,4 +1949,4 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithDifferentTimeoutValues, GTEST_ENABLED)) {
 // @todo: (1) blocking read
 // @todo: (2) test reentrancy
 
-//  $Id: TC04_ReadMessage.cc 1173 2023-08-23 19:59:24Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC04_ReadMessage.cc 1194 2023-09-06 16:48:53Z makemake $  Copyright (c) UV Software, Berlin.

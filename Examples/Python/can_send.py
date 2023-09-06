@@ -28,7 +28,7 @@ if platform.system() == 'Darwin':
     lib = 'libUVCANPCB.dylib'
 elif platform.system() != 'Windows':
     # shared object library
-    lib = 'libuvcansoc.so.1'
+    lib = 'libuvcanpcb.so.1'
 else:
     # Windows DLL
     lib = 'u3canpcb.dll'

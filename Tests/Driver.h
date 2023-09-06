@@ -67,13 +67,15 @@ typedef CPeakCAN  CCanDriver;
 #define FEATURE_BITRATE_800K        FEATURE_SUPPORTED
 #define FEATURE_BITRATE_SAM         FEATURE_SUPPORTED
 #define FEATURE_BITRATE_FD_SAM      FEATURE_UNSUPPORTED
+#define FEATURE_BITRATE_SJA1000     FEATURE_SUPPORTED
 #define FEATURE_ERROR_FRAMES        FEATURE_SUPPORTED
+#define FEATURE_ERROR_CODE_CAPTURE  FEATURE_SUPPORTED
 #define FEATURE_BLOCKING_READ       FEATURE_SUPPORTED
 #define FEATURE_BLOCKING_WRITE      FEATURE_UNSUPPORTED
 #define FEATURE_SIZE_RECEIVE_QUEUE  32767
 #define FEATURE_SIZE_TRANSMIT_QUEUE 32767
 
-//  (§5) define macros for CAN Classic bit-rate settings
+//  (§5) define macros for CAN 2.0 bit-rate settings
 //       at least BITRATE_1M, BITRATE_500K, BITRATE_250K, BITRATE_125K, 
 //                BITRATE_100K, BITRATE_50K, BITRATE_20K, BITRATE_10K
 #define BITRATE_1M(x)    PEAKCAN_BR_1M(x)
@@ -88,16 +90,27 @@ typedef CPeakCAN  CCanDriver;
 #define BITRATE_5K(x)    PEAKCAN_BR_5K(x)
 
 //  (§6) define macros for workarounds (e.g. TC01_3_ISSUE)
-//#define TC0x_y_ISSUE_  WORKAROUND_ENABLED
+#define TC09_8_ISSUE_BUS_OFF  WORKAROUND_ENABLED  // 2023-08-25: no bus off from device (investigation required)
 //  (§6.1) old PCANBasic issues (see macros in 'Settings.h')
 #define PCBUSB_INIT_DELAY_WORKAROUND  WORKAROUND_ENABLED
 #define PCBUSB_QXMTFULL_WORKAROUND    WORKAROUND_ENABLED
 
-//  (§7) define macro CAN_FD_SUPPORTED if CAN FD operation mode is supported
+//  (§7) define macros for CAN 2.0 bit-rate indexes to be used in the tests
+#define CAN_INDEX_DEFAULT  CANBTR_INDEX_250K
+#define CAN_INDEX_SLOWER   CANBTR_INDEX_10K
+#define CAN_INDEX_FASTER   CANBTR_INDEX_1M
+
+//  (§8) define macros for CAN 2.0 bit-rate settings to be used in the tests
+#define CAN_BITRATE_DEFAULT  BITRATE_250K
+#define CAN_BITRATE_SLOWER   BITRATE_10K
+#define CAN_BITRATE_FASTER   BITRATE_1M
+
+
+//  (§9) define macro CAN_FD_SUPPORTED if CAN FD operation mode is supported
 #define CAN_FD_SUPPORTED FEATURE_SUPPORTED
 
 #if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
-//  (§8) define macros for CAN FD bit-rate settings
+//  (§10) define macros for CAN FD bit-rate settings
 //       at least BITRATE_FD_1M8M, BITRATE_FD_500K4M, BITRATE_FD_250K2M, BITRATE_FD_125K1M,
 //                BITRATE_FD_1M, BITRATE_FD_500K, BITRATE_FD_250K, BITRATE_FD_125K
 #define BITRATE_FD_1M(x)      PEAKCAN_FD_BR_1M(x)
@@ -109,8 +122,13 @@ typedef CPeakCAN  CCanDriver;
 #define BITRATE_FD_250K2M(x)  PEAKCAN_FD_BR_250K2M(x)
 #define BITRATE_FD_125K1M(x)  PEAKCAN_FD_BR_125K1M(x)
 
-//  (§9) define macros for workarounds for CAN FD operation mode (e.g. TC01_3_ISSUE_FD)
+//  (§11) define macros for workarounds for CAN FD operation mode (e.g. TC01_3_ISSUE_FD)
 //#define TC0x_y_ISSUE_FD_  WORKAROUND_ENABLED
+
+//  (§12) define macros for CAN FD bit-rate settings to be used in the tests, if supported
+#define CAN_BITRATE_FD_DEFAULT  BITRATE_FD_250K2M
+#define CAN_BITRATE_FD_SLOWER   BITRATE_FD_125K1M
+#define CAN_BITRATE_FD_FASTER   BITRATE_FD_1M8M
 
 #endif // CAN_FD_SUPPORTED
 #endif // DRIVER_H_INCLUDED

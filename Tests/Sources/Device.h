@@ -146,11 +146,14 @@ public:
         CCanDriver::GetProperty(CANPROP_GET_ERR_COUNTER, (void*)&counter, sizeof(uint64_t));
         return counter;
     }
-    // information
+    // test information
     void ShowDeviceInformation(const char *prefix = NULL);
     void ShowOperationMode(const char *prefix = NULL);
     void ShowBitrateSettings(const char *prefix = NULL);
     static void ShowLibrayInformation(const char *prefix = NULL);
+    // channel information
+    void ShowChannelInformation(const char* prefix = NULL);
+    void ShowChannelCapabilities(const char* prefix = NULL);
     // transmission/reception
     int32_t SendSomeFrames(CCanDevice &other, int32_t frames);
     int32_t ReceiveSomeFrames(CCanDevice &other, int32_t frames);
@@ -168,4 +171,4 @@ private:
 
 #endif // DEVICE_H_INCLUDED
 
-// $Id: Device.h 1160 2023-08-20 16:37:37Z makemake $  Copyright (c) UV Software, Berlin.
+// $Id: Device.h 1185 2023-08-29 10:42:03Z haumea $  Copyright (c) UV Software, Berlin.

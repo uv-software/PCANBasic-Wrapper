@@ -55,6 +55,14 @@
 #warning CAN_FD_SUPPORTED not set, default = FEATURE_SUPPORTED
 #endif
 #endif
+#ifndef FEATURE_ERROR_CODE_CAPTURE
+#define FEATURE_ERROR_CODE_CAPTURE  FEATURE_SUPPORTED
+#ifdef _MSC_VER
+#pragma message ( "FEATURE_ERROR_CODE_CAPTURE not set, default = FEATURE_SUPPORTED" )
+#else
+#warning FEATURE_ERROR_CODE_CAPTURE not set, default = FEATURE_SUPPORTED
+#endif
+#endif
 #define TC09_8_DEBUG   0
 #define TC09_9_DEBUG   0
 #define TC09_10_DEBUG  0
@@ -403,6 +411,9 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfInBusOffState, GTEST_ENABLED)) {
     trmMsg.dlc = 0;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
+#if (TC09_8_ISSUE_BUS_OFF == WORKAROUND_ENABLED)
+    ASSERT_TRUE(false) << "[  TC09.8  ] No bus-off state from device!";
+#endif
     // @
     // @note: This test cannot run if there is another device on bus!
     if (g_Options.Is3rdDevicePresent())
@@ -416,10 +427,11 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfInBusOffState, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT1 w/ slow bit-rate
-    if (!dut1.GetOpMode().fdoe)
-        SLOW_BITRATE(newBtr1);
-    else
-        SLOW_BITRATE_FD(newBtr1);
+    SLOW_BITRATE(newBtr1);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (dut1.GetOpMode().fdoe) SLOW_BITRATE_FD(newBtr1);
+    // @  note: w/ BRSE if DUT1 is CAN FD capable
+#endif
     oldBtr1 = dut1.GetBitrate();
     dut1.SetBitrate(newBtr1);
     // dut1.ShowBitrateSettings("[   DUT1   ]");
@@ -438,10 +450,11 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfInBusOffState, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT2 w/ fast bit-rate
-    if (!dut2.GetOpMode().fdoe)
-        FAST_BITRATE(newBtr2);
-    else
-        FAST_BITRATE_FD(newBtr2);
+    FAST_BITRATE(newBtr2);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (dut2.GetOpMode().fdoe) FAST_BITRATE_FD(newBtr2);
+    // @  note: w/ BRSE if DUT2 is CAN FD capable
+#endif
     oldBtr2 = dut2.GetBitrate();
     dut2.SetBitrate(newBtr2);
     // dut2.ShowBitrateSettings("[   DUT2   ]");
@@ -568,10 +581,11 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfWarningLevelReached, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT1 w/ slow bit-rate
-    if (!dut1.GetOpMode().fdoe)
-        SLOW_BITRATE(newBtr1);
-    else
-        SLOW_BITRATE_FD(newBtr1);
+    SLOW_BITRATE(newBtr1);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (dut1.GetOpMode().fdoe) SLOW_BITRATE_FD(newBtr1);
+    // @  note: w/ BRSE if DUT1 is CAN FD capable
+#endif
     oldBtr1 = dut1.GetBitrate();
     dut1.SetBitrate(newBtr1);
     // dut1.ShowBitrateSettings("[   DUT1   ]");
@@ -590,10 +604,11 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfWarningLevelReached, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT2 w/ fast bit-rate
-    if (!dut2.GetOpMode().fdoe)
-        FAST_BITRATE(newBtr2);
-    else
-        FAST_BITRATE_FD(newBtr2);
+    FAST_BITRATE(newBtr2);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (dut2.GetOpMode().fdoe) FAST_BITRATE_FD(newBtr2);
+    // @  note: w/ BRSE if DUT2 is CAN FD capable
+#endif
     oldBtr2 = dut2.GetBitrate();
     dut2.SetBitrate(newBtr2);
     // dut2.ShowBitrateSettings("[   DUT2   ]");
@@ -675,11 +690,11 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfWarningLevelReached, GTEST_ENABLED)) {
     // @end.
 }
 
-// @gtest TC09.10: Get CAN controller status if errors on bus
+// @gtest TC09.10: Get CAN controller status if errors on bus (LEC)
 //
 // @expected: CANERR_NOERROR but status bit 'bus_error' is set
 //
-#if (FEATURE_ERROR_FRAMES != FEATURE_UNSUPPORTED)
+#if (FEATURE_ERROR_CODE_CAPTURE != FEATURE_UNSUPPORTED)
 #define GTEST_ERRORS_ON_BUS  GTEST_ENABLED
 #else
 #define GTEST_ERRORS_ON_BUS  GTEST_DISABLED
@@ -739,10 +754,11 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfErrorsOnBus, GTEST_ERRORS_ON_BUS)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT1 w/ slow bit-rate
-    if (!dut1.GetOpMode().fdoe)
-        SLOW_BITRATE(newBtr1);
-    else
-        SLOW_BITRATE_FD(newBtr1);
+    SLOW_BITRATE(newBtr1);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (dut1.GetOpMode().fdoe) SLOW_BITRATE_FD(newBtr1);
+    // @  note: w/ BRSE if DUT1 is CAN FD capable
+#endif
     oldBtr1 = dut1.GetBitrate();
     dut1.SetBitrate(newBtr1);
     // dut1.ShowBitrateSettings("[   DUT1   ]");
@@ -761,10 +777,11 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfErrorsOnBus, GTEST_ERRORS_ON_BUS)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
     // @- change bit-rate settings: DUT2 w/ fast bit-rate
-    if (!dut2.GetOpMode().fdoe)
-        FAST_BITRATE(newBtr2);
-    else
-        FAST_BITRATE_FD(newBtr2);
+    FAST_BITRATE(newBtr2);
+#if (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
+    if (dut2.GetOpMode().fdoe) FAST_BITRATE_FD(newBtr2);
+    // @  note: w/ BRSE if DUT2 is CAN FD capable
+#endif
     oldBtr2 = dut2.GetBitrate();
     dut2.SetBitrate(newBtr2);
     // dut2.ShowBitrateSettings("[   DUT2   ]");
@@ -881,6 +898,10 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfTransmitterBusy, GTEST_TRANSMITTER_BUSY)) {
     trmMsg.dlc = 0;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
+    // @
+    // @note: This test can take a very long time
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can take a very long time!";
     // @pre:
     // @- initialize DUT1 with configured settings
     retVal = dut1.InitializeChannel();
@@ -1129,6 +1150,14 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_DISABLED)) {
     trmMsg.dlc = 0;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
+#if (TC04_8_DEBUG != 0)
+    struct timespec t0 = {}, t1 = {};
+    struct timespec m0 = {}, m1 = {};
+#endif
+    // @
+    // @note: This test can take a very long time
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can take a very long time!";
     // @pre:
     // @- initialize DUT1 with configured settings
     retVal = dut1.InitializeChannel();
@@ -1160,11 +1189,19 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_DISABLED)) {
     retVal = dut2.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_FALSE(status.can_stopped);
+#if (TC04_8_DEBUG != 0)
+    // get current time: start of transmission
+    t0 = CTimer::GetTime();
+#endif
     // @test:
-    int32_t i = 0, n = (FEATURE_SIZE_RECEIVE_QUEUE + 1);
-    CProgress progress = CProgress(n);
-    // @- DUT2 spam the receive queue of DUT1
-    for (i = 0; i < n; i++) {
+    int32_t spam = (FEATURE_SIZE_RECEIVE_QUEUE + TEST_QRCVFULL);
+#if (TC04_8_ISSUE_QUEUE_SIZE == WORKAROUND_ENABLED)
+    // @- issue(PCBUSB.TOS): last element of the receive queue is not accessible
+    spam -= 1;
+#endif
+    CProgress progress = CProgress(spam);
+    // @- DUT2 spam the receive queue of DUT1 (with one message more than the queue can hold)
+    for (int32_t i = 0; i < spam; i++) {
         // up-counting message content
         trmMsg.data[0] = (uint8_t)((uint64_t)i >> 0); if ((uint64_t)i > (uint64_t)0x00) trmMsg.dlc = 1U;
         trmMsg.data[1] = (uint8_t)((uint64_t)i >> 8); if ((uint64_t)i > (uint64_t)0x00FF) trmMsg.dlc = 2U;
@@ -1175,33 +1212,74 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_DISABLED)) {
         trmMsg.data[6] = (uint8_t)((uint64_t)i >> 48); if ((uint64_t)i > (uint64_t)0x0FFFFFFFFFFFF) trmMsg.dlc = 7U;
         trmMsg.data[7] = (uint8_t)((uint64_t)i >> 56); if ((uint64_t)i > (uint64_t)0x0FFFFFFFFFFFFFF) trmMsg.dlc = 8U;
         // send one message (w/ delay calculated from bit-rate and data length)
-        retVal = dut2.WriteMessage(trmMsg);
+        do {
+            retVal = dut2.WriteMessage(trmMsg, DEVICE_SEND_TIMEOUT);
+            if (retVal == CCanApi::TransmitterBusy)
+                PCBUSB_QXMT_DELAY();
+        } while (retVal == CCanApi::TransmitterBusy);
         CTimer::Delay(dut2.TransmissionTime(dut2.GetBitrate(), 1, CCanApi::Dlc2Len(trmMsg.dlc)));
         // on error abort
         ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut2.WriteMessage() failed with error code " << retVal;
         progress.Update(i + 1, 0);
     }
+#if (TC04_8_DEBUG != 0)
+    // get current time: end of transmission
+    t1 = CTimer::GetTime();;
+#endif
+    // @- an additional delay to ensure that the last message is received by DUT1
+    uint32_t delay = dut2.TransmissionTime(dut2.GetBitrate(), 10, CCanApi::Dlc2Len(trmMsg.dlc));
+    CTimer::Delay(delay);
     // @- DUT1 read them all to empty the reception queue
-    n = FEATURE_SIZE_RECEIVE_QUEUE;
-    i = 0;
-    CTimer timer = CTimer(((dut1.TransmissionTime(dut1.GetBitrate(), n) * 25U) / 10U));
+    CTimer timer = CTimer(((dut1.TransmissionTime(dut1.GetBitrate(), (spam + DEVICE_LOOP_EXTRA)) *
+        DEVICE_LOOP_FACTOR) / DEVICE_LOOP_DIVISOR));  // bit-rate dependent timeout
+    int32_t rcv = 0, sts = 0;
     do {
         // read message by message (with time-out)
         retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
         if (retVal == CCanApi::NoError) {
-            // ignore status messages/error frames
+#if (TC04_8_DEBUG != 0)
+            if (rcv == 0)  // first message
+                m0 = rcvMsg.timestamp;
+            m1 = rcvMsg.timestamp;
+#endif
+            // count status messages/error frames separately
             if (!rcvMsg.sts)
-                progress.Update(n, i++);
+                progress.Update(spam, rcv++);
+            else
+                sts++;
         }
     } while ((retVal == CCanApi::NoError) && !timer.Timeout());
     EXPECT_EQ(CCanApi::ReceiverEmpty, retVal);
-    EXPECT_EQ(n, i);
+    EXPECT_EQ((spam - TEST_QRCVFULL), (rcv + sts));
+#if (1)
+    // @- DUT2 send / DUT1 read one more message to catch the overrun flag
+    timer.Restart((DEVICE_SEND_TIMEOUT + DEVICE_SEND_TIMEOUT) * CTimer::MSEC);
+    do {
+        retVal = dut2.WriteMessage(trmMsg, DEVICE_SEND_TIMEOUT);
+        if (retVal == CCanApi::TransmitterBusy)
+            PCBUSB_QXMT_DELAY();
+    } while ((retVal == CCanApi::TransmitterBusy) && !timer.Timeout());
+    do {
+        // read message by message (with time-out)
+        retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
+    } while ((retVal == CCanApi::ReceiverEmpty) && !timer.Timeout());
+    // @- todo: check if this also works with PeakCAN driver/wrapper!
+#endif
     // @- get status of DUT1 and check if bit 'queue_overrun' is set
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.queue_overrun);
     // @post:
     progress.Clear();
+#if (TC04_8_DEBUG != 0)
+    uint64_t ovfl = 0U; // PCAN_EXT_RX_QUE_OVERRUN (0x84): receive queue overrun counter (optional)
+    if (dut1.GetProperty((CANPROP_GET_VENDOR_PROP + 0x84U), (void*)&ovfl, sizeof(ovfl)) == CCanApi::NoError)
+        std::cout << "[   RCVQ   ] ov=" << ovfl << std::endl;
+    dut2.ShowTimeDifference("[   SEND   ]", t0, t1);
+    std::cout << "[          ]  + " << ((float)delay / 1000.f) << "ms" << std::endl;
+    dut1.ShowTimeDifference("[   READ   ]", m0, m1);
+    std::cout << "[   DIFF   ] dt=" << ((float)(dut1.TimeDifference(t0, t1) - dut2.TimeDifference(m0, m1)) / 1000.f) << "ms" << std::endl;
+#endif
     // @- send some frames to DUT2 and receive some frames from DUT2
     int32_t frames = g_Options.GetNumberOfTestFrames();
     EXPECT_EQ(frames, dut1.SendSomeFrames(dut2, frames));
@@ -1226,4 +1304,4 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_DISABLED)) {
     // @end.
 }
 
-//  $Id: TC09_GetStatus.cc 1173 2023-08-23 19:59:24Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC09_GetStatus.cc 1193 2023-09-06 10:21:35Z haumea $  Copyright (c) UV Software, Berlin.

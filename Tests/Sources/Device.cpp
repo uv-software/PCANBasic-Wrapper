@@ -489,7 +489,9 @@ void CCanDevice::ShowOperationMode(const char *prefix) {
 #if (OPTION_CAN_2_0_ONLY == 0)
     std::cout << "FDOE=" << (m_OpMode.fdoe ? 1 : 0) << ", ";
     std::cout << "BRSE=" << (m_OpMode.brse ? 1 : 0) << ", ";
+    std::cout << "NISO=" << (m_OpMode.niso ? 1 : 0) << ", ";
 #endif
+    std::cout << "SHRD=" << (m_OpMode.shrd ? 1 : 0) << ", ";
     std::cout << "NXTD=" << (m_OpMode.nxtd ? 1 : 0) << ", ";
     std::cout << "NRTR=" << (m_OpMode.nrtr ? 1 : 0) << ", ";
     std::cout << "ERR=" << (m_OpMode.err ? 1 : 0) << ", ";
@@ -528,4 +530,70 @@ bool CCanDevice::GetChannelInfoFromDeviceList(CCanApi::SChannelInfo &info) {
     return false;
 }
 
-// $Id: Device.cpp 1160 2023-08-20 16:37:37Z makemake $  Copyright (c) UV Software, Berlin //
+void CCanDevice::ShowChannelInformation(const char* prefix) {
+    char szDeviceName[CANPROP_MAX_BUFFER_SIZE] = "";
+    CANAPI_OpMode_t opMode = { CANMODE_DEFAULT };
+    CANAPI_Status_t status = {};
+    CANAPI_Return_t retVal;
+    bool bInitialized = true;
+    if (prefix)
+        std::cout << prefix << ' ';
+    if (GetStatus(status) != CCanApi::NoError) {
+        if ((retVal = InitializeChannel(m_nChannelNo, opMode)) != CCanApi::NoError) {
+            std::cout << "error(" << retVal << "): channel " << m_nChannelNo << " could not be initialized" << std::endl;
+            return;
+        }
+        bInitialized = false;
+    }
+    if ((retVal = GetProperty(CANPROP_GET_DEVICE_NAME, (void*)szDeviceName, CANPROP_MAX_BUFFER_SIZE)) != CCanApi::NoError) {
+        std::cout << "error(" << retVal << "): device name could not be read" << std::endl;
+        return;
+    }
+    if (!bInitialized) {
+        if ((retVal = TeardownChannel()) != CCanApi::NoError) {
+            std::cout << "error(" << retVal << "): channel " << m_nChannelNo << " could not be torn down" << std::endl;
+            return;
+        }
+    }
+    std::cout << szDeviceName << std::endl;
+}
+
+void CCanDevice::ShowChannelCapabilities(const char* prefix) {
+    CANAPI_OpMode_t opMode = { CANMODE_DEFAULT };
+    CANAPI_OpMode_t opCapa = {};
+    CANAPI_Status_t status = {};
+    CANAPI_Return_t retVal;
+    bool bInitialized = true;
+    if (prefix)
+        std::cout << prefix << ' ';
+    if (GetStatus(status) != CCanApi::NoError) {
+        if ((retVal = InitializeChannel(m_nChannelNo, opMode)) != CCanApi::NoError) {
+            std::cout << "error(" << retVal << "): channel " << m_nChannelNo << " could not be initialized" << std::endl;
+            return;
+        }
+        bInitialized = false;
+    }
+    if ((retVal = GetProperty(CANPROP_GET_OP_CAPABILITY, (void*)&opCapa.byte, sizeof(uint8_t))) != CCanApi::NoError) {
+        std::cout << "error(" << retVal << "): channel capabilities could not be read" << std::endl;
+        return;
+    }
+    if (!bInitialized) {
+        if ((retVal = TeardownChannel()) != CCanApi::NoError) {
+            std::cout << "error(" << retVal << "): channel " << m_nChannelNo << " could not be torn down" << std::endl;
+            return;
+        }
+    }
+#if (OPTION_CAN_2_0_ONLY == 0)
+    std::cout << "FDOE=" << (opCapa.fdoe ? 1 : 0) << ", ";
+    std::cout << "BRSE=" << (opCapa.brse ? 1 : 0) << ", ";
+    std::cout << "NISO=" << (opCapa.niso ? 1 : 0) << ", ";
+#endif
+    std::cout << "SHRD=" << (opCapa.shrd ? 1 : 0) << ", ";
+    std::cout << "NXTD=" << (opCapa.nxtd ? 1 : 0) << ", ";
+    std::cout << "NRTR=" << (opCapa.nrtr ? 1 : 0) << ", ";
+    std::cout << "ERR=" << (opCapa.err ? 1 : 0) << ", ";
+    std::cout << "MON=" << (opCapa.mon ? 1 : 0);
+    std::cout << std::endl;
+}
+
+// $Id: Device.cpp 1185 2023-08-29 10:42:03Z haumea $  Copyright (c) UV Software, Berlin //

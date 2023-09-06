@@ -1,4 +1,4 @@
-### CAN API V3 Wrapper Library for PEAK PCAN&reg; Interfaces (Windows&reg;)
+### CAN API V3 Wrapper Library for Peak-System PCAN&reg; Interfaces (Windows&reg;)
 
 _Copyright &copy; 2005-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.de)_ \
 _All rights reserved._
@@ -31,8 +31,8 @@ _All rights reserved._
   - `$(PROJROOT)\Sources\Wrapper\can_api.cpp`
   - `$(PROJROOT)\Libraries\CANAPI\Resource.rc`
   - `$(PROJROOT)\Libraries\PeakCAN\Resource.rc`
-  - `$(PROJROOT)\Utilities\can_moni\Sources\main.cpp`
-  - `$(PROJROOT)\Utilities\can_test\Sources\main.cpp`
+  - `$(PROJROOT)\Utilities\can_moni\Driver.h`
+  - `$(PROJROOT)\Utilities\can_test\Driver.h`
 
 ### Procedure
 

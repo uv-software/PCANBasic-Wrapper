@@ -45,39 +45,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with CAN API V3.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <cstdio>
-#include <iostream>
-#include "pch.h"
+#ifndef VERSION_H_INCLUDED
+#define VERSION_H_INCLUDED
+// SVN revision number (update with each commit: III)
+#define REVISION_NO  "$Rev: 1194 $"
+#endif // VERSION_H_INCLUDED
 
-GTEST_API_ int main(int argc, char **argv) {
-    std::cout << "CAN API V3 C++ Testing (";
-#if !defined(_MSC_VER)
-    std::cout << __VERSION__ << ")" << std::endl;
-#else
-#if !defined(_WIN64)
-    std::cout << "MSC " << _MSC_VER << " for x86)" << std::endl;
-#else
-    std::cout << "MSC " << _MSC_VER << " for x64)" << std::endl;
-#endif
-#endif
-    std::cout << CCanDriver::GetVersion() << std::endl;
-    std::cout << "Copyright (c) 2004-2012 by UV Software, Friedrichshafen" << std::endl;
-    std::cout << "Copyright (c) 2013-2023 by UV Software, Berlin" << std::endl;
-    std::cout << "Build: " << __DATE__ << " " << __TIME__ << " (" << REVISION_NO << ")" << std::endl;
-    // --- initialize GoogleTest framework --
-    printf("Running main() from %s\n", __FILE__);
-    testing::InitGoogleTest(&argc, argv);
-    // --- scan own command-line options ---
-    char szError[256] = "";
-    if (!g_Options.ScanOptions(argc, argv, szError, 256)) {
-        std::cerr << "+++ error: " << szError << std::endl;
-        return 1;
-    }
-    else if (g_Options.ShowHelp()) {
-        return 0;
-    }
-    // --- test execution starts here --
-    return RUN_ALL_TESTS();
-}
-
-// $Id: main.cpp 1185 2023-08-29 10:42:03Z haumea $  Copyright (c) UV Software, Berlin //
+// $Id: Version.h 1194 2023-09-06 16:48:53Z makemake $  Copyright (c) UV Software, Berlin //
