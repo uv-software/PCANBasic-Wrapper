@@ -1,9 +1,9 @@
 ### CAN API V3 Testing with GoogleTest
 
-_Copyright &copy; 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
+_Copyright &copy; 2004-2023  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
 _All rights reserved._
 
-Version $Rev: 1194 $
+Version $Rev: 1201 $
 
 # CAN Interface Wrapper Specification
 
