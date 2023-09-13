@@ -6,8 +6,6 @@ popd
 
 pushd
 call build_no.bat
-rem type .\Sources\build_no.h
-rem pause
 
 call msbuild.exe .\Trial\pcb_test.vcxproj /t:Clean;Build /p:"Configuration=Debug";"Platform=Win32"
 if errorlevel 1 goto end
