@@ -779,13 +779,20 @@ repeat:
         return CANERR_RX_EMPTY;         //   receiver empty
 #endif
     }
-    if ((rc & ~(PCAN_ERROR_ANYBUSERR | PCAN_ERROR_QOVERRUN))) {
-        can[handle].status.receiver_empty = 1;
-        return pcan_error(rc);          // something went wrong
+    if ((rc & PCAN_ERROR_OVERRUN)) {
+        can[handle].status.message_lost = 1;
+        /* note: a message got lost, but maybe we have a message */
     }
-    else if ((rc & ~PCAN_ERROR_ANYBUSERR) == PCAN_ERROR_QOVERRUN) {
+    if ((rc & PCAN_ERROR_QOVERRUN)) {
         can[handle].status.queue_overrun = 1;
-        /* note: queue has overrun, but we have a message */
+        /* note: queue has overrun, but maybe we have a message */
+    }
+    if ((rc & PCAN_ERROR_QRCVEMPTY)) {  // receice queue empty?
+        can[handle].status.receiver_empty = 1;
+        if ((rc & 0xFF00U))
+            return pcan_error(rc);      //   something went wrong
+        else
+            return CANERR_RX_EMPTY;     //   receiver empty!
     }
     if (!can[handle].mode.fdoe) {       // CAN 2.0 message:
         if ((can_msg.MSGTYPE & PCAN_MESSAGE_EXTENDED) && can[handle].mode.nxtd)
