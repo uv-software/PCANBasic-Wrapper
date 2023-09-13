@@ -118,7 +118,7 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.7.3)
+- Microsoft Visual Studio Community 2022 (Version 17.7.4)
 
 ### Required PCANBasic DLL
 
@@ -136,14 +136,18 @@ For a list of known bugs and caveats see tab [Issues](https://github.com/uv-soft
 
 ## This and That
 
-### PCANBasic DLL
+### PCANBasic DLL for Windows&reg;
 
 The PCANBasic DLL can be downloaded form [Peak-System](https://www.peak-system.com/) website. \
 Please note the copyright and license agreements.
 
-### Wrapper Library for macOS&reg;
+### Wrapper Library for macOS&reg; and Linux&reg;
 
-A version for macOS can be downloaded from / cloned at [GitHub](https://github.com/mac-can/PCBUSB-Wrapper).
+A version for macOS and Linux can be downloaded from / cloned at [GitHub](https://github.com/mac-can/PCBUSB-Wrapper).
+
+### CAN API V3 Reference
+
+A generic documentation of the CAN API V3 application programming interface can be found [here](https://uv-software.github.io/CANAPI-Docs/#/).
 
 ### Dual-License
 
@@ -159,7 +163,7 @@ Windows is a registered trademark of Microsoft Corporation in the United States 
 PCAN is a registered trademark of Peak-System Technik GmbH, Darmstadt, Germany. \
 Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. \
 Linux is a registered trademark of Linus Torvalds. \
-All other company, product and service names mentioned herein may be trademarks, registered trademarks or service marks of their respective owners.
+All other company, product and service names mentioned herein may be trademarks, registered trademarks, or service marks of their respective owners.
 
 ### Hazard Note
 
