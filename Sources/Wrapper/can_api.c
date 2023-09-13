@@ -1060,7 +1060,7 @@ EXPORT
 char *can_hardware(int handle)
 {
     static char hardware[256] = "";     // hardware version
-    char  str[256] = "", *ptr;          // info string
+    char str[MAX_LENGTH_HARDWARE_NAME] = "", *ptr = NULL;
     DWORD dev = 0x0000UL;               // device number
 
     if (!init)                          // must be initialized
@@ -1070,19 +1070,21 @@ char *can_hardware(int handle)
     if (can[handle].board == PCAN_NONEBUS) // must be an opened handle
         return NULL;
 
-    if (CAN_GetValue(can[handle].board, PCAN_HARDWARE_NAME, (void*)str, 256) != PCAN_ERROR_OK)
+    if (CAN_GetValue(can[handle].board, PCAN_HARDWARE_NAME, (void*)str, MAX_LENGTH_HARDWARE_NAME) != PCAN_ERROR_OK)
         return NULL;
     if ((ptr = strchr(str, '\n')) != NULL)
        *ptr = '\0';
     if ((((can[handle].board & 0x00F0) >> 4) == PCAN_USB) ||
        (((can[handle].board & 0x0F00) >> 8) == PCAN_USB))
     {
-        if (CAN_GetValue(can[handle].board, PCAN_DEVICE_NUMBER, (void*)&dev, 4) != PCAN_ERROR_OK)
+        if (CAN_GetValue(can[handle].board, PCAN_DEVICE_NUMBER, (void*)&dev, sizeof(DWORD)) != PCAN_ERROR_OK)
             return NULL;
-        snprintf(hardware, 256, "%s, Device-Id. %02lXh", str, dev);
+        snprintf(hardware, 256, "%s, Device-Id. %02Xh", str, dev);
     }
-    else
-        strcpy(hardware, str);
+    else {
+        strncpy(hardware, str, 256);
+    }
+    hardware[255] = '\0';
 
     return (char*)hardware;             // hardware version
 }
@@ -1091,8 +1093,8 @@ EXPORT
 char *can_firmware(int handle)
 {
     static char firmware[256] = "";     // firmware version
-    char  str[256] = "", *ptr;          // info string
-    char  ver[256] = "";                // version
+    char str[MAX_LENGTH_HARDWARE_NAME] = "", *ptr = NULL;
+    char ver[MAX_LENGTH_VERSION_STRING] = "";
 
     if (!init)                          // must be initialized
         return NULL;
@@ -1101,13 +1103,16 @@ char *can_firmware(int handle)
     if (can[handle].board == PCAN_NONEBUS) // must be an opened handle
         return NULL;
 
-    if (CAN_GetValue(can[handle].board, PCAN_HARDWARE_NAME, (void*)str, 256) != PCAN_ERROR_OK)
+    if (CAN_GetValue(can[handle].board, PCAN_HARDWARE_NAME, (void*)str, MAX_LENGTH_HARDWARE_NAME) != PCAN_ERROR_OK)
         return NULL;
     if ((ptr = strchr(str, '\n')) != NULL)
         *ptr = '\0';
-    if (CAN_GetValue(can[handle].board, PCAN_FIRMWARE_VERSION, (void*)ver, 256) != PCAN_ERROR_OK)
+    if (CAN_GetValue(can[handle].board, PCAN_FIRMWARE_VERSION, (void*)ver, MAX_LENGTH_VERSION_STRING) != PCAN_ERROR_OK)
         return NULL;
-    snprintf(firmware, 256, "%s, Firmware %s", str, ver);
+    strncpy(firmware, str, 256);
+    strncat(firmware, ", Firmware ", 255);
+    strncat(firmware, ver, 255);
+    firmware[255] = '\0';
 
     return (char*)firmware;             // firmware version
 }
