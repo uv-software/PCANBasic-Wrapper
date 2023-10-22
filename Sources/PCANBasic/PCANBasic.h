@@ -8,7 +8,7 @@
 //
 //  ------------------------------------------------------------------
 //  Author : Keneth Wagner
-//  Last change: 2023-06-01
+//  Last change: 2023-08-28
 //
 //  Language: ANSI-C
 //  ------------------------------------------------------------------
@@ -183,6 +183,7 @@
 #define PCAN_ATTACHED_CHANNELS        0x2BU  // Get information about PCAN channels attached to a system
 #define PCAN_ALLOW_ECHO_FRAMES        0x2CU  // Echo messages reception status within a PCAN-Channel
 #define PCAN_DEVICE_PART_NUMBER       0x2DU  // Get the part number associated to a device
+#define PCAN_HARD_RESET_STATUS        0x2EU  // Activation status of hard reset processing via CAN_Reset calls
 
 // DEPRECATED parameters
 //
