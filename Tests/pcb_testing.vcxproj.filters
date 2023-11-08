@@ -48,9 +48,6 @@
     <ClCompile Include="Sources\Properties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Testcases\TC01_ProbeChannel.cc">
       <Filter>Source Files\Testcases</Filter>
     </ClCompile>
@@ -86,6 +83,9 @@
     </ClCompile>
     <ClCompile Include="Testcases\TCx2_BitrateConverter.cc">
       <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Timer64.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,13 +131,13 @@
     <ClInclude Include="Sources\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Sources\Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Timer64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

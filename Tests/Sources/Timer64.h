@@ -2,7 +2,7 @@
 //
 //  Software for Industrial Communication, Motion Control and Automation
 //
-//  Copyright (c) 2002-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2002-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This class is dual-licensed under the BSD 2-Clause "Simplified" License and
@@ -43,41 +43,49 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this class.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef PROGRESS_H_INCLUDED
-#define PROGRESS_H_INCLUDED
+#ifndef TIMER_H_INCLUDED
+#define TIMER_H_INCLUDED
 
 #if _MSC_VER > 1000
 #pragma once
 #endif
 
-class CProgress {
+#include <time.h>
+#include <stdint.h>
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+#define CTIMER_WAITABLE_TIMER  // a Windows alternative for usleep()
+#endif
+
+class CTimer {
 public:
-    CProgress(int count, int steps = 50);
-    ~CProgress();
+    static const uint64_t USEC = 1U;  // 1 microsecond
+    static const uint64_t MSEC = 1000U;  // 1 millisecond
+    static const uint64_t SEC = 1000000U;  // 1 second
+    static const uint64_t MIN = 60000000U;  // 1 minute
 private:
-    int m_nSteps;
-    int m_nCount;
-    struct {
-        int m_nCount;
-        int m_nIndex;
-    }   m_Primary, m_Secondary;
+#if !defined(_WIN32) && !defined(_WIN64)
+    uint64_t m_u64UntilStop;  // counter value for the desired time-out
+#else
+    LARGE_INTEGER m_largeFrequency;  // frequency in counts per second
+    LONGLONG      m_llUntilStop;     // counter value for the desired time-out
+#endif
 public:
-    void Clear();
-    void Update(int primary, int secondary = 0);
+    CTimer(uint64_t u64Microseconds = 0);
+    virtual ~CTimer() {};
+
+    bool Restart(uint64_t u64Microseconds);  // restart the timer!
+    bool Timeout();                          // time-out occurred?
+
+    static bool Delay(uint64_t u64Microseconds);  // delay timer
+
+    static struct timespec GetTime();  // time with nanosecond resolution
+    static double DiffTime(struct timespec start, struct timespec stop);
 };
 
-class CCounter {
-public:
-    CCounter(bool wait = false);
-    ~CCounter();
-private:
-    int m_nCounter;
-public:
-    void Reset(bool wait = false);
-    void Increment();
-    void Clear();
-};
+#endif // TIMER_H_INCLUDED
 
-#endif // PROGRESS_H_INCLUDED
-
-// $Id: Progress.h 798 2023-10-07 19:01:13Z makemake $  Copyright (c) UV Software, Berlin //
+// $Id$  Copyright (c) UV Software, Berlin //

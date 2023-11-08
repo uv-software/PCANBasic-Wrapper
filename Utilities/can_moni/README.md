@@ -1,4 +1,4 @@
-__CAN Monitor for Peak-System PCAN Interfaces, Version 0.4.6__ \
+__CAN Monitor for Peak-System PCAN Interfaces, Version 0.4.7__ \
 Copyright &copy; 2007,2017-2023 by Uwe Vogt, UV Software, Berlin
 
 ```

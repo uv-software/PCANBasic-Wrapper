@@ -49,7 +49,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-#include "Timer.h"
+#include "Timer64.h"
 
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <errno.h>
@@ -58,22 +58,24 @@ static char THIS_FILE[]=__FILE__;
 #endif
 #define POSIX_DEPRECATED  0  /* set to non-zero value to use 'gettimeofday' and 'usleep'*/
 
-CTimer::CTimer(uint32_t u32Microseconds) {
+CTimer::CTimer(uint64_t u64Microseconds) {
 #if !defined(_WIN32) && !defined(_WIN64)
 #if (POSIX_DEPRECATED != 0)
     struct timeval tv;
     gettimeofday(&tv, NULL);
     m_u64UntilStop = ((uint64_t)tv.tv_sec * (uint64_t)1000000) + (uint64_t)tv.tv_usec
-                   + ((uint64_t)u32Microseconds);
+                   + ((uint64_t)u64Microseconds);
 #else
     struct timespec now = { 0, 0 };
     clock_gettime(CLOCK_MONOTONIC, &now);
     m_u64UntilStop = ((uint64_t)now.tv_sec * (uint64_t)1000000)
                    + ((uint64_t)now.tv_nsec / (uint64_t)1000)
-                   + ((uint64_t)u32Microseconds);
+                   + ((uint64_t)u64Microseconds);
 #endif
 #else
     LARGE_INTEGER largeCounter;  // high-resolution performance counter
+
+    m_llUntilStop = (LONGLONG)0; // counter value for the desired time-out
 
     // retrieve the frequency of the high-resolution performance counter
     if(!QueryPerformanceFrequency(&m_largeFrequency))
@@ -82,24 +84,24 @@ CTimer::CTimer(uint32_t u32Microseconds) {
     if(!QueryPerformanceCounter(&largeCounter))
         return;
     // calculate the counter value for the desired time-out
-    m_llUntilStop = largeCounter.QuadPart + ((m_largeFrequency.QuadPart * (LONGLONG)u32Microseconds)
+    m_llUntilStop = largeCounter.QuadPart + ((m_largeFrequency.QuadPart * (LONGLONG)u64Microseconds)
                                                                         / (LONGLONG)1000000);
 #endif
 }
 
-bool CTimer::Restart(uint32_t u32Microseconds) {
+bool CTimer::Restart(uint64_t u64Microseconds) {
 #if !defined(_WIN32) && !defined(_WIN64)
 #if (POSIX_DEPRECATED != 0)
     struct timeval tv;
     gettimeofday(&tv, NULL);
     m_u64UntilStop = ((uint64_t)tv.tv_sec * (uint64_t)1000000) + (uint64_t)tv.tv_usec
-                   + ((uint64_t)u32Microseconds);
+                   + ((uint64_t)u64Microseconds);
 #else
     struct timespec now = { 0, 0 };
     clock_gettime(CLOCK_MONOTONIC, &now);
     m_u64UntilStop = ((uint64_t)now.tv_sec * (uint64_t)1000000)
                    + ((uint64_t)now.tv_nsec / (uint64_t)1000)
-                   + ((uint64_t)u32Microseconds);
+                   + ((uint64_t)u64Microseconds);
 #endif
     return true;
 #else
@@ -109,7 +111,7 @@ bool CTimer::Restart(uint32_t u32Microseconds) {
     if(!QueryPerformanceCounter(&largeCounter))
         return false;
     // calculate the counter value for the desired time-out
-    m_llUntilStop = largeCounter.QuadPart + ((m_largeFrequency.QuadPart * (LONGLONG)u32Microseconds)
+    m_llUntilStop = largeCounter.QuadPart + ((m_largeFrequency.QuadPart * (LONGLONG)u64Microseconds)
                                                                         / (LONGLONG)1000000);
     return true;
 #endif
@@ -146,15 +148,15 @@ bool CTimer::Timeout() {
 #endif
 }
 
-bool CTimer::Delay(uint32_t u32Microseconds) {
+bool CTimer::Delay(uint64_t u64Microseconds) {
 #if !defined(_WIN32) && !defined(_WIN64)
 #if (POSIX_DEPRECATED != 0)
-    return (usleep((useconds_t)u32Microseconds) != 0) ? false : true;
+    return (usleep((useconds_t)u64Microseconds) != 0) ? false : true;
 #else
     int rc;
     struct timespec delay;
-    delay.tv_sec = (time_t)(u32Microseconds / CTimer::SEC);
-    delay.tv_nsec = (long)((u32Microseconds % CTimer::SEC) * (uint32_t)1000);
+    delay.tv_sec = (time_t)(u64Microseconds / CTimer::SEC);
+    delay.tv_nsec = (long)((u64Microseconds % CTimer::SEC) * (uint32_t)1000);
     errno = 0;
     while ((rc = nanosleep(&delay, &delay))) {
         if (errno != EINTR)
@@ -175,7 +177,7 @@ bool CTimer::Delay(uint32_t u32Microseconds) {
     if(!QueryPerformanceFrequency(&largeFrequency))
         return false;
     // calculate the counter value for the desired delay
-    llUntilStop = largeCounter.QuadPart + ((largeFrequency.QuadPart * (LONGLONG)u32Microseconds)
+    llUntilStop = largeCounter.QuadPart + ((largeFrequency.QuadPart * (LONGLONG)u64Microseconds)
                                                                     / (LONGLONG)1000000);
     // wait until the counter overruns the delay time
     for(;;)
@@ -189,9 +191,9 @@ bool CTimer::Delay(uint32_t u32Microseconds) {
     HANDLE timer;
     LARGE_INTEGER ft;
 
-    ft.QuadPart = -(10 * (LONGLONG)u32Microseconds); // Convert to 100 nanosecond interval, negative value indicates relative time
+    ft.QuadPart = -(10 * (LONGLONG)u64Microseconds); // Convert to 100 nanosecond interval, negative value indicates relative time
 
-    if(u32Microseconds >= 100) {  // FIXME: Who made this decision?
+    if(u64Microseconds >= 100) {  // FIXME: Who made this decision?
         if ((timer = CreateWaitableTimer(NULL, TRUE, NULL)) != NULL) {
             SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
             WaitForSingleObject(timer, INFINITE);
@@ -256,4 +258,4 @@ double CTimer::DiffTime(struct timespec start, struct timespec stop) {
             ((double)start.tv_sec + ((double)start.tv_nsec / 1000000000.f)));
 }
 
-// $Id: Timer.cpp 1213 2023-10-07 19:43:58Z makemake $  Copyright (c) UV Software, Berlin //
+// $Id$  Copyright (c) UV Software, Berlin //

@@ -164,7 +164,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Sources\Properties.cpp" />
-    <ClCompile Include="Sources\Timer.cpp">
+    <ClCompile Include="Sources\Timer64.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -201,7 +201,7 @@
     <ClInclude Include="Sources\Progress.h" />
     <ClInclude Include="Sources\Properties.h" />
     <ClInclude Include="Sources\Settings.h" />
-    <ClInclude Include="Sources\Timer.h" />
+    <ClInclude Include="Sources\Timer64.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
