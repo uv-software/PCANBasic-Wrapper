@@ -53,7 +53,7 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    4
-#define VERSION_PATCH    7
+#define VERSION_PATCH    99
 #else
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    2
