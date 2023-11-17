@@ -121,10 +121,12 @@ int main(int argc, const char * argv[]) {
     useconds_t txDelay = 0U;
     CCanApi::SChannelInfo info;
     CCanApi::EChannelState state;
+    uint32_t fltCode = 0x000U;
+    uint32_t fltMask = 0x7FFU;
 //    int32_t clocks[CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t)];
     char szVal[CANPROP_MAX_BUFFER_SIZE];
-    uint16_t u16Val;
     uint32_t u32Val;
+    uint16_t u16Val;
     uint8_t u8Val;
     int32_t i32Val;
     int frames = 0;
@@ -466,6 +468,27 @@ int main(int argc, const char * argv[]) {
             fprintf(stdout, ">>> myDriver.GetProperty(CANPROP_GET_CAN_CLOCK): value = %d\n", i32Val);
         //else [optional property]
         //    fprintf(stderr, "+++ error: myDriver.GetProperty(CANPROP_GET_CAN_CLOCK) returned %i\n", retVal);
+        /* identifier filtering */
+#if (0)
+        retVal = myDriver.SetFilter11Bit(0x000U, 0x500U);
+        if (retVal != CCanApi::NoError)
+            fprintf(stderr, "+++ error: myDriver.SetFilter11Bit returned %i\n", retVal);
+#endif
+        retVal = myDriver.GetFilter11Bit(fltCode, fltMask);
+        if (retVal == CCanApi::NoError)
+            fprintf(stdout, ">>> myDriver.GetFilter11Bit: code = 0x%03" PRIx32 " mask = 0x%03" PRIx32 "\n", fltCode, fltMask);
+        else
+            fprintf(stderr, "+++ error: myDriver.GetFilter11Bit returned %i\n", retVal);
+#if (0)
+        retVal = myDriver.SetFilter29Bit(0x00001000U, 0x00000500U);
+        if (retVal != CCanApi::NoError)
+            fprintf(stderr, "+++ error: myDriver.SetFilter29Bit returned %i\n", retVal);
+#endif
+        retVal = myDriver.GetFilter29Bit(fltCode, fltMask);
+        if (retVal == CCanApi::NoError)
+            fprintf(stdout, ">>> myDriver.GetFilter29Bit: code = 0x%03" PRIx32 " mask = 0x%03" PRIx32 "\n", fltCode, fltMask);
+        else
+            fprintf(stderr, "+++ error: myDriver.GetFilter29Bit returned %i\n", retVal);
         /* device capabilities */
         retVal = myDriver.GetProperty(CANPROP_GET_OP_CAPABILITY, (void *)&u8Val, sizeof(uint8_t));
         if (retVal == CCanApi::NoError)

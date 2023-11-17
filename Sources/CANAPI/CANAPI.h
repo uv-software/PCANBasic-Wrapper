@@ -75,7 +75,7 @@
 ///
 /// \author      $Author: haumea $
 //
-/// \version     $Rev: 1212 $
+/// \version     $Rev: 1223 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -397,7 +397,7 @@ public:
     //
     /// \param[in]   param    - property id to be read
     /// \param[out]  value    - pointer to a buffer for the value to be read
-    /// \param[in]   nbyte   -  size of the given buffer in byte
+    /// \param[in]   nbyte    - size of the given buffer in byte
     //
     /// \returns     0 if successful, or a negative value on error.
     //
@@ -407,11 +407,47 @@ public:
     //
     /// \param[in]   param    - property id to be written
     /// \param[in]   value    - pointer to a buffer with the value to be written
-    /// \param[in]   nbyte   -  size of the given buffer in byte
+    /// \param[in]   nbyte    - size of the given buffer in byte
     //
     /// \returns     0 if successful, or a negative value on error.
     //
     virtual CANAPI_Return_t SetProperty(uint16_t param, const void *value, uint32_t nbyte) = 0;
+
+    /// \brief       sets the filter for 11-bit CAN identifiers.
+    //
+    /// \param[in]   code    - 11-bit code for the filter
+    /// \param[in]   mask    - 11-bit mask for the filter
+    //
+    /// \returns     0 if successful, or a negative value on error.
+    //
+    virtual CANAPI_Return_t SetFilter11Bit(uint32_t code, uint32_t mask) = 0;
+
+    /// \brief       retrieves the filter for 11-bit CAN identifiers.
+    //
+    /// \param[out]  code    - 11-bit code for the filter
+    /// \param[out]  mask    - 11-bit mask for the filter
+    //
+    /// \returns     0 if successful, or a negative value on error.
+    //
+    virtual CANAPI_Return_t GetFilter11Bit(uint32_t &code, uint32_t &mask) = 0;
+
+    /// \brief       sets the filter for 29-bit CAN identifiers.
+    //
+    /// \param[in]   code    - 29-bit code for the filter
+    /// \param[in]   mask    - 29-bit mask for the filter
+    //
+    /// \returns     0 if successful, or a negative value on error.
+    //
+    virtual CANAPI_Return_t SetFilter29Bit(uint32_t code, uint32_t mask) = 0;
+
+    /// \brief       retrieves the filter for 29-bit CAN identifiers.
+    //
+    /// \param[out]  code    - 29-bit code for the filter
+    /// \param[out]  mask    - 29-bit mask for the filter
+    //
+    /// \returns     0 if successful, or a negative value on error.
+    //
+    virtual CANAPI_Return_t GetFilter29Bit(uint32_t &icoded, uint32_t &mask) = 0;
 
     /// \brief       retrieves the hardware version of the CAN controller
     ///              board as a zero-terminated string.
@@ -478,4 +514,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 1212 2023-10-04 15:41:24Z haumea $  Copyright (c) UV Software //
+// $Id: CANAPI.h 1223 2023-11-17 21:41:34Z haumea $  Copyright (c) UV Software //

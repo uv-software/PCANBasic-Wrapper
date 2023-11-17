@@ -52,12 +52,12 @@
 #include "build_no.h"
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
-#define VERSION_MINOR    4
+#define VERSION_MINOR    5
 #define VERSION_PATCH    99
 #else
 #define VERSION_MAJOR    0
-#define VERSION_MINOR    2
-#define VERSION_PATCH    7
+#define VERSION_MINOR    3
+#define VERSION_PATCH    99
 #endif
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
@@ -1358,6 +1358,10 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
     case CANPROP_GET_RCV_QUEUE_SIZE:    // maximum number of message the receive queue can hold (uint32_t)
     case CANPROP_GET_RCV_QUEUE_HIGH:    // maximum number of message the receive queue has hold (uint32_t)
     case CANPROP_GET_RCV_QUEUE_OVFL:    // overflow counter of the receive queue (uint64_t)
+    case CANPROP_GET_FILTER_11BIT:      // acceptance filter code and mask for 11-bit identifier (uint64_t)
+    case CANPROP_GET_FILTER_29BIT:      // acceptance filter code and mask for 29-bit identifier (uint64_t)
+    case CANPROP_SET_FILTER_11BIT:      // set value for acceptance filter code and mask for 11-bit identifier (uint64_t)
+    case CANPROP_SET_FILTER_29BIT:      // set value for acceptance filter code and mask for 29-bit identifier (uint64_t)
         // note: a device parameter requires a valid handle.
         if (!init)
             rc = CANERR_NOTINIT;
@@ -1532,6 +1536,52 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
     case CANPROP_GET_RCV_QUEUE_OVFL:    // overflow counter of the receive queue (uint64_t)
         // note: cannot be determined
         rc = CANERR_NOTSUPP;
+        break;
+    case CANPROP_GET_FILTER_11BIT:      // acceptance filter code and mask for 11-bit identifier (uint64_t)
+        if (nbyte >= sizeof(uint64_t)) {
+            if ((sts = CAN_GetValue(can[handle].board, (BYTE)PCAN_ACCEPTANCE_FILTER_11BIT,
+                (void*)value, (DWORD)nbyte)) == PCAN_ERROR_OK)
+                rc = CANERR_NOERROR;
+            else
+                rc = pcan_error(sts);
+        }
+        break;
+    case CANPROP_GET_FILTER_29BIT:      // acceptance filter code and mask for 29-bit identifier (uint64_t)
+        if (nbyte >= sizeof(uint64_t)) {
+            if ((sts = CAN_GetValue(can[handle].board, (BYTE)PCAN_ACCEPTANCE_FILTER_29BIT,
+                (void*)value, (DWORD)nbyte)) == PCAN_ERROR_OK)
+                rc = CANERR_NOERROR;
+            else
+                rc = pcan_error(sts);
+        }
+        break;
+    case CANPROP_SET_FILTER_11BIT:      // set value for acceptance filter code and mask for 11-bit identifier (uint64_t)
+        if (nbyte >= sizeof(uint64_t)) {
+            if (can[handle].status.can_stopped) {
+                // note: set filter only if the CAN controller is in INIT mode
+                if ((sts = CAN_SetValue(can[handle].board, (BYTE)PCAN_ACCEPTANCE_FILTER_11BIT,
+                    (void*)value, (DWORD)nbyte)) == PCAN_ERROR_OK)
+                    rc = CANERR_NOERROR;
+                else
+                    rc = pcan_error(sts);
+            }
+            else
+                rc = CANERR_ONLINE;
+        }
+        break;
+    case CANPROP_SET_FILTER_29BIT:      // set value for acceptance filter code and mask for 29-bit identifier (uint64_t)
+        if (nbyte >= sizeof(uint64_t)) {
+            if (can[handle].status.can_stopped) {
+                // note: set filter only if the CAN controller is in INIT mode
+                if ((sts = CAN_SetValue(can[handle].board, (BYTE)PCAN_ACCEPTANCE_FILTER_29BIT,
+                    (void*)value, (DWORD)nbyte)) == PCAN_ERROR_OK)
+                    rc = CANERR_NOERROR;
+                else
+                    rc = pcan_error(sts);
+            }
+            else
+                rc = CANERR_ONLINE;
+        }
         break;
     default:
         if ((CANPROP_GET_VENDOR_PROP <= param) &&  // get a vendor-specific property value (void*)

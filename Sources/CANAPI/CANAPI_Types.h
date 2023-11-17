@@ -51,7 +51,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 1212 $
+ *  @version     $Rev: 1223 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -333,14 +333,10 @@ extern "C" {
 #define CANPROP_GET_TRM_QUEUE_SIZE  30U /**< maximum number of message the transmit queue can hold (uint32_t) */
 #define CANPROP_GET_TRM_QUEUE_HIGH  31U /**< maximum number of message the transmit queue has hold (uint32_t) */
 #define CANPROP_GET_TRM_QUEUE_OVFL  32U /**< overflow counter of the transmit queue (uint64_t) */
-#define CANPROP_GET_FLT_11BIT_CODE  40U /**< acceptance filter code of 11-bit identifier (int32_t) */
-#define CANPROP_GET_FLT_11BIT_MASK  41U /**< acceptance filter mask of 11-bit identifier (int32_t) */
-#define CANPROP_GET_FLT_29BIT_CODE  42U /**< acceptance filter code of 29-bit identifier (int32_t) */
-#define CANPROP_GET_FLT_29BIT_MASK  43U /**< acceptance filter mask of 29-bit identifier (int32_t) */
-#define CANPROP_SET_FLT_11BIT_CODE  44U /**< set value for acceptance filter code of 11-bit identifier (int32_t) */
-#define CANPROP_SET_FLT_11BIT_MASK  45U /**< set value for acceptance filter mask of 11-bit identifier (int32_t) */
-#define CANPROP_SET_FLT_29BIT_CODE  46U /**< set value for acceptance filter code of 29-bit identifier (int32_t) */
-#define CANPROP_SET_FLT_29BIT_MASK  47U /**< set value for acceptance filter mask of 29-bit identifier (int32_t) */
+#define CANPROP_GET_FILTER_11BIT    40U /**< acceptance filter code and mask for 11-bit identifier (uint64_t) */
+#define CANPROP_GET_FILTER_29BIT    41U /**< acceptance filter code and mask for 29-bit identifier (uint64_t) */
+#define CANPROP_SET_FILTER_11BIT    42U /**< set value for acceptance filter code and mask for 11-bit identifier (uint64_t) */
+#define CANPROP_SET_FILTER_29BIT    43U /**< set value for acceptance filter code and mask for 29-bit identifier (uint64_t) */
 #if (OPTION_CANAPI_LIBRARY != 0)
 /* - -  build-in bit-rate conversion  - - - - - - - - - - - - - - - - - */
 #define CANPROP_GET_BTR_INDEX       64U /**< bit-rate as CiA index (int32_t) */
