@@ -707,5 +707,4 @@ TEST_F(GetProperty, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     // @- end
 }
 
-
 //  $Id: TC12_GetProperty.cc 1201 2023-09-13 11:09:28Z makemake $  Copyright (c) UV Software, Berlin.

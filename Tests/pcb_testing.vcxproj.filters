@@ -87,6 +87,9 @@
     <ClCompile Include="Sources\Timer64.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Testcases\TC23_SetFilter.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\pch.h">

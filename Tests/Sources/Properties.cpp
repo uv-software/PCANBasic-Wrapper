@@ -50,7 +50,7 @@
 #include <limits.h>
 #include <iostream>
 
-#define MAX_PROPERTIES  37
+#define MAX_PROPERTIES  41
 
 #define LIB_PARAM  true
 #define DRV_PARAM  false
@@ -60,6 +60,12 @@
 
 #define PROP_REQUIRED  true
 #define PROP_OPTIONAL  false
+
+#if (FEATURE_FILTERING != FEATURE_SUPPORTED)
+#define PROP_FILTERING  PROP_OPTIONAL
+#else
+#define PROP_FILTERING  PROP_REQUIRED
+#endif
 
 static struct SProperty {
     uint16_t m_nId;
@@ -99,6 +105,10 @@ static struct SProperty {
     { CANPROP_GET_TRM_QUEUE_SIZE  , sizeof(uint32_t),        DRV_PARAM, PROP_GETTER, PROP_OPTIONAL, "maximum number of message the transmit queue can hold (uint32_t)" },
     { CANPROP_GET_TRM_QUEUE_HIGH  , sizeof(uint32_t),        DRV_PARAM, PROP_GETTER, PROP_OPTIONAL, "maximum number of message the transmit queue has hold (uint32_t)" },
     { CANPROP_GET_TRM_QUEUE_OVFL  , sizeof(uint64_t),        DRV_PARAM, PROP_GETTER, PROP_OPTIONAL, "overflow counter of the transmit queue (uint64_t)" },
+    { CANPROP_GET_FILTER_11BIT    , sizeof(uint64_t),        DRV_PARAM, PROP_GETTER, PROP_FILTERING, "acceptance filter code and mask for 11-bit identifier (uint64_t)" },
+    { CANPROP_GET_FILTER_29BIT    , sizeof(uint64_t),        DRV_PARAM, PROP_GETTER, PROP_FILTERING, "acceptance filter code and mask for 29-bit identifier (uint64_t)" },
+    { CANPROP_SET_FILTER_11BIT    , sizeof(uint64_t),        DRV_PARAM, PROP_SETTER, PROP_FILTERING, "set value for acceptance filter code and mask for 11-bit identifier (uint64_t)" },
+    { CANPROP_SET_FILTER_29BIT    , sizeof(uint64_t),        DRV_PARAM, PROP_SETTER, PROP_FILTERING, "set value for acceptance filter code and mask for 29-bit identifier (uint64_t)" },
     /* note:  SET_FIRST_CHANNEL must be called before any GET_CHANNEL_xyz, therefore we define it as a PROP_GETTER because it gets a (virtual) index */
     { CANPROP_SET_FIRST_CHANNEL   , 0U /* NULL pointer*/,    LIB_PARAM, PROP_GETTER, PROP_REQUIRED, "set index to the first entry in the interface list (NULL)" },
     { CANPROP_GET_CHANNEL_NO      , sizeof(int32_t),         LIB_PARAM, PROP_GETTER, PROP_REQUIRED, "get channel no. at actual index in the interface list (int32_t)" },

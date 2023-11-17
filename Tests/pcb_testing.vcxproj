@@ -181,6 +181,7 @@
     <ClCompile Include="Testcases\TC09_GetStatus.cc" />
     <ClCompile Include="Testcases\TC11_GetBitrate.cc" />
     <ClCompile Include="Testcases\TC12_GetProperty.cc" />
+    <ClCompile Include="Testcases\TC23_SetFilter.cc" />
     <ClCompile Include="Testcases\TCx1_CallSequences.cc" />
     <ClCompile Include="Testcases\TCx2_BitrateConverter.cc" />
   </ItemGroup>
