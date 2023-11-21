@@ -119,17 +119,16 @@ TEST_F(SetFilter, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
     EXPECT_EQ(maskGet, maskGet);
-    // @- (re-)set 11-bit filter (code 0x000 and mask 0x7FF)
+    // @- reset acceptance filter
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    codeSet = 0x00000000U; maskSet = 0x00000007FFU;
-    retVal = dut1.SetFilter11Bit(codeSet, maskSet);
+    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 11-bit filter (code 0x000 and mask 0x500)
+    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
+    EXPECT_EQ(0x00000000U, codeGet);
+    EXPECT_EQ(0x000007FFU, maskGet);
     // @test: 29-bit identifier
     // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
@@ -147,17 +146,16 @@ TEST_F(SetFilter, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
     EXPECT_EQ(maskGet, maskGet);
-    // @- (re-)set 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
+    // @- reset acceptance filter
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    codeSet = 0x00000000U; maskSet = 0x1FFFFFFF;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
+    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
     retVal = dut1.GetFilter29Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
+    EXPECT_EQ(0x00000000U, codeGet);
+    EXPECT_EQ(0x1FFFFFFFU, maskGet);
     // @post:
     // @- start DUT1 with configured bit-rate settings
     retVal = dut1.StartController();
@@ -208,22 +206,25 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     CANAPI_Return_t retVal;
  
     // @test: 11-bit identifier
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
+    // @- try to get 11-bit filter (code 0x000 and mask 0x7FF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @- set 11-bit filter (code 0x000 and mask 0x500)
+    // @- try to set 11-bit filter (code 0x000 and mask 0x500)
     codeSet = 0x00000000U; maskSet = 0x0000000500U;
     retVal = dut1.SetFilter11Bit(codeSet, maskSet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
     // @test: 29-bit identifier
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
+    // @- try to get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
     retVal = dut1.GetFilter29Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @- set 29-bit filter (code 0x00001000 and mask 0x00000500)
+    // @- try to set 29-bit filter (code 0x00001000 and mask 0x00000500)
     codeSet = 0x00001000U; maskSet = 0x00000500U;
     retVal = dut1.SetFilter29Bit(codeSet, maskSet);
+    EXPECT_EQ(CCanApi::NotInitialized, retVal);
+    // @- try to reset acceptance filter
+    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
     // @post:
     // @- initialize DUT1 with configured settings
@@ -298,17 +299,16 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerNotStarted, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
     EXPECT_EQ(maskGet, maskGet);
-    // @- (re-)set 11-bit filter (code 0x000 and mask 0x7FF)
+    // @- reset acceptance filter
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    codeSet = 0x00000000U; maskSet = 0x00000007FFU;
-    retVal = dut1.SetFilter11Bit(codeSet, maskSet);
+    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 11-bit filter (code 0x000 and mask 0x500)
+    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
+    EXPECT_EQ(0x00000000U, codeGet);
+    EXPECT_EQ(0x000007FFU, maskGet);
     // @test: 29-bit identifier
     // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
@@ -326,17 +326,16 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerNotStarted, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
     EXPECT_EQ(maskGet, maskGet);
-    // @- (re-)set 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
+    // @- reset acceptance filter
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    codeSet = 0x00000000U; maskSet = 0x1FFFFFFF;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
+    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
     retVal = dut1.GetFilter29Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
+    EXPECT_EQ(0x00000000U, codeGet);
+    EXPECT_EQ(0x1FFFFFFFU, maskGet);
     // @post:
     // @- start DUT1 with configured bit-rate settings
     retVal = dut1.StartController();
@@ -423,6 +422,9 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStarted, GTEST_ENABLED)) {
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_FALSE(status.can_stopped);
+    // @- try to reset acceptance filter
+    retVal = dut1.ResetFilters();
+    EXPECT_EQ(CCanApi::ControllerOnline, retVal);   
     // @post:
     // @- send some frames to DUT2 and receive some frames from DUT2
     int32_t frames = g_Options.GetNumberOfTestFrames();
@@ -504,17 +506,16 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
     EXPECT_EQ(maskGet, maskGet);
-    // @- (re-)set 11-bit filter (code 0x000 and mask 0x7FF)
+    // @- reset acceptance filter
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    codeSet = 0x00000000U; maskSet = 0x00000007FFU;
-    retVal = dut1.SetFilter11Bit(codeSet, maskSet);
+    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 11-bit filter (code 0x000 and mask 0x500)
+    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
+    EXPECT_EQ(0x00000000U, codeGet);
+    EXPECT_EQ(0x000007FFU, maskGet);
     // @test: 29-bit identifier
     // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
@@ -532,17 +533,16 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
     EXPECT_EQ(maskGet, maskGet);
-    // @- (re-)set 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
+    // @- reset acceptance filter
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    codeSet = 0x00000000U; maskSet = 0x1FFFFFFF;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
+    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
     retVal = dut1.GetFilter29Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
+    EXPECT_EQ(0x00000000U, codeGet);
+    EXPECT_EQ(0x1FFFFFFFU, maskGet);
     // @post:
     // @- start DUT1 with configured bit-rate settings
     retVal = dut1.StartController();
@@ -618,22 +618,25 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     retVal = dut1.TeardownChannel();
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @test: 11-bit identifier
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
+    // @- try to get 11-bit filter (code 0x000 and mask 0x7FF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @- set 11-bit filter (code 0x000 and mask 0x500)
+    // @- try to set 11-bit filter (code 0x000 and mask 0x500)
     codeSet = 0x00000000U; maskSet = 0x0000000500U;
     retVal = dut1.SetFilter11Bit(codeSet, maskSet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
     // @test: 29-bit identifier
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
+    // @- try to get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
     codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
     retVal = dut1.GetFilter29Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @- set 29-bit filter (code 0x00001000 and mask 0x00000500)
+    // @- try to set 29-bit filter (code 0x00001000 and mask 0x00000500)
     codeSet = 0x00001000U; maskSet = 0x00000500U;
     retVal = dut1.SetFilter29Bit(codeSet, maskSet);
+    EXPECT_EQ(CCanApi::NotInitialized, retVal);
+    // @- try to reset acceptance filter
+    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
     // @end.
 }
