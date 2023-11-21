@@ -364,6 +364,12 @@ CANAPI_Return_t CPeakCAN::GetFilter29Bit(uint32_t &code, uint32_t &mask) {
 }
 
 EXPORT
+CANAPI_Return_t CPeakCAN::ResetFilters() {
+    // reset all acceptance filters of the CAN interface
+    return can_property(m_Handle, CANPROP_SET_FILTER_RESET, NULL, 0U);
+}
+
+EXPORT
 char *CPeakCAN::GetHardwareVersion() {
     // retrieve the hardware version of the CAN controller
     return can_hardware(m_Handle);

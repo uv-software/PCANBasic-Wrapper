@@ -132,6 +132,8 @@ public:
     CANAPI_Return_t SetFilter29Bit(uint32_t code, uint32_t mask);
     CANAPI_Return_t GetFilter11Bit(uint32_t &code, uint32_t &mask);
     CANAPI_Return_t GetFilter29Bit(uint32_t &code, uint32_t &mask);
+    CANAPI_Return_t ResetFilters();
+
     char *GetHardwareVersion();  // (for compatibility reasons)
     char *GetFirmwareVersion();  // (for compatibility reasons)
     static char *GetVersion();  // (for compatibility reasons)
