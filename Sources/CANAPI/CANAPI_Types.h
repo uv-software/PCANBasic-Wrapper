@@ -51,7 +51,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 1223 $
+ *  @version     $Rev: 1225 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -337,6 +337,7 @@ extern "C" {
 #define CANPROP_GET_FILTER_29BIT    41U /**< acceptance filter code and mask for 29-bit identifier (uint64_t) */
 #define CANPROP_SET_FILTER_11BIT    42U /**< set value for acceptance filter code and mask for 11-bit identifier (uint64_t) */
 #define CANPROP_SET_FILTER_29BIT    43U /**< set value for acceptance filter code and mask for 29-bit identifier (uint64_t) */
+#define CANPROP_SET_FILTER_RESET    44U /**< reset acceptance filter code and mask to default values (NULL) */
 #if (OPTION_CANAPI_LIBRARY != 0)
 /* - -  build-in bit-rate conversion  - - - - - - - - - - - - - - - - - */
 #define CANPROP_GET_BTR_INDEX       64U /**< bit-rate as CiA index (int32_t) */

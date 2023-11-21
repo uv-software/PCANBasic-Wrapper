@@ -75,7 +75,7 @@
 ///
 /// \author      $Author: haumea $
 //
-/// \version     $Rev: 1223 $
+/// \version     $Rev: 1225 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -447,7 +447,13 @@ public:
     //
     /// \returns     0 if successful, or a negative value on error.
     //
-    virtual CANAPI_Return_t GetFilter29Bit(uint32_t &icoded, uint32_t &mask) = 0;
+    virtual CANAPI_Return_t GetFilter29Bit(uint32_t &code, uint32_t &mask) = 0;
+
+    /// \brief       resets the filters for CAN identifiers (11-bit and 29-bit).
+    //
+    /// \returns     0 if successful, or a negative value on error.
+    //
+    virtual CANAPI_Return_t ResetFilters() = 0;
 
     /// \brief       retrieves the hardware version of the CAN controller
     ///              board as a zero-terminated string.
@@ -514,4 +520,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 1223 2023-11-17 21:41:34Z haumea $  Copyright (c) UV Software //
+// $Id: CANAPI.h 1225 2023-11-21 18:26:20Z haumea $  Copyright (c) UV Software //
