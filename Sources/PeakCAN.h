@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
 //
-//  Copyright (c) 2017-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2017-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of PCANBasic-Wrapper.
@@ -59,7 +59,7 @@
 #define PEAKCAN_LIBRARY_NAME  CANDLL_PCANBASIC
 #define PEAKCAN_LIBRARY_VENDOR  "UV Software, Berlin"
 #define PEAKCAN_LIBRARY_LICENSE  "BSD-2-Clause OR GPL-3.0-or-later"
-#define PEAKCAN_LIBRARY_COPYRIGHT  "Copyright (c) 2017-2023  Uwe Vogt, UV Software, Berlin"
+#define PEAKCAN_LIBRARY_COPYRIGHT  "Copyright (c) 2017-2024 by Uwe Vogt, UV Software, Berlin"
 #define PEAKCAN_LIBRARY_HAZARD_NOTE  "If you connect your CAN device to a real CAN network when using this library,\n" \
                                      "you might damage your application."
 /// \}
@@ -117,7 +117,7 @@ public:
     CANAPI_Return_t ResetController();
 
     CANAPI_Return_t WriteMessage(CANAPI_Message_t message, uint16_t timeout = 0U);
-    CANAPI_Return_t ReadMessage(CANAPI_Message_t &message, uint16_t timeout = CANREAD_INFINITE);
+    CANAPI_Return_t ReadMessage(CANAPI_Message_t &message, uint16_t timeout = CANWAIT_INFINITE);
 
     CANAPI_Return_t GetStatus(CANAPI_Status_t &status);
     CANAPI_Return_t GetBusLoad(uint8_t &load);

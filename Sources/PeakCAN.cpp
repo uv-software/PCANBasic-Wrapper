@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
 //
-//  Copyright (c) 2010-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2010-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of PCANBasic-Wrapper.
@@ -46,25 +46,15 @@
 //  along with PCANBasic-Wrapper.  If not, see <https://www.gnu.org/licenses/>.
 //
 #include "build_no.h"
-#ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    5
-#define VERSION_PATCH    99
-#else
-#define VERSION_MAJOR    0
-#define VERSION_MINOR    3
-#define VERSION_PATCH    99
-#endif
+#define VERSION_PATCH    0
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
 #define PLATFORM        "x64"
 #elif defined(_WIN32)
 #define PLATFORM        "x86"
-#elif defined(__linux__)
-#define PLATFORM        "Linux"
-#elif defined(__APPLE__)
-#define PLATFORM        "macOS"
 #else
 #error Unsupported architecture
 #endif
