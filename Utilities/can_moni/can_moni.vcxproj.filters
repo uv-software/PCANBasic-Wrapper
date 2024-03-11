@@ -44,9 +44,6 @@
     <ClInclude Include="..\..\Sources\PeakCAN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Sources\PCAN_Defines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Sources\CANAPI\CANAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -57,6 +54,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\PeakCAN_Defaults.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\PeakCAN_Defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,36 +1,37 @@
-__CAN Tester for Peak-System PCAN Interfaces, Version 0.4.7__ \
-Copyright &copy; 2008-2010,2014-2023 by Uwe Vogt, UV Software, Berlin
+__CAN Tester for Peak-System PCAN Interfaces, Version 0.5.0__ \
+Copyright &copy; 2008-2010,2014-2024 by Uwe Vogt, UV Software, Berlin
 
 ```
 Usage: can_test <interface> [<option>...]
 Options for receiver test (default test mode):
   /RECEIVE | /RX                         count received messages until ^C is pressed
-  /Number=<number>                       check up-counting numbers starting with <number>
+  /Number:<number>                       check up-counting numbers starting with <number>
   /Stop                                  stop on error (with option /NUMBER)
-  /Mode=(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode
+  /Mode:(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode
   /SHARED                                shared CAN controller access (if supported)
-  /MONitor=(No|Yes) | /LISTEN-ONLY       monitor mode (listen-only, transmitter is off)
-  /ERR=(No|Yes) | /ERROR-FRAMES          allow reception of error frames
-  /RTR=(Yes|No)                          allow remote frames (RTR frames)
-  /XTD=(Yes|No)                          allow extended frames (29-bit identifier)
-  /BauDrate=<baudrate>                   CAN bit-timing in kbps (default=250), or
-  /BitRate=<bitrate>                     CAN bit-rate settings (as a string)
+  /MONitor:(No|Yes) | /LISTEN-ONLY       monitor mode (listen-only, transmitter is off)
+  /ERR:(No|Yes) | /ERROR-FRAMES          allow reception of error frames
+  /RTR:(Yes|No)                          allow remote frames (RTR frames)
+  /XTD:(Yes|No)                          allow extended frames (29-bit identifier)
+  /BauDrate:<baudrate>                   CAN bit-timing in kbps (default=250), or
+  /BitRate:<bitrate>                     CAN bit-rate settings (as a string)
   /Verbose                               show detailed bit-rate settings
 Options for transmitter test:
-  /TRANSMIT=<time> | /TX=<time>          send messages for the given time in seconds, or
-  /FRames=<frames>                       alternatively send the given number of messages, or
-  /RANDom=<frames>                       optionally with random cycle time and data length
-  /Cycle=<msec>                          cycle time in milliseconds (default=0), or
-  /Usec=<usec>                           cycle time in microseconds (default=0)
-  /Dlc=<length>                          send messages of given length (default=8)
-  /can-Id=<can-id>                       use given identifier (default=100h)
-  /Number=<number>                       set first up-counting number (default=0)
-  /Mode=(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode
+  /TRANSMIT:<time> | /TX=<time>          send messages for the given time in seconds, or
+  /FRames:<frames>                       alternatively send the given number of messages, or
+  /RANDom:<frames>                       optionally with random cycle time and data length
+  /Cycle:<msec>                          cycle time in milliseconds (default=0), or
+  /Usec:<usec>                           cycle time in microseconds (default=0)
+  /Dlc:<length>                          send messages of given length (default=8)
+  /can-Id:<can-id>                       use given identifier (default=100h)
+  /Number:<number>                       set first up-counting number (default=0)
+  /Mode:(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode
   /SHARED                                shared CAN controller access (if supported)
-  /BauDrate=<baudrate>                   CAN bit-timing in kbps (default=250), or
-  /BitRate=<bitrate>                     CAN bit-rate settings (as a string)
+  /BauDrate:<baudrate>                   CAN bit-timing in kbps (default=250), or
+  /BitRate:<bitrate>                     CAN bit-rate settings (as a string)
   /Verbose                               show detailed bit-rate settings
 Other options:
+  /LIST-BITRATES[:(2.0|FDf[+BRS])]       list standard bit-rate settings
   /LIST-BOARDS | /LIST                   list all supported CAN interfaces and exit
   /TEST-BOARDS | /TEST                   list all available CAN interfaces and exit
   /HELP | /?                             display this help screen and exit
@@ -82,4 +83,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program.  If not, see <https://www.gnu.org/licenses/>.

@@ -23,6 +23,7 @@ Options:
   /BauDrate:<baudrate>                   CAN bit-timing in kbps (default=250), or
   /BitRate:<bitrate>                     CAN bit-rate settings (as a string)
   /Verbose                               show detailed bit-rate settings
+  /LIST-BITRATES[:(2.0|FDf[+BRS])]       list standard bit-rate settings
   /LIST-BOARDS | /LIST                   list all supported CAN interfaces and exit
   /TEST-BOARDS | /TEST                   list all available CAN interfaces and exit
   /HELP | /?                             display this help screen and exit
@@ -68,4 +69,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program.  If not, see <https://www.gnu.org/licenses/>.

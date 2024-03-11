@@ -78,15 +78,16 @@ extern "C" {
 #define XTD_MASK_CHR      32
 #define SCRIPT_STR        33
 #define SCRIPT_CHR        34
-#define LISTBOARDS_STR    35
-#define LISTBOARDS_CHR    36
-#define TESTBOARDS_STR    37
-#define TESTBOARDS_CHR    38
-#define HELP              39
-#define QUESTION_MARK     40
-#define ABOUT             41
-#define CHARACTER_MJU     42
-#define MAX_OPTIONS       43
+#define LISTBITRATES_STR  35
+#define LISTBOARDS_STR    36
+#define LISTBOARDS_CHR    37
+#define TESTBOARDS_STR    38
+#define TESTBOARDS_CHR    39
+#define HELP              40
+#define QUESTION_MARK     41
+#define ABOUT             42
+#define CHARACTER_MJU     43
+#define MAX_OPTIONS       44
 
 static char* option[MAX_OPTIONS] = {
     (char*)"BAUDRATE", (char*)"bd",
@@ -107,6 +108,7 @@ static char* option[MAX_OPTIONS] = {
     (char*)"CODE", (char*)"MASK",
     (char*)"XTD-CODE", (char*)"XTD-MASK",
     (char*)"SCRIPT", (char*)"s",
+    (char*)"LIST-BITRATES",
     (char*)"LIST-BOARDS", (char*)"list",
     (char*)"TEST-BOARDS", (char*)"test",
     (char*)"HELP", (char*)"?",
@@ -121,6 +123,7 @@ public:
 public:
     static int ListCanDevices(void);
     static int TestCanDevices(CANAPI_OpMode_t opMode);
+    static int ListCanBitrates(CANAPI_OpMode_t opMode);
 };
 
 static void sigterm(int signo);
@@ -178,6 +181,8 @@ int main(int argc, const char * argv[]) {
     bool hasNoSamp = true;
     CANAPI_OpMode_t opMode = {};
     opMode.byte = CANMODE_DEFAULT;
+    CANAPI_OpMode_t brMode = {};
+    brMode.byte = CANMODE_DEFAULT;
     CANAPI_Return_t retVal = 0;
 
     /* default bit-timing */
@@ -283,7 +288,6 @@ int main(int argc, const char * argv[]) {
             }
             verbose = 1;
             break;
-#if (CAN_FD_SUPPORTED != 0)
         /* option `--mode=(2.0|FDF[+BRS])' (-m)*/
         case OP_MODE_STR:
         case OP_MODE_CHR:
@@ -295,19 +299,20 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /MODE\n", basename(argv[0]));
                 return 1;
             }
-            if (!_strcmpi(optarg, "DEFAULT") || !_strcmpi(optarg, "CLASSIC") ||
+            if (!_strcmpi(optarg, "DEFAULT") || !_strcmpi(optarg, "CLASSIC") || !_strcmpi(optarg, "CLASSICAL") ||
                 !_strcmpi(optarg, "CAN20") || !_strcmpi(optarg, "CAN2.0") || !_strcmpi(optarg, "2.0"))
                 opMode.byte |= CANMODE_DEFAULT;
+#if (CAN_FD_SUPPORTED != 0)
             else if (!_strcmpi(optarg, "CANFD") || !_strcmpi(optarg, "FD") || !_strcmpi(optarg, "FDF"))
                 opMode.byte |= CANMODE_FDOE;
             else if (!_strcmpi(optarg, "CANFD+BRS") || !_strcmpi(optarg, "FDF+BRS") || !_strcmpi(optarg, "FD+BRS"))
                 opMode.byte |= CANMODE_FDOE | CANMODE_BRSE;
+#endif
             else {
                 fprintf(stderr, "%s: illegal argument for option /MODE\n", basename(argv[0]));
                 return 1;
             }
             break;
-#endif
         /* option `--shared' */
         case OP_SHARED_STR:
         case OP_SHARED_CHR:
@@ -648,6 +653,27 @@ int main(int argc, const char * argv[]) {
                 return 1;
             }
             break;
+        /* option `--list-bitrates[=(2.0|FDF[+BRS])]' */
+        case LISTBITRATES_STR:
+            if ((optarg = getOptionParameter()) != NULL) {
+                if (!_strcmpi(optarg, "DEFAULT") || !_strcmpi(optarg, "CLASSIC") || !_strcmpi(optarg, "CLASSICAL") ||
+                    !_strcmpi(optarg, "CAN20") || !_strcmpi(optarg, "CAN2.0") || !_strcmpi(optarg, "2.0"))
+                    brMode.byte |= CANMODE_DEFAULT;
+#if (CAN_FD_SUPPORTED != 0)
+                else if (!_strcmpi(optarg, "CANFD") || !_strcmpi(optarg, "FD") || !_strcmpi(optarg, "FDF"))
+                    brMode.byte |= CANMODE_FDOE;
+                else if (!_strcmpi(optarg, "CANFD+BRS") || !_strcmpi(optarg, "FDF+BRS") || !_strcmpi(optarg, "FD+BRS"))
+                    brMode.byte |= CANMODE_FDOE | CANMODE_BRSE;
+#endif
+                else {
+                    fprintf(stderr, "%s: illegal argument for option /LIST-BITRATES\n", basename(argv[0]));
+                    return 1;
+                }
+            }
+            fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
+            /* list standard bit-rates */
+            (void)CCanDevice::ListCanBitrates(brMode);
+            return 0;
         /* option `--list-boards[=<vendor>]' (-L) */
         case LISTBOARDS_STR:
         case LISTBOARDS_CHR:
@@ -864,6 +890,67 @@ int CCanDevice::TestCanDevices(CANAPI_OpMode_t opMode) {
     return n;
 }
 
+int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
+    CANAPI_Bitrate_t bitrate[10];
+    CANAPI_BusSpeed_t speed;
+    CANAPI_Return_t retVal;
+
+    char string[CANPROP_MAX_BUFFER_SIZE] = "";
+    bool hasDataPhase = false;
+    bool hasNoSamp = true;
+    int i, n = 0;
+
+    if (opMode.fdoe) {
+        if (opMode.brse) {
+            fprintf(stdout, "CAN FD with Bit-rate Switching (BRS):\n");
+            PEAKCAN_FD_BR_1M8M(bitrate[0]);
+            PEAKCAN_FD_BR_500K4M(bitrate[1]);
+            PEAKCAN_FD_BR_250K2M(bitrate[2]);
+            PEAKCAN_FD_BR_125K1M(bitrate[3]);
+            hasDataPhase = true;
+            hasNoSamp = false;
+            n = 4;
+        }
+        else {
+            fprintf(stdout, "CAN FD without Bit-rate Switching (BRS):\n");
+            PEAKCAN_FD_BR_1M(bitrate[0]);
+            PEAKCAN_FD_BR_500K(bitrate[1]);
+            PEAKCAN_FD_BR_250K(bitrate[2]);
+            PEAKCAN_FD_BR_125K(bitrate[3]);
+            hasDataPhase = false;
+            hasNoSamp = false;
+            n = 4;
+        }
+    }
+    else {
+        fprintf(stdout, "Classical CAN:\n");
+        PEAKCAN_BR_1M(bitrate[0]);
+        PEAKCAN_BR_800K(bitrate[1]);
+        PEAKCAN_BR_500K(bitrate[2]);
+        PEAKCAN_BR_250K(bitrate[3]);
+        PEAKCAN_BR_125K(bitrate[4]);
+        PEAKCAN_BR_100K(bitrate[5]);
+        PEAKCAN_BR_50K(bitrate[6]);
+        PEAKCAN_BR_20K(bitrate[7]);
+        PEAKCAN_BR_10K(bitrate[8]);
+        PEAKCAN_BR_5K(bitrate[9]);
+        hasDataPhase = false;
+        hasNoSamp = true;
+        n = 10;
+    }
+    for (i = 0; i < n; i++) {
+        if ((retVal = CCanDevice::MapBitrate2Speed(bitrate[i], speed)) == CCanApi::NoError) {
+            fprintf(stdout, "  %4.0fkbps@%.1f%%", speed.nominal.speed / 1000., speed.nominal.samplepoint * 100.);
+            if (opMode.brse)
+                fprintf(stdout, ":%4.0fkbps@%.1f%%", speed.data.speed / 1000., speed.data.samplepoint * 100.);
+        }
+        strcpy(string, "=oops, something went wrong!");
+        (void)CCanDevice::MapBitrate2String(bitrate[i], string, CANPROP_MAX_BUFFER_SIZE, hasDataPhase, hasNoSamp);
+        fprintf(stdout, "=\"%s\"\n", string);
+    }
+    return n;
+}
+
 uint64_t CCanDevice::ReceptionLoop() {
     CANAPI_Message_t message;
     CANAPI_Return_t retVal;
@@ -989,6 +1076,8 @@ static void usage(FILE *stream, const char *program)
     //fprintf(stream, "  /Script:<filename>                     execute a script file\n"); // TODO: script engine\n");
 #if (CAN_FD_SUPPORTED != 0)
     fprintf(stream, "  /Mode:(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode\n");
+#else
+    fprintf(stream, "  /Mode:2.0                              CAN operation mode: CAN 2.0\n");
 #endif
     fprintf(stream, "  /SHARED                                shared CAN controller access (if supported)\n");
     fprintf(stream, "  /MONitor:(No|Yes) | /LISTEN-ONLY       monitor mode (listen-only, transmitter is off)\n");
@@ -998,6 +1087,11 @@ static void usage(FILE *stream, const char *program)
     fprintf(stream, "  /BauDrate:<baudrate>                   CAN bit-timing in kbps (default=250), or\n");
     fprintf(stream, "  /BitRate:<bitrate>                     CAN bit-rate settings (as a string)\n");
     fprintf(stream, "  /Verbose                               show detailed bit-rate settings\n");
+#if (CAN_FD_SUPPORTED != 0)
+    fprintf(stream, "  /LIST-BITRATES[:(2.0|FDf[+BRS])]       list standard bit-rate settings\n");
+#else
+    fprintf(stream, "  /LIST-BITRATES[:2.0]                   list standard bit-rate settings\n");
+#endif
 #if (OPTION_CANAPI_LIBRARY != 0)
     fprintf(stream, "  /LIST[-BOARDS][:<vendor>]              list all supported CAN interfaces and exit\n");
     fprintf(stream, "  /TEST[-BOARDS][:<vendor>]              list all available CAN interfaces and exit\n");
