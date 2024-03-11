@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for Peak-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2023  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 # CAN API V3 for PCAN Interfaces
 
@@ -49,6 +49,12 @@ public:
 
     CANAPI_Return_t GetProperty(uint16_t param, void *value, uint32_t nbyte);
     CANAPI_Return_t SetProperty(uint16_t param, const void *value, uint32_t nbyte);
+
+    CANAPI_Return_t SetFilter11Bit(uint32_t code, uint32_t mask);
+    CANAPI_Return_t GetFilter11Bit(uint32_t &code, uint32_t &mask);
+    CANAPI_Return_t SetFilter29Bit(uint32_t code, uint32_t mask);
+    CANAPI_Return_t GetFilter29Bit(uint32_t &code, uint32_t &mask);
+    CANAPI_Return_t ResetFilters();
 
     char *GetHardwareVersion();  // (for compatibility reasons)
     char *GetFirmwareVersion();  // (for compatibility reasons)
@@ -118,7 +124,7 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.7.4)
+- Microsoft Visual Studio Community 2022 (Version 17.9.2)
 
 ### Required PCANBasic DLL
 
