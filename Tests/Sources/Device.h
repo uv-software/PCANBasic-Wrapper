@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -118,6 +118,9 @@ public:
         EChannelState state = CCanApi::ChannelNotTestable;
         return (CCanDriver::ProbeChannel(m_nChannelNo, opCapa, state) == CCanApi::NoError) ? true : false;
     }
+    bool IsCanIdAccepted(uint32_t canId, uint32_t accCode, uint32_t accMask) {
+        return (((canId ^ accCode) & accMask) == 0x00000000U) ? true : false;
+    }
     // properties
     CANAPI_Return_t GetOpCapabilities(CANAPI_OpMode_t &opCapa) {
         return CCanDriver::GetProperty(CANPROP_GET_OP_CAPABILITY, (void*)&opCapa.byte, sizeof(uint8_t));
@@ -170,4 +173,4 @@ private:
 
 #endif // DEVICE_H_INCLUDED
 
-// $Id: Device.h 1217 2023-10-10 19:28:31Z haumea $  Copyright (c) UV Software, Berlin.
+// $Id: Device.h 1254 2024-03-10 20:41:16Z haumea $  Copyright (c) UV Software, Berlin.

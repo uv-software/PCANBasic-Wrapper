@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -50,8 +50,6 @@
 //  @note: This test suite tests the following methods:
 //  @      - CCanApi::SetFilter11Bit()  [TC23.*]
 //  @      - CCanApi::GetFilter11Bit()  [TC24.*]
-//  @      - CCanApi::SetFilter29Bit()  [TC25.*]
-//  @      - CCanApi::GetFilter29Bit()  [TC26.*]
 //  @
 #ifndef FEATURE_FILTERING
 #define FEATURE_FILTERING  FEATURE_UNSUPPORTED
@@ -63,18 +61,101 @@
 #endif
 #if (FEATURE_FILTERING != FEATURE_UNSUPPORTED)
 
-class SetFilter : public testing::Test {
+class SetFilter11Bit : public testing::Test {
     virtual void SetUp() {}
     virtual void TearDown() {}
 protected:
-    // ...
+    void CheckFilter11Bit(CCanDevice& dut1, uint32_t accCode, uint32_t accMask) {
+        CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
+        CANAPI_Message_t trmMsg = {};
+        CANAPI_Message_t rcvMsg = {};
+        CANAPI_Status_t status = {};
+        CANAPI_Return_t retVal;
+        // CAN message
+        trmMsg.id = 0U;
+        trmMsg.xtd = 0;
+        trmMsg.rtr = 0;
+        trmMsg.sts = 0;
+#if (OPTION_CAN_2_0_ONLY != 0)
+        trmMsg.dlc = 0U; // CAN_MAX_DLC;
+        memset(trmMsg.data, 0, CAN_MAX_LEN);
+#else
+        trmMsg.fdf = g_Options.GetOpMode(DUT1).fdoe ? 1 : 0;
+        trmMsg.brs = g_Options.GetOpMode(DUT1).brse ? 1 : 0;
+        trmMsg.esi = 0;
+        trmMsg.dlc = 0U; // g_Options.GetOpMode(DUT1).fdoe ? CANFD_MAX_DLC : CAN_MAX_DLC;
+        memset(trmMsg.data, 0, CANFD_MAX_LEN);
+#endif
+        // initialize DUT2 with configured settings
+        retVal = dut2.InitializeChannel();
+        ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut2.InitializeChannel() failed with error code " << retVal;
+        // start DUT2 with configured bit-rate settings
+        retVal = dut2.StartController();
+        EXPECT_EQ(CCanApi::NoError, retVal);
+        // DUT2 send 2048 standard messages
+        int n = 0, frames = 2048;
+        CProgress progress = CProgress(frames);
+        for (int i = 0; i < frames; i++) {
+            trmMsg.id = (uint32_t)i;
+            // send one message (retry if busy)
+            do {
+                retVal = dut2.WriteMessage(trmMsg, DEVICE_SEND_TIMEOUT);
+                if (retVal == CCanApi::TransmitterBusy)
+                    PCBUSB_QXMT_DELAY();
+            } while (retVal == CCanApi::TransmitterBusy);
+            // on error abort
+            if (retVal != CCanApi::NoError) {
+                EXPECT_EQ(retVal, CCanApi::NoError);
+                n = 0;
+                break;
+            }
+            PCBUSB_QXMT_DELAY();  // TODO: why here?
+            // update number of transmitted CAN messages
+            progress.Update((int)(i + 1), (int)0);
+            // update number of accepted CAN messages
+            if (dut1.IsCanIdAccepted(trmMsg.id, accCode, accMask)) {
+                n++;
+            }
+        }
+        // DUT1 process all messages with acceptance filter
+        uint64_t timeout = (((uint64_t)dut1.TransmissionTime(dut1.GetBitrate(), (n + DEVICE_LOOP_EXTRA))
+                         *   (uint64_t)DEVICE_LOOP_FACTOR) / (uint64_t)DEVICE_LOOP_DIVISOR);  // bit-rate dependent timeout
+        CTimer timer = CTimer(timeout);
+        int j = 0;
+        while ((j < n) && !timer.Timeout()) {
+            // read one message from receiver's queue, if any
+            retVal = dut1.ReadMessage(rcvMsg, DEVICE_READ_TIMEOUT);
+            if (retVal == CCanApi::NoError) {
+                // ignore status messages/error frames
+                if (!rcvMsg.sts) {
+                    // update number of received CAN messages
+                    progress.Update((int)frames, (int)(j + 1));
+                    // check if received message is accepted by acceptance filter
+                    if (!dut1.IsCanIdAccepted(rcvMsg.id, accCode, accMask)) {
+                        EXPECT_TRUE(dut1.IsCanIdAccepted(rcvMsg.id, accCode, accMask));
+                        break;
+                    }
+                    j++;
+                }
+            }
+            // on error abort (if receiver is empty, continue)
+            else if (retVal != CCanApi::ReceiverEmpty) {
+                EXPECT_EQ(retVal, CCanApi::ReceiverEmpty);
+                break;
+            }
+        }
+        progress.Clear();
+        // tear down DUT2
+        retVal = dut2.TeardownChannel();
+        EXPECT_EQ(CCanApi::NoError, retVal);
+    }
 };
 
-// @gtest TC23/TC24/TC25/TC26.0: Set CAN message filter (sunnyday scenario)
+// @gtest TC23/TC24.0: Set CAN acceptance filter for 11-bit identifier (sunnyday scenario)
 //
 // @expected: CANERR_NOERROR
 //
-TEST_F(SetFilter, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
+TEST_F(SetFilter11Bit, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CCanApi::EChannelState state;
@@ -101,20 +182,19 @@ TEST_F(SetFilter, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
-    // @test: 11-bit identifier
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @test:
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x000007FFU, maskGet);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
     // @- set 11-bit filter (code 0x000 and mask 0x500)
-    // @  note: DUT2 is sending test frames with 0x200!
-    codeSet = 0x00000000U; maskSet = 0x0000000500U;
+    codeSet = 0x00000000U; maskSet = 0x00000500U;
     retVal = dut1.SetFilter11Bit(codeSet, maskSet);
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- get 11-bit filter (code 0x000 and mask 0x500)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
@@ -123,39 +203,12 @@ TEST_F(SetFilter, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
     retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x000007FFU, maskGet);
-    // @test: 29-bit identifier
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x1FFFFFFFU, maskGet);
-    // @- set 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeSet = 0x00001000U; maskSet = 0x00000500U;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
-    // @- reset acceptance filter
-    // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    retVal = dut1.ResetFilters();
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x1FFFFFFFU, maskGet);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
     // @post:
     // @- start DUT1 with configured bit-rate settings
     retVal = dut1.StartController();
@@ -185,19 +238,19 @@ TEST_F(SetFilter, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
     // @end.
 }
 
-// @gtest TC23/TC24/TC25/TC26.1: Set CAN message filter with invalid interface handle(s)
+// @gtest TC23/TC24.1: Set CAN acceptance filter for 11-bit identifier with invalid interface handle(s)
 //
 // @note: checking channel handles is not possible with the C++ API!
 
-// @gtest TC24/TC26.2: Give a NULL pointer as argument for parameter 'code and 'mask'
+// @gtest TC24.2: Give a NULL pointer as argument for parameter 'code and 'mask'
 //
 // @note: passing pointers for 'code and 'mask' is not possible with the C++ API!
 
-// @gtest TC23/TC24/TC25/TC26.3: Set CAN message filter if CAN channel is not initialized
+// @gtest TC23/TC24.3: Set CAN acceptance filter for 11-bit identifier if CAN channel is not initialized
 //
 // @expected: CANERR_NOTINIT
 //
-TEST_F(SetFilter, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
+TEST_F(SetFilter11Bit, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Status_t status = {};
@@ -205,26 +258,14 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     uint32_t codeSet, maskSet;
     CANAPI_Return_t retVal;
  
-    // @test: 11-bit identifier
-    // @- try to get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @test:
+    // @- try to get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
     // @- try to set 11-bit filter (code 0x000 and mask 0x500)
-    codeSet = 0x00000000U; maskSet = 0x0000000500U;
+    codeSet = 0x00000000U; maskSet = 0x00000500U;
     retVal = dut1.SetFilter11Bit(codeSet, maskSet);
-    EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @test: 29-bit identifier
-    // @- try to get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @- try to set 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeSet = 0x00001000U; maskSet = 0x00000500U;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
-    EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @- try to reset acceptance filter
-    retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
     // @post:
     // @- initialize DUT1 with configured settings
@@ -262,11 +303,11 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     // @end.
 }
 
-// @gtest TC23/TC24/TC25/TC26.4: Set CAN message filter if CAN controller is not started
+// @gtest TC23/TC24.4: Set CAN acceptance filter for 11-bit identifier if CAN controller is not started
 //
 // @expected: CANERR_NOERROR
 //
-TEST_F(SetFilter, GTEST_TESTCASE(IfControllerNotStarted, GTEST_ENABLED)) {
+TEST_F(SetFilter11Bit, GTEST_TESTCASE(IfControllerNotStarted, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Status_t status = {};
@@ -281,20 +322,19 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerNotStarted, GTEST_ENABLED)) {
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
-    // @test: 11-bit identifier
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @test:
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x000007FFU, maskGet);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
     // @- set 11-bit filter (code 0x000 and mask 0x500)
-    // @  note: DUT2 is sending test frames with 0x200!
-    codeSet = 0x00000000U; maskSet = 0x0000000500U;
+    codeSet = 0x00000000U; maskSet = 0x00000500U;
     retVal = dut1.SetFilter11Bit(codeSet, maskSet);
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- get 11-bit filter (code 0x000 and mask 0x500)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
@@ -303,39 +343,12 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerNotStarted, GTEST_ENABLED)) {
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
     retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x000007FFU, maskGet);
-    // @test: 29-bit identifier
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x1FFFFFFFU, maskGet);
-    // @- set 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeSet = 0x00001000U; maskSet = 0x00000500U;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
-    // @- reset acceptance filter
-    // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    retVal = dut1.ResetFilters();
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x1FFFFFFFU, maskGet);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
     // @post:
     // @- start DUT1 with configured bit-rate settings
     retVal = dut1.StartController();
@@ -365,11 +378,11 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerNotStarted, GTEST_ENABLED)) {
     // @end.
 }
 
-// @gtest TC23/TC24/TC25/TC26.5: Set CAN message filter if CAN controller is started
+// @gtest TC23/TC24.5: Set CAN acceptance filter for 11-bit identifier if CAN controller is started
 //
 // @expected: CANERR_ONLINE
 //
-TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStarted, GTEST_ENABLED)) {
+TEST_F(SetFilter11Bit, GTEST_TESTCASE(IfControllerStarted, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Status_t status = {};
@@ -392,39 +405,21 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStarted, GTEST_ENABLED)) {
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_FALSE(status.can_stopped);
-    // @test: 11-bit identifier
+    // @test:
     // @- try to set 11-bit filter (code 0x000 and mask 0x500)
-    codeSet = 0x00000000U; maskSet = 0x0000000500U;
+    codeSet = 0x00000000U; maskSet = 0x00000500U;
     retVal = dut1.SetFilter11Bit(codeSet, maskSet);
     EXPECT_EQ(CCanApi::ControllerOnline, retVal);
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x000007FFU, maskGet);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
     // @- get status of DUT1 and check to be in RUNNING state
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_FALSE(status.can_stopped);
-    // @test: 29-bit identifier
-    // @- try to set 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeSet = 0x00001000U; maskSet = 0x00000500U;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
-    EXPECT_EQ(CCanApi::ControllerOnline, retVal);
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x1FFFFFFFU, maskGet);
-    // @- get status of DUT1 and check to be in RUNNING state
-    retVal = dut1.GetStatus(status);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_FALSE(status.can_stopped);
-    // @- try to reset acceptance filter
-    retVal = dut1.ResetFilters();
-    EXPECT_EQ(CCanApi::ControllerOnline, retVal);   
     // @post:
     // @- send some frames to DUT2 and receive some frames from DUT2
     int32_t frames = g_Options.GetNumberOfTestFrames();
@@ -447,11 +442,11 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStarted, GTEST_ENABLED)) {
     // @end.
 }
 
-// @gtest TC23/TC24/TC25/TC26.6: Set CAN message filter if CAN controller was previously stopped
+// @gtest TC23/TC24.6: Set CAN acceptance filter for 11-bit identifier if CAN controller was previously stopped
 //
 // @expected: CANERR_NOERROR
 //
-TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
+TEST_F(SetFilter11Bit, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Status_t status = {};
@@ -488,20 +483,19 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_TRUE(status.can_stopped);
-    // @test: 11-bit identifier
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @test:
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x000007FFU, maskGet);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
     // @- set 11-bit filter (code 0x000 and mask 0x500)
-    // @  note: DUT2 is sending test frames with 0x200!
-    codeSet = 0x00000000U; maskSet = 0x0000000500U;
+    codeSet = 0x00000000U; maskSet = 0x00000500U;
     retVal = dut1.SetFilter11Bit(codeSet, maskSet);
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- get 11-bit filter (code 0x000 and mask 0x500)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_EQ(codeSet, codeGet);
@@ -510,39 +504,12 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
     // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
     retVal = dut1.ResetFilters();
     EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x000007FFU, maskGet);
-    // @test: 29-bit identifier
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x1FFFFFFFU, maskGet);
-    // @- set 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeSet = 0x00001000U; maskSet = 0x00000500U;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(codeSet, codeGet);
-    EXPECT_EQ(maskGet, maskGet);
-    // @- reset acceptance filter
-    // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
-    retVal = dut1.ResetFilters();
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    // @- get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(0x00000000U, codeGet);
-    EXPECT_EQ(0x1FFFFFFFU, maskGet);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
     // @post:
     // @- start DUT1 with configured bit-rate settings
     retVal = dut1.StartController();
@@ -572,11 +539,11 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
     // @end.
 }
 
-// @gtest TC23/TC24/TC25/TC26.7: Set CAN message filter if CAN channel was previously torn down
+// @gtest TC23/TC24.7: Set CAN acceptance filter for 11-bit identifier if CAN channel was previously torn down
 //
 // @expected: CANERR_NOTINIT
 //
-TEST_F(SetFilter, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
+TEST_F(SetFilter11Bit, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Status_t status = {};
@@ -617,30 +584,190 @@ TEST_F(SetFilter, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     // @- tear down DUT1
     retVal = dut1.TeardownChannel();
     EXPECT_EQ(CCanApi::NoError, retVal);
-    // @test: 11-bit identifier
-    // @- try to get 11-bit filter (code 0x000 and mask 0x7FF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFF800U;
+    // @test:
+    // @- try to get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
     retVal = dut1.GetFilter11Bit(codeGet, maskGet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
     // @- try to set 11-bit filter (code 0x000 and mask 0x500)
-    codeSet = 0x00000000U; maskSet = 0x0000000500U;
+    codeSet = 0x00000000U; maskSet = 0x00000500U;
     retVal = dut1.SetFilter11Bit(codeSet, maskSet);
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @test: 29-bit identifier
-    // @- try to get 29-bit filter (code 0x00000000 and mask 0x1FFFFFFF)
-    codeGet = 0xFFFFFFFFU; maskGet = 0xE0000000U;
-    retVal = dut1.GetFilter29Bit(codeGet, maskGet);
-    EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @- try to set 29-bit filter (code 0x00001000 and mask 0x00000500)
-    codeSet = 0x00001000U; maskSet = 0x00000500U;
-    retVal = dut1.SetFilter29Bit(codeSet, maskSet);
-    EXPECT_EQ(CCanApi::NotInitialized, retVal);
-    // @- try to reset acceptance filter
+    // @end.
+}
+
+// @gtest TC23.8: Set CAN acceptance filter for 11-bit identifier with valid values
+//
+// @expected: CANERR_NOERROR
+//
+TEST_F(SetFilter11Bit, GTEST_TESTCASE(WithValidValues, GTEST_ENABLED)) {
+    CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
+    CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
+    CANAPI_Status_t status = {};
+    uint32_t codeGet, maskGet;
+    const uint32_t codeSet[4] = { 0x000U, 0x0F0U, 0x70FU, 0x7FFU };
+    const uint32_t maskSet[4] = { 0x000U, 0x0F0U, 0x70FU, 0x7FFU };
+    CANAPI_Return_t retVal;
+    // @
+    // @note: This test can take a very long time
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can take a very long time!";
+    // @pre:
+    // @- initialize DUT1 with configured settings
+    retVal = dut1.InitializeChannel();
+    ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut1.InitializeChannel() failed with error code " << retVal;
+    // @- get status of DUT1 and check to be in INIT state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_TRUE(status.can_stopped);
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
+    retVal = dut1.GetFilter11Bit(codeGet, maskGet);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
+    // @test:
+    CCounter counter = CCounter();
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            counter.Increment();
+            // @-- set 11-bit filter
+            retVal = dut1.SetFilter11Bit(codeSet[i], maskSet[j]);
+            EXPECT_EQ(CCanApi::NoError, retVal);
+            // @-- get 11-bit filter
+            codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
+            retVal = dut1.GetFilter11Bit(codeGet, maskGet);
+            EXPECT_EQ(CCanApi::NoError, retVal);
+            EXPECT_EQ(codeSet[i], codeGet);
+            EXPECT_EQ(maskSet[j], maskGet);
+            // @-- start DUT1 with configured bit-rate settings
+            retVal = dut1.StartController();
+            EXPECT_EQ(CCanApi::NoError, retVal);
+            // @-- check acceptance filter on DUT1 (DUT2 sends frames with 11-bit identifier)
+            counter.Clear();
+            CheckFilter11Bit(dut1, codeSet[i], maskSet[j]);
+            // @-- stop/reset DUT1
+            retVal = dut1.ResetController();
+            EXPECT_EQ(CCanApi::NoError, retVal);
+        }
+    }
+    counter.Reset();
+    // @post:
+    // @- reset acceptance filter
+    // @  note: SJA100 has only one filter for 11-bit and 29-bit identifier!
     retVal = dut1.ResetFilters();
-    EXPECT_EQ(CCanApi::NotInitialized, retVal);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
+    retVal = dut1.GetFilter11Bit(codeGet, maskGet);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
+    // @- start DUT1 with configured bit-rate settings
+    retVal = dut1.StartController();
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get status of DUT1 and check to be in RUNNING state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
+    // @- send some frames to DUT2 and receive some frames from DUT2
+    int32_t frames = g_Options.GetNumberOfTestFrames();
+    EXPECT_EQ(frames, dut1.SendSomeFrames(dut2, frames));
+    EXPECT_EQ(frames, dut1.ReceiveSomeFrames(dut2, frames));
+    // @- get status of DUT1 and check to be in RUNNING state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
+    // @- stop/reset DUT1
+    retVal = dut1.ResetController();
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get status of DUT1 and check to be in INIT state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_TRUE(status.can_stopped);
+    // @- tear down DUT1
+    retVal = dut1.TeardownChannel();
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @end.
+}
+
+// @gtest TC23.9: Set CAN acceptance filter for 11-bit identifier with invalid values
+//
+// @expected: CANERR_ILLPARAM
+//
+TEST_F(SetFilter11Bit, GTEST_TESTCASE(WithInvalidValues, GTEST_ENABLED)) {
+    CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
+    CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
+    CANAPI_Status_t status = {};
+    uint32_t codeGet, maskGet;
+    uint32_t codeSet, maskSet;
+    CANAPI_Return_t retVal;
+    // @pre:
+    // @- initialize DUT1 with configured settings
+    retVal = dut1.InitializeChannel();
+    ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut1.InitializeChannel() failed with error code " << retVal;
+    // @- get status of DUT1 and check to be in INIT state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_TRUE(status.can_stopped);
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
+    retVal = dut1.GetFilter11Bit(codeGet, maskGet);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
+    // @test:
+    // @- try to set 11-bit filter with invalid value (code 0x800 and mask 0x800)
+    codeSet = 0x00000800U; maskSet = 0x00000800U;
+    retVal = dut1.SetFilter11Bit(codeSet, maskSet);
+    EXPECT_EQ(CCanApi::IllegalParameter, retVal);
+    // @- try to set 11-bit filter with invalid value (code 0x000 and mask 0xFFFF)
+    codeSet = 0x00000000U; maskSet = 0x0000FFFFU;
+    retVal = dut1.SetFilter11Bit(codeSet, maskSet);
+    EXPECT_EQ(CCanApi::IllegalParameter, retVal);
+    // @- try to set 11-bit filter with invalid value (code 0x1FFFFFFF and mask 0x000)
+    codeSet = 0x1FFFFFFFU; maskSet = 0x00000000U;
+    retVal = dut1.SetFilter11Bit(codeSet, maskSet);
+    EXPECT_EQ(CCanApi::IllegalParameter, retVal);
+    // @- try to set 11-bit filter with invalid value (code 0xFFFFFFFF and mask 0xE0000000)
+    codeSet = 0xFFFFFFFFU; maskSet = 0xE0000000U;
+    retVal = dut1.SetFilter11Bit(codeSet, maskSet);
+    EXPECT_EQ(CCanApi::IllegalParameter, retVal);
+    // @post:
+    // @- get 11-bit filter (code 0x000 and mask 0x000)
+    codeGet = 0xFFFFFFFFU; maskGet = 0xFFFFFFFFU;
+    retVal = dut1.GetFilter11Bit(codeGet, maskGet);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_EQ(CANACC_CODE_11BIT, codeGet);
+    EXPECT_EQ(CANACC_MASK_11BIT, maskGet);
+    // @- start DUT1 with configured bit-rate settings
+    retVal = dut1.StartController();
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get status of DUT1 and check to be in RUNNING state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
+    // @- send some frames to DUT2 and receive some frames from DUT2
+    int32_t frames = g_Options.GetNumberOfTestFrames();
+    EXPECT_EQ(frames, dut1.SendSomeFrames(dut2, frames));
+    EXPECT_EQ(frames, dut1.ReceiveSomeFrames(dut2, frames));
+    // @- get status of DUT1 and check to be in RUNNING state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_FALSE(status.can_stopped);
+    // @- stop/reset DUT1
+    retVal = dut1.ResetController();
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    // @- get status of DUT1 and check to be in INIT state
+    retVal = dut1.GetStatus(status);
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    EXPECT_TRUE(status.can_stopped);
+    // @- tear down DUT1
+    retVal = dut1.TeardownChannel();
+    EXPECT_EQ(CCanApi::NoError, retVal);
     // @end.
 }
 
 #endif // FEATURE_FILTERING != FEATURE_UNSUPPORTED
 
-//  $Id$  Copyright (c) UV Software, Berlin.
+//  $Id: TC23_SetFilter11Bit.cc 1254 2024-03-10 20:41:16Z haumea $  Copyright (c) UV Software, Berlin.

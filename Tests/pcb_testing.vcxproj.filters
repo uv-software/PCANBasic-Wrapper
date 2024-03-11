@@ -87,7 +87,13 @@
     <ClCompile Include="Sources\Timer64.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Testcases\TC23_SetFilter.cc">
+    <ClCompile Include="Testcases\TC23_SetFilter11Bit.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC25_SetFilter29Bit.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
+    <ClCompile Include="Testcases\TC27_ResetFilter.cc">
       <Filter>Source Files\Testcases</Filter>
     </ClCompile>
   </ItemGroup>

@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -68,10 +68,11 @@ public:
     bool IsSetter();
     bool IsPreInit();
     bool IsRequired();
+    bool IsModeRunning();
 	uint32_t SizeOf();
     const char* Description();
 };
 #endif // PROPERTIES_H_INCLUDED
 
-// $Id: Properties.h 1157 2023-08-18 16:51:09Z haumea $  Copyright (c) UV Software, Berlin //
+// $Id: Properties.h 1250 2024-03-04 18:33:06Z haumea $  Copyright (c) UV Software, Berlin //
 
