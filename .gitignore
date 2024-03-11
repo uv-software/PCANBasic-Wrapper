@@ -1,11 +1,11 @@
 #.gitignore
-Sources/CANAPI/.svn
 Sources/build_no.h
 Trial/.vs
 Trial/x64
 Trial/x86
 Trial/Debug
 Trial/Release
+Trial/pcb_test
 Trial/*.sln
 Trial/*.vcxproj.user
 Libraries/CANAPI/.vs
@@ -13,6 +13,7 @@ Libraries/CANAPI/x64
 Libraries/CANAPI/x86
 Libraries/CANAPI/Debug*
 Libraries/CANAPI/Release*
+Libraries/CANAPI/uvcanpcb
 Libraries/CANAPI/*.sln
 Libraries/CANAPI/*.aps
 Libraries/CANAPI/*.vcxproj.user
@@ -21,6 +22,7 @@ Libraries/PeakCAN/x64
 Libraries/PeakCAN/x86
 Libraries/PeakCAN/Debug*
 Libraries/PeakCAN/Release*
+Libraries/PeakCAN/PeakCAN
 Libraries/PeakCAN/*.sln
 Libraries/PeakCAN/*.aps
 Libraries/PeakCAN/*.vcxproj.user
@@ -34,6 +36,7 @@ Utilities/can_moni/x64
 Utilities/can_moni/x86
 Utilities/can_moni/Debug
 Utilities/can_moni/Release
+Utilities/can_moni/can_moni
 Utilities/can_moni/*.sln
 Utilities/can_moni/*.vcxproj.user
 Utilities/can_test/.vs
@@ -41,6 +44,7 @@ Utilities/can_test/x64
 Utilities/can_test/x86
 Utilities/can_test/Debug
 Utilities/can_test/Release
+Utilities/can_test/can_test
 Utilities/can_test/*.sln
 Utilities/can_test/*.vcxproj.user
 Tests/.vs
@@ -48,9 +52,9 @@ Tests/x64
 Tests/x86
 Tests/Debug
 Tests/Release
+Tests/pcb_testing
 Tests/*.sln
 Tests/*.vcxproj.user
-Tests/TestSpecs
 PeakCANBasic-cppcheck-build-dir
 artifacts
 Binaries
