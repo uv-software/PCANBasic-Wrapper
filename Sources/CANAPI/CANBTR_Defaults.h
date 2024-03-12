@@ -2,7 +2,7 @@
 /*
  *  CAN Interface API, Version 3 (Definitions and Options)
  *
- *  Copyright (c) 2004-2021 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of CAN API V3.
@@ -49,9 +49,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces - Definitions and Options
  *
- *  @author      $Author: eris $
+ *  @author      $Author: quaoar $
  *
- *  @version     $Rev: 1090 $
+ *  @version     $Rev: 1256 $
  *
  *  @addtogroup  can_btr
  *  @{
