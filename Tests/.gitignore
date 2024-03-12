@@ -1,11 +1,6 @@
 .svn
 .vs
-x64
-x86
-Debug
-Release
+# don't commit test specs
 TestSpecs
-*.sln
-*.vcxproj.user
+# don't press any key
 Sources/anykey.*
-

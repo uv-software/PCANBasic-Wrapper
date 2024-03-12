@@ -1,9 +1,9 @@
 ### CAN API V3 Testing with GoogleTest
 
-_Copyright &copy; 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
+_Copyright &copy; 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
 _All rights reserved._
 
-Version $Rev: 1219 $
+Version $Rev: 1255 $
 
 # CAN Interface Wrapper Specification
 
@@ -81,17 +81,23 @@ public:
 #else
     virtual CANAPI_Return_t InitializeChannel(int32_t channel, const CANAPI_OpMode_t &opMode, const void *param = NULL) = 0;
 #endif
+    virtual CANAPI_Return_t TeardownChannel() = 0;
     virtual CANAPI_Return_t SignalChannel() = 0;
     virtual CANAPI_Return_t StartController(CANAPI_Bitrate_t bitrate) = 0;
     virtual CANAPI_Return_t ResetController() = 0;
     virtual CANAPI_Return_t WriteMessage(CANAPI_Message_t message, uint16_t timeout = 0U) = 0;
-    virtual CANAPI_Return_t ReadMessage(CANAPI_Message_t &message, uint16_t timeout = CANREAD_INFINITE) = 0;
+    virtual CANAPI_Return_t ReadMessage(CANAPI_Message_t &message, uint16_t timeout = CANWAIT_INFINITE) = 0;
     virtual CANAPI_Return_t GetStatus(CANAPI_Status_t &status) = 0;
     virtual CANAPI_Return_t GetBusLoad(uint8_t &load) = 0;  // deprecated
     virtual CANAPI_Return_t GetBitrate(CANAPI_Bitrate_t &bitrate) = 0;
     virtual CANAPI_Return_t GetBusSpeed(CANAPI_BusSpeed_t &speed) = 0;
     virtual CANAPI_Return_t GetProperty(uint16_t param, void *value, uint32_t nbyte) = 0;
     virtual CANAPI_Return_t SetProperty(uint16_t param, const void *value, uint32_t nbyte) = 0;
+    virtual CANAPI_Return_t SetFilter11Bit(uint32_t code, uint32_t mask) = 0;
+    virtual CANAPI_Return_t GetFilter11Bit(uint32_t &code, uint32_t &mask) = 0;
+    virtual CANAPI_Return_t SetFilter29Bit(uint32_t code, uint32_t mask) = 0;
+    virtual CANAPI_Return_t GetFilter29Bit(uint32_t &code, uint32_t &mask) = 0;
+    virtual CANAPI_Return_t ResetFilters() = 0;
     virtual char *GetHardwareVersion() = 0;  // deprecated
     virtual char *GetFirmwareVersion() = 0;  // deprecated
     static char *GetVersion();

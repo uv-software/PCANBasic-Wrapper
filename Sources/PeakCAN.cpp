@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
 //
-//  Copyright (c) 2010-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2010-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of PCANBasic-Wrapper.
@@ -46,25 +46,15 @@
 //  along with PCANBasic-Wrapper.  If not, see <https://www.gnu.org/licenses/>.
 //
 #include "build_no.h"
-#ifdef _MSC_VER
 #define VERSION_MAJOR    0
-#define VERSION_MINOR    4
-#define VERSION_PATCH    7
-#else
-#define VERSION_MAJOR    0
-#define VERSION_MINOR    2
-#define VERSION_PATCH    7
-#endif
+#define VERSION_MINOR    5
+#define VERSION_PATCH    0
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
 #define PLATFORM        "x64"
 #elif defined(_WIN32)
 #define PLATFORM        "x86"
-#elif defined(__linux__)
-#define PLATFORM        "Linux"
-#elif defined(__APPLE__)
-#define PLATFORM        "macOS"
 #else
 #error Unsupported architecture
 #endif
@@ -146,7 +136,7 @@ bool CPeakCAN::GetFirstChannel(SChannelInfo &info, void *param) {
     // set index to the first entry in the interface list (if any)
     CANAPI_Return_t rc = can_property((-1), CANPROP_SET_FIRST_CHANNEL, NULL, 0U);
     if (CANERR_NOERROR == rc) {
-        // get channel no, device name and device DLL name at actual index in the interface list
+        // get channel no, device name, etc. at actual index in the interface list
         if (((can_property((-1), CANPROP_GET_CHANNEL_NO, (void*)&info.m_nChannelNo, sizeof(int32_t))) == 0) &&
             ((can_property((-1), CANPROP_GET_CHANNEL_NAME, (void*)&info.m_szDeviceName, CANPROP_MAX_BUFFER_SIZE)) == 0) &&
             ((can_property((-1), CANPROP_GET_CHANNEL_DLLNAME, (void*)&info.m_szDeviceDllName, CANPROP_MAX_BUFFER_SIZE)) == 0)) {
@@ -168,7 +158,7 @@ bool CPeakCAN::GetNextChannel(SChannelInfo &info, void *param) {
     // set index to the next entry in the interface list (if any)
     CANAPI_Return_t rc = can_property((-1), CANPROP_SET_NEXT_CHANNEL, NULL, 0U);
     if (CANERR_NOERROR == rc) {
-        // get channel no, device name and device DLL name at actual index in the interface list
+        // get channel no, device name, etc. at actual index in the interface list
         if (((can_property((-1), CANPROP_GET_CHANNEL_NO, (void*)&info.m_nChannelNo, sizeof(int32_t))) == 0) &&
             ((can_property((-1), CANPROP_GET_CHANNEL_NAME, (void*)&info.m_szDeviceName, CANPROP_MAX_BUFFER_SIZE)) == 0) &&
             ((can_property((-1), CANPROP_GET_CHANNEL_DLLNAME, (void*)&info.m_szDeviceDllName, CANPROP_MAX_BUFFER_SIZE)) == 0)) {
@@ -323,6 +313,50 @@ EXPORT
 CANAPI_Return_t CPeakCAN::SetProperty(uint16_t param, const void *value, uint32_t nbyte) {
     // modify a property value of the CAN interface
     return can_property(m_Handle, param, (void*)value, nbyte);
+}
+
+EXPORT
+CANAPI_Return_t CPeakCAN::SetFilter11Bit(uint32_t code, uint32_t mask) {
+    uint64_t filter = ((uint64_t)code << 32) | (uint64_t)mask;
+    // set the 11-bit acceptance filter of the CAN interface
+    return can_property(m_Handle, CANPROP_SET_FILTER_11BIT, (void*)&filter, sizeof(uint64_t));
+}
+
+EXPORT
+CANAPI_Return_t CPeakCAN::SetFilter29Bit(uint32_t code, uint32_t mask) {
+    uint64_t filter = ((uint64_t)code << 32) | (uint64_t)mask;
+    // set the 29-bit acceptance filter of the CAN interface
+    return can_property(m_Handle, CANPROP_SET_FILTER_29BIT, (void*)&filter, sizeof(uint64_t));
+}
+
+EXPORT
+CANAPI_Return_t CPeakCAN::GetFilter11Bit(uint32_t &code, uint32_t &mask) {
+    uint64_t filter = 0U;
+    // retrieve the 11-bit acceptance filter of the CAN interface
+    CANAPI_Return_t rc = can_property(m_Handle, CANPROP_GET_FILTER_11BIT, (void*)&filter, sizeof(uint64_t));
+    if (CANERR_NOERROR == rc) {
+        code = (uint32_t)(filter >> 32);
+        mask = (uint32_t)(filter >> 0);
+    }
+    return rc;
+}
+
+EXPORT
+CANAPI_Return_t CPeakCAN::GetFilter29Bit(uint32_t &code, uint32_t &mask) {
+    uint64_t filter = 0U;
+    // retrieve the 29-bit acceptance filter of the CAN interface
+    CANAPI_Return_t rc = can_property(m_Handle, CANPROP_GET_FILTER_29BIT, (void*)&filter, sizeof(uint64_t));
+    if (CANERR_NOERROR == rc) {
+        code = (uint32_t)(filter >> 32);
+        mask = (uint32_t)(filter >> 0);
+    }
+    return rc;
+}
+
+EXPORT
+CANAPI_Return_t CPeakCAN::ResetFilters() {
+    // reset all acceptance filters of the CAN interface
+    return can_property(m_Handle, CANPROP_SET_FILTER_RESET, NULL, 0U);
 }
 
 EXPORT

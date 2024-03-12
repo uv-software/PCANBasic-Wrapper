@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -62,7 +62,7 @@ GTEST_API_ int main(int argc, char **argv) {
 #endif
     std::cout << CCanDriver::GetVersion() << std::endl;
     std::cout << "Copyright (c) 2004-2012 by UV Software, Friedrichshafen" << std::endl;
-    std::cout << "Copyright (c) 2013-2023 by UV Software, Berlin" << std::endl;
+    std::cout << "Copyright (c) 2013-2024 by UV Software, Berlin" << std::endl;
     std::cout << "Build: " << __DATE__ << " " << __TIME__ << " (" << REVISION_NO << ")" << std::endl;
     // --- initialize GoogleTest framework --
     printf("Running main() from %s\n", __FILE__);
@@ -80,4 +80,4 @@ GTEST_API_ int main(int argc, char **argv) {
     return RUN_ALL_TESTS();
 }
 
-// $Id: main.cpp 1185 2023-08-29 10:42:03Z haumea $  Copyright (c) UV Software, Berlin //
+// $Id: main.cpp 1253 2024-03-09 20:14:41Z haumea $  Copyright (c) UV Software, Berlin //

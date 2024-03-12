@@ -47,8 +47,8 @@
 //
 #ifndef VERSION_H_INCLUDED
 #define VERSION_H_INCLUDED
-// SVN revision number (update with each commit: VII)
-#define REVISION_NO  "$Rev: 1219 $"
+// SVN revision number (update with each commit: X)
+#define REVISION_NO  "$Rev: 1255 $"
 #endif // VERSION_H_INCLUDED
 
-// $Id: Version.h 1219 2023-10-14 12:23:07Z makemake $  Copyright (c) UV Software, Berlin //
+// $Id: Version.h 1255 2024-03-12 16:53:58Z quaoar $  Copyright (c) UV Software, Berlin //

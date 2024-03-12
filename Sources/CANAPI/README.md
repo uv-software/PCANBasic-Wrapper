@@ -1,9 +1,9 @@
 ### CAN Interface API, Version 3
 
-_Copyright &copy; 2004-2023  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
+_Copyright &copy; 2004-2024  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
 _All rights reserved._
 
-Version $Rev: 1212 $
+Version $Rev: 1256 $
 
 # A CAN Interface Wrapper Specification
 
@@ -65,9 +65,9 @@ See header file `can_api.h` for a description of the provided functions.
 
 ## This and That
 
-### SVN Repo
+### CAN API V3 Reference
 
-The CAN API V3 sources are maintained in a SVN repo to synchronized them between the different CAN API V3 wrapper repos.
+A generic documentation of the CAN API V3 application programming interface can be found [here](https://uv-software.github.io/CANAPI-Docs/#/).
 
 ### Dual-License
 

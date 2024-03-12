@@ -2,7 +2,7 @@
 /*
  *  CAN Interface API, Version 3 (Data Types and Defines)
  *
- *  Copyright (c) 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of CAN API V3.
@@ -51,7 +51,7 @@
  *
  *  @author      $Author: haumea $
  *
- *  @version     $Rev: 1212 $
+ *  @version     $Rev: 1249 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -112,6 +112,7 @@ extern "C" {
 
 /** @name  CAN Identifier
  *  @brief CAN Identifier range
+ *  @todo  Make it unsigned!
  *  @{ */
 #define CAN_MAX_STD_ID           0x7FF  /**< highest 11-bit identifier */
 #define CAN_MAX_XTD_ID      0x1FFFFFFF  /**< highest 29-bit identifier */
@@ -119,6 +120,7 @@ extern "C" {
 
 /** @name  CAN Data Length
  *  @brief CAN payload length and DLC definition
+ *  @todo  Make it unsigned?
  *  @{ */
 #define CAN_MAX_DLC                  8  /**< max. data length code (CAN 2.0) */
 #define CAN_MAX_LEN                  8  /**< max. payload length (CAN 2.0) */
@@ -129,6 +131,16 @@ extern "C" {
  *  @{ */
 #define CANFD_MAX_DLC               15  /**< max. data length code (CAN FD) */
 #define CANFD_MAX_LEN               64  /**< max. payload length (CAN FD) */
+/** @} */
+
+/** @name  CAN Acceptance Filter
+ *  @brief CAN acceptance filter defaults to let all messages pass
+ *  @note  Acceptance condition: (code ^ id) & mask == 0
+ *  @{ */
+#define CANACC_CODE_11BIT       0x000U  /**< mask for 11-bit acceptance code */
+#define CANACC_MASK_11BIT       0x000U  /**< mask for 11-bit acceptance mask */
+#define CANACC_CODE_29BIT  0x00000000U  /**< mask for 29-bit acceptance code */
+#define CANACC_MASK_29BIT  0x00000000U  /**< mask for 29-bit acceptance mask */
 /** @} */
 
 /** @name  CAN Baud Rate Indexes (for compatibility)
@@ -333,14 +345,11 @@ extern "C" {
 #define CANPROP_GET_TRM_QUEUE_SIZE  30U /**< maximum number of message the transmit queue can hold (uint32_t) */
 #define CANPROP_GET_TRM_QUEUE_HIGH  31U /**< maximum number of message the transmit queue has hold (uint32_t) */
 #define CANPROP_GET_TRM_QUEUE_OVFL  32U /**< overflow counter of the transmit queue (uint64_t) */
-#define CANPROP_GET_FLT_11BIT_CODE  40U /**< acceptance filter code of 11-bit identifier (int32_t) */
-#define CANPROP_GET_FLT_11BIT_MASK  41U /**< acceptance filter mask of 11-bit identifier (int32_t) */
-#define CANPROP_GET_FLT_29BIT_CODE  42U /**< acceptance filter code of 29-bit identifier (int32_t) */
-#define CANPROP_GET_FLT_29BIT_MASK  43U /**< acceptance filter mask of 29-bit identifier (int32_t) */
-#define CANPROP_SET_FLT_11BIT_CODE  44U /**< set value for acceptance filter code of 11-bit identifier (int32_t) */
-#define CANPROP_SET_FLT_11BIT_MASK  45U /**< set value for acceptance filter mask of 11-bit identifier (int32_t) */
-#define CANPROP_SET_FLT_29BIT_CODE  46U /**< set value for acceptance filter code of 29-bit identifier (int32_t) */
-#define CANPROP_SET_FLT_29BIT_MASK  47U /**< set value for acceptance filter mask of 29-bit identifier (int32_t) */
+#define CANPROP_GET_FILTER_11BIT    40U /**< acceptance filter code and mask for 11-bit identifier (uint64_t) */
+#define CANPROP_GET_FILTER_29BIT    41U /**< acceptance filter code and mask for 29-bit identifier (uint64_t) */
+#define CANPROP_SET_FILTER_11BIT    42U /**< set value for acceptance filter code and mask for 11-bit identifier (uint64_t) */
+#define CANPROP_SET_FILTER_29BIT    43U /**< set value for acceptance filter code and mask for 29-bit identifier (uint64_t) */
+#define CANPROP_SET_FILTER_RESET    44U /**< reset acceptance filter code and mask to default values (NULL) */
 #if (OPTION_CANAPI_LIBRARY != 0)
 /* - -  build-in bit-rate conversion  - - - - - - - - - - - - - - - - - */
 #define CANPROP_GET_BTR_INDEX       64U /**< bit-rate as CiA index (int32_t) */

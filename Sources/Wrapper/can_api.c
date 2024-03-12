@@ -3,7 +3,7 @@
  *  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
  *
  *  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
- *  Copyright (c) 2014-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2014-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
@@ -50,25 +50,15 @@
  *  @{
  */
 #include "build_no.h"
-#ifdef _MSC_VER
 #define VERSION_MAJOR    0
-#define VERSION_MINOR    4
-#define VERSION_PATCH    7
-#else
-#define VERSION_MAJOR    0
-#define VERSION_MINOR    2
-#define VERSION_PATCH    7
-#endif
+#define VERSION_MINOR    5
+#define VERSION_PATCH    0
 #define VERSION_BUILD    BUILD_NO
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
 #define PLATFORM        "x64"
 #elif defined(_WIN32)
 #define PLATFORM        "x86"
-#elif defined(__linux__)
-#define PLATFORM        "Linux"
-#elif defined(__APPLE__)
-#define PLATFORM        "macOS"
 #else
 #error Unsupported architecture
 #endif
@@ -148,6 +138,17 @@ static void _finalizer() {
 /*  -----------  types  --------------------------------------------------
  */
 
+typedef enum {                          // filtering mode:
+    FILTER_OFF = 0,                     //   no filtering
+    FILTER_STD = 1,                     //   11-bit identifier
+    FILTER_XTD = 2                      //   29-bit identifier
+}   filtering_t;
+
+typedef struct {                        // message filtering:
+    filtering_t mode;                   //   filtering mode
+    uint64_t mask;                      //   acceptance mask
+}   can_filter_t;
+
 typedef struct {                        // frame counters:
     uint64_t tx;                        //   number of transmitted CAN frames
     uint64_t rx;                        //   number of received CAN frames
@@ -169,6 +170,7 @@ typedef struct {                        // PCAN interface:
     HANDLE event;                       //   event handle for blocking read
 #endif
     can_mode_t mode;                    //   operation mode of the CAN channel
+    can_filter_t filter;                //   message filtering settings
     can_status_t status;                //   8-bit status register
     can_error_t error;                  //   error code capture
     can_counter_t counters;             //   statistical counters
@@ -180,9 +182,16 @@ typedef struct {                        // PCAN interface:
 
 static int pcan_error(TPCANStatus);     // PCAN specific errors
 static int pcan_compatibility(void);    // PCAN compatibility check
+
 static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability);
+static TPCANStatus pcan_get_filter(int handle, uint64_t* filter, filtering_t mode);
+static TPCANStatus pcan_set_filter(int handle, uint64_t filter, filtering_t mode);
+static TPCANStatus pcan_reset_filter(int handle);
+
 static int lib_parameter(uint16_t param, void *value, size_t nbyte);
 static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte);
+
+static void var_init(void);             // initialize variables
 
 
 /*  -----------  variables  ----------------------------------------------
@@ -233,23 +242,7 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
         return pcan_error(PCAN_ERROR_ILLCLIENT);
 
     if (!init) {                        // when not init before:
-        for (i = 0; i < PCAN_MAX_HANDLES; i++) {
-            can[i].board = PCAN_NONEBUS;
-            can[i].brd_type = 0u;
-            can[i].brd_port = 0u;
-            can[i].brd_irq = 0u;
-#if defined(_WIN32) || defined(_WIN64)
-            can[i].event = NULL;
-#endif
-            can[i].mode.byte = CANMODE_DEFAULT;
-            can[i].status.byte = CANSTAT_RESET;
-            can[i].error.lec = 0x00u;
-            can[i].error.rx_err = 0u;
-            can[i].error.tx_err = 0u;
-            can[i].counters.tx = 0ull;
-            can[i].counters.rx = 0ull;
-            can[i].counters.err = 0ull;
-        }
+        var_init();                     //   initialize variables
         init = 1;                       //   set initialization flag
     }
     if ((rc = CAN_GetValue((TPCANHandle)board, PCAN_CHANNEL_CONDITION,
@@ -309,23 +302,7 @@ int can_init(int32_t board, uint8_t mode, const void *param)
         return pcan_error(PCAN_ERROR_ILLCLIENT);
 
     if (!init) {                        // when not init before:
-        for (i = 0; i < PCAN_MAX_HANDLES; i++) {
-            can[i].board = PCAN_NONEBUS;
-            can[i].brd_type = 0u;
-            can[i].brd_port = 0u;
-            can[i].brd_irq = 0u;
-#if defined(_WIN32) || defined(_WIN64)
-            can[i].event = NULL;
-#endif
-            can[i].mode.byte = CANMODE_DEFAULT;
-            can[i].status.byte = CANSTAT_RESET;
-            can[i].error.lec = 0x00u;
-            can[i].error.rx_err = 0u;
-            can[i].error.tx_err = 0u;
-            can[i].counters.tx = 0ull;
-            can[i].counters.rx = 0ull;
-            can[i].counters.err = 0ull;
-        }
+        var_init();                     //   initialize variables
         init = 1;                       //   set initialization flag
     }
     for (i = 0; i < PCAN_MAX_HANDLES; i++) {
@@ -489,7 +466,6 @@ int can_start(int handle, const can_bitrate_t *bitrate)
     uint16_t btr0btr1 = BTR0BTR1_DEFAULT;  // btr0btr1 value
     char string[PCAN_MAX_BUFFER_SIZE];  // bit-rate string
     DWORD value;                        // parameter value
-    //UINT64 filter;                       // for 29-bit filter
     TPCANStatus rc;                     // return value
 
     strcpy(string, "");                 // empty string
@@ -546,7 +522,7 @@ int can_start(int handle, const can_bitrate_t *bitrate)
         return pcan_error(rc);
     if ((rc = CAN_Uninitialize(can[handle].board)) != PCAN_ERROR_OK)
         return pcan_error(rc);
-    /* note: the receiver is automatically switched ON by CAN_Uninitialize() */
+    /* note: the receiver is automatically switched ON by CAN_Initialize[FD]() */
     if (can[handle].mode.fdoe) {        // CAN FD operation mode?
         if ((rc = CAN_InitializeFD(can[handle].board, string)) != PCAN_ERROR_OK)
             return pcan_error(rc);
@@ -566,30 +542,40 @@ int can_start(int handle, const can_bitrate_t *bitrate)
 #endif
     value = (can[handle].mode.mon) ? PCAN_PARAMETER_ON : PCAN_PARAMETER_OFF;
     if ((rc = CAN_SetValue(can[handle].board, PCAN_LISTEN_ONLY,
-                   (void*)&value, sizeof(value))) != PCAN_ERROR_OK) {
+                  (void*)&value, sizeof(value))) != PCAN_ERROR_OK) {
         CAN_Uninitialize(can[handle].board);
         return pcan_error(rc);
     }
     value = (can[handle].mode.err) ? PCAN_PARAMETER_ON : PCAN_PARAMETER_OFF;
     if ((rc = CAN_SetValue(can[handle].board, PCAN_ALLOW_ERROR_FRAMES,
-                     (void*)&value, sizeof(value))) != PCAN_ERROR_OK) {
-        CAN_Uninitialize(can[handle].board);
-        return pcan_error(rc);
-    }
-#if (0)
-    value = (can[handle].mode.nrtr) ? PCAN_PARAMETER_OFF : PCAN_PARAMETER_ON;
-    if ((rc = CAN_SetValue(can[handle].board, PCAN_ALLOW_RTR_FRAMES, // TODO: fdoe?
                   (void*)&value, sizeof(value))) != PCAN_ERROR_OK) {
         CAN_Uninitialize(can[handle].board);
         return pcan_error(rc);
     }
-    filter = (can[handle].mode.nxtd) ? 0x1FFFFFFF1FFFFFFFull : 0x000000001FFFFFFFull;
-    if ((rc = CAN_SetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_29BIT,
-                          (void*)&filter, sizeof(filter))) != PCAN_ERROR_OK) {
-        CAN_Uninitialize(can[handle].board);
-        return pcan_error(rc);
+    switch(can[handle].filter.mode) {
+        case FILTER_STD:                // 11-bit identifier
+            if ((rc = CAN_SetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_11BIT,
+                          (void*)&can[handle].filter.mask, sizeof(UINT64))) != PCAN_ERROR_OK) {
+                CAN_Uninitialize(can[handle].board);
+                return pcan_error(rc);
+            }
+            break;
+        case FILTER_XTD:                // 29-bit identifier
+            if ((rc = CAN_SetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_29BIT,
+                          (void*)&can[handle].filter.mask, sizeof(UINT64))) != PCAN_ERROR_OK) {
+                CAN_Uninitialize(can[handle].board);
+                return pcan_error(rc);
+            }
+            break;
+        default:                        // no filtering
+            value = PCAN_FILTER_OPEN;
+            if ((rc = CAN_SetValue(can[handle].board, PCAN_MESSAGE_FILTER,
+                          (void*)&value, sizeof(value))) != PCAN_ERROR_OK) {
+                CAN_Uninitialize(can[handle].board);
+                return pcan_error(rc);
+            }
+            break;
     }
-#endif
     can[handle].status.byte = 0x00u;    // clear old status, errors and counters
     can[handle].error.lec = 0x00u;
     can[handle].error.rx_err = 0u;
@@ -1199,6 +1185,79 @@ static TPCANStatus pcan_capability(TPCANHandle board, can_mode_t *capability)
     return PCAN_ERROR_OK;
 }
 
+static TPCANStatus pcan_get_filter(int handle, uint64_t *filter, filtering_t mode)
+{
+    TPCANStatus sts;                    // status or error code
+
+    assert(IS_HANDLE_VALID(handle));    // just to make sure
+    assert(filter);
+
+    switch (mode) {
+        case FILTER_STD:                // 11-bit identifier
+            if ((sts = CAN_GetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_11BIT,
+                                   (void*)filter, sizeof(UINT64))) == PCAN_ERROR_OK) {
+                *filter ^= 0x00000000000007FFULL;   // TODO: replace by a define
+            }
+            break;
+        case FILTER_XTD:                // 29-bit identifier
+            if ((sts = CAN_GetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_29BIT,
+                                   (void*)filter, sizeof(UINT64))) == PCAN_ERROR_OK) {
+                *filter ^= 0x000000001FFFFFFFULL;   // TODO: replace by a define
+            }
+            break;
+        default:                        // should not happen
+            *filter = 0x0000000000000000ULL;
+            sts = CANERR_ILLPARA;
+            break;
+    }
+    return sts;
+}
+
+static TPCANStatus pcan_set_filter(int handle, uint64_t filter, filtering_t mode)
+{
+    UINT64 value = 0x0ULL;              // PCAN filter value
+    TPCANStatus sts;                    // status or error code
+
+    assert(IS_HANDLE_VALID(handle));    // just to make sure
+
+    switch (mode) {
+        case FILTER_STD:                // 11-bit identifier
+            value = (filter ^ 0x00000000000007FFULL);   // TODO: replace by a define
+            if ((sts = CAN_SetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_11BIT,
+                                   (void*)&value, sizeof(value))) == PCAN_ERROR_OK) {
+                can[handle].filter.mode = FILTER_STD;
+                can[handle].filter.mask = (uint64_t)value;
+            }
+            break;
+        case FILTER_XTD:                // 29-bit identifier
+            value = (filter ^ 0x000000001FFFFFFFULL);   // TODO: replace by a define
+            if ((sts = CAN_SetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_29BIT,
+                                   (void*)&value, sizeof(value))) == PCAN_ERROR_OK) {
+                can[handle].filter.mode = FILTER_XTD;
+                can[handle].filter.mask = (uint64_t)value;
+            }
+            break;
+        default:                        // no filtering
+            sts = pcan_reset_filter(handle);
+            break;
+    }
+    return sts;
+}
+
+static TPCANStatus pcan_reset_filter(int handle)
+{
+    uint8_t filter = PCAN_FILTER_OPEN;  // filter mode (accept all)
+    TPCANStatus sts;                    // status or error code
+
+    assert(IS_HANDLE_VALID(handle));    // just to make sure
+
+    if ((sts = CAN_SetValue(can[handle].board, (BYTE)PCAN_MESSAGE_FILTER,
+        (void*)&filter, (DWORD)sizeof(uint8_t))) == PCAN_ERROR_OK) {
+        can[handle].filter.mode = FILTER_OFF;
+    }
+    return sts;
+}
+
 /*  - - - - - -  CAN API V3 properties  - - - - - - - - - - - - - - - - -
  */
 static int lib_parameter(uint16_t param, void *value, size_t nbyte)
@@ -1210,7 +1269,8 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
 
     if (value == NULL) {                // check for null-pointer
         if ((param != CANPROP_SET_FIRST_CHANNEL) &&
-           (param != CANPROP_SET_NEXT_CHANNEL))
+            (param != CANPROP_SET_NEXT_CHANNEL) &&
+            (param != CANPROP_SET_FILTER_RESET))
             return CANERR_NULLPTR;
     }
     /* CAN library properties */
@@ -1358,6 +1418,11 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
     case CANPROP_GET_RCV_QUEUE_SIZE:    // maximum number of message the receive queue can hold (uint32_t)
     case CANPROP_GET_RCV_QUEUE_HIGH:    // maximum number of message the receive queue has hold (uint32_t)
     case CANPROP_GET_RCV_QUEUE_OVFL:    // overflow counter of the receive queue (uint64_t)
+    case CANPROP_GET_FILTER_11BIT:      // acceptance filter code and mask for 11-bit identifier (uint64_t)
+    case CANPROP_GET_FILTER_29BIT:      // acceptance filter code and mask for 29-bit identifier (uint64_t)
+    case CANPROP_SET_FILTER_11BIT:      // set value for acceptance filter code and mask for 11-bit identifier (uint64_t)
+    case CANPROP_SET_FILTER_29BIT:      // set value for acceptance filter code and mask for 29-bit identifier (uint64_t)
+    case CANPROP_SET_FILTER_RESET:      // reset acceptance filter code and mask to default values (NULL)
         // note: a device parameter requires a valid handle.
         if (!init)
             rc = CANERR_NOTINIT;
@@ -1391,18 +1456,20 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
 static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
 {
     int rc = CANERR_ILLPARA;            // suppose an invalid parameter
-    can_bitrate_t bitrate;
-    can_speed_t speed;
-    can_mode_t mode;
-    uint8_t status = 0U;
-    uint8_t load = 0U;
-    TPCANStatus sts;
+    can_bitrate_t bitrate;              // bit-rate settings
+    can_speed_t speed;                  // current bus speed
+    can_mode_t mode;                    // current operation mode
+    uint64_t filter = 0ULL;             // acceptance filter
+    uint8_t status = 0U;                // status register
+    uint8_t load = 0U;                  // bus load
+    TPCANStatus sts;                    // status or error code
 
     assert(IS_HANDLE_VALID(handle));    // just to make sure
 
     if (value == NULL) {                // check for null-pointer
         if ((param != CANPROP_SET_FIRST_CHANNEL) &&
-           (param != CANPROP_SET_NEXT_CHANNEL))
+            (param != CANPROP_SET_NEXT_CHANNEL) &&
+            (param != CANPROP_SET_FILTER_RESET))
         return CANERR_NULLPTR;
     }
     /* CAN interface properties */
@@ -1533,6 +1600,71 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         // note: cannot be determined
         rc = CANERR_NOTSUPP;
         break;
+    case CANPROP_GET_FILTER_11BIT:      // acceptance filter code and mask for 11-bit identifier (uint64_t)
+        if (nbyte >= sizeof(uint64_t)) {
+            if ((sts = pcan_get_filter(handle, (uint64_t*)value, FILTER_STD)) == PCAN_ERROR_OK)
+                rc = CANERR_NOERROR;
+            else
+                rc = pcan_error(sts);
+        }
+        break;
+    case CANPROP_GET_FILTER_29BIT:      // acceptance filter code and mask for 29-bit identifier (uint64_t)
+        if (nbyte >= sizeof(uint64_t)) {
+            if ((sts = pcan_get_filter(handle, (uint64_t*)value, FILTER_XTD)) == PCAN_ERROR_OK)
+                rc = CANERR_NOERROR;
+            else
+                rc = pcan_error(sts);
+        }
+        break;
+    case CANPROP_SET_FILTER_11BIT:      // set value for acceptance filter code and mask for 11-bit identifier (uint64_t)
+        if (nbyte >= sizeof(uint64_t)) {
+            if (!(*(uint64_t*)value & 0xFFFFF800FFFFF800ULL)) {   // TODO: replace by a define
+                // note: code and mask must not exceed 11-bit identifier
+                if (can[handle].status.can_stopped) {
+                    // note: set filter only if the CAN controller is in INIT mode
+                    if ((sts = pcan_set_filter(handle, *(uint64_t*)value, FILTER_STD)) == PCAN_ERROR_OK)
+                        rc = CANERR_NOERROR;
+                    else
+                        rc = pcan_error(sts);
+                }
+                else
+                    rc = CANERR_ONLINE;
+            }
+            else
+                rc = CANERR_ILLPARA;
+        }
+        break;
+    case CANPROP_SET_FILTER_29BIT:      // set value for acceptance filter code and mask for 29-bit identifier (uint64_t)
+        if (nbyte >= sizeof(uint64_t)) {
+            if (!(*(uint64_t*)value & 0xE0000000E0000000ULL) &&   // TODO: replace by a define
+                !can[handle].mode.nxtd) {
+                // note: code and mask must not exceed 29-bit identifier and 
+                //       extended frame format mode must not be suppressed
+                if (can[handle].status.can_stopped) {
+                    // note: set filter only if the CAN controller is in INIT mode
+                    if ((sts = pcan_set_filter(handle, *(uint64_t*)value, FILTER_XTD)) == PCAN_ERROR_OK)
+                        rc = CANERR_NOERROR;
+                    else
+                        rc = pcan_error(sts);
+                }
+                else
+                    rc = CANERR_ONLINE;
+            }
+            else
+                rc = CANERR_ILLPARA;
+        }
+        break;
+    case CANPROP_SET_FILTER_RESET:      // reset acceptance filter code and mask to default values (NULL)
+        if (can[handle].status.can_stopped) {
+            // note: reset filter only if the CAN controller is in INIT mode
+            if ((sts = pcan_reset_filter(handle)) == PCAN_ERROR_OK)
+                rc = CANERR_NOERROR;
+            else
+                rc = pcan_error(sts);
+        }
+        else
+            rc = CANERR_ONLINE;
+        break;
     default:
         if ((CANPROP_GET_VENDOR_PROP <= param) &&  // get a vendor-specific property value (void*)
            (param < (CANPROP_GET_VENDOR_PROP + CANPROP_VENDOR_PROP_RANGE))) {
@@ -1555,6 +1687,30 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte)
         break;
     }
     return rc;
+}
+
+static void var_init(void)
+{
+    int i;
+
+    for (i = 0; i < PCAN_MAX_HANDLES; i++) {
+        can[i].board = PCAN_NONEBUS;
+        can[i].brd_type = 0u;
+        can[i].brd_port = 0u;
+        can[i].brd_irq = 0u;
+#if defined(_WIN32) || defined(_WIN64)
+        can[i].event = NULL;
+#endif
+        can[i].mode.byte = CANMODE_DEFAULT;
+        can[i].status.byte = CANSTAT_RESET;
+        can[i].filter.mode = FILTER_OFF;
+        can[i].error.lec = 0x00u;
+        can[i].error.rx_err = 0u;
+        can[i].error.tx_err = 0u;
+        can[i].counters.tx = 0ull;
+        can[i].counters.rx = 0ull;
+        can[i].counters.err = 0ull;
+    }
 }
 
 /*  -----------  revision control  ---------------------------------------

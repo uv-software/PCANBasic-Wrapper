@@ -2,7 +2,7 @@
 //
 //  CAN Monitor for generic Interfaces (CAN API V3)
 //
-//  Copyright (c) 2007,2017-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2007,2017-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -43,46 +43,51 @@ extern "C" {
 
 #define MAX_ID  (CAN_MAX_STD_ID + 1)
 
-#define BAUDRATE_STR    0
-#define BAUDRATE_CHR    1
-#define BITRATE_STR     2
-#define BITRATE_CHR     3
-#define VERBOSE_STR     4
-#define VERBOSE_CHR     5
-#define OP_MODE_STR     6
-#define OP_MODE_CHR     7
-#define OP_RTR_STR      8
-#define OP_XTD_STR      9
-#define OP_ERR_STR      10
-#define OP_ERRFRMS_STR  11
-#define OP_MON_STR      12
-#define OP_MONITOR_STR  13
-#define OP_LSTNONLY_STR 14
-#define OP_SHARED_STR   15
-#define OP_SHARED_CHR   16
-#define MODE_TIME_STR   17
-#define MODE_TIME_CHR   18
-#define MODE_ID_STR     19
-#define MODE_ID_CHR     20
-#define MODE_DATA_STR   21
-#define MODE_DATA_CHR   22
-#define MODE_ASCII_STR  23
-#define MODE_ASCII_CHR  24
-#define WRAPAROUND_STR  25
-#define WRAPAROUND_CHR  26
-#define EXCLUDE_STR     27
-#define EXCLUDE_CHR     28
-#define SCRIPT_STR      29
-#define SCRIPT_CHR      30
-#define LISTBOARDS_STR  31
-#define LISTBOARDS_CHR  32
-#define TESTBOARDS_STR  33
-#define TESTBOARDS_CHR  34
-#define HELP            35
-#define QUESTION_MARK   36
-#define ABOUT           37
-#define CHARACTER_MJU   38
-#define MAX_OPTIONS     39
+#define BAUDRATE_STR      0
+#define BAUDRATE_CHR      1
+#define BITRATE_STR       2
+#define BITRATE_CHR       3
+#define VERBOSE_STR       4
+#define VERBOSE_CHR       5
+#define OP_MODE_STR       6
+#define OP_MODE_CHR       7
+#define OP_RTR_STR        8
+#define OP_XTD_STR        9
+#define OP_ERR_STR        10
+#define OP_ERRFRMS_STR    11
+#define OP_MON_STR        12
+#define OP_MONITOR_STR    13
+#define OP_LSTNONLY_STR   14
+#define OP_SHARED_STR     15
+#define OP_SHARED_CHR     16
+#define MODE_TIME_STR     17
+#define MODE_TIME_CHR     18
+#define MODE_ID_STR       19
+#define MODE_ID_CHR       20
+#define MODE_DATA_STR     21
+#define MODE_DATA_CHR     22
+#define MODE_ASCII_STR    23
+#define MODE_ASCII_CHR    24
+#define WRAPAROUND_STR    25
+#define WRAPAROUND_CHR    26
+#define EXCLUDE_STR       27
+#define EXCLUDE_CHR       28
+#define STD_CODE_STR      29
+#define STD_MASK_CHR      30
+#define XTD_CODE_STR      31
+#define XTD_MASK_CHR      32
+#define SCRIPT_STR        33
+#define SCRIPT_CHR        34
+#define LISTBITRATES_STR  35
+#define LISTBOARDS_STR    36
+#define LISTBOARDS_CHR    37
+#define TESTBOARDS_STR    38
+#define TESTBOARDS_CHR    39
+#define HELP              40
+#define QUESTION_MARK     41
+#define ABOUT             42
+#define CHARACTER_MJU     43
+#define MAX_OPTIONS       44
 
 static char* option[MAX_OPTIONS] = {
     (char*)"BAUDRATE", (char*)"bd",
@@ -100,7 +105,10 @@ static char* option[MAX_OPTIONS] = {
     (char*)"ASCII", (char*)"a",
     (char*)"WARAPAROUND", (char*)"w",
     (char*)"EXCLUDE", (char*)"x",
+    (char*)"CODE", (char*)"MASK",
+    (char*)"XTD-CODE", (char*)"XTD-MASK",
     (char*)"SCRIPT", (char*)"s",
+    (char*)"LIST-BITRATES",
     (char*)"LIST-BOARDS", (char*)"list",
     (char*)"TEST-BOARDS", (char*)"test",
     (char*)"HELP", (char*)"?",
@@ -115,6 +123,7 @@ public:
 public:
     static int ListCanDevices(void);
     static int TestCanDevices(CANAPI_OpMode_t opMode);
+    static int ListCanBitrates(CANAPI_OpMode_t opMode);
 };
 
 static void sigterm(int signo);
@@ -141,7 +150,7 @@ static const char LICENSE[]     = "This program is free software: you can redist
                                   "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" \
                                   "GNU General Public License for more details.\n\n" \
                                   "You should have received a copy of the GNU General Public License\n" \
-                                  "along with this program.  If not, see <http://www.gnu.org/licenses/>.";
+                                  "along with this program.  If not, see <https://www.gnu.org/licenses/>.";
 #define basename(x)  "can_moni" // FIXME: Where is my `basename' function?
 
 int main(int argc, const char * argv[]) {
@@ -151,6 +160,7 @@ int main(int argc, const char * argv[]) {
 
     CCanDevice::SChannelInfo channel; int hw = 0;
     int op = 0, rf = 0, xf = 0, ef = 0, lo = 0, sh = 0;
+    int c11 = 0, m11 = 0, c29 = 0, m29 = 0;
     int baudrate = CANBDR_250; int bd = 0;
     CCanMessage::EFormatTimestamp modeTime = CCanMessage::OptionZero; int mt = 0;
     CCanMessage::EFormatNumber modeId = CCanMessage::OptionHex; int mi = 0;
@@ -171,6 +181,8 @@ int main(int argc, const char * argv[]) {
     bool hasNoSamp = true;
     CANAPI_OpMode_t opMode = {};
     opMode.byte = CANMODE_DEFAULT;
+    CANAPI_OpMode_t brMode = {};
+    brMode.byte = CANMODE_DEFAULT;
     CANAPI_Return_t retVal = 0;
 
     /* default bit-timing */
@@ -186,6 +198,10 @@ int main(int argc, const char * argv[]) {
     (void)CCanMessage::SetAsciiFormat(modeAscii);
     (void)CCanMessage::SetWraparound(wraparound);
     (void)mw;
+
+    /* default acceptance filter */
+    uint32_t code11 = CANACC_CODE_11BIT, mask11 = CANACC_MASK_11BIT;
+    uint32_t code29 = CANACC_CODE_29BIT, mask29 = CANACC_MASK_29BIT;
 
     /* exclude list (11-bit IDs only) */
     for (int i = 0; i < MAX_ID; i++) {
@@ -272,7 +288,6 @@ int main(int argc, const char * argv[]) {
             }
             verbose = 1;
             break;
-#if (CAN_FD_SUPPORTED != 0)
         /* option `--mode=(2.0|FDF[+BRS])' (-m)*/
         case OP_MODE_STR:
         case OP_MODE_CHR:
@@ -284,19 +299,20 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /MODE\n", basename(argv[0]));
                 return 1;
             }
-            if (!_strcmpi(optarg, "DEFAULT") || !_strcmpi(optarg, "CLASSIC") ||
+            if (!_strcmpi(optarg, "DEFAULT") || !_strcmpi(optarg, "CLASSIC") || !_strcmpi(optarg, "CLASSICAL") ||
                 !_strcmpi(optarg, "CAN20") || !_strcmpi(optarg, "CAN2.0") || !_strcmpi(optarg, "2.0"))
                 opMode.byte |= CANMODE_DEFAULT;
+#if (CAN_FD_SUPPORTED != 0)
             else if (!_strcmpi(optarg, "CANFD") || !_strcmpi(optarg, "FD") || !_strcmpi(optarg, "FDF"))
                 opMode.byte |= CANMODE_FDOE;
             else if (!_strcmpi(optarg, "CANFD+BRS") || !_strcmpi(optarg, "FDF+BRS") || !_strcmpi(optarg, "FD+BRS"))
                 opMode.byte |= CANMODE_FDOE | CANMODE_BRSE;
+#endif
             else {
                 fprintf(stderr, "%s: illegal argument for option /MODE\n", basename(argv[0]));
                 return 1;
             }
             break;
-#endif
         /* option `--shared' */
         case OP_SHARED_STR:
         case OP_SHARED_CHR:
@@ -561,7 +577,104 @@ int main(int argc, const char * argv[]) {
                 return 1;
             }
             break;
-		/* option `--list-boards[=<vendor>]' (-L) */
+        /* option `--code=<11-bit-code>' */
+        case STD_CODE_STR:
+            if ((c11++)) {
+                fprintf(stderr, "%s: conflict for option /CODE\n", basename(argv[0]));
+                return 1;
+            }
+            if ((optarg = getOptionParameter()) == NULL) {
+                fprintf(stderr, "%s: missing argument for option /CODE\n", basename(argv[0]));
+                return 1;
+            }
+            if (sscanf_s(optarg, "%li", &code11) != 1) {
+                fprintf(stderr, "%s: illegal argument for option /CODE\n", basename(argv[0]));
+                return 1;
+            }
+            if ((code11 & ~CAN_MAX_STD_ID) != 0) {
+                fprintf(stderr, "%s: illegal argument for option /CODE\n", basename(argv[0]));
+                return 1;
+            }
+            break;
+        /* option `--mask=<11-bit-mask>' */
+        case STD_MASK_CHR:
+            if ((m11++)) {
+                fprintf(stderr, "%s: conflict for option /MASK\n", basename(argv[0]));
+                return 1;
+            }
+            if ((optarg = getOptionParameter()) == NULL) {
+                fprintf(stderr, "%s: missing argument for option /MASK\n", basename(argv[0]));
+                return 1;
+            }
+            if (sscanf_s(optarg, "%li", &mask11) != 1) {
+                fprintf(stderr, "%s: illegal argument for option /MASK\n", basename(argv[0]));
+                return 1;
+            }
+            if ((mask11 & ~CAN_MAX_STD_ID) != 0) {
+                fprintf(stderr, "%s: illegal argument for option /MASK\n", basename(argv[0]));
+                return 1;
+            }
+            break;
+        /* option `--xtd-code=<29-bit-code>' */
+        case XTD_CODE_STR:
+            if ((c29++)) {
+                fprintf(stderr, "%s: conflict for option /XTD-CODE\n", basename(argv[0]));
+                return 1;
+            }
+            if ((optarg = getOptionParameter()) == NULL) {
+                fprintf(stderr, "%s: missing argument for option /XTD-CODE\n", basename(argv[0]));
+                return 1;
+            }
+            if (sscanf_s(optarg, "%li", &code29) != 1) {
+                fprintf(stderr, "%s: illegal argument for option /XTD-CODE\n", basename(argv[0]));
+                return 1;
+            }
+            if ((code29 & ~CAN_MAX_XTD_ID) != 0) {
+                fprintf(stderr, "%s: illegal argument for option /XTD-CODE\n", basename(argv[0]));
+                return 1;
+            }
+            break;
+        /* option `--xtd-mask=<29-bit-mask>' */
+        case XTD_MASK_CHR:
+            if ((m29++)) {
+                fprintf(stderr, "%s: conflict for option /XTD-MASK\n", basename(argv[0]));
+                return 1;
+            }
+            if ((optarg = getOptionParameter()) == NULL) {
+                fprintf(stderr, "%s: missing argument for option /XTD-MASK\n", basename(argv[0]));
+                return 1;
+            }
+            if (sscanf_s(optarg, "%li", &mask29) != 1) {
+                fprintf(stderr, "%s: illegal argument for option /XTD-MASK\n", basename(argv[0]));
+                return 1;
+            }
+            if ((mask29 & ~CAN_MAX_XTD_ID) != 0) {
+                fprintf(stderr, "%s: illegal argument for option /XTD-MASK\n", basename(argv[0]));
+                return 1;
+            }
+            break;
+        /* option `--list-bitrates[=(2.0|FDF[+BRS])]' */
+        case LISTBITRATES_STR:
+            if ((optarg = getOptionParameter()) != NULL) {
+                if (!_strcmpi(optarg, "DEFAULT") || !_strcmpi(optarg, "CLASSIC") || !_strcmpi(optarg, "CLASSICAL") ||
+                    !_strcmpi(optarg, "CAN20") || !_strcmpi(optarg, "CAN2.0") || !_strcmpi(optarg, "2.0"))
+                    brMode.byte |= CANMODE_DEFAULT;
+#if (CAN_FD_SUPPORTED != 0)
+                else if (!_strcmpi(optarg, "CANFD") || !_strcmpi(optarg, "FD") || !_strcmpi(optarg, "FDF"))
+                    brMode.byte |= CANMODE_FDOE;
+                else if (!_strcmpi(optarg, "CANFD+BRS") || !_strcmpi(optarg, "FDF+BRS") || !_strcmpi(optarg, "FD+BRS"))
+                    brMode.byte |= CANMODE_FDOE | CANMODE_BRSE;
+#endif
+                else {
+                    fprintf(stderr, "%s: illegal argument for option /LIST-BITRATES\n", basename(argv[0]));
+                    return 1;
+                }
+            }
+            fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
+            /* list standard bit-rates */
+            (void)CCanDevice::ListCanBitrates(brMode);
+            return 0;
+        /* option `--list-boards[=<vendor>]' (-L) */
         case LISTBOARDS_STR:
         case LISTBOARDS_CHR:
             fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
@@ -640,13 +753,18 @@ int main(int argc, const char * argv[]) {
                 fprintf(stdout, ":%.0fkbps@%.1f%%", speed.data.speed / 1000., speed.data.samplepoint * 100.);
             (void)CCanDevice::MapBitrate2String(bitrate, property, CANPROP_MAX_BUFFER_SIZE,
                                                 (opMode.byte & CANMODE_BRSE), hasNoSamp);
-            fprintf(stdout, " (%s)\n\n", property);
+            fprintf(stdout, " (%s)\n", property);
         }
         else {
-            fprintf(stdout, "Baudrate=%.0fkbps@%.1f%% (index %i)\n\n",
+            fprintf(stdout, "Baudrate=%.0fkbps@%.1f%% (index %i)\n",
                              speed.nominal.speed / 1000.,
                              speed.nominal.samplepoint * 100., -bitrate.index);
         }
+        if ((code11 != CANACC_CODE_11BIT) || (mask11 != CANACC_MASK_11BIT))
+            fprintf(stdout, "Acc.-Filter 11-bit=set (code=%03lXh, mask=%03lXh)\n", code11, mask11);
+        if (((code29 != CANACC_CODE_29BIT) || (mask29 != CANACC_MASK_29BIT)) && !opMode.nxtd)
+            fprintf(stdout, "Acc.-Filter 29-bit=set (code=%08lXh, mask=%08lXh)\n", code29, mask29);
+        fputc('\n', stdout);
     }
     /* - initialize interface */
     fprintf(stdout, "Hardware=%s...", channel.m_szDeviceName);
@@ -659,6 +777,24 @@ int main(int argc, const char * argv[]) {
             fprintf(stderr, "\n           - possibly CAN operating mode %02Xh not supported", opMode.byte);
         fputc('\n', stderr);
         goto finalize;
+    }
+    /* -- set acceptance filter for 11-bit IDs */
+    if ((code11 != CANACC_CODE_11BIT) || (mask11 != CANACC_MASK_11BIT)) {
+        retVal = canDevice.SetFilter11Bit(code11, mask11);
+        if (retVal != CCanApi::NoError) {
+            fprintf(stdout, "FAILED!\n");
+            fprintf(stderr, "+++ error: CAN acceptance filter could not be set (%i)\n", retVal);
+            goto teardown;
+        }
+    }
+    /* -- set acceptance filter for 29-bit IDs */
+    if (((code29 != CANACC_CODE_29BIT) || (mask29 != CANACC_MASK_29BIT)) && !opMode.nxtd) {
+        retVal = canDevice.SetFilter29Bit(code29, mask29);
+        if (retVal != CCanApi::NoError) {
+            fprintf(stdout, "FAILED!\n");
+            fprintf(stderr, "+++ error: CAN acceptance filter could not be set (%i)\n", retVal);
+            goto teardown;
+        }
     }
     fprintf(stdout, "OK!\n");
     /* - start communication */
@@ -750,6 +886,67 @@ int CCanDevice::TestCanDevices(CANAPI_OpMode_t opMode) {
         } else
             fprintf(stdout, "FAILED!\n");
         result = CCanDevice::GetNextChannel(info);
+    }
+    return n;
+}
+
+int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
+    CANAPI_Bitrate_t bitrate[10];
+    CANAPI_BusSpeed_t speed;
+    CANAPI_Return_t retVal;
+
+    char string[CANPROP_MAX_BUFFER_SIZE] = "";
+    bool hasDataPhase = false;
+    bool hasNoSamp = true;
+    int i, n = 0;
+
+    if (opMode.fdoe) {
+        if (opMode.brse) {
+            fprintf(stdout, "CAN FD with Bit-rate Switching (BRS):\n");
+            PEAKCAN_FD_BR_1M8M(bitrate[0]);
+            PEAKCAN_FD_BR_500K4M(bitrate[1]);
+            PEAKCAN_FD_BR_250K2M(bitrate[2]);
+            PEAKCAN_FD_BR_125K1M(bitrate[3]);
+            hasDataPhase = true;
+            hasNoSamp = false;
+            n = 4;
+        }
+        else {
+            fprintf(stdout, "CAN FD without Bit-rate Switching (BRS):\n");
+            PEAKCAN_FD_BR_1M(bitrate[0]);
+            PEAKCAN_FD_BR_500K(bitrate[1]);
+            PEAKCAN_FD_BR_250K(bitrate[2]);
+            PEAKCAN_FD_BR_125K(bitrate[3]);
+            hasDataPhase = false;
+            hasNoSamp = false;
+            n = 4;
+        }
+    }
+    else {
+        fprintf(stdout, "Classical CAN:\n");
+        PEAKCAN_BR_1M(bitrate[0]);
+        PEAKCAN_BR_800K(bitrate[1]);
+        PEAKCAN_BR_500K(bitrate[2]);
+        PEAKCAN_BR_250K(bitrate[3]);
+        PEAKCAN_BR_125K(bitrate[4]);
+        PEAKCAN_BR_100K(bitrate[5]);
+        PEAKCAN_BR_50K(bitrate[6]);
+        PEAKCAN_BR_20K(bitrate[7]);
+        PEAKCAN_BR_10K(bitrate[8]);
+        PEAKCAN_BR_5K(bitrate[9]);
+        hasDataPhase = false;
+        hasNoSamp = true;
+        n = 10;
+    }
+    for (i = 0; i < n; i++) {
+        if ((retVal = CCanDevice::MapBitrate2Speed(bitrate[i], speed)) == CCanApi::NoError) {
+            fprintf(stdout, "  %4.0fkbps@%.1f%%", speed.nominal.speed / 1000., speed.nominal.samplepoint * 100.);
+            if (opMode.brse)
+                fprintf(stdout, ":%4.0fkbps@%.1f%%", speed.data.speed / 1000., speed.data.samplepoint * 100.);
+        }
+        strcpy(string, "=oops, something went wrong!");
+        (void)CCanDevice::MapBitrate2String(bitrate[i], string, CANPROP_MAX_BUFFER_SIZE, hasDataPhase, hasNoSamp);
+        fprintf(stdout, "=\"%s\"\n", string);
     }
     return n;
 }
@@ -864,29 +1061,40 @@ static void usage(FILE *stream, const char *program)
 {
     fprintf(stream, "Usage: %s <interface> [<option>...]\n", program);
     fprintf(stream, "Options:\n");
-    fprintf(stream, "  /Time=(ZERO|ABS|REL)                   absolute or relative time (default=0)\n");
-    fprintf(stream, "  /Id=(HEX|DEC|OCT)                      display mode of CAN-IDs (default=HEX)\n");
-    fprintf(stream, "  /Data=(HEX|DEC|OCT)                    display mode of data bytes (default=HEX)\n");
-    fprintf(stream, "  /Ascii=(ON|OFF)                        display data bytes in ASCII (default=ON)\n");
+    fprintf(stream, "  /Time:(ZERO|ABS|REL)                   absolute or relative time (default=0)\n");
+    fprintf(stream, "  /Id:(HEX|DEC|OCT)                      display mode of CAN-IDs (default=HEX)\n");
+    fprintf(stream, "  /Data:(HEX|DEC|OCT)                    display mode of data bytes (default=HEX)\n");
+    fprintf(stream, "  /Ascii:(ON|OFF)                        display data bytes in ASCII (default=ON)\n");
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /Wraparound=(No|8|10|16|32|64)         wraparound after n data bytes (default=NO)\n");
+    fprintf(stream, "  /Wraparound:(No|8|10|16|32|64)         wraparound after n data bytes (default=NO)\n");
 #endif
-    fprintf(stream, "  /eXclude=[~]<id>[-<id>]{,<id>[-<id>]}  exclude CAN-IDs: <id>[-<id>]{,<id>[-<id>]}\n");
-    //fprintf(stream, "  /Script=<filename>                     execute a script file\n"); // TODO: script engine\n");
+    fprintf(stream, "  /eXclude:[~]<id>[-<id>]{,<id>[-<id>]}  exclude CAN-IDs: <id>[-<id>]{,<id>[-<id>]}\n");
+    fprintf(stream, "  /CODE:<id>                             acceptance code for 11-bit IDs (default=0x%03lx)\n", CANACC_CODE_11BIT);
+    fprintf(stream, "  /MASK:<id>                             acceptance mask for 11-bit IDs (default=0x%03lx)\n", CANACC_MASK_11BIT);
+    fprintf(stream, "  /XTD-CODE:<id>                         acceptance code for 29-bit IDs (default=0x%08lx)\n", CANACC_CODE_29BIT);
+    fprintf(stream, "  /XTD-MASK:<id>                         acceptance mask for 29-bit IDs (default=0x%08lx)\n", CANACC_MASK_29BIT);
+    //fprintf(stream, "  /Script:<filename>                     execute a script file\n"); // TODO: script engine\n");
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /Mode=(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode\n");
+    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode\n");
+#else
+    fprintf(stream, "  /Mode:2.0                              CAN operation mode: CAN 2.0\n");
 #endif
     fprintf(stream, "  /SHARED                                shared CAN controller access (if supported)\n");
-    fprintf(stream, "  /MONitor=(No|Yes) | /LISTEN-ONLY       monitor mode (listen-only, transmitter is off)\n");
-    fprintf(stream, "  /ERR=(No|Yes) | /ERROR-FRAMES          allow reception of error frames\n");
-    fprintf(stream, "  /RTR=(Yes|No)                          allow remote frames (RTR frames)\n");
-    fprintf(stream, "  /XTD=(Yes|No)                          allow extended frames (29-bit identifier)\n");
-    fprintf(stream, "  /BauDrate=<baudrate>                   CAN bit-timing in kbps (default=250), or\n");
-    fprintf(stream, "  /BitRate=<bitrate>                     CAN bit-rate settings (as a string)\n");
+    fprintf(stream, "  /MONitor:(No|Yes) | /LISTEN-ONLY       monitor mode (listen-only, transmitter is off)\n");
+    fprintf(stream, "  /ERR:(No|Yes) | /ERROR-FRAMES          allow reception of error frames\n");
+    fprintf(stream, "  /RTR:(Yes|No)                          allow remote frames (RTR frames)\n");
+    fprintf(stream, "  /XTD:(Yes|No)                          allow extended frames (29-bit identifier)\n");
+    fprintf(stream, "  /BauDrate:<baudrate>                   CAN bit-timing in kbps (default=250), or\n");
+    fprintf(stream, "  /BitRate:<bitrate>                     CAN bit-rate settings (as a string)\n");
     fprintf(stream, "  /Verbose                               show detailed bit-rate settings\n");
+#if (CAN_FD_SUPPORTED != 0)
+    fprintf(stream, "  /LIST-BITRATES[:(2.0|FDf[+BRS])]       list standard bit-rate settings\n");
+#else
+    fprintf(stream, "  /LIST-BITRATES[:2.0]                   list standard bit-rate settings\n");
+#endif
 #if (OPTION_CANAPI_LIBRARY != 0)
-    fprintf(stream, "  /LIST[-BOARDS][=<vendor>]              list all supported CAN interfaces and exit\n");
-    fprintf(stream, "  /TEST[-BOARDS][=<vendor>]              list all available CAN interfaces and exit\n");
+    fprintf(stream, "  /LIST[-BOARDS][:<vendor>]              list all supported CAN interfaces and exit\n");
+    fprintf(stream, "  /TEST[-BOARDS][:<vendor>]              list all available CAN interfaces and exit\n");
 #else
     fprintf(stream, "  /LIST-BOARDS | /LIST                   list all supported CAN interfaces and exit\n");
     fprintf(stream, "  /TEST-BOARDS | /TEST                   list all available CAN interfaces and exit\n");
