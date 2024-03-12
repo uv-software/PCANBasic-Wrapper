@@ -120,11 +120,11 @@ Type `can_test /?` to display all program options.
 
 ### Target Platform
 
-- Windows 10 (x64 operating systems)
+- Windows 10 & 11 (x64 operating systems)
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.9.2)
+- Microsoft Visual Studio Community 2022 (Version 17.9.3)
 
 ### Required PCANBasic DLL
 
