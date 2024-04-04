@@ -2,7 +2,7 @@
 #
 #   CAN Interface API, Version 3 (Python Wrapper)
 #
-#   Copyright (c) 2005-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+#   Copyright (c) 2005-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 #	All rights reserved.
 #
 #   This file is part of CAN API V3.
@@ -43,7 +43,7 @@
 #	GNU General Public License for more details.
 #
 #	You should have received a copy of the GNU General Public License
-#	along with CAN API V3.  If not, see <http://www.gnu.org/licenses/>.
+#	along with CAN API V3.  If not, see <https://www.gnu.org/licenses/>.
 #
 """
     CAN API V3 Python Wrapper for generic CAN Interfaces.
@@ -52,9 +52,9 @@
     Interface API for various CAN interfaces from different
     vendors running under multiple operating systems.
 
-    $Author: makemake $
+    $Author: haumea $
 
-    $Rev: 1198 $
+    $Rev: 1258 $
 """
 from ctypes import *
 import platform
@@ -210,8 +210,9 @@ CANBRD_NOT_TESTABLE = (-2)  # CAN board not testable (e.g. legacy API)
 
 # Control of blocking read
 #
-CANREAD_INFINITE = c_uint16(65535)  # infinite time-out (blocking read)
-
+CANWAIT_INFINITE = 65535  # infinite time-out (blocking operation)
+CANREAD_INFINITE = CANWAIT_INFINITE
+CANWRITE_INFINITE = CANWAIT_INFINITE
 
 # CAN Status-register
 #
@@ -762,5 +763,5 @@ if __name__ == '__main__':
     # have a great time
     print('Bye, bye!')
 
-# * $Id: CANAPI.py 1198 2023-09-13 08:43:19Z makemake $ *** (c) UV Software, Berlin ***
+# * $Id: CANAPI.py 1258 2024-03-19 21:35:15Z haumea $ *** (c) UV Software, Berlin ***
 #
