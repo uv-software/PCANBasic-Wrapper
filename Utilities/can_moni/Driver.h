@@ -1,8 +1,8 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
-//  CAN Monitor for generic Interfaces (CAN API V3)
+//  CAN Monitor for Peak-System PCAN Interfaces
 //
-//  Copyright (c) 2007,2012-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2007,2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 #ifndef DRIVER_H_INCLUDED
 #define DRIVER_H_INCLUDED
@@ -36,12 +36,16 @@
 #elif defined(__CYGWIN__)
 #define PLATFORM          "Cygwin"
 #else
-#error Unsupported architecture
+#error Platform not supported
 #endif
 #if (OPTION_CAN_2_0_ONLY != 0)
-#error Compilation with legacy CAN 2.0 frame format!
+#ifdef _MSC_VER
+#pragma message ( "Compilation with legacy CAN 2.0 frame format!" )
 #else
-#define CAN_FD_SUPPORTED   1  // don't touch that dial
+#warning Compilation with legacy CAN 2.0 frame format!
+#endif
+#else
+#define CAN_FD_SUPPORTED   1  // don't touch that dial!
 #endif
 #define MONITOR_INTEFACE  "Peak-System PCAN Interfaces"
 #define MONITOR_COPYRIGHT "2007,2012-2024 by Uwe Vogt, UV Software, Berlin"
@@ -49,5 +53,26 @@
 #include "PeakCAN.h"
 
 typedef CPeakCAN  CCanDriver;
+
+#define BITRATE_1M(x)    PEAKCAN_BR_1M(x)
+#define BITRATE_800K(x)  PEAKCAN_BR_800K(x)
+#define BITRATE_500K(x)  PEAKCAN_BR_500K(x)
+#define BITRATE_250K(x)  PEAKCAN_BR_250K(x)
+#define BITRATE_125K(x)  PEAKCAN_BR_125K(x)
+#define BITRATE_100K(x)  PEAKCAN_BR_100K(x)
+#define BITRATE_50K(x)   PEAKCAN_BR_50K(x)
+#define BITRATE_20K(x)   PEAKCAN_BR_20K(x)
+#define BITRATE_10K(x)   PEAKCAN_BR_10K(x)
+
+#if (CAN_FD_SUPPORTED != 0)
+#define BITRATE_FD_1M(x)      PEAKCAN_FD_BR_1M(x)
+#define BITRATE_FD_500K(x)    PEAKCAN_FD_BR_500K(x)
+#define BITRATE_FD_250K(x)    PEAKCAN_FD_BR_250K(x)
+#define BITRATE_FD_125K(x)    PEAKCAN_FD_BR_125K(x)
+#define BITRATE_FD_1M8M(x)    PEAKCAN_FD_BR_1M8M(x)
+#define BITRATE_FD_500K4M(x)  PEAKCAN_FD_BR_500K4M(x)
+#define BITRATE_FD_250K2M(x)  PEAKCAN_FD_BR_250K2M(x)
+#define BITRATE_FD_125K1M(x)  PEAKCAN_FD_BR_125K1M(x)
+#endif
 
 #endif // DRIVER_H_INCLUDED
