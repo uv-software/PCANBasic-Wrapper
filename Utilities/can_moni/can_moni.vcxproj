@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -18,29 +18,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\Sources\CANAPI\can_msg.c" />
-    <ClCompile Include="Sources\dosopt.c" />
-    <ClCompile Include="Sources\main.cpp" />
-    <ClCompile Include="Sources\Message.cpp" />
-    <ClCompile Include="Sources\Timer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Sources\build_no.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\CANAPI.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Defines.h" />
-    <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Types.h" />
-    <ClInclude Include="..\..\Sources\PeakCAN.h" />
-    <ClInclude Include="..\..\Sources\PeakCAN_Defaults.h" />
-    <ClInclude Include="..\..\Sources\PeakCAN_Defines.h" />
-    <ClInclude Include="Driver.h" />
-    <ClInclude Include="Sources\Message.h" />
-    <ClInclude Include="Sources\Timer.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{49BFBF7C-E2BA-4D61-A774-9985B4266790}</ProjectGuid>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{993feaea-604c-4116-ac57-3eb2a7ddf9e6}</ProjectGuid>
     <RootNamespace>canmoni</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -89,62 +70,28 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANCPP_DLLIMPORT=0;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CANCPP_DLLIMPORT=0;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_LIBRARY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANAPI_COMPANIONS=1;OPTION_CAN_2_0_ONLY=0</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\Binaries\x86\lib\uvPeakCAN.lib;..\..\Binaries\x86\lib\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANCPP_DLLIMPORT=0;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\..\Binaries\x64\lib\uvPeakCAN.lib;..\..\Binaries\x64\lib\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\..\Binaries\x86\lib\Debug\uvPeakCAN.lib;..\..\Binaries\x86\lib\Debug\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANCPP_DLLIMPORT=1;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CANCPP_DLLIMPORT=0;OPTION_CANAPI_DLLIMPORT=1;OPTION_CANAPI_LIBRARY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANAPI_COMPANIONS=1;OPTION_CAN_2_0_ONLY=0</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -156,16 +103,28 @@
       <AdditionalDependencies>..\..\Binaries\x86\uvPeakCAN.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CANCPP_DLLIMPORT=0;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_LIBRARY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANAPI_COMPANIONS=1;OPTION_CAN_2_0_ONLY=0</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>.;.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>..\..\Binaries\x64\lib\Debug\uvPeakCAN.lib;..\..\Binaries\x64\lib\Debug\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANCPP_DLLIMPORT=1;OPTION_CANAPI_DLLIMPORT=0;OPTION_CANAPI_COMPANIONS=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;OPTION_CANCPP_DLLIMPORT=0;OPTION_CANAPI_DLLIMPORT=1;OPTION_CANAPI_LIBRARY=0;OPTION_CANAPI_DRIVER=1;OPTION_CANAPI_COMPANIONS=1;OPTION_CAN_2_0_ONLY=0</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;.\Sources;..\..\Sources;..\..\Sources\CANAPI;..\..\Sources\Wrapper;..\..\Sources\PCANBasic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -177,6 +136,25 @@
       <AdditionalDependencies>..\..\Binaries\x64\uvPeakCAN.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Sources\CANAPI\can_msg.c" />
+    <ClCompile Include="Sources\dosopt.c" />
+    <ClCompile Include="Sources\main.cpp" />
+    <ClCompile Include="Sources\Message.cpp" />
+    <ClCompile Include="Sources\Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Sources\build_no.h" />
+    <ClInclude Include="..\..\Sources\CANAPI\CANAPI.h" />
+    <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Defines.h" />
+    <ClInclude Include="..\..\Sources\CANAPI\CANAPI_Types.h" />
+    <ClInclude Include="..\..\Sources\PeakCAN.h" />
+    <ClInclude Include="..\..\Sources\PeakCAN_Defaults.h" />
+    <ClInclude Include="..\..\Sources\PeakCAN_Defines.h" />
+    <ClInclude Include="Driver.h" />
+    <ClInclude Include="Sources\Message.h" />
+    <ClInclude Include="Sources\Timer.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
