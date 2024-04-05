@@ -1,3 +1,9 @@
+#ifdef _MSC_VER
+//no Microsoft extensions please!
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
+#endif
 #include <iostream>
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <unistd.h>
@@ -64,6 +70,6 @@ reset:
 end:
     if ((result = can_exit(handle)) < CANERR_NOERROR)
         std::cerr << "+++ error: interface could not be shutdown" << std::endl;
-    std::cerr << "Cheers!" << std::endl;
+    std::cout << "Cheers!" << std::endl;
     return result;
 }

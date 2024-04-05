@@ -1,3 +1,9 @@
+#ifdef _MSC_VER
+//no Microsoft extensions please!
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
+#endif
 #include <iostream>
 #include <signal.h>
 #include <errno.h>
@@ -66,7 +72,7 @@ int main(int argc, const char * argv[]) {
 teardown:
     if ((retVal = myDriver.TeardownChannel()) != CCanApi::NoError)
         std::cerr << "+++ error: interface could not be shutdown" << std::endl;
-    std::cerr << "Cheers!" << std::endl;
+    std::cout << "Cheers!" << std::endl;
     return retVal;
 }
 

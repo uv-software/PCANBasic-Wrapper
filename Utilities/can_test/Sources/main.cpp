@@ -15,7 +15,7 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Driver.h"
 #include "Timer.h"
@@ -94,7 +94,8 @@ extern "C" {
 #define QUESTION_MARK     46
 #define ABOUT             47
 #define CHARACTER_MJU     48
-#define MAX_OPTIONS       49
+#define VERSION           49
+#define MAX_OPTIONS       50
 
 static char* option[MAX_OPTIONS] = {
     (char*)"BAUDRATE", (char*)"bd",
@@ -120,7 +121,8 @@ static char* option[MAX_OPTIONS] = {
     (char*)"LIST-BOARDS", (char*)"list",
     (char*)"TEST-BOARDS", (char*)"test",
     (char*)"HELP", (char*)"?",
-    (char*)"ABOUT", (char*)"\xB5"
+    (char*)"ABOUT", (char*)"\xB5",
+    (char*)"VERSION"
 };
 
 class CCanDevice : public CCanDriver {
@@ -147,7 +149,7 @@ static const char APPLICATION[] = "CAN Tester for " TESTER_INTEFACE ", Version "
 static const char COPYRIGHT[]   = "Copyright (c) " TESTER_COPYRIGHT;
 static const char WARRANTY[]    = "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
                                   "This is free software, and you are welcome to redistribute it\n" \
-                                  "under certain conditions; type '/ABOUT' for details.";
+                                  "under certain conditions; type '/VERSION' for details.";
 static const char LICENSE[]     = "This program is free software: you can redistribute it and/or modify\n" \
                                   "it under the terms of the GNU General Public License as published by\n" \
                                   "the Free Software Foundation, either version 3 of the License, or\n" \
@@ -210,7 +212,7 @@ int main(int argc, const char * argv[]) {
     /* scan command-line */
     while ((optind = getOption(argc, (char**)argv, MAX_OPTIONS, option)) != EOF) {
         switch (optind) {
-		/* option `--baudrate=<baudrate>' (-b) */
+        /* option `--baudrate=<baudrate>' (-b) */
         case BAUDRATE_STR:
         case BAUDRATE_CHR:
             if ((bd++)) {
@@ -246,7 +248,7 @@ int main(int argc, const char * argv[]) {
                 return 1;
             }
             break;
-		/* option `--bitrate=<bit-rate>' as string */
+        /* option `--bitrate=<bit-rate>' as string */
         case BITRATE_STR:
         case BITRATE_CHR:
             if ((bd++)) {
@@ -266,7 +268,7 @@ int main(int argc, const char * argv[]) {
                 return 1;
             }
             break;
-		/* option `--verbose' (-v) */
+        /* option `--verbose' (-v) */
         case VERBOSE_STR:
         case VERBOSE_CHR:
             if (verbose) {
@@ -279,7 +281,7 @@ int main(int argc, const char * argv[]) {
             }
             verbose = 1;
             break;
-        /* option `--mode=(2.0|FDF[+BRS])' (-m)*/
+        /* option `--mode=(2.0|FDF[+BRS])' (-m) */
         case OP_MODE_STR:
         case OP_MODE_CHR:
             if ((op++)) {
@@ -290,13 +292,13 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /MODE\n", basename(argv[0]));
                 return 1;
             }
-            if (!_strcmpi(optarg, "DEFAULT") || !_strcmpi(optarg, "CLASSIC") || !_strcmpi(optarg, "CLASSICAL") ||
-                !_strcmpi(optarg, "CAN20") || !_strcmpi(optarg, "CAN2.0") || !_strcmpi(optarg, "2.0"))
+            if (!strcasecmp(optarg, "DEFAULT") || !strcasecmp(optarg, "CLASSIC") || !strcasecmp(optarg, "CLASSICAL") ||
+                !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0"))
                 opMode.byte |= CANMODE_DEFAULT;
 #if (CAN_FD_SUPPORTED != 0)
-            else if (!_strcmpi(optarg, "CANFD") || !_strcmpi(optarg, "FD") || !_strcmpi(optarg, "FDF"))
+            else if (!strcasecmp(optarg, "CANFD") || !strcasecmp(optarg, "FD") || !strcasecmp(optarg, "FDF"))
                 opMode.byte |= CANMODE_FDOE;
-            else if (!_strcmpi(optarg, "CANFD+BRS") || !_strcmpi(optarg, "FDF+BRS") || !_strcmpi(optarg, "FD+BRS"))
+            else if (!strcasecmp(optarg, "CANFD+BRS") || !strcasecmp(optarg, "FDF+BRS") || !strcasecmp(optarg, "FD+BRS"))
                 opMode.byte |= CANMODE_FDOE | CANMODE_BRSE;
 #endif
             else {
@@ -317,7 +319,7 @@ int main(int argc, const char * argv[]) {
             }
             opMode.byte |= CANMODE_SHRD;
             break;
-		/* option `--listen-only' */
+        /* option `--listen-only' */
         case OP_MON_STR:
         case OP_MONITOR_STR:
             if ((lo++)) {
@@ -328,9 +330,9 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /MON\n", basename(argv[0]));
                 return 1;
             }
-            if (!_strcmpi(optarg, "YES") || !_strcmpi(optarg, "Y") || !_strcmpi(optarg, "ON") || !_strcmpi(optarg, "1"))
+            if (!strcasecmp(optarg, "YES") || !strcasecmp(optarg, "Y") || !strcasecmp(optarg, "ON") || !strcasecmp(optarg, "1"))
                 opMode.byte |= CANMODE_MON;
-            else if (!_strcmpi(optarg, "NO") || !_strcmpi(optarg, "N") || !_strcmpi(optarg, "OFF") || !_strcmpi(optarg, "0"))
+            else if (!strcasecmp(optarg, "NO") || !strcasecmp(optarg, "N") || !strcasecmp(optarg, "OFF") || !strcasecmp(optarg, "0"))
                 opMode.byte &= ~CANMODE_MON;
             else {
                 fprintf(stderr, "%s: illegal argument for option /MON\n", basename(argv[0]));
@@ -348,7 +350,7 @@ int main(int argc, const char * argv[]) {
             }
             opMode.byte |= CANMODE_MON;
             break;
-		/* option `--error-frames' */
+        /* option `--error-frames' */
         case OP_ERR_STR:
             if ((ef++)) {
                 fprintf(stderr, "%s: duplicated option /ERR\n", basename(argv[0]));
@@ -358,9 +360,9 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /ERR\n", basename(argv[0]));
                 return 1;
             }
-            if (!_strcmpi(optarg, "YES") || !_strcmpi(optarg, "Y") || !_strcmpi(optarg, "ON") || !_strcmpi(optarg, "1"))
+            if (!strcasecmp(optarg, "YES") || !strcasecmp(optarg, "Y") || !strcasecmp(optarg, "ON") || !strcasecmp(optarg, "1"))
                 opMode.byte |= CANMODE_ERR;
-            else if (!_strcmpi(optarg, "NO") || !_strcmpi(optarg, "N") || !_strcmpi(optarg, "OFF") || !_strcmpi(optarg, "0"))
+            else if (!strcasecmp(optarg, "NO") || !strcasecmp(optarg, "N") || !strcasecmp(optarg, "OFF") || !strcasecmp(optarg, "0"))
                 opMode.byte &= ~CANMODE_ERR;
             else {
                 fprintf(stderr, "%s: illegal argument for option /ERR\n", basename(argv[0]));
@@ -378,7 +380,7 @@ int main(int argc, const char * argv[]) {
             }
             opMode.byte |= CANMODE_ERR;
             break;
-		/* option `--no-extended-frames' */
+        /* option `--no-extended-frames' */
         case OP_XTD_STR:
             if ((xf++)) {
                 fprintf(stderr, "%s: duplicated option /XTD\n", basename(argv[0]));
@@ -388,16 +390,16 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /XTD\n", basename(argv[0]));
                 return 1;
             }
-            if (!_strcmpi(optarg, "NO") || !_strcmpi(optarg, "N") || !_strcmpi(optarg, "OFF") || !_strcmpi(optarg, "0"))
+            if (!strcasecmp(optarg, "NO") || !strcasecmp(optarg, "N") || !strcasecmp(optarg, "OFF") || !strcasecmp(optarg, "0"))
                 opMode.byte |= CANMODE_NXTD;
-            else if (!_strcmpi(optarg, "YES") || !_strcmpi(optarg, "Y") || !_strcmpi(optarg, "ON") || !_strcmpi(optarg, "1"))
+            else if (!strcasecmp(optarg, "YES") || !strcasecmp(optarg, "Y") || !strcasecmp(optarg, "ON") || !strcasecmp(optarg, "1"))
                 opMode.byte &= ~CANMODE_NXTD;
             else {
                 fprintf(stderr, "%s: illegal argument for option /XTD\n", basename(argv[0]));
                 return 1;
             }
             break;
-		/* option `--no-remote-frames' */
+        /* option `--no-remote-frames' */
         case OP_RTR_STR:
             if ((rf++)) {
                 fprintf(stderr, "%s: duplicated option /RTR\n", basename(argv[0]));
@@ -407,16 +409,16 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "%s: missing argument for option /RTR\n", basename(argv[0]));
                 return 1;
             }
-            if (!_strcmpi(optarg, "NO") || !_strcmpi(optarg, "N") || !_strcmpi(optarg, "OFF") || !_strcmpi(optarg, "0"))
+            if (!strcasecmp(optarg, "NO") || !strcasecmp(optarg, "N") || !strcasecmp(optarg, "OFF") || !strcasecmp(optarg, "0"))
                 opMode.byte |= CANMODE_NRTR;
-            else if (!_strcmpi(optarg, "YES") || !_strcmpi(optarg, "Y") || !_strcmpi(optarg, "ON") || !_strcmpi(optarg, "1"))
+            else if (!strcasecmp(optarg, "YES") || !strcasecmp(optarg, "Y") || !strcasecmp(optarg, "ON") || !strcasecmp(optarg, "1"))
                 opMode.byte &= ~CANMODE_NRTR;
             else {
                 fprintf(stderr, "%s: illegal argument for option /RTR\n", basename(argv[0]));
                 return 1;
             }
             break;
-		/* option `--receive' (-r) */
+        /* option `--receive' (-r) */
         case RECEIVE_STR:
         case RECEIVE_CHR:
             if ((m++)) {
@@ -429,7 +431,7 @@ int main(int argc, const char * argv[]) {
             }
             mode = RxMODE;
             break;
-		/* option `--number=<offset>' (-n) */
+        /* option `--number=<offset>' (-n) */
         case NUMBER_STR:
         case NUMBER_CHR:
             if (n++) {
@@ -449,7 +451,7 @@ int main(int argc, const char * argv[]) {
                 return 1;
             }
             break;
-		/* option `--stop' (-s) */
+        /* option `--stop' (-s) */
         case STOP_STR:
         case STOP_CHR:
             if (stop_on_error) {
@@ -462,7 +464,7 @@ int main(int argc, const char * argv[]) {
             }
             stop_on_error = 1;
             break;
-		/* option `--transmit=<duration>' (-t) in [s] */
+        /* option `--transmit=<duration>' (-t) in [s] */
         case TRANSMIT_STR:
         case TRANSMIT_CHR:
             if ((m++)) {
@@ -483,7 +485,7 @@ int main(int argc, const char * argv[]) {
             }
             mode = TxMODE;
             break;
-		/* option `--frames=<frames>' (-f) */
+        /* option `--frames=<frames>' (-f) */
         case FRAMES_STR:
         case FRAMES_CHR:
             if ((m++)) {
@@ -504,7 +506,7 @@ int main(int argc, const char * argv[]) {
             }
             mode = TxFRAMES;
             break;
-		/* option `--random=<frames>' */
+        /* option `--random=<frames>' */
         case RANDOM_STR:
         case RANDOM_CHR:
             if ((m++)) {
@@ -527,7 +529,7 @@ int main(int argc, const char * argv[]) {
                 can_dlc = 0;
             mode = TxRANDOM;
             break;
-		/* option `--cycle=<msec>' (-c) */
+        /* option `--cycle=<msec>' (-c) */
         case CYCLE_STR:
         case CYCLE_CHR:
             if ((t++)) {
@@ -548,7 +550,7 @@ int main(int argc, const char * argv[]) {
             }
             delay *= 1000l;
             break;
-		/* option `--usec=<usec>' (-u) */
+        /* option `--usec=<usec>' (-u) */
         case USEC_STR:
         case USEC_CHR:
             if ((t++)) {
@@ -568,7 +570,7 @@ int main(int argc, const char * argv[]) {
                 return 1;
             }
             break;
-		/* option `--dlc=<length>' (-d) */
+        /* option `--dlc=<length>' (-d) */
         case DLC_STR:
         case DLC_CHR:
         case DLC_LEN:
@@ -618,19 +620,21 @@ int main(int argc, const char * argv[]) {
         /* option `--list-bitrates[=(2.0|FDF[+BRS])]' */
         case LISTBITRATES_STR:
             if ((optarg = getOptionParameter()) != NULL) {
-                if (!_strcmpi(optarg, "DEFAULT") || !_strcmpi(optarg, "CLASSIC") || !_strcmpi(optarg, "CLASSICAL") ||
-                    !_strcmpi(optarg, "CAN20") || !_strcmpi(optarg, "CAN2.0") || !_strcmpi(optarg, "2.0"))
+                if (!strcasecmp(optarg, "DEFAULT") || !strcasecmp(optarg, "CLASSIC") || !strcasecmp(optarg, "CLASSICAL") ||
+                    !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0"))
                     brMode.byte |= CANMODE_DEFAULT;
 #if (CAN_FD_SUPPORTED != 0)
-                else if (!_strcmpi(optarg, "CANFD") || !_strcmpi(optarg, "FD") || !_strcmpi(optarg, "FDF"))
+                else if (!strcasecmp(optarg, "CANFD") || !strcasecmp(optarg, "FD") || !strcasecmp(optarg, "FDF"))
                     brMode.byte |= CANMODE_FDOE;
-                else if (!_strcmpi(optarg, "CANFD+BRS") || !_strcmpi(optarg, "FDF+BRS") || !_strcmpi(optarg, "FD+BRS"))
+                else if (!strcasecmp(optarg, "CANFD+BRS") || !strcasecmp(optarg, "FDF+BRS") || !strcasecmp(optarg, "FD+BRS"))
                     brMode.byte |= CANMODE_FDOE | CANMODE_BRSE;
 #endif
                 else {
                     fprintf(stderr, "%s: illegal argument for option /LIST-BITRATES\n", basename(argv[0]));
                     return 1;
                 }
+            } else {
+                brMode.byte = CANMODE_DEFAULT;
             }
             fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
             /* list standard bit-rates */
@@ -644,7 +648,7 @@ int main(int argc, const char * argv[]) {
             num_boards = CCanDevice::ListCanDevices(/*getOptionParameter()*/);
             fprintf(stdout, "Number of supported CAN interfaces: %i\n", num_boards);
             return (num_boards >= 0) ? 0 : 1;
-		/* option `--test-boards[=<vendor>]' (-T) */
+        /* option `--test-boards[=<vendor>]' (-T) */
         case TESTBOARDS_STR:
         case TESTBOARDS_CHR:
             fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
@@ -652,12 +656,13 @@ int main(int argc, const char * argv[]) {
             num_boards = CCanDevice::TestCanDevices(opMode/*, getOptionParameter()*/);
             fprintf(stdout, "Number of present CAN interfaces: %i\n", num_boards);
             return (num_boards >= 0) ? 0 : 1;
-		/* option `--help' (-h) */
+        /* option `--help' (-h) */
         case HELP:
         case QUESTION_MARK:
             usage(stdout, basename(argv[0]));
             return 0;
         case ABOUT:
+        case VERSION:
         case CHARACTER_MJU:
             version(stdout, basename(argv[0]));
             return 0;
@@ -691,6 +696,7 @@ int main(int argc, const char * argv[]) {
         fprintf(stderr, "%s: not enough arguments\n", basename(argv[0]));
         return 1;
     }
+#if (CAN_FD_SUPPORTED != 0)
     /* - check bit-timing index (n/a for CAN FD) */
     if (opMode.fdoe && (bitrate.btr.frequency <= 0)) {
         fprintf(stderr, "%s: illegal combination of options /MODE and /BAUDRATE\n", basename(argv[0]));
@@ -726,6 +732,7 @@ int main(int argc, const char * argv[]) {
         fprintf(stderr, "%s: illegal option /RTR:NO for transmitter test\n", basename(argv[0]));
         return 1;
     }
+#endif
     /* CAN Tester for generic CAN interfaces */
     fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
     /* - show operation mode and bit-rate settings */
@@ -741,8 +748,10 @@ int main(int argc, const char * argv[]) {
         fprintf(stdout, " (op_mode=%02Xh)\n", opMode.byte);
         if (bitrate.btr.frequency > 0) {
             fprintf(stdout, "Bit-rate=%.0fkbps@%.1f%%", speed.nominal.speed / 1000., speed.nominal.samplepoint * 100.);
+#if (CAN_FD_SUPPORTED != 0)
             if (opMode.byte & CANMODE_BRSE)
                 fprintf(stdout, ":%.0fkbps@%.1f%%", speed.data.speed / 1000., speed.data.samplepoint * 100.);
+#endif
             (void)CCanDevice::MapBitrate2String(bitrate, property, CANPROP_MAX_BUFFER_SIZE,
                                                 (opMode.byte & CANMODE_BRSE), hasNoSamp);
             fprintf(stdout, " (%s)\n\n", property);
@@ -769,10 +778,12 @@ int main(int argc, const char * argv[]) {
     /* - start communication */
     if (bitrate.btr.frequency > 0) {
         fprintf(stdout, "Bit-rate=%.0fkbps", speed.nominal.speed / 1000.);
+#if (CAN_FD_SUPPORTED != 0)
         if (opMode.byte & CANMODE_BRSE)
             fprintf(stdout, ":%.0fkbps", speed.data.speed / 1000.);
         else if (opMode.byte & CANMODE_FDOE)
             fprintf(stdout, ":%.0fkbps", speed.nominal.speed / 1000.);
+#endif
         fprintf(stdout, "...");
     }
     else {
@@ -873,7 +884,7 @@ int CCanDevice::TestCanDevices(CANAPI_OpMode_t opMode) {
 }
 
 int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
-    CANAPI_Bitrate_t bitrate[10];
+    CANAPI_Bitrate_t bitrate[9];
     CANAPI_BusSpeed_t speed;
     CANAPI_Return_t retVal;
 
@@ -882,49 +893,54 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
     bool hasNoSamp = true;
     int i, n = 0;
 
+#if (CAN_FD_SUPPORTED != 0)
     if (opMode.fdoe) {
         if (opMode.brse) {
             fprintf(stdout, "CAN FD with Bit-rate Switching (BRS):\n");
-            PEAKCAN_FD_BR_1M8M(bitrate[0]);
-            PEAKCAN_FD_BR_500K4M(bitrate[1]);
-            PEAKCAN_FD_BR_250K2M(bitrate[2]);
-            PEAKCAN_FD_BR_125K1M(bitrate[3]);
+            BITRATE_FD_1M8M(bitrate[0]);
+            BITRATE_FD_500K4M(bitrate[1]);
+            BITRATE_FD_250K2M(bitrate[2]);
+            BITRATE_FD_125K1M(bitrate[3]);
             hasDataPhase = true;
             hasNoSamp = false;
             n = 4;
         }
         else {
             fprintf(stdout, "CAN FD without Bit-rate Switching (BRS):\n");
-            PEAKCAN_FD_BR_1M(bitrate[0]);
-            PEAKCAN_FD_BR_500K(bitrate[1]);
-            PEAKCAN_FD_BR_250K(bitrate[2]);
-            PEAKCAN_FD_BR_125K(bitrate[3]);
+            BITRATE_FD_1M(bitrate[0]);
+            BITRATE_FD_500K(bitrate[1]);
+            BITRATE_FD_250K(bitrate[2]);
+            BITRATE_FD_125K(bitrate[3]);
             hasDataPhase = false;
             hasNoSamp = false;
             n = 4;
         }
     }
     else {
+#else
+    {
+#endif
         fprintf(stdout, "Classical CAN:\n");
-        PEAKCAN_BR_1M(bitrate[0]);
-        PEAKCAN_BR_800K(bitrate[1]);
-        PEAKCAN_BR_500K(bitrate[2]);
-        PEAKCAN_BR_250K(bitrate[3]);
-        PEAKCAN_BR_125K(bitrate[4]);
-        PEAKCAN_BR_100K(bitrate[5]);
-        PEAKCAN_BR_50K(bitrate[6]);
-        PEAKCAN_BR_20K(bitrate[7]);
-        PEAKCAN_BR_10K(bitrate[8]);
-        PEAKCAN_BR_5K(bitrate[9]);
+        BITRATE_1M(bitrate[0]);
+        BITRATE_800K(bitrate[1]);
+        BITRATE_500K(bitrate[2]);
+        BITRATE_250K(bitrate[3]);
+        BITRATE_125K(bitrate[4]);
+        BITRATE_100K(bitrate[5]);
+        BITRATE_50K(bitrate[6]);
+        BITRATE_20K(bitrate[7]);
+        BITRATE_10K(bitrate[8]);
         hasDataPhase = false;
         hasNoSamp = true;
-        n = 10;
+        n = 9;
     }
     for (i = 0; i < n; i++) {
         if ((retVal = CCanDevice::MapBitrate2Speed(bitrate[i], speed)) == CCanApi::NoError) {
             fprintf(stdout, "  %4.0fkbps@%.1f%%", speed.nominal.speed / 1000., speed.nominal.samplepoint * 100.);
+#if (CAN_FD_SUPPORTED != 0)
             if (opMode.brse)
                 fprintf(stdout, ":%4.0fkbps@%.1f%%", speed.data.speed / 1000., speed.data.samplepoint * 100.);
+#endif
         }
         strcpy(string, "=oops, something went wrong!");
         (void)CCanDevice::MapBitrate2String(bitrate[i], string, CANPROP_MAX_BUFFER_SIZE, hasDataPhase, hasNoSamp);
@@ -948,8 +964,12 @@ uint64_t CCanDevice::TransmitterTest(time_t duration, CANAPI_OpMode_t opMode, ui
     message.id  = id;
     message.xtd = 0;
     message.rtr = 0;
+#if (CAN_FD_SUPPORTED != 0)
     message.fdf = opMode.fdoe;
     message.brs = opMode.brse;
+#else
+    (void) opMode;
+#endif
     message.dlc = dlc;
     fprintf(stdout, "\nTransmitting message(s)...");
     fflush (stdout);
@@ -962,7 +982,9 @@ uint64_t CCanDevice::TransmitterTest(time_t duration, CANAPI_OpMode_t opMode, ui
         message.data[5] = (uint8_t)((frames + offset) >> 40);
         message.data[6] = (uint8_t)((frames + offset) >> 48);
         message.data[7] = (uint8_t)((frames + offset) >> 56);
+#if (CAN_FD_SUPPORTED != 0)
         memset(&message.data[8], 0, CANFD_MAX_LEN - 8);
+#endif
         /* transmit message (repeat when busy) */
 retry_tx_test:
         calls++;
@@ -1012,8 +1034,12 @@ uint64_t CCanDevice::TransmitterTest(uint64_t count, CANAPI_OpMode_t opMode, boo
     message.id  = id;
     message.xtd = 0;
     message.rtr = 0;
+#if (CAN_FD_SUPPORTED != 0)
     message.fdf = opMode.fdoe;
     message.brs = opMode.brse;
+#else
+    (void) opMode;
+#endif
     message.dlc = dlc;
     fprintf(stdout, "\nTransmitting message(s)...");
     fflush (stdout);
@@ -1026,9 +1052,14 @@ uint64_t CCanDevice::TransmitterTest(uint64_t count, CANAPI_OpMode_t opMode, boo
         message.data[5] = (uint8_t)((frames + offset) >> 40);
         message.data[6] = (uint8_t)((frames + offset) >> 48);
         message.data[7] = (uint8_t)((frames + offset) >> 56);
+#if (CAN_FD_SUPPORTED != 0)
         memset(&message.data[8], 0, CANFD_MAX_LEN - 8);
         if (random)
             message.dlc = dlc + (uint8_t)(rand() % ((CANFD_MAX_DLC - dlc) + 1));
+#else
+        if (random)
+            message.dlc = dlc + (uint8_t)(rand() % ((CAN_MAX_DLC - dlc) + 1));
+#endif
         /* transmit message (repeat when busy) */
 retry_tx_test:
         calls++;
@@ -1165,55 +1196,55 @@ static void usage(FILE *stream, const char *program)
 {
     fprintf(stream, "Usage: %s <interface> [<option>...]\n", program);
     fprintf(stream, "Options for receiver test (default test mode):\n");
-    fprintf(stream, "  /RECEIVE | /RX                         count received messages until ^C is pressed\n");
-    fprintf(stream, "  /Number:<number>                       check up-counting numbers starting with <number>\n");
-    fprintf(stream, "  /Stop                                  stop on error (with option /NUMBER)\n");
-#if (CAN_FD_SUPPORTED != 0)                                   
-    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode\n");
+    fprintf(stream, "  /RECEIVE | /RX                      count received messages until ^C is pressed\n");
+    fprintf(stream, "  /Number:<number>                    check up-counting numbers starting with <number>\n");
+    fprintf(stream, "  /Stop                               stop on error (with option /NUMBER)\n");
+#if (CAN_FD_SUPPORTED != 0)
+    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode\n");
 #else
-    fprintf(stream, "  /Mode:2.0                              CAN operation mode: CAN 2.0\n");
+    fprintf(stream, "  /Mode:2.0                           CAN operation mode: CAN 2.0\n");
 #endif
-    fprintf(stream, "  /SHARED                                shared CAN controller access (if supported)\n");
-    fprintf(stream, "  /MONitor:(No|Yes) | /LISTEN-ONLY       monitor mode (listen-only, transmitter is off)\n");
-    fprintf(stream, "  /ERR:(No|Yes) | /ERROR-FRAMES          allow reception of error frames\n");
-    fprintf(stream, "  /RTR:(Yes|No)                          allow remote frames (RTR frames)\n");
-    fprintf(stream, "  /XTD:(Yes|No)                          allow extended frames (29-bit identifier)\n");
-    fprintf(stream, "  /BauDrate:<baudrate>                   CAN bit-timing in kbps (default=250), or\n");
-    fprintf(stream, "  /BitRate:<bitrate>                     CAN bit-rate settings (as a string)\n");
-    fprintf(stream, "  /Verbose                               show detailed bit-rate settings\n");
+    fprintf(stream, "  /SHARED                             shared CAN controller access (if supported)\n");
+    fprintf(stream, "  /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only, transmitter is off)\n");
+    fprintf(stream, "  /ERR:(No|Yes) | /ERROR-FRAMES       allow reception of error frames\n");
+    fprintf(stream, "  /RTR:(Yes|No)                       allow remote frames (RTR frames)\n");
+    fprintf(stream, "  /XTD:(Yes|No)                       allow extended frames (29-bit identifier)\n");
+    fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
+    fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as a string)\n");
+    fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
     fprintf(stream, "Options for transmitter test:\n");       
-    fprintf(stream, "  /TRANSMIT:<time> | /TX=<time>          send messages for the given time in seconds, or\n");
-    fprintf(stream, "  /FRames:<frames>                       alternatively send the given number of messages, or\n");
-    fprintf(stream, "  /RANDom:<frames>                       optionally with random cycle time and data length\n");
-    fprintf(stream, "  /Cycle:<msec>                          cycle time in milliseconds (default=0), or\n");
-    fprintf(stream, "  /Usec:<usec>                           cycle time in microseconds (default=0)\n");
-    fprintf(stream, "  /Dlc:<length>                          send messages of given length (default=8)\n");
-    fprintf(stream, "  /can-Id:<can-id>                       use given identifier (default=100h)\n");
-    fprintf(stream, "  /Number:<number>                       set first up-counting number (default=0)\n");
+    fprintf(stream, "  /TRANSMIT:<time> | /TX=<time>       send messages for the given time in seconds, or\n");
+    fprintf(stream, "  /FRames:<frames>                    alternatively send the given number of messages, or\n");
+    fprintf(stream, "  /RANDom:<frames>                    optionally with random cycle time and data length\n");
+    fprintf(stream, "  /Cycle:<msec>                       cycle time in milliseconds (default=0), or\n");
+    fprintf(stream, "  /Usec:<usec>                        cycle time in microseconds (default=0)\n");
+    fprintf(stream, "  /Dlc:<length>                       send messages of given length (default=8)\n");
+    fprintf(stream, "  /can-Id:<can-id>                    use given identifier (default=100h)\n");
+    fprintf(stream, "  /Number:<number>                    set first up-counting number (default=0)\n");
 #if (CAN_FD_SUPPORTED != 0)                                   
-    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])                  CAN operation mode: CAN 2.0 or CAN FD mode\n");
+    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode\n");
 #else
-    fprintf(stream, "  /Mode:2.0                              CAN operation mode: CAN 2.0\n");
+    fprintf(stream, "  /Mode:2.0                           CAN operation mode: CAN 2.0\n");
 #endif                                                        
-    fprintf(stream, "  /SHARED                                shared CAN controller access (if supported)\n");
-    fprintf(stream, "  /BauDrate:<baudrate>                   CAN bit-timing in kbps (default=250), or\n");
-    fprintf(stream, "  /BitRate:<bitrate>                     CAN bit-rate settings (as a string)\n");
-    fprintf(stream, "  /Verbose                               show detailed bit-rate settings\n");
+    fprintf(stream, "  /SHARED                             shared CAN controller access (if supported)\n");
+    fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
+    fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as a string)\n");
+    fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
     fprintf(stream, "Other options:\n");                      
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /LIST-BITRATES[:(2.0|FDf[+BRS])]       list standard bit-rate settings\n");
+    fprintf(stream, "  /LIST-BITRATES[:(2.0|FDf[+BRS])]    list standard bit-rate settings\n");
 #else
-    fprintf(stream, "  /LIST-BITRATES[:2.0]                   list standard bit-rate settings\n");
+    fprintf(stream, "  /LIST-BITRATES[:2.0]                list standard bit-rate settings\n");
 #endif
 #if (OPTION_CANAPI_LIBRARY != 0)
-    fprintf(stream, "  /LIST[-BOARDS][:<vendor>]              list all supported CAN interfaces and exit\n");
-    fprintf(stream, "  /TEST[-BOARDS][:<vendor>]              list all available CAN interfaces and exit\n");
+    fprintf(stream, "  /LIST[-BOARDS][:<vendor>]           list all supported CAN interfaces and exit\n");
+    fprintf(stream, "  /TEST[-BOARDS][:<vendor>]           list all available CAN interfaces and exit\n");
 #else
-    fprintf(stream, "  /LIST-BOARDS | /LIST                   list all supported CAN interfaces and exit\n");
-    fprintf(stream, "  /TEST-BOARDS | /TEST                   list all available CAN interfaces and exit\n");
+    fprintf(stream, "  /LIST-BOARDS | /LIST                list all supported CAN interfaces and exit\n");
+    fprintf(stream, "  /TEST-BOARDS | /TEST                list all available CAN interfaces and exit\n");
 #endif
-    fprintf(stream, "  /HELP | /?                             display this help screen and exit\n");
-    fprintf(stream, "  /ABOUT | /\xE6                            show version information and exit\n");
+    fprintf(stream, "  /HELP | /?                          display this help screen and exit\n");
+    fprintf(stream, "  /VERSION                            show version information and exit\n");
 #if (0)
     fprintf(stream, "Arguments:\n");
     fprintf(stream, "  <frames>       send this number of messages (frames), or\n");
@@ -1235,17 +1266,17 @@ static void usage(FILE *stream, const char *program)
     fprintf(stream, "                 7 = 20 kbps\n");
     fprintf(stream, "                 8 = 10 kbps\n");
     fprintf(stream, "  <bitrate>      comma-separated <key>=<value>-list:\n");
-    fprintf(stream, "                 f_clock=<value>         frequency in Hz or\n");
-    fprintf(stream, "                 f_clock_mhz=<value>     frequency in MHz\n");
-    fprintf(stream, "                 nom_brp=<value>         bit-rate prescaler (nominal)\n");
-    fprintf(stream, "                 nom_tseg1=<value>       time segment 1 (nominal)\n");
-    fprintf(stream, "                 nom_tseg2=<value>       time segment 2 (nominal)\n");
-    fprintf(stream, "                 nom_sjw=<value>         sync. jump width (nominal)\n");
-    fprintf(stream, "                 nom_sam=<value>         sampling (only SJA1000)\n");
-    fprintf(stream, "                 data_brp=<value>        bit-rate prescaler (FD data)\n");
-    fprintf(stream, "                 data_tseg1=<value>      time segment 1 (FD data)\n");
-    fprintf(stream, "                 data_tseg2=<value>      time segment 2 (FD data)\n");
-    fprintf(stream, "                 data_sjw=<value>        sync. jump width (FD data).\n");
+    fprintf(stream, "                 f_clock=<value>      frequency in Hz or\n");
+    fprintf(stream, "                 f_clock_mhz=<value>  frequency in MHz\n");
+    fprintf(stream, "                 nom_brp=<value>      bit-rate prescaler (nominal)\n");
+    fprintf(stream, "                 nom_tseg1=<value>    time segment 1 (nominal)\n");
+    fprintf(stream, "                 nom_tseg2=<value>    time segment 2 (nominal)\n");
+    fprintf(stream, "                 nom_sjw=<value>      sync. jump width (nominal)\n");
+    fprintf(stream, "                 nom_sam=<value>      sampling (only SJA1000)\n");
+    fprintf(stream, "                 data_brp=<value>     bit-rate prescaler (FD data)\n");
+    fprintf(stream, "                 data_tseg1=<value>   time segment 1 (FD data)\n");
+    fprintf(stream, "                 data_tseg2=<value>   time segment 2 (FD data)\n");
+    fprintf(stream, "                 data_sjw=<value>     sync. jump width (FD data).\n");
 #endif
     fprintf(stream, "Hazard note:\n");
     fprintf(stream, "  If you connect your CAN device to a real CAN network when using this program,\n");
@@ -1261,5 +1292,5 @@ static void version(FILE *stream, const char *program)
 {
     fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, LICENSE);
     (void)program;
-    fprintf(stream, "Written by Uwe Vogt, UV Software, Berlin <https://uv-software.com/>\n");
+    fprintf(stream, "Written by Uwe Vogt, UV Software, Berlin <https://www.uv-software.com/>\n");
 }
