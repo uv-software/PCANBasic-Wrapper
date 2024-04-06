@@ -2,6 +2,8 @@
 
 _Copyright &copy; 2005-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
+![MSBuild](https://github.com/uv-software/PCANBasic-Wrapper/actions/workflows/msbuild.yml/badge.svg)
+
 # CAN API V3 for PCAN Interfaces
 
 CAN API V3 is a wrapper specification to have a uniform CAN Interface API for various CAN interfaces from different vendors running under multiple operating systems.
