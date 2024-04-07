@@ -72,13 +72,13 @@
 class CANCPP CPeakCAN : public CCanApi {
 private:
     CANAPI_Handle_t m_Handle;  ///< CAN interface handle
-    CANAPI_OpMode_t m_OpMode;  ///< CAN operation mode
-    CANAPI_Bitrate_t m_Bitrate;  ///< CAN bitrate settings
-    struct {
-        uint64_t u64TxMessages;  ///< number of transmitted CAN messages
-        uint64_t u64RxMessages;  ///< number of received CAN messages
-        uint64_t u64ErrorFrames;  ///< number of received status messages
-    } m_Counter;
+    //CANAPI_OpMode_t m_OpMode;  ///< CAN operation mode
+    //CANAPI_Bitrate_t m_Bitrate;  ///< CAN bitrate settings
+    //struct {
+    //    uint64_t u64TxMessages;  ///< number of transmitted CAN messages
+    //    uint64_t u64RxMessages;  ///< number of received CAN messages
+    //    uint64_t u64ErrorFrames;  ///< number of received status messages
+    //} m_Counter;
 public:
     // constructor / destructor
     CPeakCAN();
