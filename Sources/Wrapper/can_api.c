@@ -1194,20 +1194,34 @@ static TPCANStatus pcan_get_filter(int handle, uint64_t *filter, filtering_t mod
 
     switch (mode) {
         case FILTER_STD:                // 11-bit identifier
-            if ((sts = CAN_GetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_11BIT,
-                                   (void*)filter, sizeof(UINT64))) == PCAN_ERROR_OK) {
-                *filter ^= 0x00000000000007FFULL;   // TODO: replace by a define
+            if (can[handle].filter.mode != FILTER_XTD) {
+                if ((sts = CAN_GetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_11BIT,
+                                       (void*)filter, sizeof(UINT64))) == PCAN_ERROR_OK) {
+                    *filter ^= 0x00000000000007FFULL;   // TODO: replace by a define
+                }
+            }
+            else {
+                // note: there is only one filter for both modes
+                *filter = 0x0000000000000000ULL;
+                sts = PCAN_ERROR_OK;
             }
             break;
         case FILTER_XTD:                // 29-bit identifier
-            if ((sts = CAN_GetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_29BIT,
-                                   (void*)filter, sizeof(UINT64))) == PCAN_ERROR_OK) {
-                *filter ^= 0x000000001FFFFFFFULL;   // TODO: replace by a define
+            if (can[handle].filter.mode != FILTER_STD) {
+                if ((sts = CAN_GetValue(can[handle].board, PCAN_ACCEPTANCE_FILTER_29BIT,
+                                       (void*)filter, sizeof(UINT64))) == PCAN_ERROR_OK) {
+                    *filter ^= 0x000000001FFFFFFFULL;   // TODO: replace by a define
+                }
+            }
+            else {
+                // note: there is only one filter for both modes
+                *filter = 0x0000000000000000ULL;
+                sts = PCAN_ERROR_OK;
             }
             break;
         default:                        // should not happen
             *filter = 0x0000000000000000ULL;
-            sts = CANERR_ILLPARA;
+            sts = PCAN_ERROR_CAUTION;
             break;
     }
     return sts;

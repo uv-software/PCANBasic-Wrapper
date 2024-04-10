@@ -118,8 +118,8 @@ int main(int argc, const char * argv[]) {
     int32_t channel = (int32_t)CHANNEL;
     uint32_t accCode11 = CANACC_CODE_11BIT;
     uint32_t accMask11 = CANACC_MASK_11BIT;
-    uint16_t accCode29 = CANACC_CODE_29BIT;
-    uint16_t accMask29 = CANACC_MASK_29BIT;
+    uint32_t accCode29 = CANACC_CODE_29BIT;
+    uint32_t accMask29 = CANACC_MASK_29BIT;
     uint16_t rxTimeout = CANWAIT_INFINITE;
     uint16_t txTimeout = 0U;
     useconds_t txDelay = 0U;
@@ -537,7 +537,7 @@ int main(int argc, const char * argv[]) {
     if (option_transmit) {
 //        if ((txTimeout == 0U) && !option_retry)
 //            fprintf(stdout, "Attention: The program will be aborted when the transmitter is busy.\n"
-//                            "           Use progrsm option RETRY to avoid this.\n");
+//                            "           Use program option RETRY or T:<timeout> to avoid this.\n");
         fprintf(stdout, "Press Ctrl+C to abort..."); fflush(stdout);
         frames = 0;
         now = time(NULL);
