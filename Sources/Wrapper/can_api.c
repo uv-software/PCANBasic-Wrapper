@@ -44,36 +44,28 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with PCANBasic-Wrapper.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with PCANBasic-Wrapper.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @addtogroup  can_api
  *  @{
  */
-#include "build_no.h"
-#define VERSION_MAJOR    0
-#define VERSION_MINOR    5
-#define VERSION_PATCH    0
-#define VERSION_BUILD    BUILD_NO
-#define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
 #if defined(_WIN64)
 #define PLATFORM        "x64"
 #elif defined(_WIN32)
 #define PLATFORM        "x86"
 #else
-#error Unsupported architecture
+#error Platform not supported
 #endif
-static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
-
-
-/*  -----------  includes  -----------------------------------------------
- */
-
 #ifdef _MSC_VER
 //no Microsoft extensions please!
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS 1
 #endif
 #endif
+
+/*  -----------  includes  -----------------------------------------------
+ */
+
 #include "can_defs.h"
 #include "can_api.h"
 #include "can_btr.h"
@@ -89,6 +81,8 @@ static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Versi
 #include <sys/select.h>
 #include "PCBUSB.h"
 #endif
+#include "Version.h"
+
 
 /*  -----------  options  ------------------------------------------------
  */
@@ -196,6 +190,7 @@ static void var_init(void);             // initialize variables
 
 /*  -----------  variables  ----------------------------------------------
  */
+static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
 
 EXPORT
 can_board_t can_boards[PCAN_BOARDS+1]=// list of CAN Interface boards:
