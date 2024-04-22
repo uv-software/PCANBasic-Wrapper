@@ -2,7 +2,7 @@
 //
 //  CAN Monitor for generic Interfaces (CAN API V3)
 //
-//  Copyright (c) 2007,2016-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2007,2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include "Driver.h"
 #include "Timer.h"
 #include "Message.h"
+#include "Version.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -35,6 +36,13 @@ extern "C" {
 
 #include <inttypes.h>
 
+#if defined(_WIN64)
+#define PLATFORM  "x64"
+#elif defined(_WIN32)
+#define PLATFORM  "x86"
+#else
+#error Platform not supported
+#endif
 #ifdef _MSC_VER
 //not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
 #define strncasecmp _strnicmp
@@ -762,17 +770,17 @@ int main(int argc, const char * argv[]) {
 #endif
             (void)CCanDevice::MapBitrate2String(bitrate, property, CANPROP_MAX_BUFFER_SIZE,
                                                 (opMode.byte & CANMODE_BRSE), hasNoSamp);
-            fprintf(stdout, " (%s)\n\n", property);
+            fprintf(stdout, " (%s)\n", property);
         }
         else {
-            fprintf(stdout, "Baudrate=%.0fkbps@%.1f%% (index %i)\n\n",
+            fprintf(stdout, "Baudrate=%.0fkbps@%.1f%% (index %i)\n",
                              speed.nominal.speed / 1000.,
                              speed.nominal.samplepoint * 100., -bitrate.index);
         }
         if ((code11 != CANACC_CODE_11BIT) || (mask11 != CANACC_MASK_11BIT))
-            fprintf(stdout, "Acc.-Filter 11-bit=set (code=%03lXh, mask=%03lXh)\n", code11, mask11);
+            fprintf(stdout, "Acc.-filter 11-bit=set (code=%03Xh, mask=%03Xh)\n", code11, mask11);
         if (((code29 != CANACC_CODE_29BIT) || (mask29 != CANACC_MASK_29BIT)) && !opMode.nxtd)
-            fprintf(stdout, "Acc.-Filter 29-bit=set (code=%08lXh, mask=%08lXh)\n", code29, mask29);
+            fprintf(stdout, "Acc.-filter 29-bit=set (code=%08Xh, mask=%08Xh)\n", code29, mask29);
         fputc('\n', stdout);
     }
     /* - initialize interface */
@@ -915,23 +923,21 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
     if (opMode.fdoe) {
         if (opMode.brse) {
             fprintf(stdout, "CAN FD with Bit-rate Switching (BRS):\n");
-            BITRATE_FD_1M8M(bitrate[0]);
-            BITRATE_FD_500K4M(bitrate[1]);
-            BITRATE_FD_250K2M(bitrate[2]);
-            BITRATE_FD_125K1M(bitrate[3]);
+            BITRATE_FD_1M8M(bitrate[n]); n += 1;
+            BITRATE_FD_500K4M(bitrate[n]); n += 1;
+            BITRATE_FD_250K2M(bitrate[n]); n += 1;
+            BITRATE_FD_125K1M(bitrate[n]); n += 1;
             hasDataPhase = true;
             hasNoSamp = false;
-            n = 4;
         }
         else {
             fprintf(stdout, "CAN FD without Bit-rate Switching (BRS):\n");
-            BITRATE_FD_1M(bitrate[0]);
-            BITRATE_FD_500K(bitrate[1]);
-            BITRATE_FD_250K(bitrate[2]);
-            BITRATE_FD_125K(bitrate[3]);
+            BITRATE_FD_1M(bitrate[n]); n += 1;
+            BITRATE_FD_500K(bitrate[n]); n += 1;
+            BITRATE_FD_250K(bitrate[n]); n += 1;
+            BITRATE_FD_125K(bitrate[n]); n += 1;
             hasDataPhase = false;
             hasNoSamp = false;
-            n = 4;
         }
     }
     else {
@@ -939,18 +945,19 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
     {
 #endif
         fprintf(stdout, "Classical CAN:\n");
-        BITRATE_1M(bitrate[0]);
-        BITRATE_800K(bitrate[1]);
-        BITRATE_500K(bitrate[2]);
-        BITRATE_250K(bitrate[3]);
-        BITRATE_125K(bitrate[4]);
-        BITRATE_100K(bitrate[5]);
-        BITRATE_50K(bitrate[6]);
-        BITRATE_20K(bitrate[7]);
-        BITRATE_10K(bitrate[8]);
+        BITRATE_1M(bitrate[n]); n += 1;
+#if (BITRATE_800K_UNSUPPORTED == 0)
+        BITRATE_800K(bitrate[n]); n += 1;
+#endif
+        BITRATE_500K(bitrate[n]); n += 1;
+        BITRATE_250K(bitrate[n]); n += 1;
+        BITRATE_125K(bitrate[n]); n += 1;
+        BITRATE_100K(bitrate[n]); n += 1;
+        BITRATE_50K(bitrate[n]); n += 1;
+        BITRATE_20K(bitrate[n]); n += 1;
+        BITRATE_10K(bitrate[n]); n += 1;
         hasDataPhase = false;
         hasNoSamp = true;
-        n = 9;
     }
     for (i = 0; i < n; i++) {
         if ((retVal = CCanDevice::MapBitrate2Speed(bitrate[i], speed)) == CCanApi::NoError) {
@@ -958,6 +965,8 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
 #if (CAN_FD_SUPPORTED != 0)
             if (opMode.brse)
                 fprintf(stdout, ":%4.0fkbps@%.1f%%", speed.data.speed / 1000., speed.data.samplepoint * 100.);
+#else
+            (void)opMode;  // to avoid compiler warnings
 #endif
         }
         strcpy(string, "=oops, something went wrong!");
