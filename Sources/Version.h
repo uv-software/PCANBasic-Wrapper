@@ -44,7 +44,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with PCANBasic-Wrapper.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with PCANBasic-Wrapper.  If not, see <https://www.gnu.org/licenses/>.
  */
 #ifndef VERSION_H_INCLUDED
 #define VERSION_H_INCLUDED

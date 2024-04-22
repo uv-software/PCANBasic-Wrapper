@@ -83,7 +83,7 @@
 #define SPRINTF_S(buf,size,format,...)  sprintf_s(buf,size,format,__VA_ARGS__)
 #endif
 
-#if (OPTION_PCAN_DYLIB != 0)
+#if (OPTION_PEAKCAN_DYLIB != 0)
 __attribute__((constructor))
 static void _initializer() {
     // default initializer
