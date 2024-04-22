@@ -22,7 +22,7 @@
 //#define SECOND_CHANNEL
 #define ISSUE_198   (0)
 
-#if (0)
+#if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_1M(x)    PEAKCAN_BR_1M(x)
 #define BITRATE_800K(x)  PEAKCAN_BR_800K(x)
 #define BITRATE_500K(x)  PEAKCAN_BR_500K(x)
@@ -45,7 +45,7 @@
 #define BITRATE_10K(x)   DEFAULT_CAN_BR_10K(x) 
 #define BITRATE_5K(x)    DEFAULT_CAN_BR_5K(x)  
 #endif
-#if (0)
+#if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_FD_1M(x)      PEAKCAN_FD_BR_1M(x)
 #define BITRATE_FD_500K(x)    PEAKCAN_FD_BR_500K(x)
 #define BITRATE_FD_250K(x)    PEAKCAN_FD_BR_250K(x)
@@ -127,8 +127,8 @@ int main(int argc, const char * argv[]) {
     CCanApi::EChannelState state;
 //    int32_t clocks[CANPROP_MAX_BUFFER_SIZE/sizeof(int32_t)];
     char szVal[CANPROP_MAX_BUFFER_SIZE];
-    uint32_t u32Val;
     uint16_t u16Val;
+    uint32_t u32Val;
     uint8_t u8Val;
     int32_t i32Val;
     int frames = 0;
@@ -514,6 +514,7 @@ int main(int argc, const char * argv[]) {
         if ((myDriver.GetBitrate(bitrate) == CCanApi::NoError) &&
             (myDriver.GetBusSpeed(speed) == CCanApi::NoError))
             verbose(opMode, bitrate, speed);
+
         uint32_t code, mask;
         if ((myDriver.GetFilter11Bit(code, mask) == CCanApi::NoError) && 
             ((code != CANACC_CODE_11BIT) || (mask != CANACC_MASK_11BIT)))
@@ -524,14 +525,21 @@ int main(int argc, const char * argv[]) {
     }
 #ifdef SECOND_CHANNEL
     retVal = mySecond.InitializeChannel(channel+1U, opMode);
-    if (retVal != CCanApi::NoError)
+    if (retVal != CCanApi::NoError) {
         fprintf(stderr, "+++ error: mySecond.InitializeChannel(%i) returned %i\n", channel+1U, retVal);
+        goto teardown;
+    }
+    else if (myDriver.GetStatus(status) == CCanApi::NoError) {
+        fprintf(stdout, ">>> mySecond.InitializeChannel(%i): status = 0x%02X\n", channel+1U, status.byte);
+    }
     retVal = mySecond.StartController(bitrate);
-    if (retVal != CCanApi::NoError)
+    if (retVal != CCanApi::NoError) {
         fprintf(stderr, "+++ error: mySecond.StartController returned %i\n", retVal);
-    retVal = mySecond.WriteMessage(message, txTimeout);
-    if (retVal != CCanApi::NoError)
-        fprintf(stderr, "+++ error: mySecond.WriteMessage returned %i\n", retVal);
+        goto teardown;
+    }
+    else if (myDriver.GetStatus(status) == CCanApi::NoError) {
+        fprintf(stdout, ">>> mySecond.StartController: status = 0x%02X\n", status.byte);
+    }
 #endif
     /* transmit messages */
     if (option_transmit) {
@@ -542,6 +550,9 @@ int main(int argc, const char * argv[]) {
         frames = 0;
         now = time(NULL);
         while (running && (option_transmit > frames)) {
+#if (OPTION_CAN_2_0_ONLY != 0)
+            message.dlc = CAN_MAX_DLC;
+#else
             if (!opMode.fdoe) {
                 message.fdf = 0;
                 message.brs = 0;
@@ -551,6 +562,7 @@ int main(int argc, const char * argv[]) {
                 message.brs = opMode.brse;
                 message.dlc = CANFD_MAX_DLC;
             }
+#endif
             message.id = (uint32_t)frames & (message.xtd ? CAN_MAX_XTD_ID : CAN_MAX_STD_ID);
             message.data[0] = (uint8_t)(((uint64_t)frames & 0x00000000000000FF) >> 0);
             message.data[1] = (uint8_t)(((uint64_t)frames & 0x000000000000FF00) >> 8);
@@ -588,11 +600,15 @@ retry_write:
             if (option_echo) {
                 fprintf(stdout, ">>> %i\t", frames++);
                 fprintf(stdout, "%7li.%04li\t", (long)message.timestamp.tv_sec, message.timestamp.tv_nsec / 100000);
+#if (OPTION_CAN_2_0_ONLY != 0)
+                fprintf(stdout, "%03x\t%c%c [%i]", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ', message.dlc);
+#else
                 if (!opMode.fdoe)
                     fprintf(stdout, "%03x\t%c%c [%i]", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ', message.dlc);
                 else
                     fprintf(stdout, "%03x\t%c%c%c%c%c [%i]", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ',
                             message.fdf ? 'F' : ' ', message.brs ? 'B' : ' ', message.esi ? 'E' :' ', CCanApi::Dlc2Len(message.dlc));
+#endif
                 for (uint8_t i = 0; i < CCanApi::Dlc2Len(message.dlc); i++)
                     fprintf(stdout, " %02x", message.data[i]);
                 if (message.sts) {
@@ -662,7 +678,7 @@ retry_reply:
                     fprintf(stdout, " %02x", message.data[i]);
                 if (message.sts)
                     fprintf(stdout, " <<< status frame");
-                else if (option_repeat) {
+                else if (option_reply) {
                     retVal = myDriver.WriteMessage(message, txTimeout);
                     if (retVal != CCanApi::NoError) {
                         fprintf(stderr, "+++ error: mySecond.WriteMessage returned %i\n", retVal);
@@ -739,14 +755,21 @@ end:
 
 static void verbose(const can_mode_t &mode, const can_bitrate_t &bitrate, const can_speed_t &speed)
 {
+#if (OPTION_CAN_2_0_ONLY == 0)
     fprintf(stdout, "    Op.-Mode: 0x%02X (fdoe=%u,brse=%u,niso=%u,shrd=%u,nxtd=%u,nrtr=%u,err=%u,mon=%u)\n",
             mode.byte, mode.fdoe, mode.brse, mode.niso, mode.shrd, mode.nxtd, mode.nrtr, mode.err, mode.mon);
+#else
+    fprintf(stdout, "    Op.-Mode: 0x%02X (shrd=%u,nxtd=%u,nrtr=%u,err=%u,mon=%u)\n",
+            mode.byte, mode.shrd, mode.nxtd, mode.nrtr, mode.err, mode.mon);
+#endif
     if (bitrate.btr.frequency > 0) {
         fprintf(stdout, "    Baudrate: %.0fkbps@%.1f%%",
             speed.nominal.speed / 1000., speed.nominal.samplepoint * 100.);
+#if (OPTION_CAN_2_0_ONLY == 0)
         if (/*speed.data.brse*/mode.fdoe && mode.brse)
             fprintf(stdout, ":%.0fkbps@%.1f%%",
                 speed.data.speed / 1000., speed.data.samplepoint * 100.);
+#endif
         fprintf(stdout, " (f_clock=%i,nom_brp=%u,nom_tseg1=%u,nom_tseg2=%u,nom_sjw=%u,nom_sam=%u",
             bitrate.btr.frequency,
             bitrate.btr.nominal.brp,
@@ -754,12 +777,14 @@ static void verbose(const can_mode_t &mode, const can_bitrate_t &bitrate, const 
             bitrate.btr.nominal.tseg2,
             bitrate.btr.nominal.sjw,
             bitrate.btr.nominal.sam);
+#if (OPTION_CAN_2_0_ONLY == 0)
         if (mode.fdoe && mode.brse)
             fprintf(stdout, ",data_brp=%u,data_tseg1=%u,data_tseg2=%u,data_sjw=%u",
                 bitrate.btr.data.brp,
                 bitrate.btr.data.tseg1,
                 bitrate.btr.data.tseg2,
                 bitrate.btr.data.sjw);
+#endif
         fprintf(stdout, ")\n");
     }
     else {

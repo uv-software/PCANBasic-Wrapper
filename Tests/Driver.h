@@ -2,13 +2,13 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2023 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
 //
-//  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License and
-//  under the GNU General Public License v3.0 (or any later version).
+//  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
+//  and under the GNU General Public License v3.0 (or any later version).
 //  You can choose between one of them if you use this file.
 //
 //  BSD 2-Clause "Simplified" License:
@@ -43,7 +43,7 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with CAN API V3.  If not, see <http://www.gnu.org/licenses/>.
+//  along with CAN API V3.  If not, see <http4://www.gnu.org/licenses/>.
 //
 #ifndef DRIVER_H_INCLUDED
 #define DRIVER_H_INCLUDED
@@ -79,6 +79,7 @@ typedef CPeakCAN  CCanDriver;
 //  (§5) define macros for CAN 2.0 bit-rate settings
 //       at least BITRATE_1M, BITRATE_500K, BITRATE_250K, BITRATE_125K, 
 //                BITRATE_100K, BITRATE_50K, BITRATE_20K, BITRATE_10K
+#if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_1M(x)    PEAKCAN_BR_1M(x)
 #define BITRATE_800K(x)  PEAKCAN_BR_800K(x)
 #define BITRATE_500K(x)  PEAKCAN_BR_500K(x)
@@ -89,6 +90,18 @@ typedef CPeakCAN  CCanDriver;
 #define BITRATE_20K(x)   PEAKCAN_BR_20K(x)
 #define BITRATE_10K(x)   PEAKCAN_BR_10K(x)
 #define BITRATE_5K(x)    PEAKCAN_BR_5K(x)
+#else
+#define BITRATE_1M(x)    DEFAULT_CAN_BR_1M(x)  
+#define BITRATE_800K(x)  DEFAULT_CAN_BR_800K(x)
+#define BITRATE_500K(x)  DEFAULT_CAN_BR_500K(x)
+#define BITRATE_250K(x)  DEFAULT_CAN_BR_250K(x)
+#define BITRATE_125K(x)  DEFAULT_CAN_BR_125K(x)
+#define BITRATE_100K(x)  DEFAULT_CAN_BR_100K(x)
+#define BITRATE_50K(x)   DEFAULT_CAN_BR_50K(x) 
+#define BITRATE_20K(x)   DEFAULT_CAN_BR_20K(x) 
+#define BITRATE_10K(x)   DEFAULT_CAN_BR_10K(x) 
+#define BITRATE_5K(x)    DEFAULT_CAN_BR_5K(x)  
+#endif
 
 //  (§6) define macros for workarounds (e.g. TC01_3_ISSUE)
 #define TC09_8_ISSUE_BUS_OFF  WORKAROUND_ENABLED  // 2023-08-25: no bus off from device (investigation required)
@@ -114,6 +127,7 @@ typedef CPeakCAN  CCanDriver;
 //  (§10) define macros for CAN FD bit-rate settings
 //       at least BITRATE_FD_1M8M, BITRATE_FD_500K4M, BITRATE_FD_250K2M, BITRATE_FD_125K1M,
 //                BITRATE_FD_1M, BITRATE_FD_500K, BITRATE_FD_250K, BITRATE_FD_125K
+#if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_FD_1M(x)      PEAKCAN_FD_BR_1M(x)
 #define BITRATE_FD_500K(x)    PEAKCAN_FD_BR_500K(x)
 #define BITRATE_FD_250K(x)    PEAKCAN_FD_BR_250K(x)
@@ -122,6 +136,16 @@ typedef CPeakCAN  CCanDriver;
 #define BITRATE_FD_500K4M(x)  PEAKCAN_FD_BR_500K4M(x)
 #define BITRATE_FD_250K2M(x)  PEAKCAN_FD_BR_250K2M(x)
 #define BITRATE_FD_125K1M(x)  PEAKCAN_FD_BR_125K1M(x)
+#else
+#define BITRATE_FD_1M(x)      DEFAULT_CAN_FD_BR_1M(x)
+#define BITRATE_FD_500K(x)    DEFAULT_CAN_FD_BR_500K(x)
+#define BITRATE_FD_250K(x)    DEFAULT_CAN_FD_BR_250K(x)
+#define BITRATE_FD_125K(x)    DEFAULT_CAN_FD_BR_125K(x)
+#define BITRATE_FD_1M8M(x)    DEFAULT_CAN_FD_BR_1M8M(x)
+#define BITRATE_FD_500K4M(x)  DEFAULT_CAN_FD_BR_500K4M(x)
+#define BITRATE_FD_250K2M(x)  DEFAULT_CAN_FD_BR_250K2M(x)
+#define BITRATE_FD_125K1M(x)  DEFAULT_CAN_FD_BR_125K1M(x)
+#endif
 
 //  (§11) define macros for workarounds for CAN FD operation mode (e.g. TC01_3_ISSUE_FD)
 //#define TC0x_y_ISSUE_FD_  WORKAROUND_ENABLED
