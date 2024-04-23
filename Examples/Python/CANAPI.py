@@ -52,9 +52,9 @@
     Interface API for various CAN interfaces from different
     vendors running under multiple operating systems.
 
-    $Author: haumea $
+    $Author: quaoar $
 
-    $Rev: 1258 $
+    $Rev: 1278 $
 """
 from ctypes import *
 import platform
@@ -69,7 +69,7 @@ if platform.system() == "Darwin":
 
 # CAN API V3 - Python Wrapper
 #
-CAN_API_V3_PYTHON = {'major': 0, 'minor': 2, 'patch': 0}
+CAN_API_V3_PYTHON = {'major': 0, 'minor': 3, 'patch': 1}
 
 # CAN Identifier Ranges
 #
@@ -121,6 +121,13 @@ CANFD_LEN_TAB = {   # length to DLC (CAN FD)
     (33, 34, 35, 36, 37, 39, 39, 40): c_uint8(0xE),
     (49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64): c_uint8(0xF)
 }
+
+# CAN Acceptance Filter: (code ^ id) & mask == 0
+#
+CANACC_CODE_11BIT = 0x000  # mask for 11-bit acceptance code
+CANACC_MASK_11BIT = 0x000  # mask for 11-bit acceptance mask
+CANACC_CODE_29BIT = 0x00000000  # mask for 29-bit acceptance code
+CANACC_MASK_29BIT = 0x00000000  # mask for 29-bit acceptance mask
 
 # CAN 2.0 Predefined Bit-rates (as index acc. CiA)
 #
@@ -638,6 +645,133 @@ class CANAPI:
             print('+++ exception: {}'.format(e))
             raise
 
+    def filter11bit(self, code, mask):
+        """
+          sets a 11-bit filter for the CAN controller.
+
+          :param code: 11-bit code for the filter (or None)
+          :param mask: 11-bit mask for the filter (or None)
+          :return: result, code, mask
+            result: 0 if successful, or a negative value on error
+            code: 11-bit code for the filter
+            mask: 11-bit mask for the filter
+        """
+        try:
+            # set the 11-bit filter (if code or mask are not None)
+            if code is not None or mask is not None:
+                __filter = c_uint64(0)
+                if code is not None:
+                    __filter.value = code << 32
+                if mask is not None:
+                    __filter.value |= mask & 0xFFFFFFFF
+                result = self.__m_library.can_property(self.__m_handle, 42, byref(__filter), 8)
+                if result < 0:
+                    return int(result), None, None
+            # get the 11-bit filter
+            __value = c_uint64(0)
+            result = self.__m_library.can_property(self.__m_handle, 40, byref(__value), 8)
+            if result < 0:
+                return int(result), None, None
+            return int(result), int(__filter.value >> 32), int(__filter.value & 0xFFFFFFFF)
+        except Exception as e:
+            print('+++ exception: {}'.format(e))
+            raise
+
+    def filter29bit(self, code, mask):
+        """
+          sets a 29-bit filter for the CAN controller.
+
+          :param code: 29-bit code for the filter (or None)
+          :param mask: 29-bit mask for the filter (or None)
+          :return: result, code, mask
+            result: 0 if successful, or a negative value on error
+            code: 29-bit code for the filter
+            mask: 29-bit mask for the filter
+        """
+        try:
+            # set the 29-bit filter (if code or mask are not None)
+            if code is not None or mask is not None:
+                __filter = c_uint64(0)
+                if code is not None:
+                    __filter.value = code << 32
+                if mask is not None:
+                    __filter.value |= mask & 0xFFFFFFFF
+                result = self.__m_library.can_property(self.__m_handle, 43, byref(__filter), 8)
+                if result < 0:
+                    return int(result), None, None
+            # get the 29-bit filter
+            __value = c_uint64(0)
+            result = self.__m_library.can_property(self.__m_handle, 41, byref(__value), 8)
+            if result < 0:
+                return int(result), None, None
+            return int(result), int(__filter.value >> 32), int(__filter.value & 0xFFFFFFFF)
+        except Exception as e:
+            print('+++ exception: {}'.format(e))
+            raise
+
+    def hardware(self):
+        """
+          retrieves the hardware version of the CAN controller
+          board as a zero-terminated string.
+
+          note: API function 'can_hardware' is marked as deprecated.
+
+          :return: version
+            version: version information as string
+        """
+        try:
+            self.__m_library.can_hardware.restype = c_char_p
+            version_c = self.__m_library.can_hardware(self.__m_handle)
+            if version_c is not None:
+                return version_c.decode('utf-8')
+            else:
+                raise Exception('+++ error: can_hardware returned None')
+        except Exception as e:
+            print('+++ exception: {}'.format(e))
+            raise
+
+    def firmware(self):
+        """
+          retrieves the firmware version of the CAN controller
+          board as a zero-terminated string.
+
+          note: API function 'can_firmware' is marked as deprecated.
+
+          :return: version
+            version: version information as string
+        """
+        try:
+            self.__m_library.can_firmware.restype = c_char_p
+            version_c = self.__m_library.can_firmware(self.__m_handle)
+            if version_c is not None:
+                return version_c.decode('utf-8')
+            else:
+                raise Exception('+++ error: can_firmware returned None')
+        except Exception as e:
+            print('+++ exception: {}'.format(e))
+            raise
+
+    def software(self):
+        """
+          retrieves version information of the CAN API V3 DLL
+          as a zero-terminated string.
+
+          note: API function 'can_version' is marked as deprecated.
+
+          :return: version
+            version: version information as string
+        """
+        try:
+            self.__m_library.can_version.restype = c_char_p
+            version_c = self.__m_library.can_version()
+            if version_c is not None:
+                return version_c.decode('utf-8')
+            else:
+                raise Exception('+++ error: can_version returned None')
+        except Exception as e:
+            print('+++ exception: {}'.format(e))
+            raise
+
     @staticmethod
     def version():
         """
@@ -704,6 +838,7 @@ if __name__ == '__main__':
     print(CANAPI.version())
     print('>>> can = CANAPI(' + lib + ')')
     can = CANAPI(lib)
+    print(can.software())
 
     # initialize the CAN interface
     print('>>> can.init({}, 0x{:02X})'.format(chn, opMode.byte))
@@ -715,6 +850,20 @@ if __name__ == '__main__':
         print('+++ error: can.status returned {}'.format(res))
     else:
         print('>>> can.status() >>> 0x{:02X}'.format(status.byte))
+
+    # set acceptance filter
+    code = CANACC_CODE_11BIT
+    mask = CANACC_MASK_11BIT
+    print('>>> can.filter11bit(0x{:03X}, 0x{:03X})'.format(code, mask))
+    res, code, mask = can.filter11bit(code=code, mask=mask)
+    if res < CANERR_NOERROR:
+        print('+++ error: can.filter11bit returned {}'.format(res))
+    code = CANACC_CODE_29BIT
+    mask = CANACC_MASK_29BIT
+    print('>>> can.filter29bit(0x{:08X}, 0x{:08X})'.format(code, mask))
+    res, code, mask = can.filter29bit(code=code, mask=mask)
+    if res < CANERR_NOERROR:
+        print('+++ error: can.filter29bit returned {}'.format(res))
 
     # start the CAN controller
     if bitRate.index > 0:   # FIXME: Expected type 'int', got 'c_int32[int]' instead
@@ -754,6 +903,10 @@ if __name__ == '__main__':
     else:
         print('>>> can.status() >>> 0x{:02X}'.format(status.byte))
 
+    # print some version information
+    print('>>> can.hardware() >>> ' + can.hardware())
+    print('>>> can.firmware() >>> ' + can.firmware())
+
     # shutdown the CAN interface
     print('>>> can.exit()')
     res = can.exit()
@@ -763,5 +916,5 @@ if __name__ == '__main__':
     # have a great time
     print('Bye, bye!')
 
-# * $Id: CANAPI.py 1258 2024-03-19 21:35:15Z haumea $ *** (c) UV Software, Berlin ***
+# * $Id: CANAPI.py 1278 2024-04-23 08:34:36Z quaoar $ *** (c) UV Software, Berlin ***
 #
