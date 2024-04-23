@@ -3,7 +3,7 @@
  *  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
  *
  *  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
- *  Copyright (c) 2014-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2014-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
@@ -46,39 +46,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with PCANBasic-Wrapper.  If not, see <https://www.gnu.org/licenses/>.
  */
-/** @addtogroup  can_api
- *  @{
- */
-#ifndef CAN_DEFS_H_INCLUDED
-#define CAN_DEFS_H_INCLUDED
-
-/*  -----------  includes  ------------------------------------------------
- */
-
-#include "CANAPI_Defines.h"
-#include "PeakCAN_Defines.h"
-
-
-/*  -----------  options  ------------------------------------------------
- */
-/* note: all options moved into header PeakCAN_Defines.h */
-
-
-/*  -----------  defines  ------------------------------------------------
- */
-/* note: all defines moved into header PeakCAN_Defines.h */
-
-
-/*  -----------  types  --------------------------------------------------
- */
-/* note: all type definitions moved into header PeakCAN_Defines.h */
-
-
-#endif /* CAN_DEFS_H_INCLUDED */
-/** @}
- */
-/*  ----------------------------------------------------------------------
- *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
- *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903
- *  E-Mail: uwe.vogt@uv-software.de, Homepage: https://www.uv-software.de/
- */
+#ifndef VERSION_H_INCLUDED
+#define VERSION_H_INCLUDED
+#include "build_no.h"
+#define VERSION_MAJOR    0
+#define VERSION_MINOR    5
+#define VERSION_PATCH    0
+#define VERSION_BUILD    BUILD_NO
+#if (VERSION_PATCH == 0)
+#define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) " (" TOSTRING(BUILD_NO) ")"
+#else
+#define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
+#endif
+#endif

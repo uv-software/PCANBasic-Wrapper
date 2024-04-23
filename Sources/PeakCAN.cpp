@@ -45,21 +45,6 @@
 //  You should have received a copy of the GNU General Public License
 //  along with PCANBasic-Wrapper.  If not, see <https://www.gnu.org/licenses/>.
 //
-#include "build_no.h"
-#define VERSION_MAJOR    0
-#define VERSION_MINOR    5
-#define VERSION_PATCH    0
-#define VERSION_BUILD    BUILD_NO
-#define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) "." TOSTRING(VERSION_PATCH) " (" TOSTRING(BUILD_NO) ")"
-#if defined(_WIN64)
-#define PLATFORM        "x64"
-#elif defined(_WIN32)
-#define PLATFORM        "x86"
-#else
-#error Platform not supported
-#endif
-static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
-
 #ifdef _MSC_VER
 //no Microsoft extensions please!
 #ifndef _CRT_SECURE_NO_WARNINGS
@@ -67,6 +52,8 @@ static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Versi
 #endif
 #endif
 #include "PeakCAN.h"
+#include "Version.h"
+
 #include "can_defs.h"
 #include "can_api.h"
 #include "can_btr.h"
@@ -77,7 +64,26 @@ static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Versi
 #include <assert.h>
 #include <limits.h>
 
-#if (OPTION_PCAN_DYLIB != 0)
+#if defined(_WIN64)
+#define PLATFORM        "x64"
+#elif defined(_WIN32)
+#define PLATFORM        "x86"
+#else
+#error Platform not supported
+#endif
+#ifndef _MSC_VER
+#define STRCPY_S(dest,size,src)         strcpy(dest,src)
+#define STRNCPY_S(dest,size,src,len)    strncpy(dest,src,len)
+#define SSCANF_S(buf,format,...)        sscanf(buf,format,__VA_ARGS__)
+#define SPRINTF_S(buf,size,format,...)  snprintf(buf,size,format,__VA_ARGS__)
+#else
+#define STRCPY_S(dest,size,src)         strcpy_s(dest,size,src)
+#define STRNCPY_S(dest,size,src,len)    strncpy_s(dest,size,src,len)
+#define SSCANF_S(buf,format,...)        sscanf_s(buf,format,__VA_ARGS__)
+#define SPRINTF_S(buf,size,format,...)  sprintf_s(buf,size,format,__VA_ARGS__)
+#endif
+
+#if (OPTION_PEAKCAN_DYLIB != 0)
 __attribute__((constructor))
 static void _initializer() {
     // default initializer
@@ -91,17 +97,7 @@ static void _finalizer() {
 #define EXPORT
 #endif
 
-#ifndef _MSC_VER
-#define STRCPY_S(dest,size,src)         strcpy(dest,src)
-#define STRNCPY_S(dest,size,src,len)    strncpy(dest,src,len)
-#define SSCANF_S(buf,format,...)        sscanf(buf,format,__VA_ARGS__)
-#define SPRINTF_S(buf,size,format,...)  snprintf(buf,size,format,__VA_ARGS__)
-#else
-#define STRCPY_S(dest,size,src)         strcpy_s(dest,size,src)
-#define STRNCPY_S(dest,size,src,len)    strncpy_s(dest,size,src,len)
-#define SSCANF_S(buf,format,...)        sscanf_s(buf,format,__VA_ARGS__)
-#define SPRINTF_S(buf,size,format,...)  sprintf_s(buf,size,format,__VA_ARGS__)
-#endif
+static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
 
 EXPORT
 CPeakCAN::CPeakCAN() {

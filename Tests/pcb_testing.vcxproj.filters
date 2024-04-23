@@ -84,7 +84,7 @@
     <ClCompile Include="Testcases\TCx2_BitrateConverter.cc">
       <Filter>Source Files\Testcases</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Timer64.cpp">
+    <ClCompile Include="Sources\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Testcases\TC23_SetFilter11Bit.cc">
@@ -146,7 +146,7 @@
     <ClInclude Include="Sources\Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\Timer64.h">
+    <ClInclude Include="Sources\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

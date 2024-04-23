@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from CANAPI import *
+import platform
 import argparse
 import signal
 import sys
@@ -10,10 +11,10 @@ from time import sleep
 #
 def sigterm(signo, frame):
     print()
-#    print('>>> can.kill()')
-#    result = can.kill()
-#    if result < 0:
-#        print('+++ error: can.kill returned {}'.format(result))
+    print('>>> can.kill()')
+    result = can.kill()
+    if result < 0:
+        print('+++ error: can.kill returned {}'.format(result))
     print('>>> can.exit()')
     result = can.exit()
     if result < 0:
@@ -68,6 +69,7 @@ signal.signal(signal.SIGINT, sigterm)
 print(CANAPI.version())
 print('>>> can = CANAPI(' + lib + ')')
 can = CANAPI(lib)
+print(can.software())
 
 # initialize the CAN interface
 print('>>> can.init({}, 0x{:02X})'.format(chn, opMode.byte))
@@ -136,6 +138,10 @@ if res < CANERR_NOERROR:
     print('+++ error: can.status returned {}'.format(res))
 else:
     print('>>> can.status() >>> 0x{:02X}'.format(status.byte))
+
+# print some version information
+print('>>> can.hardware() >>> ' + can.hardware())
+print('>>> can.firmware() >>> ' + can.firmware())
 
 # shutdown the CAN interface
 print('>>> can.exit()')

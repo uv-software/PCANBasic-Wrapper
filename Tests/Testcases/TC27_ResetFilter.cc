@@ -7,8 +7,8 @@
 //
 //  This file is part of CAN API V3.
 //
-//  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License and
-//  under the GNU General Public License v3.0 (or any later version).
+//  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
+//  and under the GNU General Public License v3.0 (or any later version).
 //  You can choose between one of them if you use this file.
 //
 //  BSD 2-Clause "Simplified" License:
@@ -43,7 +43,7 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with CAN API V3.  If not, see <http://www.gnu.org/licenses/>.
+//  along with CAN API V3.  If not, see <https://www.gnu.org/licenses/>.
 //
 #include "pch.h"
 
@@ -598,4 +598,4 @@ TEST_F(ResetFilter, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
 
 #endif // FEATURE_FILTERING != FEATURE_UNSUPPORTED
 
-//  $Id: TC27_ResetFilter.cc 1251 2024-03-09 18:46:18Z haumea $  Copyright (c) UV Software, Berlin.
+//  $Id: TC27_ResetFilter.cc 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
