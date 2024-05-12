@@ -1,9 +1,9 @@
 /*  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later */
 /*
- *  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
+ *  CAN Interface API, Version 3 (for PEAK-System PCAN Interfaces)
  *
- *  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
- *  Copyright (c) 2014-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2005-2012 Uwe Vogt, UV Software, Friedrichshafen
+ *  Copyright (c) 2013-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.de.com)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
@@ -59,6 +59,10 @@
 #define PLATFORM        "x64"
 #elif defined(_WIN32)
 #define PLATFORM        "x86"
+#elif defined(__linux__)
+#define PLATFORM        "Linux"
+#elif defined(__APPLE__)
+#define PLATFORM        "macOS"
 #else
 #error Platform not supported
 #endif
@@ -75,7 +79,11 @@
 #else
 #include <unistd.h>
 #include <sys/select.h>
+#if defined(__APPLE__)
 #include "PCBUSB.h"
+#else
+#include "PCANBasic.h"
+#endif
 #endif
 #include "Version.h"
 
@@ -88,7 +96,7 @@
 #if (OPTION_CAN_2_0_ONLY != 0)
 #error Compilation with legacy CAN 2.0 frame format!
 #endif
-#if (OPTION_CANAPI_PEAKCAN_DYLIB != 0)
+#if (OPTION_CANAPI_PCBUSB_DYLIB != 0) || (OPTION_CANAPI_PCANBASIC_SO != 0)
 __attribute__((constructor))
 static void _initializer() {
     // default initializer
@@ -170,6 +178,8 @@ typedef struct {                        // PCAN interface:
     WORD  brd_irq;                      //   board parameter: interrupt number
 #if defined(_WIN32) || defined(_WIN64)
     HANDLE event;                       //   event handle for blocking read
+#else
+    int   fdes;                         //   file descriptor for blocking read
 #endif
     can_mode_t mode;                    //   operation mode of the CAN channel
     can_filter_t filter;                //   message filtering settings
@@ -196,7 +206,11 @@ static int drv_parameter(int handle, uint16_t param, void *value, size_t nbyte);
 
 /*  -----------  variables  ----------------------------------------------
  */
-static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
+#if !defined(__APPLE__)
+static const char version[] = "CAN API V3 for PEAK-System PCAN Interfaces, Version " VERSION_STRING;
+#else
+static const char version[] = "CAN API V3 for PEAK-System PCAN USB Interfaces, Version " VERSION_STRING;
+#endif
 
 EXPORT
 can_board_t can_boards[PCAN_BOARDS+1]=// list of CAN Interface boards:

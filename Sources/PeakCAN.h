@@ -1,8 +1,9 @@
 //  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later
 //
-//  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
+//  CAN Interface API, Version 3 (for PEAK-System PCAN Interfaces)
 //
-//  Copyright (c) 2017-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2005-2012 Uwe Vogt, UV Software, Friedrichshafen
+//  Copyright (c) 2013-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.de.com)
 //  All rights reserved.
 //
 //  This file is part of PCANBasic-Wrapper.
@@ -52,21 +53,20 @@
 #include "PeakCAN_Defaults.h"
 #include "CANAPI.h"
 
-/// \name   PCAN
-/// \brief  PCAN dynamic library
+/// \name   PeakCAN
+/// \brief  PeakCAN dynamic library
 /// \{
 #define PEAKCAN_LIBRARY_ID  CANLIB_PCANBASIC
 #define PEAKCAN_LIBRARY_NAME  CANDLL_PCANBASIC
 #define PEAKCAN_LIBRARY_VENDOR  "UV Software, Berlin"
 #define PEAKCAN_LIBRARY_LICENSE  "BSD-2-Clause OR GPL-3.0-or-later"
-#define PEAKCAN_LIBRARY_COPYRIGHT  "Copyright (c) 2015-2024 by Uwe Vogt, UV Software, Berlin"
+#define PEAKCAN_LIBRARY_COPYRIGHT  "Copyright (c) 2005-2024 by Uwe Vogt, UV Software, Berlin"
 #define PEAKCAN_LIBRARY_HAZARD_NOTE  "If you connect your CAN device to a real CAN network when using this library,\n" \
                                      "you might damage your application."
 /// \}
 
-
 /// \name   PeakCAN API
-/// \brief  CAN API V3 driver for Peak-System PCAN-Basic interfaces
+/// \brief  CAN API V3 driver for PEAK-System PCAN-Basic interfaces
 /// \note   See CCanApi for a description of the overridden methods
 /// \{
 class CANCPP CPeakCAN : public CCanApi {

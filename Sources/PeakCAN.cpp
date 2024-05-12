@@ -1,8 +1,9 @@
 //  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later
 //
-//  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
+//  CAN Interface API, Version 3 (for PEAK-System PCAN Interfaces)
 //
-//  Copyright (c) 2010-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2005-2012 Uwe Vogt, UV Software, Friedrichshafen
+//  Copyright (c) 2013-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.de.com)
 //  All rights reserved.
 //
 //  This file is part of PCANBasic-Wrapper.
@@ -68,6 +69,10 @@
 #define PLATFORM        "x64"
 #elif defined(_WIN32)
 #define PLATFORM        "x86"
+#elif defined(__linux__)
+#define PLATFORM        "Linux"
+#elif defined(__APPLE__)
+#define PLATFORM        "macOS"
 #else
 #error Platform not supported
 #endif
@@ -83,7 +88,7 @@
 #define SPRINTF_S(buf,size,format,...)  sprintf_s(buf,size,format,__VA_ARGS__)
 #endif
 
-#if (OPTION_PEAKCAN_DYLIB != 0)
+#if (OPTION_PEAKCAN_DYLIB != 0) || (OPTION_PEAKCAN_SO != 0)
 __attribute__((constructor))
 static void _initializer() {
     // default initializer
@@ -97,7 +102,11 @@ static void _finalizer() {
 #define EXPORT
 #endif
 
-static const char version[] = "CAN API V3 for Peak-System PCAN Interfaces, Version " VERSION_STRING;
+#if !defined(__APPLE__)
+static const char version[] = "CAN API V3 for PEAK-System PCAN Interfaces, Version " VERSION_STRING;
+#else
+static const char version[] = "CAN API V3 for PEAK-System PCAN USB Interfaces, Version " VERSION_STRING;
+#endif
 
 EXPORT
 CPeakCAN::CPeakCAN() {
