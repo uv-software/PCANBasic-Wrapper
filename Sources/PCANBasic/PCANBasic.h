@@ -8,12 +8,12 @@
 //
 //  ------------------------------------------------------------------
 //  Author : Keneth Wagner
-//  Last change: 2023-08-28
+//  Last change: 2024-01-26
 //
 //  Language: ANSI-C
 //  ------------------------------------------------------------------
 //
-//  Copyright (C) 1999-2023  PEAK-System Technik GmbH, Darmstadt
+//  Copyright (C) 1999-2024  PEAK-System Technik GmbH, Darmstadt
 //  more Info at http://www.peak-system.com 
 //
 #ifndef __PCANBASICH__
@@ -184,6 +184,7 @@
 #define PCAN_ALLOW_ECHO_FRAMES        0x2CU  // Echo messages reception status within a PCAN-Channel
 #define PCAN_DEVICE_PART_NUMBER       0x2DU  // Get the part number associated to a device
 #define PCAN_HARD_RESET_STATUS        0x2EU  // Activation status of hard reset processing via CAN_Reset calls
+#define PCAN_LAN_CHANNEL_DIRECTION    0x2FU  // Communication direction of a PCAN-Channel representing a PCAN-LAN interface
 
 // DEPRECATED parameters
 //
@@ -222,6 +223,10 @@
 
 #define SERVICE_STATUS_STOPPED        0x01U  // The service is not running
 #define SERVICE_STATUS_RUNNING        0x04U  // The service is running
+
+#define LAN_DIRECTION_READ           0x01U  // The PCAN-Channel is limited to incoming communication only
+#define LAN_DIRECTION_WRITE          0x02U  // The PCAN-Channel is limited to outgoing communication only
+#define LAN_DIRECTION_READ_WRITE     (LAN_DIRECTION_READ | LAN_DIRECTION_WRITE) // The PCAN-Channel communication is bidirectional 
 
 // Other constants
 //
