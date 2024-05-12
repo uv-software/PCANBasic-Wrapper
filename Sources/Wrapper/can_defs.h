@@ -1,9 +1,9 @@
 /*  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later */
 /*
- *  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces)
+ *  CAN Interface API, Version 3 (for PEAK-System PCAN Interfaces)
  *
- *  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
- *  Copyright (c) 2014-2022 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2005-2012 Uwe Vogt, UV Software, Friedrichshafen
+ *  Copyright (c) 2013-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.de.com)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
