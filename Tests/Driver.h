@@ -104,7 +104,9 @@ typedef CPeakCAN  CCanDriver;
 #endif
 
 //  (§6) define macros for workarounds (e.g. TC01_3_ISSUE)
+#if (OPTION_REGRESSION_TEST == 0)
 #define TC09_8_ISSUE_BUS_OFF  WORKAROUND_ENABLED  // 2023-08-25: no bus off from device (investigation required)
+#endif
 //  (§6.1) old PCANBasic issues (see macros in 'Settings.h')
 #define PCBUSB_INIT_DELAY_WORKAROUND  WORKAROUND_ENABLED
 #define PCBUSB_QXMTFULL_WORKAROUND    WORKAROUND_ENABLED
@@ -148,7 +150,9 @@ typedef CPeakCAN  CCanDriver;
 #endif
 
 //  (§11) define macros for workarounds for CAN FD operation mode (e.g. TC01_3_ISSUE_FD)
+#if (OPTION_REGRESSION_TEST == 0)
 //#define TC0x_y_ISSUE_FD_  WORKAROUND_ENABLED
+#endif
 
 //  (§12) define macros for CAN FD bit-rate settings to be used in the tests, if supported
 #define CAN_BITRATE_FD_DEFAULT  BITRATE_FD_250K2M

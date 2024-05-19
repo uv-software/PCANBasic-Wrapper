@@ -55,6 +55,9 @@
 #include <string.h>
 #include <iostream>
 
+#if (DUT1 != 0) || (DUT2 != 1)
+#error Definition of DUT1 or DUT2 wrong
+#endif
 #define OPTION_HELP              "--can_help"
 #define OPTION_PATH              "--can_path"
 #define OPTION_DUT1              "--can_dut1"
@@ -716,4 +719,4 @@ int COptions::ShowHelp() {
     return m_fShowHelp;
 }
 
-// $Id: Options.cpp 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin //
+// $Id: Options.cpp 1299 2024-05-19 12:27:49Z makemake $  Copyright (c) UV Software, Berlin //
