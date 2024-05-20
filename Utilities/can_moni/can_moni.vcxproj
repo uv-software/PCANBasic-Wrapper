@@ -141,6 +141,7 @@
     <ClCompile Include="Sources\dosopt.c" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\Message.cpp" />
+    <ClCompile Include="Sources\Options.cpp" />
     <ClCompile Include="Sources\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +154,7 @@
     <ClInclude Include="..\..\Sources\PeakCAN_Defines.h" />
     <ClInclude Include="Driver.h" />
     <ClInclude Include="Sources\Message.h" />
+    <ClInclude Include="Sources\Options.h" />
     <ClInclude Include="Sources\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

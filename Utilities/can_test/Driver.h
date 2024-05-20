@@ -1,8 +1,9 @@
 //  SPDX-License-Identifier: GPL-3.0-or-later
 //
-//  CAN Tester for for Peak-System PCAN Interfaces (CAN API V3)
+//  CAN Monitor for Peak-System PCAN Interfaces (CAN API V3)
 //
-//  Copyright (c) 2008-2010,2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
+//  Copyright (c) 2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,8 +28,10 @@
 #else
 #define CAN_FD_SUPPORTED   1  // don't touch that dial
 #endif
-#define TESTER_INTEFACE   "Peak-System PCAN Interfaces"
-#define TESTER_COPYRIGHT  "2008-2010,2012-2024 by Uwe Vogt, UV Software, Berlin"
+#define TESTER_INTERFACE  "Peak-System PCAN Interfaces"
+#define TESTER_COPYRIGHT  "2005-2010,2012-2024 by Uwe Vogt, UV Software, Berlin"
+#define TESTER_PLATFORM   "Windows"
+#define TESTER_ALIASNAME  "PCB:"
 
 #if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_1M(x)    PEAKCAN_BR_1M(x)
