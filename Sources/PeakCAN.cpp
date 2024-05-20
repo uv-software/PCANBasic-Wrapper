@@ -53,7 +53,6 @@
 #endif
 #endif
 #include "PeakCAN.h"
-#include "Version.h"
 
 #include "can_defs.h"
 #include "can_api.h"
