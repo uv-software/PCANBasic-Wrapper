@@ -27,8 +27,10 @@
 #else
 #define CAN_FD_SUPPORTED   1  // don't touch that dial
 #endif
-#define MONITOR_INTEFACE  "Peak-System PCAN Interfaces"
-#define MONITOR_COPYRIGHT "2007,2012-2024 by Uwe Vogt, UV Software, Berlin"
+#define MONITOR_INTERFACE  "Peak-System PCAN Interfaces"
+#define MONITOR_COPYRIGHT  "2007,2012-2024 by Uwe Vogt, UV Software, Berlin"
+#define MONITOR_PLATFORM   "Windows"
+#define MONITOR_ALIASNAME  "PCB:"
 
 #if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_1M(x)    PEAKCAN_BR_1M(x)
