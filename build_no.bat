@@ -1,7 +1,7 @@
 @echo off
 echo /*  -- Do not commit this file -- > .\Sources\build_no.h
 echo  * >> .\Sources\build_no.h
-echo  *  CAN Interface API, Version 3 (for Peak-System PCAN Interfaces) >> .\Sources\build_no.h
+echo  *  CAN Interface API, Version 3 (for PEAK-System PCAN Interfaces) >> .\Sources\build_no.h
 echo  * >> .\Sources\build_no.h
 echo  *  Copyright (c) 2005-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com) >> .\Sources\build_no.h
 echo  *  All rights reserved. >> .\Sources\build_no.h

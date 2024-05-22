@@ -75,7 +75,7 @@
 ///
 /// \author      $Author: quaoar $
 //
-/// \version     $Rev: 1286 $
+/// \version     $Rev: 1294 $
 //
 /// \defgroup    can_api CAN Interface API, Version 3
 /// \{
@@ -477,8 +477,16 @@ public:
     //
     virtual char *GetFirmwareVersion() = 0;  // deprecated
 
-    /// \brief       retrieves version information of the CAN API V3 driver
-    ///              as a zero-terminated string.
+#if (OPTION_CANAPI_LIBRARY != 0)
+    /// \brief       retrieves version information of the CAN API V3 wrapper
+    ///              library as a zero-terminated string.
+    //
+    /// \returns     pointer to a zero-terminated string, or NULL on error.
+    //
+    virtual char *GetSoftwareVersion() = 0;  // deprecated
+#endif
+    /// \brief       retrieves version information of the CAN API V3 wrapper
+    ///              (or loader) library as a zero-terminated string.
     //
     /// \returns     pointer to a zero-terminated string, or NULL on error.
     //
@@ -528,4 +536,4 @@ public:
 /// \}
 #endif // CANAPI_H_INCLUDED
 /// \}
-// $Id: CANAPI.h 1286 2024-05-10 17:03:31Z quaoar $  Copyright (c) UV Software //
+// $Id: CANAPI.h 1294 2024-05-16 19:50:25Z quaoar $  Copyright (c) UV Software //
