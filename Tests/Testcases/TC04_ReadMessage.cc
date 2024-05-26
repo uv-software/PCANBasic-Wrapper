@@ -190,7 +190,7 @@ TEST_F(ReadMessage, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
 
 // @gtest TC04.3: Read a CAN message if CAN channel is not initialized
 //
-// @expected: CANERR_HANDLE (would it not be better to return NOTINIT in C++ API?)
+// @expected: CANERR_NOTINIT (wrapper/driver libraries return CANERR_HANDLE)
 //
 TEST_F(ReadMessage, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
@@ -236,7 +236,13 @@ TEST_F(ReadMessage, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     CCounter counter = CCounter(true);
     // @- DUT1 try to read the message (with time-out)
     retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
+#if (OPTION_CANAPI_LIBRARY != 0)
+    EXPECT_EQ(CCanApi::NotInitialized, retVal);
+#else
+    // @note: wrapper/driver libraries return CANERR_HANDLE in this case.
+    // @      Would it not be better to return NOTINIT in C++ API?
     EXPECT_EQ(CCanApi::InvalidHandle, retVal);
+#endif
     // @post:
     counter.Clear();
     // @- initialize DUT1 with configured settings
@@ -473,7 +479,7 @@ TEST_F(ReadMessage, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
 
 // @gtest TC04.6: Read a CAN message if CAN channel was previously torn down
 //
-// @expected: CANERR_HANDLE (would it not be better to return NOTINIT in C++ API?)
+// @expected: CANERR_NOTINIT (wrapper/driver libraries return CANERR_HANDLE)
 //
 TEST_F(ReadMessage, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
@@ -553,7 +559,13 @@ TEST_F(ReadMessage, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     CCounter counter = CCounter(true);
     // @- DUT1 try to read the message (with time-out)
     retVal = dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
+#if (OPTION_CANAPI_LIBRARY != 0)
+    EXPECT_EQ(CCanApi::NotInitialized, retVal);
+#else
+    // @note: wrapper/driver libraries return CANERR_HANDLE in this case.
+    // @      Would it not be better to return NOTINIT in C++ API?
     EXPECT_EQ(CCanApi::InvalidHandle, retVal);
+#endif
     // @post:
     counter.Clear();
     // @- tear down DUT2
@@ -1365,7 +1377,7 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagRtrInOperationModeNoRtr, GTEST_ENABLE
 //
 // @expected: CANERR_NOERROR but status bit 'warning_level' is set and no status frame in the receive queue
 //
-#if defined(__MAC_11_0)
+#if !defined(__APPLE__) || defined(__MAC_11_0)
 #define GTEST_TC04_15_ENABLED   GTEST_ENABLED
 #else
 #define GTEST_TC04_15_ENABLED   GTEST_DISABLED
@@ -1528,7 +1540,7 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagStsInOperationModeNoErr, GTEST_TC04_1
 //
 // @expected: CANERR_NOERROR but status bit 'warning_level' is set and a status frame in the receive queue
 //
-#if (FEATURE_ERROR_FRAMES != FEATURE_UNSUPPORTED) && defined(__MAC_11_0)
+#if (FEATURE_ERROR_FRAMES != FEATURE_UNSUPPORTED) && (!defined(__APPLE__) || defined(__MAC_11_0))
 #define GTEST_TC04_16_ENABLED  GTEST_ENABLED
 #else
 #define GTEST_TC04_16_ENABLED  GTEST_DISABLED
@@ -1978,4 +1990,4 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithDifferentTimeoutValues, GTEST_ENABLED)) {
 // @todo: (1) blocking read
 // @todo: (2) test reentrancy
 
-//  $Id: TC04_ReadMessage.cc 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC04_ReadMessage.cc 1316 2024-05-26 12:31:37Z makemake $  Copyright (c) UV Software, Berlin.

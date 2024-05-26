@@ -116,7 +116,11 @@ public:
     bool IsCanFdCapable() {
         CANAPI_OpMode_t opCapa = { CANMODE_FDOE };
         EChannelState state = CCanApi::ChannelNotTestable;
+#if (OPTION_CANAPI_LIBRARY != 0)
+        return (CCanDriver::ProbeChannel(m_nLibraryId, m_nChannelNo, opCapa, state) == CCanApi::NoError) ? true : false;
+#else
         return (CCanDriver::ProbeChannel(m_nChannelNo, opCapa, state) == CCanApi::NoError) ? true : false;
+#endif
     }
     bool IsCanIdAccepted(uint32_t canId, uint32_t accCode, uint32_t accMask) {
         return (((canId ^ accCode) & accMask) == 0x00000000U) ? true : false;
@@ -173,4 +177,4 @@ private:
 
 #endif // DEVICE_H_INCLUDED
 
-// $Id: Device.h 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+// $Id: Device.h 1314 2024-05-26 08:39:33Z quaoar $  Copyright (c) UV Software, Berlin.

@@ -170,10 +170,23 @@ TEST_F(GetBitrate, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     // @test:
     // @- get bit-rate settings from DUT1
     retVal = dut1.GetBitrate(bitrate);
+#if (TC11_5_ISSUE_BITRATE != WORKAROUND_ENABLED)
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
+#else
+    // @issue(Loader Library):
+    // @ The tester class overwrites GetBitrate by using the C function can_property.
+    // @ The underlying C function can_bitrate is tested anyway, but returns
+    // @ CANERR_NOTSUPP because can_property is called with handle -1.
+    EXPECT_EQ(CCanApi::NotSupported, retVal);
+#endif
     // @- get transmission rate from DUT1
     retVal = dut1.GetBusSpeed(speed);
+#if (TC11_5_ISSUE_BITRATE != WORKAROUND_ENABLED)
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
+#else
+    // @issue(Loader Library): see above
+    EXPECT_EQ(CCanApi::NotSupported, retVal);
+#endif
     // @post
     // @- initialize DUT1 with configured settings
     retVal = dut1.InitializeChannel();
@@ -436,10 +449,23 @@ TEST_F(GetBitrate, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     // @test:
     // @- get bit-rate settings from DUT1
     retVal = dut1.GetBitrate(bitrate);
+#if (TC11_9_ISSUE_BITRATE != WORKAROUND_ENABLED)
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
+#else
+    // @issue(Loader Library):
+    // @ The tester class overwrites GetBitrate by using the C function can_property.
+    // @ The underlying C function can_bitrate is tested anyway, but returns
+    // @ CANERR_NOTSUPP because can_property is called with handle -1.
+    EXPECT_EQ(CCanApi::NotSupported, retVal);
+#endif
     // @- get transmission rate from DUT1
     retVal = dut1.GetBusSpeed(speed);
+#if (TC11_9_ISSUE_BITRATE != WORKAROUND_ENABLED)
     EXPECT_EQ(CCanApi::NotInitialized, retVal);
+#else
+    // @issue(Loader Library): see above
+    EXPECT_EQ(CCanApi::NotSupported, retVal);
+#endif
     // @end.
 }
 
@@ -662,4 +688,4 @@ TEST_F(GetBitrate, GTEST_TESTCASE(WithVariousCanFdBitrateSettings, GTEST_ENABLED
 }
 #endif  // (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
 
-//  $Id: TC11_GetBitrate.cc 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC11_GetBitrate.cc 1314 2024-05-26 08:39:33Z quaoar $  Copyright (c) UV Software, Berlin.
