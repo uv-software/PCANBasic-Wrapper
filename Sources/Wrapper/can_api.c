@@ -59,12 +59,6 @@
 #define PLATFORM  "x64"
 #elif defined(_WIN32)
 #define PLATFORM  "x86"
-#elif defined(__linux__)
-#define PLATFORM  "Linux"
-#elif defined(__APPLE__)
-#define PLATFORM  "macOS"
-#elif defined(__CYGWIN__)
-#define PLATFORM  "Cygwin"
 #else
 #error Platform not supported
 #endif
