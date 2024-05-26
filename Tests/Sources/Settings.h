@@ -55,7 +55,7 @@
 #elif defined(__linux__)
 #define TEST_SEARCH_PATH  "~/Projects/CAN/DRV/API/json"
 #else
-#define TEST_SEARCH_PATH  "C:\\Projekte\\CAN\\DRV\\API\\json"
+#define TEST_SEARCH_PATH  "C:\\Program Files (x86)\\UV Software\\CAN API V3"
 #endif
 //  - devices under test (2 devices are required)
 #define TEST_DEVICE(dut)  g_Options.GetLibraryId(dut), g_Options.GetChannelNo(dut), g_Options.GetOpMode(dut), g_Options.GetBitrate(dut), g_Options.GetParameter(dut)
@@ -158,4 +158,4 @@
 #endif
 #endif // SETTINGS_H_INCLUDED
 
-//  $Id: Settings.h 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: Settings.h 1314 2024-05-26 08:39:33Z quaoar $  Copyright (c) UV Software, Berlin.

@@ -55,6 +55,7 @@
 /*  -----------  includes  ------------------------------------------------
  */
 
+#include "Version.h"
 #include "CANAPI_Defines.h"
 #include "PeakCAN_Defines.h"
 

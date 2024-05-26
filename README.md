@@ -1,4 +1,4 @@
-### CAN API V3 Wrapper Library for Peak-System PCAN&reg; Interfaces (Windows&reg;)
+### CAN API V3 Wrapper Library for PEAK-System PCAN&reg; Interfaces (Windows&reg;)
 
 _Copyright &copy; 2005-2024  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
@@ -10,14 +10,14 @@ CAN API V3 is a wrapper specification to have a uniform CAN Interface API for va
 
 ## PCANBasic-Wrapper
 
-This repo contains the source code for a CAN API V3 compatible wrapper library under Windows for PCAN Interfaces from Peak-System Technik GmbH.
+This repo contains the source code for a CAN API V3 compatible wrapper library under Windows for PCAN Interfaces from PEAK-System Technik GmbH.
 The wrapper library is build upon Peak´s PCANBasic DLL.
 
 ### CAN Interface API, Version 3
 
 ```C++
 /// \name   PeakCAN API
-/// \brief  CAN API V3 driver for Peak-System PCAN interfaces
+/// \brief  CAN API V3 driver for PEAK-System PCAN interfaces
 /// \note   See CCanApi for a description of the overridden methods
 /// \{
 class CPeakCAN : public CCanApi {
@@ -146,7 +146,7 @@ For a list of known bugs and caveats see tab [Issues](https://github.com/uv-soft
 
 ### PCANBasic DLL for Windows&reg;
 
-The PCANBasic DLL can be downloaded form [Peak-System](https://www.peak-system.com/) website. \
+The PCANBasic DLL can be downloaded form [PEAK-System](https://www.peak-system.com/) website. \
 Please note the copyright and license agreements.
 
 ### Wrapper Library for macOS&reg; and Linux&reg;
@@ -168,7 +168,7 @@ You can choose between one of them if you use these portions of this work in who
 ### Trademarks
 
 Windows is a registered trademark of Microsoft Corporation in the United States and/or other countries. \
-PCAN is a registered trademark of Peak-System Technik GmbH, Darmstadt, Germany. \
+PCAN is a registered trademark of PEAK-System Technik GmbH, Darmstadt, Germany. \
 Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. \
 Linux is a registered trademark of Linus Torvalds. \
 All other company, product and service names mentioned herein may be trademarks, registered trademarks, or service marks of their respective owners.

@@ -178,7 +178,7 @@ TEST_F(WriteMessage, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
 
 // @gtest TC05.3: Send a CAN message if CAN channel is not initialized
 //
-// @expected: CANERR_HANDLE (would it not be better to return NOTINIT in C++ API?)
+// @expected: CANERR_NOTINIT (wrapper/driver libraries return CANERR_HANDLE)
 //
 TEST_F(WriteMessage, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
@@ -221,7 +221,13 @@ TEST_F(WriteMessage, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     CCounter counter = CCounter(true);
     // @- DUT1 try to send out one message
     retVal = dut1.WriteMessage(trmMsg);
+#if (OPTION_CANAPI_LIBRARY != 0)
+    EXPECT_EQ(CCanApi::NotInitialized, retVal);
+#else
+    // @note: wrapper/driver libraries return CANERR_HANDLE in this case.
+    // @      Would it not be better to return NOTINIT in C++ API?
     EXPECT_EQ(CCanApi::InvalidHandle, retVal);
+#endif
     // @- DUT2 wait in vain for the message
     retVal = dut2.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
     EXPECT_EQ(CCanApi::ReceiverEmpty, retVal);
@@ -457,7 +463,7 @@ TEST_F(WriteMessage, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
 
 // @gtest TC05.6: Send a CAN message if CAN channel was previously torn down
 //
-// @expected: CANERR_HANDLE (would it not be better to return NOTINIT in C++ API?)
+// @expected: CANERR_NOTINIT (wrapper/driver libraries return CANERR_HANDLE)
 //
 TEST_F(WriteMessage, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
@@ -534,7 +540,13 @@ TEST_F(WriteMessage, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     CCounter counter = CCounter(true);
     // @- DUT1 try to send out one message
     retVal = dut1.WriteMessage(trmMsg);
+#if (OPTION_CANAPI_LIBRARY != 0)
+    EXPECT_EQ(CCanApi::NotInitialized, retVal);
+#else
+    // @note: wrapper/driver libraries return CANERR_HANDLE in this case.
+    // @      Would it not be better to return NOTINIT in C++ API?
     EXPECT_EQ(CCanApi::InvalidHandle, retVal);
+#endif
     // @- DUT2 wait in vain for the message
     retVal = dut2.ReadMessage(rcvMsg, TEST_READ_TIMEOUT);
     EXPECT_EQ(CCanApi::ReceiverEmpty, retVal);
@@ -2211,4 +2223,4 @@ TEST_F(WriteMessage, GTEST_TESTCASE(WithFlagEsi, GTEST_ENABLED)) {
 // @todo: (1) blocking write
 // @todo: (2) test reentrancy
 
-//  $Id: TC05_WriteMessage.cc 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC05_WriteMessage.cc 1314 2024-05-26 08:39:33Z quaoar $  Copyright (c) UV Software, Berlin.

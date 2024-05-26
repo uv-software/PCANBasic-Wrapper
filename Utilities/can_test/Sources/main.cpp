@@ -2,7 +2,8 @@
 //
 //  CAN Tester for generic Interfaces (CAN API V3)
 //
-//  Copyright (c) 2008-2010,2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
+//  Copyright (c) 2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,17 +19,16 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Driver.h"
+#include "Options.h"
 #include "Timer.h"
-#include "Version.h"
-
+#if (SERIAL_CAN_SUPPORTED != 0)
+#include "SerialCAN_Defines.h"
+#endif
 #include <stdio.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
-extern "C" {
-#include "dosopt.h"
-}
 #include <signal.h>
 #include <errno.h>
 #include <time.h>
@@ -39,6 +39,12 @@ extern "C" {
 #define PLATFORM  "x64"
 #elif defined(_WIN32)
 #define PLATFORM  "x86"
+#elif defined(__linux__)
+#define PLATFORM  "Linux"
+#elif defined(__APPLE__)
+#define PLATFORM  "macOS"
+#elif defined(__CYGWIN__)
+#define PLATFORM  "Cygwin"
 #else
 #error Platform not supported
 #endif
@@ -48,166 +54,49 @@ extern "C" {
 #define strcasecmp _stricmp
 #endif
 
-#define RxMODE  (0)
-#define TxMODE  (1)
-#define TxFRAMES  (2)
-#define TxRANDOM  (3)
-
-#define BAUDRATE_STR      0
-#define BAUDRATE_CHR      1
-#define BITRATE_STR       2
-#define BITRATE_CHR       3
-#define VERBOSE_STR       4
-#define VERBOSE_CHR       5
-#define OP_MODE_STR       6
-#define OP_MODE_CHR       7
-#define OP_RTR_STR        8
-#define OP_XTD_STR        9
-#define OP_ERR_STR        10
-#define OP_ERRFRMS_STR    11
-#define OP_MON_STR        12
-#define OP_MONITOR_STR    13
-#define OP_LSTNONLY_STR   14
-#define OP_SHARED_STR     15
-#define OP_SHARED_CHR     16
-#define RECEIVE_STR       17
-#define RECEIVE_CHR       18
-#define NUMBER_STR        19
-#define NUMBER_CHR        20
-#define STOP_STR          21
-#define STOP_CHR          22
-#define TRANSMIT_STR      23
-#define TRANSMIT_CHR      24
-#define FRAMES_STR        25
-#define FRAMES_CHR        26
-#define RANDOM_STR        27
-#define RANDOM_CHR        28
-#define CYCLE_STR         29
-#define CYCLE_CHR         30
-#define USEC_STR          31
-#define USEC_CHR          32
-#define DLC_STR           33
-#define DLC_CHR           34
-#define DLC_LEN           35
-#define CAN_STR           36
-#define CAN_CHR           37
-#define CAN_ID            38
-#define COB_ID            39
-#define LISTBITRATES_STR  40
-#define LISTBOARDS_STR    41
-#define LISTBOARDS_CHR    42
-#define TESTBOARDS_STR    43
-#define TESTBOARDS_CHR    44
-#define HELP              45
-#define QUESTION_MARK     46
-#define ABOUT             47
-#define CHARACTER_MJU     48
-#define VERSION           49
-#define MAX_OPTIONS       50
-
-static char* option[MAX_OPTIONS] = {
-    (char*)"BAUDRATE", (char*)"bd",
-    (char*)"BITRATE", (char*)"br",
-    (char*)"VERBOSE", (char*)"v",
-    (char*)"MODE", (char*)"m",
-    (char*)"RTR",
-    (char*)"XTD",
-    (char*)"ERR", (char*)"ERROR-FRAMES",
-    (char*)"MON", (char*)"MONITOR", (char*)"LISTEN-ONLY",
-    (char*)"SHARED", (char*)"shrd",
-    (char*)"RECEIVE", (char*)"rx",
-    (char*)"NUMBER", (char*)"n",
-    (char*)"STOP", (char*)"s",
-    (char*)"TRANSMIT", (char*)"tx",
-    (char*)"FRAMES", (char*)"fr",
-    (char*)"RANDOM", (char*)"rand",
-    (char*)"CYCLE", (char*)"c",
-    (char*)"USEC", (char*)"u",
-    (char*)"DLC", (char*)"d", (char*)"DATA",
-    (char*)"CAN-ID", (char*)"id", (char*)"i", (char*)"COP-ID",
-    (char*)"LIST-BITRATES",
-    (char*)"LIST-BOARDS", (char*)"list",
-    (char*)"TEST-BOARDS", (char*)"test",
-    (char*)"HELP", (char*)"?",
-    (char*)"ABOUT", (char*)"\xB5",
-    (char*)"VERSION"
-};
-
 class CCanDevice : public CCanDriver {
 public:
     uint64_t ReceiverTest(bool checkCounter = false, uint64_t expectedNumber = 0U, bool stopOnError = false);
     uint64_t TransmitterTest(time_t duration, CANAPI_OpMode_t opMode, uint32_t id = 0x100U, uint8_t dlc = 0U, uint64_t delay = 0U, uint64_t offset = 0U);
     uint64_t TransmitterTest(uint64_t count, CANAPI_OpMode_t opMode, bool random = false, uint32_t id = 0x100U, uint8_t dlc = 0U, uint64_t delay = 0U, uint64_t offset = 0U);
 public:
-    static int ListCanDevices(void);
-    static int TestCanDevices(CANAPI_OpMode_t opMode);
-    static int ListCanBitrates(CANAPI_OpMode_t opMode);
+    int ListCanDevices(void);
+    int TestCanDevices(CANAPI_OpMode_t opMode);
+    int ListCanBitrates(CANAPI_OpMode_t opMode);
+#if (OPTION_CANAPI_LIBRARY == 0)
+    bool WriteJsonFile(const char* filename);
+#else
+    bool IsBlacklisted(int32_t library, int32_t blacklist[]);
+#endif
 };
-
 static void sigterm(int signo);
-static void usage(FILE *stream, const char *program);
-static void version(FILE *stream, const char *program);
 
-static const char *prompt[4] = {"-\b", "/\b", "|\b", "\\\b"};
 static volatile int running = 1;
+static const char* prompt[4] = {"|\b", "/\b", "-\b", "\\\b"};
 
-static CCanDevice canDevice = CCanDevice();
+static CCanDevice canDevice = CCanDevice();  // global due to SignalChannel() in sigterm()
 
-static const char APPLICATION[] = "CAN Tester for " TESTER_INTEFACE ", Version " VERSION_STRING;
-static const char COPYRIGHT[]   = "Copyright (c) " TESTER_COPYRIGHT;
-static const char WARRANTY[]    = "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
-                                  "This is free software, and you are welcome to redistribute it\n" \
-                                  "under certain conditions; type '/VERSION' for details.";
-static const char LICENSE[]     = "This program is free software: you can redistribute it and/or modify\n" \
-                                  "it under the terms of the GNU General Public License as published by\n" \
-                                  "the Free Software Foundation, either version 3 of the License, or\n" \
-                                  "(at your option) any later version.\n\n" \
-                                  "This program is distributed in the hope that it will be useful,\n" \
-                                  "but WITHOUT ANY WARRANTY; without even the implied warranty of\n" \
-                                  "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" \
-                                  "GNU General Public License for more details.\n\n" \
-                                  "You should have received a copy of the GNU General Public License\n" \
-                                  "along with this program.  If not, see <https://www.gnu.org/licenses/>.";
-#define basename(x)  "can_test" // FIXME: Where is my `basename' function?
-
-int main(int argc, const char * argv[]) {
-    int i;
-    int optind;
-    char *optarg;
-
-    CCanDevice::SChannelInfo channel; int hw = 0;
-    int op = 0, rf = 0, xf = 0, ef = 0, lo = 0, sh = 0;
-    int baudrate = CANBDR_250; int bd = 0;
-    int mode = RxMODE, m = 0;
-    int verbose = 0;
-    time_t txtime = 0;
-    int txframes = 0;
-    int can_id = 0x100; int c = 0;
-    int can_dlc = 8; int d = 0;
-    int delay = 0; int t = 0;
-    int number = 0; int n = 0;
-    int stop_on_error = 0;
-    int num_boards = 0;
-    int show_version = 0;
-    char *device, *firmware, *software;
+int main(int argc, const char* argv[]) {
+    CCanDevice::SChannelInfo channel = { (-1), "", "", (-1), "" };
+#if (OPTION_CANAPI_LIBRARY != 0)
+    CCanDevice::SLibraryInfo library = { (-1), "", "" };
+#endif
+    CANAPI_Return_t retVal = CANERR_FATAL;
     char property[CANPROP_MAX_BUFFER_SIZE] = "";
+    char* string = NULL;
 
-    CANAPI_Bitrate_t bitrate = {};
-    bitrate.index = CANBTR_INDEX_250K;
-    bool hasDataPhase = false;
-    bool hasNoSamp = true;
-    CANAPI_OpMode_t opMode = {};
-    opMode.byte = CANMODE_DEFAULT;
-    CANAPI_OpMode_t brMode = {};
-    brMode.byte = CANMODE_DEFAULT;
-    CANAPI_Return_t retVal = 0;
-
-    /* default bit-timing */
-    CANAPI_BusSpeed_t speed = {};
-    (void)CCanDevice::MapIndex2Bitrate(bitrate.index, bitrate);
-    (void)CCanDevice::MapBitrate2Speed(bitrate, speed);
-    (void)op;
-
+    /* device parameter */
+    void* devParam = NULL;
+#if (SERIAL_CAN_SUPPORTED != 0)
+    /* - CAN-over-Serial-Line (SLCAN protocol) */
+    can_sio_param_t sioParam;
+    sioParam.name = NULL;
+    sioParam.attr.options = CANSIO_SLCAN;
+    sioParam.attr.baudrate = CANSIO_BD57600;
+    sioParam.attr.bytesize = CANSIO_8DATABITS;
+    sioParam.attr.parity = CANSIO_NOPARITY;
+    sioParam.attr.stopbits = CANSIO_1STOPBIT;
+#endif
     /* signal handler */
     if ((signal(SIGINT, sigterm) == SIG_ERR) ||
 #if !defined(_WIN32) && !defined(_WIN64)
@@ -218,596 +107,193 @@ int main(int argc, const char * argv[]) {
         return errno;
     }
     /* scan command-line */
-    while ((optind = getOption(argc, (char**)argv, MAX_OPTIONS, option)) != EOF) {
-        switch (optind) {
-        /* option `--baudrate=<baudrate>' (-b) */
-        case BAUDRATE_STR:
-        case BAUDRATE_CHR:
-            if ((bd++)) {
-                fprintf(stderr, "%s: duplicated option /BAUDRATE\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /BAUDRATE\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%li", &baudrate) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /BAUDRATE\n", basename(argv[0]));
-                return 1;
-            }
-            switch (baudrate) {
-                case 0: case 1000: case 1000000: bitrate.index = (int32_t)CANBTR_INDEX_1M; break;
-                case 1: case 800:  case 800000:  bitrate.index = (int32_t)CANBTR_INDEX_800K; break;
-                case 2: case 500:  case 500000:  bitrate.index = (int32_t)CANBTR_INDEX_500K; break;
-                case 3: case 250:  case 250000:  bitrate.index = (int32_t)CANBTR_INDEX_250K; break;
-                case 4: case 125:  case 125000:  bitrate.index = (int32_t)CANBTR_INDEX_125K; break;
-                case 5: case 100:  case 100000:  bitrate.index = (int32_t)CANBTR_INDEX_100K; break;
-                case 6: case 50:   case 50000:   bitrate.index = (int32_t)CANBTR_INDEX_50K; break;
-                case 7: case 20:   case 20000:   bitrate.index = (int32_t)CANBTR_INDEX_20K; break;
-                case 8: case 10:   case 10000:   bitrate.index = (int32_t)CANBTR_INDEX_10K; break;
-                default:                         bitrate.index = (int32_t)-baudrate; break;
-            }
-            if (CCanDevice::MapIndex2Bitrate(bitrate.index, bitrate) != CCanApi::NoError) {
-                fprintf(stderr, "%s: illegal argument for option /BAUDRATE\n", basename(argv[0]));
-                return 1;
-            }
-            if (CCanDevice::MapBitrate2Speed(bitrate, speed) != CCanApi::NoError) {
-                fprintf(stderr, "%s: illegal argument for option /BAUDRATE\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--bitrate=<bit-rate>' as string */
-        case BITRATE_STR:
-        case BITRATE_CHR:
-            if ((bd++)) {
-                fprintf(stderr, "%s: duplicated option /BITRATE\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /BITRATE\n", basename(argv[0]));
-                return 1;
-            }
-            if (CCanDevice::MapString2Bitrate(optarg, bitrate, hasDataPhase, hasNoSamp) != CCanApi::NoError) {
-                fprintf(stderr, "%s: illegal argument for option /BITRATE\n", basename(argv[0]));
-                return 1;
-            }
-            if (CCanDevice::MapBitrate2Speed(bitrate, speed) != CCanApi::NoError) {
-                fprintf(stderr, "%s: illegal argument for option /BITRATE\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--verbose' (-v) */
-        case VERBOSE_STR:
-        case VERBOSE_CHR:
-            if (verbose) {
-                fprintf(stderr, "%s: duplicated option /VERBOSE\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) != NULL) {
-                fprintf(stderr, "%s: illegal argument for option /VERBOSE\n", basename(argv[0]));
-                return 1;
-            }
-            verbose = 1;
-            break;
-        /* option `--mode=(2.0|FDF[+BRS])' (-m) */
-        case OP_MODE_STR:
-        case OP_MODE_CHR:
-            if ((op++)) {
-                fprintf(stderr, "%s: duplicated option /MODE\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /MODE\n", basename(argv[0]));
-                return 1;
-            }
-            if (!strcasecmp(optarg, "DEFAULT") || !strcasecmp(optarg, "CLASSIC") || !strcasecmp(optarg, "CLASSICAL") ||
-                !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0"))
-                opMode.byte |= CANMODE_DEFAULT;
-#if (CAN_FD_SUPPORTED != 0)
-            else if (!strcasecmp(optarg, "CANFD") || !strcasecmp(optarg, "FD") || !strcasecmp(optarg, "FDF"))
-                opMode.byte |= CANMODE_FDOE;
-            else if (!strcasecmp(optarg, "CANFD+BRS") || !strcasecmp(optarg, "FDF+BRS") || !strcasecmp(optarg, "FD+BRS"))
-                opMode.byte |= CANMODE_FDOE | CANMODE_BRSE;
-#endif
-            else {
-                fprintf(stderr, "%s: illegal argument for option /MODE\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--shared' */
-        case OP_SHARED_STR:
-        case OP_SHARED_CHR:
-            if ((sh++)) {
-                fprintf(stderr, "%s: duplicated option /SHARED\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) != NULL) {
-                fprintf(stderr, "%s: illegal argument for option /SHARED\n", basename(argv[0]));
-                return 1;
-            }
-            opMode.byte |= CANMODE_SHRD;
-            break;
-        /* option `--listen-only' */
-        case OP_MON_STR:
-        case OP_MONITOR_STR:
-            if ((lo++)) {
-                fprintf(stderr, "%s: duplicated option /MON\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /MON\n", basename(argv[0]));
-                return 1;
-            }
-            if (!strcasecmp(optarg, "YES") || !strcasecmp(optarg, "Y") || !strcasecmp(optarg, "ON") || !strcasecmp(optarg, "1"))
-                opMode.byte |= CANMODE_MON;
-            else if (!strcasecmp(optarg, "NO") || !strcasecmp(optarg, "N") || !strcasecmp(optarg, "OFF") || !strcasecmp(optarg, "0"))
-                opMode.byte &= ~CANMODE_MON;
-            else {
-                fprintf(stderr, "%s: illegal argument for option /MON\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        case OP_LSTNONLY_STR:
-            if ((lo++)) {
-                fprintf(stderr, "%s: duplicated option /LISTEN-ONLY\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) != NULL) {
-                fprintf(stderr, "%s: illegal argument for option /LISTEN-ONLY\n", basename(argv[0]));
-                return 1;
-            }
-            opMode.byte |= CANMODE_MON;
-            break;
-        /* option `--error-frames' */
-        case OP_ERR_STR:
-            if ((ef++)) {
-                fprintf(stderr, "%s: duplicated option /ERR\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /ERR\n", basename(argv[0]));
-                return 1;
-            }
-            if (!strcasecmp(optarg, "YES") || !strcasecmp(optarg, "Y") || !strcasecmp(optarg, "ON") || !strcasecmp(optarg, "1"))
-                opMode.byte |= CANMODE_ERR;
-            else if (!strcasecmp(optarg, "NO") || !strcasecmp(optarg, "N") || !strcasecmp(optarg, "OFF") || !strcasecmp(optarg, "0"))
-                opMode.byte &= ~CANMODE_ERR;
-            else {
-                fprintf(stderr, "%s: illegal argument for option /ERR\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        case OP_ERRFRMS_STR:
-            if ((ef++)) {
-                fprintf(stderr, "%s: duplicated option /ERROR-FRAMES\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) != NULL) {
-                fprintf(stderr, "%s: illegal argument for option /ERROR-FRAMES\n", basename(argv[0]));
-                return 1;
-            }
-            opMode.byte |= CANMODE_ERR;
-            break;
-        /* option `--no-extended-frames' */
-        case OP_XTD_STR:
-            if ((xf++)) {
-                fprintf(stderr, "%s: duplicated option /XTD\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /XTD\n", basename(argv[0]));
-                return 1;
-            }
-            if (!strcasecmp(optarg, "NO") || !strcasecmp(optarg, "N") || !strcasecmp(optarg, "OFF") || !strcasecmp(optarg, "0"))
-                opMode.byte |= CANMODE_NXTD;
-            else if (!strcasecmp(optarg, "YES") || !strcasecmp(optarg, "Y") || !strcasecmp(optarg, "ON") || !strcasecmp(optarg, "1"))
-                opMode.byte &= ~CANMODE_NXTD;
-            else {
-                fprintf(stderr, "%s: illegal argument for option /XTD\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--no-remote-frames' */
-        case OP_RTR_STR:
-            if ((rf++)) {
-                fprintf(stderr, "%s: duplicated option /RTR\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /RTR\n", basename(argv[0]));
-                return 1;
-            }
-            if (!strcasecmp(optarg, "NO") || !strcasecmp(optarg, "N") || !strcasecmp(optarg, "OFF") || !strcasecmp(optarg, "0"))
-                opMode.byte |= CANMODE_NRTR;
-            else if (!strcasecmp(optarg, "YES") || !strcasecmp(optarg, "Y") || !strcasecmp(optarg, "ON") || !strcasecmp(optarg, "1"))
-                opMode.byte &= ~CANMODE_NRTR;
-            else {
-                fprintf(stderr, "%s: illegal argument for option /RTR\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--receive' (-r) */
-        case RECEIVE_STR:
-        case RECEIVE_CHR:
-            if ((m++)) {
-                fprintf(stderr, "%s: duplicated option /RECEIVE\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) != NULL) {
-                fprintf(stderr, "%s: illegal argument for option /RECEIVE\n", basename(argv[0]));
-                return 1;
-            }
-            mode = RxMODE;
-            break;
-        /* option `--number=<offset>' (-n) */
-        case NUMBER_STR:
-        case NUMBER_CHR:
-            if (n++) {
-                fprintf(stderr, "%s: duplicated option /NUMBER\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /NUMBER\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%li", &number) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /NUMBER\n", basename(argv[0]));
-                return 1;
-            }
-            if (number < 0) {
-                fprintf(stderr, "%s: illegal argument for option /NUMBER\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--stop' (-s) */
-        case STOP_STR:
-        case STOP_CHR:
-            if (stop_on_error) {
-                fprintf(stderr, "%s: duplicated option /STOP\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) != NULL) {
-                fprintf(stderr, "%s: illegal argument for option /STOP\n", basename(argv[0]));
-                return 1;
-            }
-            stop_on_error = 1;
-            break;
-        /* option `--transmit=<duration>' (-t) in [s] */
-        case TRANSMIT_STR:
-        case TRANSMIT_CHR:
-            if ((m++)) {
-                fprintf(stderr, "%s: duplicated option /TRANSMIT\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /TRANSMIT\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%lli", &txtime) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /TRANSMIT\n", basename(argv[0]));
-                return 1;
-            }
-            if (txtime < 0) {
-                fprintf(stderr, "%s: illegal argument for option /TRANSMIT\n", basename(argv[0]));
-                return 1;
-            }
-            mode = TxMODE;
-            break;
-        /* option `--frames=<frames>' (-f) */
-        case FRAMES_STR:
-        case FRAMES_CHR:
-            if ((m++)) {
-                fprintf(stderr, "%s: duplicated option /FRAMES\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /FRAMES\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%li", &txframes) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /FRAMES\n", basename(argv[0]));
-                return 1;
-            }
-            if (txframes < 0) {
-                fprintf(stderr, "%s: illegal argument for option /FRAMES\n", basename(argv[0]));
-                return 1;
-            }
-            mode = TxFRAMES;
-            break;
-        /* option `--random=<frames>' */
-        case RANDOM_STR:
-        case RANDOM_CHR:
-            if ((m++)) {
-                fprintf(stderr, "%s: duplicated option /RANDOM\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /RANDOM\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%li", &txframes) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /RANDOM\n", basename(argv[0]));
-                return 1;
-            }
-            if (txframes < 0) {
-                fprintf(stderr, "%s: illegal argument for option /RANDOM\n", basename(argv[0]));
-                return 1;
-            }
-            if (!d) /* let the tester generate messages of arbitrary length */
-                can_dlc = 0;
-            mode = TxRANDOM;
-            break;
-        /* option `--cycle=<msec>' (-c) */
-        case CYCLE_STR:
-        case CYCLE_CHR:
-            if ((t++)) {
-                fprintf(stderr, "%s: duplicated option /CYCLE\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /CYCLE\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%li", &delay) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /CYCLE\n", basename(argv[0]));
-                return 1;
-            }
-            if ((delay < 0) || (delay > (LONG_MAX / 1000l))) {
-                fprintf(stderr, "%s: illegal argument for option /CYCLE\n", basename(argv[0]));
-                return 1;
-            }
-            delay *= 1000l;
-            break;
-        /* option `--usec=<usec>' (-u) */
-        case USEC_STR:
-        case USEC_CHR:
-            if ((t++)) {
-                fprintf(stderr, "%s: duplicated option /USEC\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /USEC\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%li", &delay) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /USEC\n", basename(argv[0]));
-                return 1;
-            }
-            if (delay < 0) {
-                fprintf(stderr, "%s: illegal argument for option /USEC\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--dlc=<length>' (-d) */
-        case DLC_STR:
-        case DLC_CHR:
-        case DLC_LEN:
-            if ((d++)) {
-                fprintf(stderr, "%s: duplicated option /DLC\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /DLC\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%li", &can_dlc) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /DLC\n", basename(argv[0]));
-                return 1;
-            }
-#if (CAN_FD_SUPPORTED != 0)
-            if ((can_dlc < 0) || (CANFD_MAX_LEN < can_dlc)) {
-#else
-            if ((can_dlc < 0) || (CAN_MAX_LEN < can_dlc)) {
-#endif
-                fprintf(stderr, "%s: illegal argument for option /DLC\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--id=<identifier>' (-i) */
-        case CAN_STR:
-        case CAN_CHR:
-        case CAN_ID:
-        case COB_ID:
-            if ((c++)) {
-                fprintf(stderr, "%s: duplicated option /CAN-ID\n", basename(argv[0]));
-                return 1;
-            }
-            if ((optarg = getOptionParameter()) == NULL) {
-                fprintf(stderr, "%s: missing argument for option /CAN-ID\n", basename(argv[0]));
-                return 1;
-            }
-            if (sscanf_s(optarg, "%li", &can_id) != 1) {
-                fprintf(stderr, "%s: illegal argument for option /CAN-ID\n", basename(argv[0]));
-                return 1;
-            }
-            if ((can_id < 0x000) || (CAN_MAX_XTD_ID < can_id)) { // TODO: to be checked with --mode=NXTD
-                fprintf(stderr, "%s: illegal argument for option /CAN-ID\n", basename(argv[0]));
-                return 1;
-            }
-            break;
-        /* option `--list-bitrates[=(2.0|FDF[+BRS])]' */
-        case LISTBITRATES_STR:
-            if ((optarg = getOptionParameter()) != NULL) {
-                if (!strcasecmp(optarg, "DEFAULT") || !strcasecmp(optarg, "CLASSIC") || !strcasecmp(optarg, "CLASSICAL") ||
-                    !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0"))
-                    brMode.byte |= CANMODE_DEFAULT;
-#if (CAN_FD_SUPPORTED != 0)
-                else if (!strcasecmp(optarg, "CANFD") || !strcasecmp(optarg, "FD") || !strcasecmp(optarg, "FDF"))
-                    brMode.byte |= CANMODE_FDOE;
-                else if (!strcasecmp(optarg, "CANFD+BRS") || !strcasecmp(optarg, "FDF+BRS") || !strcasecmp(optarg, "FD+BRS"))
-                    brMode.byte |= CANMODE_FDOE | CANMODE_BRSE;
-#endif
-                else {
-                    fprintf(stderr, "%s: illegal argument for option /LIST-BITRATES\n", basename(argv[0]));
-                    return 1;
-                }
-            } else {
-                brMode.byte = CANMODE_DEFAULT;
-            }
-            fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
-            /* list standard bit-rates */
-            (void)CCanDevice::ListCanBitrates(brMode);
-            return 0;
-        /* option `--list-boards[=<vendor>]' (-L) */
-        case LISTBOARDS_STR:
-        case LISTBOARDS_CHR:
-            fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
-            /* list all supported interfaces */
-            num_boards = CCanDevice::ListCanDevices(/*getOptionParameter()*/);
-            fprintf(stdout, "Number of supported CAN interfaces: %i\n", num_boards);
-            return (num_boards >= 0) ? 0 : 1;
-        /* option `--test-boards[=<vendor>]' (-T) */
-        case TESTBOARDS_STR:
-        case TESTBOARDS_CHR:
-            fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
-            /* list all available interfaces */
-            num_boards = CCanDevice::TestCanDevices(opMode/*, getOptionParameter()*/);
-            fprintf(stdout, "Number of present CAN interfaces: %i\n", num_boards);
-            return (num_boards >= 0) ? 0 : 1;
-        /* option `--help' (-h) */
-        case HELP:
-        case QUESTION_MARK:
-            usage(stdout, basename(argv[0]));
-            return 0;
-        case ABOUT:
-        case VERSION:
-        case CHARACTER_MJU:
-            version(stdout, basename(argv[0]));
-            return 0;
-        default:
-            usage(stderr, basename(argv[0]));
-            return 1;
-        }
-    }
-    /* - check if one and only one <interface> is given */
-    for (i = 1; i < argc; i++) {
-        if (!isOption(argc, (char**)argv, MAX_OPTIONS, option, i)) {
-            if ((hw++)) {
-                fprintf(stderr, "%s: too many arguments\n", basename(argv[0]));
-                return 1;
-            }
-            /* - search the <interface> by its name in the device list */
-            bool result = CCanDevice::GetFirstChannel(channel);
-            while (result) {
-                if (strcasecmp(argv[i], channel.m_szDeviceName) == 0) {
-                    break;
-                }
-                result = CCanDevice::GetNextChannel(channel);
-            }
-            if (!result) {
-                fprintf(stderr, "%s: illegal argument\n", basename(argv[0]));
-                return 1;
-            }
-        }
-    }
-    if (!hw) {
-        fprintf(stderr, "%s: not enough arguments\n", basename(argv[0]));
-        return 1;
-    }
-#if (CAN_FD_SUPPORTED != 0)
-    /* - check bit-timing index (n/a for CAN FD) */
-    if (opMode.fdoe && (bitrate.btr.frequency <= 0)) {
-        fprintf(stderr, "%s: illegal combination of options /MODE and /BAUDRATE\n", basename(argv[0]));
-        return 1;
-    }
-    /* - check data length and make CAN FD DLC (0x0..0xF) */
-    if (!opMode.fdoe && (can_dlc > CAN_MAX_LEN)) {
-        fprintf(stderr, "%s: illegal combination of options /MODE and /DLC\n", basename(argv[0]));
-        return 1;
-    } else {
-        if (can_dlc > 48) can_dlc = 0xF;
-        else if (can_dlc > 32) can_dlc = 0xE;
-        else if (can_dlc > 24) can_dlc = 0xD;
-        else if (can_dlc > 20) can_dlc = 0xC;
-        else if (can_dlc > 16) can_dlc = 0xB;
-        else if (can_dlc > 12) can_dlc = 0xA;
-        else if (can_dlc > 8) can_dlc = 0x9;
-    }
-#endif
-    /* - check operation mode flags */
-    if ((mode != RxMODE) && opMode.mon) {
-        fprintf(stderr, "%s: illegal option /MON:YES alias /LISTEN-ONLY for transmitter test\n", basename(argv[0]));
-        return 1;
-    }
-    if ((mode != RxMODE) && opMode.err) {
-        fprintf(stderr, "%s: illegal option /ERR:YES alias /ERROR-FRAMES for transmitter test\n", basename(argv[0]));
-        return 1;
-    }
-    if ((mode != RxMODE) && opMode.nxtd) {
-        fprintf(stderr, "%s: illegal option /XTD:NO for transmitter test\n", basename(argv[0]));
-        return 1;
-    }
-    if ((mode != RxMODE) && opMode.nrtr) {
-        fprintf(stderr, "%s: illegal option /RTR:NO for transmitter test\n", basename(argv[0]));
+    SOptions opts = SOptions();
+    if (opts.ScanCommanline(argc, argv) != 0) {
+        /* program usage already shown */
         return 1;
     }
     /* CAN Tester for generic CAN interfaces */
-    fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, WARRANTY);
-    /* - show operation mode and bit-rate settings */
-    if (verbose) {
-        fprintf(stdout, "Op.-mode=%s", (opMode.byte & CANMODE_FDOE) ? "CANFD" : "CAN2.0");
-        if ((opMode.byte & CANMODE_BRSE)) fprintf(stdout, "+BRS");
-        if ((opMode.byte & CANMODE_NISO)) fprintf(stdout, "+NISO");
-        if ((opMode.byte & CANMODE_SHRD)) fprintf(stdout, "+SHRD");
-        if ((opMode.byte & CANMODE_NXTD)) fprintf(stdout, "+NXTD");
-        if ((opMode.byte & CANMODE_NRTR)) fprintf(stdout, "+NRTR");
-        if ((opMode.byte & CANMODE_ERR)) fprintf(stdout, "+ERR");
-        if ((opMode.byte & CANMODE_MON)) fprintf(stdout, "+MON");
-        fprintf(stdout, " (op_mode=%02Xh)\n", opMode.byte);
-        if (bitrate.btr.frequency > 0) {
-            fprintf(stdout, "Bit-rate=%.0fkbps@%.1f%%", speed.nominal.speed / 1000., speed.nominal.samplepoint * 100.);
-#if (CAN_FD_SUPPORTED != 0)
-            if (opMode.byte & CANMODE_BRSE)
-                fprintf(stdout, ":%.0fkbps@%.1f%%", speed.data.speed / 1000., speed.data.samplepoint * 100.);
+    opts.ShowGreetings(stdout);
+#if (OPTION_CANAPI_LIBRARY != 0)
+    /* - set search path for JSON files (if set) */
+    if (opts.m_szSearchPath) {
+        if (!CCanDriver::SetSearchPath(opts.m_szSearchPath)) {
+            fprintf(stderr, "+++ error: search path for JSON files could not be set\n");
+            return 1;
+        }
+        if (opts.m_fVerbose)
+            fprintf(stdout, "Pathname=%s\n", opts.m_szSearchPath);
+    }
+#else
+    /* - write library info and device list into JSON file */
+    if (opts.m_szJsonFilename) {
+        if (!canDevice.WriteJsonFile(opts.m_szJsonFilename)) {
+            fprintf(stderr, "+++ error: JSON file could not be written\n");
+            return 1;
+        }
+        if (opts.m_fVerbose)
+            fprintf(stdout, "JsonFile=%s\n", opts.m_szJsonFilename);
+
+    }
 #endif
-            (void)CCanDevice::MapBitrate2String(bitrate, property, CANPROP_MAX_BUFFER_SIZE,
-                                                (opMode.byte & CANMODE_BRSE), hasNoSamp);
-            fprintf(stdout, " (%s)\n\n", property);
+    /* - list all supported devices (optional) */
+    if (opts.m_fListBoards) {
+        int n = canDevice.ListCanDevices();
+        fprintf(stdout, "Number of supported CAN interfaces: %i\n", n);
+    }
+    /* - list all present devices (optional) */
+    if (opts.m_fTestBoards) {
+        int n = canDevice.TestCanDevices(opts.m_OpMode);
+        fprintf(stdout, "Number of present CAN interfaces: %i\n", n);
+    }
+    /* - list bit-rate settings (optional) */
+    if (opts.m_fListBitrates) {
+        (void)canDevice.ListCanBitrates(opts.m_OpMode);
+    }
+    /* - exit if no interface is given */
+    if (opts.m_fExit) {
+        return 0;
+    }
+    /* - show operation mode, bit-rate settings and acceptance filter (if set) */
+    if (opts.m_fVerbose) {
+        /* -- operation mode */
+        fprintf(stdout, "Op.-mode=%s", (opts.m_OpMode.byte & CANMODE_FDOE) ? "CANFD" : "CAN2.0");
+        if ((opts.m_OpMode.byte & CANMODE_BRSE)) fprintf(stdout, "+BRS");
+        if ((opts.m_OpMode.byte & CANMODE_NISO)) fprintf(stdout, "+NISO");
+        if ((opts.m_OpMode.byte & CANMODE_SHRD)) fprintf(stdout, "+SHRD");
+        if ((opts.m_OpMode.byte & CANMODE_NXTD)) fprintf(stdout, "+NXTD");
+        if ((opts.m_OpMode.byte & CANMODE_NRTR)) fprintf(stdout, "+NRTR");
+        if ((opts.m_OpMode.byte & CANMODE_ERR)) fprintf(stdout, "+ERR");
+        if ((opts.m_OpMode.byte & CANMODE_MON)) fprintf(stdout, "+MON");
+        fprintf(stdout, " (op_mode=%02Xh)\n", opts.m_OpMode.byte);
+        /* -- bit-rate settings */
+        if (opts.m_Bitrate.btr.frequency > 0) {
+            fprintf(stdout, "Bit-rate=%.0fkbps@%.1f%%", opts.m_BusSpeed.nominal.speed / 1000., opts.m_BusSpeed.nominal.samplepoint * 100.);
+#if (CAN_FD_SUPPORTED != 0)
+            if (opts.m_OpMode.byte & CANMODE_BRSE)
+                fprintf(stdout, ":%.0fkbps@%.1f%%", opts.m_BusSpeed.data.speed / 1000., opts.m_BusSpeed.data.samplepoint * 100.);
+#endif
+            (void)CCanDevice::MapBitrate2String(opts.m_Bitrate, property, CANPROP_MAX_BUFFER_SIZE,
+                                                (opts.m_OpMode.byte & CANMODE_BRSE), opts.m_bHasNoSamp);
+            fprintf(stdout, " (%s)\n", property);
         }
         else {
-            fprintf(stdout, "Baudrate=%.0fkbps@%.1f%% (index %i)\n\n",
-                             speed.nominal.speed / 1000.,
-                             speed.nominal.samplepoint * 100., -bitrate.index);
+            fprintf(stdout, "Baudrate=%.0fkbps@%.1f%% (index %i)\n",
+                             opts.m_BusSpeed.nominal.speed / 1000.,
+                             opts.m_BusSpeed.nominal.samplepoint * 100., -opts.m_Bitrate.index);
         }
+        /* -- acceptance filter (if set) */
+        if ((opts.m_StdFilter.m_u32Code != CANACC_CODE_11BIT) || (opts.m_StdFilter.m_u32Mask != CANACC_MASK_11BIT))
+            fprintf(stdout, "Acc.-filter 11-bit=set (code=%03Xh, mask=%03Xh)\n", opts.m_StdFilter.m_u32Code, opts.m_StdFilter.m_u32Mask);
+        if (((opts.m_XtdFilter.m_u32Code != CANACC_CODE_29BIT) || (opts.m_XtdFilter.m_u32Mask != CANACC_MASK_29BIT)) && !opts.m_OpMode.nxtd)
+            fprintf(stdout, "Acc.-filter 29-bit=set (code=%08Xh, mask=%08Xh)\n", opts.m_XtdFilter.m_u32Code, opts.m_XtdFilter.m_u32Mask);
+        fputc('\n', stdout);
     }
+    /* - search the <interface> by its name in the device list */
+    bool flagFound = false;
+#if (OPTION_CANAPI_LIBRARY != 0)
+    bool iterLibrary = CCanDevice::GetFirstLibrary(library);
+    while (iterLibrary && !flagFound) {
+        bool iterChannel = CCanDevice::GetFirstChannel(library.m_nLibraryId, channel);
+        while (iterChannel) {
+            if (strcasecmp(opts.m_szInterface, channel.m_szDeviceName) == 0) {
+                flagFound = true;
+                break;
+            }
+            iterChannel = CCanDevice::GetNextChannel(channel);
+        }
+        iterLibrary = CCanDevice::GetNextLibrary(library);
+    }
+#else
+#if (SERIAL_CAN_SUPPORTED == 0)
+    /* -- loop over build-in device list (old 'can_boards[]') */
+    bool iterChannel = CCanDevice::GetFirstChannel(channel);
+    while (iterChannel) {
+        if (strcasecmp(opts.m_szInterface, channel.m_szDeviceName) == 0) {
+            flagFound = true;
+            break;
+        }
+        iterChannel = CCanDevice::GetNextChannel(channel);
+    }
+#else
+    /* -- note: SerialCAN has no build-in device list (fake it) */
+    channel.m_nLibraryId = CANLIB_SERIALCAN;
+    channel.m_nChannelNo = CANDEV_SERIAL;
+    flagFound = true;
+#endif
+#endif
+    if (!flagFound) {
+        fprintf(stderr, "+++ error: %s could not be found\n", opts.m_szInterface);
+        return 1;
+    }
+#if (SERIAL_CAN_SUPPORTED != 0)
+    /* - CAN-over-Serial-Line (SLCAN protocol) */
+    if (channel.m_nLibraryId == CANLIB_SERIALCAN) {
+        channel.m_nChannelNo = CANDEV_SERIAL;  // note: override channel number from JSON file
+        sioParam.name = opts.m_szInterface;
+        devParam = (void*)&sioParam;
+    }
+#endif
     /* - initialize interface */
-    fprintf(stdout, "Hardware=%s...", channel.m_szDeviceName);
+    fprintf(stdout, "Hardware=%s...", opts.m_szInterface);
     fflush (stdout);
-    retVal = canDevice.InitializeChannel(channel.m_nChannelNo, opMode);
+#if (OPTION_CANAPI_LIBRARY != 0)
+    retVal = canDevice.InitializeChannel(channel.m_nLibraryId, channel.m_nChannelNo, opts.m_OpMode, devParam);
+#else
+    retVal = canDevice.InitializeChannel(channel.m_nChannelNo, opts.m_OpMode, devParam);
+#endif
     if (retVal != CCanApi::NoError) {
         fprintf(stdout, "FAILED!\n");
         fprintf(stderr, "+++ error: CAN Controller could not be initialized (%i)", retVal);
-        if (retVal == CCanApi::NotSupported)
-            fprintf(stderr, "\n           - possibly CAN operating mode %02Xh not supported", opMode.byte);
+        if (retVal == CCanApi::IllegalParameter)
+            fprintf(stderr, "\n           - possibly CAN operating mode %02Xh not supported", opts.m_OpMode.byte);
         fputc('\n', stderr);
-        goto finalize;
+        goto farewell;
+    }
+    /* -- set acceptance filter for 11-bit IDs */
+    if ((opts.m_StdFilter.m_u32Code != CANACC_CODE_11BIT) || (opts.m_StdFilter.m_u32Mask != CANACC_MASK_11BIT)) {
+        retVal = canDevice.SetFilter11Bit(opts.m_StdFilter.m_u32Code, opts.m_StdFilter.m_u32Mask);
+        if (retVal != CCanApi::NoError) {
+            fprintf(stdout, "FAILED!\n");
+            fprintf(stderr, "+++ error: CAN acceptance filter could not be set (%i)\n", retVal);
+            goto teardown;
+        }
+    }
+    /* -- set acceptance filter for 29-bit IDs */
+    if (((opts.m_XtdFilter.m_u32Code != CANACC_CODE_29BIT) || (opts.m_XtdFilter.m_u32Mask != CANACC_MASK_29BIT)) && !opts.m_OpMode.nxtd) {
+        retVal = canDevice.SetFilter29Bit(opts.m_XtdFilter.m_u32Code, opts.m_XtdFilter.m_u32Mask);
+        if (retVal != CCanApi::NoError) {
+            fprintf(stdout, "FAILED!\n");
+            fprintf(stderr, "+++ error: CAN acceptance filter could not be set (%i)\n", retVal);
+            goto teardown;
+        }
     }
     fprintf(stdout, "OK!\n");
     /* - start communication */
-    if (bitrate.btr.frequency > 0) {
-        fprintf(stdout, "Bit-rate=%.0fkbps", speed.nominal.speed / 1000.);
+    if (opts.m_Bitrate.btr.frequency > 0) {
+        fprintf(stdout, "Bit-rate=%.0fkbps", opts.m_BusSpeed.nominal.speed / 1000.);
 #if (CAN_FD_SUPPORTED != 0)
-        if (opMode.byte & CANMODE_BRSE)
-            fprintf(stdout, ":%.0fkbps", speed.data.speed / 1000.);
-        else if (opMode.byte & CANMODE_FDOE)
-            fprintf(stdout, ":%.0fkbps", speed.nominal.speed / 1000.);
+        if (opts.m_OpMode.byte & CANMODE_BRSE)
+            fprintf(stdout, ":%.0fkbps", opts.m_BusSpeed.data.speed / 1000.);
+        else if (opts.m_OpMode.byte & CANMODE_FDOE)
+            fprintf(stdout, ":%.0fkbps", opts.m_BusSpeed.nominal.speed / 1000.);
 #endif
         fprintf(stdout, "...");
     }
     else {
         fprintf(stdout, "Baudrate=%skbps...",
-            bitrate.index == CANBTR_INDEX_1M   ? "1000" :
-            bitrate.index == CANBTR_INDEX_800K ? "800" :
-            bitrate.index == CANBTR_INDEX_500K ? "500" :
-            bitrate.index == CANBTR_INDEX_250K ? "250" :
-            bitrate.index == CANBTR_INDEX_125K ? "125" :
-            bitrate.index == CANBTR_INDEX_100K ? "100" :
-            bitrate.index == CANBTR_INDEX_50K  ? "50" :
-            bitrate.index == CANBTR_INDEX_20K  ? "20" :
-            bitrate.index == CANBTR_INDEX_10K  ? "10" : "?");
+            opts.m_Bitrate.index == CANBTR_INDEX_1M   ? "1000" :
+            opts.m_Bitrate.index == CANBTR_INDEX_800K ? "800" :
+            opts.m_Bitrate.index == CANBTR_INDEX_500K ? "500" :
+            opts.m_Bitrate.index == CANBTR_INDEX_250K ? "250" :
+            opts.m_Bitrate.index == CANBTR_INDEX_125K ? "125" :
+            opts.m_Bitrate.index == CANBTR_INDEX_100K ? "100" :
+            opts.m_Bitrate.index == CANBTR_INDEX_50K  ? "50" :
+            opts.m_Bitrate.index == CANBTR_INDEX_20K  ? "20" :
+            opts.m_Bitrate.index == CANBTR_INDEX_10K  ? "10" : "?");
     }
     fflush(stdout);
-    retVal = canDevice.StartController(bitrate);
+    retVal = canDevice.StartController(opts.m_Bitrate);
     if (retVal != CCanApi::NoError) {
         fprintf(stdout, "FAILED!\n");
         fprintf(stderr, "+++ error: CAN Controller could not be started (%i)\n", retVal);
@@ -815,65 +301,135 @@ int main(int argc, const char * argv[]) {
     }
     fprintf(stdout, "OK!\n");
     /* - do your job well: */
-    switch (mode) {
-    case TxMODE:    /* transmitter test (duration) */
-        (void)canDevice.TransmitterTest((time_t)txtime, opMode, (uint32_t)can_id, (uint8_t)can_dlc, (uint64_t)delay, (uint64_t)number);
+    switch (opts.m_TestMode) {
+    case SOptions::TxMODE:   /* transmitter test (duration) */
+        (void)canDevice.TransmitterTest(opts.m_nTxTime, opts.m_OpMode, opts.m_nTxCanId, opts.m_nTxCanDlc, opts.m_nTxDelay, opts.m_nStartNumber);
         break;
-    case TxFRAMES:  /* transmitter test (frames) */
-        (void)canDevice.TransmitterTest((uint64_t)txframes, opMode, false, (uint32_t)can_id, (uint8_t)can_dlc, (uint64_t)delay, (uint64_t)number);
+    case SOptions::TxFRAMES: /* transmitter test (frames) */
+        (void)canDevice.TransmitterTest(opts.m_nTxFrames, opts.m_OpMode, false, opts.m_nTxCanId, opts.m_nTxCanDlc, opts.m_nTxDelay, opts.m_nStartNumber);
         break;
-    case TxRANDOM:  /* transmitter test (random) */
-        (void)canDevice.TransmitterTest((uint64_t)txframes, opMode, true, (uint32_t)can_id, (uint8_t)can_dlc, (uint64_t)delay, (uint64_t)number);
+    case SOptions::TxRANDOM: /* transmitter test (random) */
+        (void)canDevice.TransmitterTest(opts.m_nTxFrames, opts.m_OpMode, true, opts.m_nTxCanId, opts.m_nTxCanDlc, opts.m_nTxDelay, opts.m_nStartNumber);
         break;
-    default:        /* receiver test (abort with Ctrl+C) */
-        (void)canDevice.ReceiverTest((bool)n, (uint64_t)number, (bool)stop_on_error);
+    case SOptions::RxMODE:   /* receiver test (abort with Ctrl+C) */
+    default:
+        (void)canDevice.ReceiverTest(opts.m_fCheckNumber, opts.m_nStartNumber, opts.m_fStopOnError);
         break;
     }
     /* - show interface information */
-    if ((device = canDevice.GetHardwareVersion()) != NULL)
-        fprintf(stdout, "Hardware: %s\n", device);
-    if ((firmware = canDevice.GetFirmwareVersion()) != NULL)
-        fprintf(stdout, "Firmware: %s\n", firmware);
-    if ((software = CCanDevice::GetVersion()) != NULL)
-        fprintf(stdout, "Software: %s\n", software);
+    if ((string = canDevice.GetHardwareVersion()) != NULL)
+        fprintf(stdout, "Hardware: %s\n", string);
+    if ((string = canDevice.GetFirmwareVersion()) != NULL)
+        fprintf(stdout, "Firmware: %s\n", string);
+#if (OPTION_CANAPI_LIBRARY != 0)
+    if ((string = canDevice.GetSoftwareVersion()) != NULL)
+        fprintf(stdout, "Software: %s\n", string);
+    if ((string = CCanDevice::GetVersion()) != NULL)
+        fprintf(stdout, "          %s\n", string);
+#else
+    if ((string = CCanDevice::GetVersion()) != NULL)
+        fprintf(stdout, "Software: %s\n", string);
+#endif
 teardown:
     /* - teardown the interface*/
     retVal = canDevice.TeardownChannel();
     if (retVal != CCanApi::NoError) {
         fprintf(stderr, "+++ error: CAN Controller could not be reset (%i)\n", retVal);
-        goto finalize;
+        goto farewell;
     }
-finalize:
+farewell:
     /* So long and farewell! */
-    fprintf(stdout, "%s\n", COPYRIGHT);
+    opts.ShowFarewell(stdout);
     return retVal;
 }
 
+/*  List all supported CAN devices from CAN device list :
+ *  - wrapper library: the device list is hard-wired (cf. can_boards[])
+ *  - loader library: the device list is read from JSON configurations files
+ *  return the number of supported CAN devices
+ */
 int CCanDevice::ListCanDevices(void) {
-    CCanDevice::SChannelInfo info;
     int n = 0;
 
-    fprintf(stdout, "Suppored hardware:\n");
-    bool result = CCanDevice::GetFirstChannel(info);
-    while (result) {
-        fprintf(stdout, "\"%s\" (VendorName=\"%s\", LibraryId=%" PRIi32 ", ChannelNo=%" PRIi32 ")\n",
-                         info.m_szDeviceName, info.m_szVendorName, info.m_nLibraryId, info.m_nChannelNo);
-        n++;
-        result = CCanDevice::GetNextChannel(info);
+    fprintf(stdout, "Supported hardware:\n");
+#if (OPTION_CANAPI_LIBRARY != 0)
+    CCanDevice::SLibraryInfo library = { (-1), "", "" };
+    bool iterLibrary = CCanDevice::GetFirstLibrary(library);
+    while (iterLibrary) {
+        CCanDevice::SChannelInfo channel = { (-1), "", "", (-1), "" };
+        bool iterChannel = CCanDevice::GetFirstChannel(library.m_nLibraryId, channel);
+        while (iterChannel) {
+            fprintf(stdout, "\"%s\" (VendorName=\"%s\", LibraryId=%" PRIi32 ", ChannelNo=%" PRIi32 ")\n",
+                            channel.m_szDeviceName, channel.m_szVendorName, channel.m_nLibraryId, channel.m_nChannelNo);
+            n++;
+            iterChannel = CCanDevice::GetNextChannel(channel);
+        }
+        iterLibrary = CCanDevice::GetNextLibrary(library);
     }
+#else
+    CCanDevice::SChannelInfo channel = { (-1), "", "", (-1), "" };
+    bool iterChannel = CCanDevice::GetFirstChannel(channel);
+    while (iterChannel) {
+        fprintf(stdout, "\"%s\" (VendorName=\"%s\", LibraryId=%" PRIi32 ", ChannelNo=%" PRIi32 ")\n",
+                        channel.m_szDeviceName, channel.m_szVendorName, channel.m_nLibraryId, channel.m_nChannelNo);
+        n++;
+        iterChannel = CCanDevice::GetNextChannel(channel);
+    }
+#endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+    if (n == 0) {
+        fprintf(stdout, "Check the Device Manager for compatible serial communication devices!\n");
+    }
+#endif
     return n;
 }
 
+/*  Test all supported CAN devices from CAN device list :
+ *  - wrapper library: the device list is hard-wired (cf. can_boards[])
+ *  - loader library: the device list is read from JSON configurations files
+ *  * Also check if the given operation mode is supported by the CAN device.
+ *  return the number of available CAN devices
+ */
 int CCanDevice::TestCanDevices(CANAPI_OpMode_t opMode) {
-    CCanDevice::SChannelInfo info;
     int n = 0;
 
-    bool result = CCanDevice::GetFirstChannel(info);
-    while (result) {
-        fprintf(stdout, "Hardware=%s...", info.m_szDeviceName);
+    fprintf(stdout, "Available hardware:\n");
+#if (OPTION_CANAPI_LIBRARY != 0)
+    int32_t blacklist[] = TESTER_BLACKLIST;
+    CCanDevice::SLibraryInfo library = { (-1), "", "" };
+    bool iterLibrary = CCanDevice::GetFirstLibrary(library);
+    while (iterLibrary) {
+        CCanDevice::SChannelInfo channel = { (-1), "", "", (-1), "" };
+        bool iterChannel = CCanDevice::GetFirstChannel(library.m_nLibraryId, channel);
+        while (iterChannel && !IsBlacklisted(library.m_nLibraryId, blacklist)) {
+            fprintf(stdout, "Hardware=%s...", channel.m_szDeviceName);
+            fflush(stdout);
+            EChannelState state;
+            CANAPI_Return_t retVal = CCanDevice::ProbeChannel(library.m_nLibraryId, channel.m_nChannelNo, opMode, state);
+            if ((retVal == CCanApi::NoError) || (retVal == CCanApi::IllegalParameter)) {
+                CTimer::Delay(333U * CTimer::MSEC);  // to fake probing a hardware
+                switch (state) {
+                    case CCanApi::ChannelOccupied: fprintf(stdout, "occupied\n"); n++; break;
+                    case CCanApi::ChannelAvailable: fprintf(stdout, "available\n"); n++; break;
+                    case CCanApi::ChannelNotAvailable: fprintf(stdout, "not available\n"); break;
+                    default: fprintf(stdout, "not testable\n"); break;
+                }
+                if (retVal == CCanApi::IllegalParameter)
+                    fprintf(stderr, "+++ warning: CAN operation mode not supported (%02xh)\n", opMode.byte);
+            } else
+                fprintf(stdout, "FAILED!\n");
+            iterChannel = CCanDevice::GetNextChannel(channel);
+        }
+        iterLibrary = CCanDevice::GetNextLibrary(library);
+    }
+#else
+    CCanDevice::SChannelInfo channel = { (-1), "", "", (-1), "" };
+    bool iterChannel = CCanDevice::GetFirstChannel(channel);
+    while (iterChannel) {
+        fprintf(stdout, "Hardware=%s...", channel.m_szDeviceName);
         fflush(stdout);
         EChannelState state;
-        CANAPI_Return_t retVal = CCanDevice::ProbeChannel(info.m_nChannelNo, opMode, state);
+        CANAPI_Return_t retVal = CCanDevice::ProbeChannel(channel.m_nChannelNo, opMode, state);
         if ((retVal == CCanApi::NoError) || (retVal == CCanApi::IllegalParameter)) {
             CTimer::Delay(333U * CTimer::MSEC);  // to fake probing a hardware
             switch (state) {
@@ -886,11 +442,32 @@ int CCanDevice::TestCanDevices(CANAPI_OpMode_t opMode) {
                 fprintf(stderr, "+++ warning: CAN operation mode not supported (%02xh)\n", opMode.byte);
         } else
             fprintf(stdout, "FAILED!\n");
-        result = CCanDevice::GetNextChannel(info);
+        iterChannel = CCanDevice::GetNextChannel(channel);
     }
+#endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+    if (n == 0) {
+        fprintf(stdout, "Check the Device Manager for compatible serial communication devices!\n");
+    }
+#endif
     return n;
 }
 
+#if (OPTION_CANAPI_LIBRARY != 0)
+bool CCanDevice::IsBlacklisted(int32_t library, int32_t blacklist[]) {
+    for (int i = 0; blacklist[i] != EOF; i++)
+        if (library == blacklist[i])
+            return true;
+    return false;
+}
+#endif
+
+/*  List standard CAN bit-rate settings (only a choise):
+ *  - CAN 2.0 (Classical CAN)
+ *  - CAN FD w/0 Bit-rate Switching (BRS)
+ *  - CAN FD with Bit-rate Switching (BRS)
+ *  return the number of standard CAN bit-rate settings
+ */
 int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
     CANAPI_Bitrate_t bitrate[9];
     CANAPI_BusSpeed_t speed;
@@ -904,7 +481,7 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
 #if (CAN_FD_SUPPORTED != 0)
     if (opMode.fdoe) {
         if (opMode.brse) {
-            fprintf(stdout, "CAN FD with Bit-rate Switching (BRS):\n");
+            fprintf(stdout, "Bitrates - CAN FD with Bit-rate Switching (BRS):\n");
             BITRATE_FD_1M8M(bitrate[n]); n += 1;
             BITRATE_FD_500K4M(bitrate[n]); n += 1;
             BITRATE_FD_250K2M(bitrate[n]); n += 1;
@@ -913,7 +490,7 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
             hasNoSamp = false;
         }
         else {
-            fprintf(stdout, "CAN FD without Bit-rate Switching (BRS):\n");
+            fprintf(stdout, "Bitrates - CAN FD without Bit-rate Switching (BRS):\n");
             BITRATE_FD_1M(bitrate[n]); n += 1;
             BITRATE_FD_500K(bitrate[n]); n += 1;
             BITRATE_FD_250K(bitrate[n]); n += 1;
@@ -926,7 +503,7 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
 #else
     {
 #endif
-        fprintf(stdout, "Classical CAN:\n");
+        fprintf(stdout, "Bitrates - CAN 2.0 (Classical CAN):\n");
         BITRATE_1M(bitrate[n]); n += 1;
 #if (BITRATE_800K_UNSUPPORTED == 0)
         BITRATE_800K(bitrate[n]); n += 1;
@@ -958,6 +535,123 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
     return n;
 }
 
+#if (OPTION_CANAPI_LIBRARY == 0)
+/*  Write the CAN device list into a JSON configuration file
+ *  * only supported by CAN API wrapper libraries
+ *  * the CAN API loader library read the JSON files
+ */
+bool CCanDevice::WriteJsonFile(const char* filename) {
+    FILE* fp = fopen(filename, "w");
+    if (!fp) {
+        perror("");
+        return false;
+    }
+    fprintf(fp,
+            "{\n"
+            "  \"format\": {\n"
+            "    \"major\": 1,\n"
+            "    \"minor\": 0\n"
+            "  },\n"
+            "  \"platform\": \"%s\",\n"
+            "  \"vendor\": {\n",
+            TESTER_PLATFORM
+           );
+#if (SERIAL_CAN_SUPPORTED == 0)
+    // oops, we need the name of wrapper library
+    char wrapper[CANPROP_MAX_BUFFER_SIZE] = "";
+    if (GetProperty(CANPROP_GET_LIBRARY_DLLNAME, (void*)wrapper, CANPROP_MAX_BUFFER_SIZE) != CCanApi::NoError)
+        strcpy(wrapper, "(unknown)");
+    // loop over the defive list
+    CCanDevice::SChannelInfo channel = { (-1), "", "", (-1), "" };
+    bool iterChannel = CCanDevice::GetFirstChannel(channel);
+    if (iterChannel) {
+        fprintf(fp,
+            "    \"id\": %" PRIi32 ",\n"
+            "    \"name\": \"%s\",\n"
+            "    \"driver\": \"%s\",\n"
+            "    \"library\": \"%s\",\n"
+            "    \"legacy\": false\n",
+            channel.m_nLibraryId,
+            channel.m_szVendorName,
+            channel.m_szDeviceDllName,
+            wrapper
+           );
+    }
+    fprintf(fp,
+            "  },\n"
+            "  \"boards\" : [\n"
+           );
+    int n = 0;
+    while (iterChannel) {
+        fprintf(fp,
+            "    {\n"
+            "      \"id\": %" PRIi32 ",\n"
+            "      \"name\": \"%s\",\n"
+            "      \"alias\": \"%s%i\"\n",
+            channel.m_nChannelNo,
+            channel.m_szDeviceName,
+            TESTER_ALIASNAME, n++
+           );
+        iterChannel = CCanDevice::GetNextChannel(channel);
+        fprintf(fp,
+            "    %s\n", iterChannel ? "}," : "}"
+           );
+    }
+#else
+    /* SerialCAN: CAN-over-Serial-Line interfaces */
+    fprintf(fp,
+            "    \"id\": %i,\n"
+            "    \"name\": \"%s\",\n"
+            "    \"driver\": \"%s\",\n"
+            "    \"library\": \"%s\",\n"
+            "    \"legacy\": false\n"
+            "  },\n"
+            "  \"boards\": [\n",
+            SLCAN_LIB_ID,
+            "CAN-over-Serial-Line (SLCAN protocol)",
+            SLCAN_LIB_DRIVER,
+            SLCAN_LIB_WRAPPER
+           );
+    for (int i = 0; i < 8; i++) {
+        fprintf(fp,
+            "    {\n"
+            "      \"id\": %i,\n"
+            "      \"name\": \"%s%i\",\n"
+            "      \"alias\": \"%s%i\"\n",
+            i, 
+#if !defined(_WIN32) && !defined(_WIN64)
+            TESTER_TTYNAME, i,
+#else
+            TESTER_TTYNAME, i + 1,
+#endif
+            TESTER_ALIASNAME, i
+           );
+        fprintf(fp,
+            "    %s\n", i < 7 ? "}," : "}"
+           );
+    }
+#endif
+    fprintf(fp,
+            "  ]\n"
+            "}\n"
+           );
+    if (fclose(fp) != 0) {
+        perror("");
+        return false;
+    }
+    return true;
+}
+#endif
+
+/*  Job - transmitter test:
+ *  - duration (in [s])
+ *  - operation mode
+ *  - CAN identifier
+ *  - CAN data length code
+ *  - delay between two messages
+ *  - offset for first up counting number
+ *  * Note: Most CAN drivers use a transmission queue that stalls after the time period has expired.
+ */
 uint64_t CCanDevice::TransmitterTest(time_t duration, CANAPI_OpMode_t opMode, uint32_t id, uint8_t dlc, uint64_t delay, uint64_t offset) {
     CANAPI_Message_t message;
     CANAPI_Return_t retVal;
@@ -1012,7 +706,7 @@ retry_tx_test:
             fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
             fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
             fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-            fprintf(stdout, "Time=%llisec\n\n", time(NULL) - start);
+            fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
             return frames;
         }
     }
@@ -1021,12 +715,22 @@ retry_tx_test:
     fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
     fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
     fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-    fprintf(stdout, "Time=%llisec\n\n", time(NULL) - start);
+    fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
 
     CTimer::Delay(1U * CTimer::SEC);  /* afterburner */
     return frames;
 }
 
+/*  Job - transmitter test :
+ *  - number of messages
+ *  - operation mode
+ *  - random Y/N
+ *  - CAN identifier
+ *  - CAN data length code
+ *  - delay between two messages
+ *  - offset for first up counting number
+ *  * Note: Most CAN drivers use a transmission queue that stalls after the time period has expired.
+ */
 uint64_t CCanDevice::TransmitterTest(uint64_t count, CANAPI_OpMode_t opMode, bool random, uint32_t id, uint8_t dlc, uint64_t delay, uint64_t offset) {
     CANAPI_Message_t message;
     CANAPI_Return_t retVal;
@@ -1090,7 +794,7 @@ retry_tx_test:
             fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
             fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
             fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-            fprintf(stdout, "Time=%llisec\n\n", time(NULL) - start);
+            fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
             return frames;
         }
     }
@@ -1099,11 +803,16 @@ retry_tx_test:
     fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
     fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
     fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-    fprintf(stdout, "Time=%llisec\n\n", time(NULL) - start);
+    fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
 
     CTimer::Delay(1U * CTimer::SEC);  /* afterburner */
     return frames;}
 
+/*  Job - receiver test :
+ *  - check for consequtive up counting numbers Y/N
+ *  - first number to be check (if checkCounter = Y)
+ *  - stop on (first) error
+ */
 uint64_t CCanDevice::ReceiverTest(bool checkCounter, uint64_t expectedNumber, bool stopOnError) {
     CANAPI_Message_t message;
     CANAPI_Status_t status;
@@ -1159,7 +868,7 @@ uint64_t CCanDevice::ReceiverTest(bool checkCounter, uint64_t expectedNumber, bo
                         fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
                         fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
                         fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-                        fprintf(stdout, "Time=%llisec\n\n", time(NULL) - start);
+                        fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
                         return frames;
                     }
                     else {
@@ -1178,15 +887,14 @@ uint64_t CCanDevice::ReceiverTest(bool checkCounter, uint64_t expectedNumber, bo
             fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
             fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
             fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-            fprintf(stdout, "Time=%llisec\n\n", time(NULL) - start);
+            fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
             return frames;
         }
     }
 }
 
-/** @brief       signal handler to catch Ctrl+C.
- *
- *  @param[in]   signo - signal number (SIGINT, SIGHUP, SIGTERM)
+/*  Signal handler to catch Ctrl+C:
+ *  - signo: signal number (SIGINT, SIGHUP, SIGTERM)
  */
 static void sigterm(int signo)
 {
@@ -1194,112 +902,4 @@ static void sigterm(int signo)
     (void)canDevice.SignalChannel();
     running = 0;
     (void)signo;
-}
-
-/** @brief       shows a help screen with all command-line options.
- *
- *  @param[in]   stream  - output stream (e.g. stdout)
- *  @param[in]   program - base name of the program
- */
-static void usage(FILE *stream, const char *program)
-{
-    fprintf(stream, "Usage: %s <interface> [<option>...]\n", program);
-    fprintf(stream, "Options for receiver test (default test mode):\n");
-    fprintf(stream, "  /RECEIVE | /RX                      count received messages until ^C is pressed\n");
-    fprintf(stream, "  /Number:<number>                    check up-counting numbers starting with <number>\n");
-    fprintf(stream, "  /Stop                               stop on error (with option /NUMBER)\n");
-#if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode\n");
-#else
-    fprintf(stream, "  /Mode:2.0                           CAN operation mode: CAN 2.0\n");
-#endif
-    fprintf(stream, "  /SHARED                             shared CAN controller access (if supported)\n");
-    fprintf(stream, "  /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only, transmitter is off)\n");
-    fprintf(stream, "  /ERR:(No|Yes) | /ERROR-FRAMES       allow reception of error frames\n");
-    fprintf(stream, "  /RTR:(Yes|No)                       allow remote frames (RTR frames)\n");
-    fprintf(stream, "  /XTD:(Yes|No)                       allow extended frames (29-bit identifier)\n");
-    fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
-    fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as a string)\n");
-    fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
-    fprintf(stream, "Options for transmitter test:\n");       
-    fprintf(stream, "  /TRANSMIT:<time> | /TX=<time>       send messages for the given time in seconds, or\n");
-    fprintf(stream, "  /FRames:<frames>                    alternatively send the given number of messages, or\n");
-    fprintf(stream, "  /RANDom:<frames>                    optionally with random cycle time and data length\n");
-    fprintf(stream, "  /Cycle:<msec>                       cycle time in milliseconds (default=0), or\n");
-    fprintf(stream, "  /Usec:<usec>                        cycle time in microseconds (default=0)\n");
-    fprintf(stream, "  /Dlc:<length>                       send messages of given length (default=8)\n");
-    fprintf(stream, "  /can-Id:<can-id>                    use given identifier (default=100h)\n");
-    fprintf(stream, "  /Number:<number>                    set first up-counting number (default=0)\n");
-#if (CAN_FD_SUPPORTED != 0)                                   
-    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode\n");
-#else
-    fprintf(stream, "  /Mode:2.0                           CAN operation mode: CAN 2.0\n");
-#endif                                                        
-    fprintf(stream, "  /SHARED                             shared CAN controller access (if supported)\n");
-    fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
-    fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as a string)\n");
-    fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
-    fprintf(stream, "Other options:\n");                      
-#if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /LIST-BITRATES[:(2.0|FDf[+BRS])]    list standard bit-rate settings\n");
-#else
-    fprintf(stream, "  /LIST-BITRATES[:2.0]                list standard bit-rate settings\n");
-#endif
-#if (OPTION_CANAPI_LIBRARY != 0)
-    fprintf(stream, "  /LIST[-BOARDS][:<vendor>]           list all supported CAN interfaces and exit\n");
-    fprintf(stream, "  /TEST[-BOARDS][:<vendor>]           list all available CAN interfaces and exit\n");
-#else
-    fprintf(stream, "  /LIST-BOARDS | /LIST                list all supported CAN interfaces and exit\n");
-    fprintf(stream, "  /TEST-BOARDS | /TEST                list all available CAN interfaces and exit\n");
-#endif
-    fprintf(stream, "  /HELP | /?                          display this help screen and exit\n");
-    fprintf(stream, "  /VERSION                            show version information and exit\n");
-#if (0)
-    fprintf(stream, "Arguments:\n");
-    fprintf(stream, "  <frames>       send this number of messages (frames), or\n");
-    fprintf(stream, "  <time>         send messages for the given time in seconds\n");
-    fprintf(stream, "  <msec>         cycle time in milliseconds (default=0), or \n");
-    fprintf(stream, "  <usec>         cycle time in microseconds (default=0)\n");
-    fprintf(stream, "  <can-id>       send with given identifier (default=100h)\n");
-    fprintf(stream, "  <length>       send data of given length (default=8)\n");
-    fprintf(stream, "  <number>       set first up-counting number (default=0)\n");
-    fprintf(stream, "  <interface>    CAN interface board (list all with /LIST)\n");
-    fprintf(stream, "  <baudrate>     CAN baud rate index (default=3):\n");
-    fprintf(stream, "                 0 = 1000 kbps\n");
-    fprintf(stream, "                 1 = 800 kbps\n");
-    fprintf(stream, "                 2 = 500 kbps\n");
-    fprintf(stream, "                 3 = 250 kbps\n");
-    fprintf(stream, "                 4 = 125 kbps\n");
-    fprintf(stream, "                 5 = 100 kbps\n");
-    fprintf(stream, "                 6 = 50 kbps\n");
-    fprintf(stream, "                 7 = 20 kbps\n");
-    fprintf(stream, "                 8 = 10 kbps\n");
-    fprintf(stream, "  <bitrate>      comma-separated <key>=<value>-list:\n");
-    fprintf(stream, "                 f_clock=<value>      frequency in Hz or\n");
-    fprintf(stream, "                 f_clock_mhz=<value>  frequency in MHz\n");
-    fprintf(stream, "                 nom_brp=<value>      bit-rate prescaler (nominal)\n");
-    fprintf(stream, "                 nom_tseg1=<value>    time segment 1 (nominal)\n");
-    fprintf(stream, "                 nom_tseg2=<value>    time segment 2 (nominal)\n");
-    fprintf(stream, "                 nom_sjw=<value>      sync. jump width (nominal)\n");
-    fprintf(stream, "                 nom_sam=<value>      sampling (only SJA1000)\n");
-    fprintf(stream, "                 data_brp=<value>     bit-rate prescaler (FD data)\n");
-    fprintf(stream, "                 data_tseg1=<value>   time segment 1 (FD data)\n");
-    fprintf(stream, "                 data_tseg2=<value>   time segment 2 (FD data)\n");
-    fprintf(stream, "                 data_sjw=<value>     sync. jump width (FD data).\n");
-#endif
-    fprintf(stream, "Hazard note:\n");
-    fprintf(stream, "  If you connect your CAN device to a real CAN network when using this program,\n");
-    fprintf(stream, "  you might damage your application.\n");
-}
-
-/** @brief       shows version information of the program.
- *
- *  @param[in]   stream  - output stream (e.g. stdout)
- *  @param[in]   program - base name of the program
- */
-static void version(FILE *stream, const char *program)
-{
-    fprintf(stdout, "%s\n%s\n\n%s\n\n", APPLICATION, COPYRIGHT, LICENSE);
-    (void)program;
-    fprintf(stream, "Written by Uwe Vogt, UV Software, Berlin <https://www.uv-software.com/>\n");
 }

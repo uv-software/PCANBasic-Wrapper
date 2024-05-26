@@ -388,7 +388,12 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
 //
 // @expected: CANERR_NOERROR but status bit 'bus_off' is set
 //
-TEST_F(GetStatus, GTEST_TESTCASE(IfInBusOffState, GTEST_ENABLED)) {
+#if !defined(__APPLE__) || defined(__MAC_11_0)
+#define GTEST_TC09_8_ENABLED  GTEST_ENABLED
+#else
+#define GTEST_TC09_8_ENABLED  GTEST_DISABLED
+#endif
+TEST_F(GetStatus, GTEST_TESTCASE(IfInBusOffState, GTEST_TC09_8_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Bitrate_t newBtr1 = {}, oldBtr1 = {};
@@ -411,10 +416,13 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfInBusOffState, GTEST_ENABLED)) {
     trmMsg.dlc = 0;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
+    // @
+    // @note: This test can be very fragile
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can be very fragile!";
 #if (TC09_8_ISSUE_BUS_OFF == WORKAROUND_ENABLED)
     ASSERT_TRUE(false) << "[  TC09.8  ] No bus-off state from device!";
 #endif
-    // @
     // @note: This test cannot run if there is another device on bus!
     if (g_Options.Is3rdDevicePresent())
         GTEST_SKIP() << "This test cannot run if there is another device on bus!";
@@ -545,7 +553,12 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfInBusOffState, GTEST_ENABLED)) {
 //
 // @expected: CANERR_NOERROR but status bit 'warning_level' is set
 //
-TEST_F(GetStatus, GTEST_TESTCASE(IfWarningLevelReached, GTEST_ENABLED)) {
+#if !defined(__APPLE__) || defined(__MAC_11_0)
+#define GTEST_TC09_9_ENABLED  GTEST_ENABLED
+#else
+#define GTEST_TC09_9_ENABLED  GTEST_DISABLED
+#endif
+TEST_F(GetStatus, GTEST_TESTCASE(IfWarningLevelReached, GTEST_TC09_9_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
     CANAPI_Bitrate_t newBtr1 = {}, oldBtr1 = {};
@@ -568,10 +581,13 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfWarningLevelReached, GTEST_ENABLED)) {
     trmMsg.dlc = 0;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
+    // @
+    // @note: This test can be very fragile
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can be very fragile!";
 #if (TC09_9_ISSUE_PCBUSB_WARNING_LEVEL == WORKAROUND_ENABLED)
     ASSERT_TRUE(false) << "[  TC09.9  ] No warning level from device!";
 #endif
-    // @
     // @note: This test cannot run if there is another device on bus!
     if (g_Options.Is3rdDevicePresent())
         GTEST_SKIP() << "This test cannot run if there is another device on bus!";
@@ -728,6 +744,9 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfErrorsOnBus, GTEST_TC09_10_ENABLED)) {
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
     // @
+    // @note: This test can be very fragile
+    if (g_Options.RunQuick())
+        GTEST_SKIP() << "This test can be very fragile!";
     // @note: This test cannot run if there is another device on bus!
     if (g_Options.Is3rdDevicePresent())
         GTEST_SKIP() << "This test cannot run if there is another device on bus!";
@@ -1318,4 +1337,4 @@ TEST_F(GetStatus, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_TC09_14_ENABLED)) {
     // @end.
 }
 
-//  $Id: TC09_GetStatus.cc 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC09_GetStatus.cc 1300 2024-05-19 13:14:53Z quaoar $  Copyright (c) UV Software, Berlin.

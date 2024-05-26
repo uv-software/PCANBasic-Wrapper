@@ -24,6 +24,9 @@
     <ClCompile Include="Sources\dosopt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Options.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\Timer.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Sources\PeakCAN_Defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Options.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

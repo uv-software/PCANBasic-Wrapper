@@ -70,6 +70,10 @@ private:
         CANAPI_Bitrate_t m_Bitrate;     // bit-rate settings
         void *m_pParameter;             // non PnP parameter
     } m_Dut[NUM_DUTS];
+#if (OPTION_CANAPI_LIBRARY != 0)
+    // search path for configurations
+    char *m_szSearchPath;               // search path for JSON files
+#endif
     // test options
     int32_t m_s32TestFrames;            // number of CAN frames to be sent during tests
     int32_t m_s32SmokeTestFrames;       // number of CAN frames to be sent during smoketest
@@ -85,6 +89,11 @@ public:
     COptions();
     virtual ~COptions() {};
     // getter/setter
+#if (OPTION_CANAPI_LIBRARY != 0)
+    char *GetSearchPath() {
+        return m_szSearchPath;
+    }
+#endif
     int32_t GetLibraryId(int dut) {
         return ((0 <= dut) && (dut < NUM_DUTS)) ? m_Dut[dut].m_Info.m_nLibraryId : INVALID_HANDLE;
     }
@@ -139,4 +148,4 @@ extern COptions g_Options;          // global access to testing options
 
 #endif // OPTIONS_H_INCLUDED
 
-// $Id: Options.h 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+// $Id: Options.h 1314 2024-05-26 08:39:33Z quaoar $  Copyright (c) UV Software, Berlin.

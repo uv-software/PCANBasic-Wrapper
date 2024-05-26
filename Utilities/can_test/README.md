@@ -1,5 +1,5 @@
-__CAN Tester for Peak-System PCAN Interfaces, Version 0.5.0__ \
-Copyright &copy; 2008-2010,2012-2024 by Uwe Vogt, UV Software, Berlin
+__CAN Tester for PEAK-System PCAN Interfaces, Version 0.5.0__ \
+Copyright &copy; 2005-2010,2012-2024 by Uwe Vogt, UV Software, Berlin
 
 ```
 Usage: can_test <interface> [<option>...]
@@ -9,12 +9,16 @@ Options for receiver test (default test mode):
   /Stop                               stop on error (with option /NUMBER)
   /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode
   /SHARED                             shared CAN controller access (if supported)
-  /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only, transmitter is off)
+  /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only mode)
   /ERR:(No|Yes) | /ERROR-FRAMES       allow reception of error frames
   /RTR:(Yes|No)                       allow remote frames (RTR frames)
   /XTD:(Yes|No)                       allow extended frames (29-bit identifier)
+  /CODE:<id>                          acceptance code for 11-bit IDs (default=0x000)
+  /MASK:<id>                          acceptance mask for 11-bit IDs (default=0x000)
+  /XTD-CODE:<id>                      acceptance code for 29-bit IDs (default=0x00000000)
+  /XTD-MASK:<id>                      acceptance mask for 29-bit IDs (default=0x00000000)
   /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or
-  /BitRate:<bitrate>                  CAN bit-rate settings (as a string)
+  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)
   /Verbose                            show detailed bit-rate settings
 Options for transmitter test:
   /TRANSMIT:<time> | /TX=<time>       send messages for the given time in seconds, or
@@ -28,12 +32,13 @@ Options for transmitter test:
   /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode
   /SHARED                             shared CAN controller access (if supported)
   /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or
-  /BitRate:<bitrate>                  CAN bit-rate settings (as a string)
+  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)
   /Verbose                            show detailed bit-rate settings
 Other options:
-  /LIST-BITRATES[:(2.0|FDf[+BRS])]    list standard bit-rate settings
+  /LIST-BITRATES[:(2.0|FDf[+BRS])]    list standard bit-rate settings and exit
   /LIST-BOARDS | /LIST                list all supported CAN interfaces and exit
   /TEST-BOARDS | /TEST                list all available CAN interfaces and exit
+  /JSON-file:<filename>               write configuration into JSON file and exit
   /HELP | /?                          display this help screen and exit
   /VERSION                            show version information and exit
 Arguments:
@@ -55,7 +60,7 @@ Arguments:
                  6 = 50 kbps
                  7 = 20 kbps
                  8 = 10 kbps
-  <bitrate>      comma-separated <key>=<value>-list:
+  <bitrate>      comma-separated key/value list:
                  f_clock=<value>      frequency in Hz or
                  f_clock_mhz=<value>  frequency in MHz
                  nom_brp=<value>      bit-rate prescaler (nominal)
