@@ -21,7 +21,9 @@
 #include "Driver.h"
 #include "Options.h"
 #include "Timer.h"
-
+#if (SERIAL_CAN_SUPPORTED != 0)
+#include "SerialCAN_Defines.h"
+#endif
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -41,6 +43,8 @@
 #define PLATFORM  "Linux"
 #elif defined(__APPLE__)
 #define PLATFORM  "macOS"
+#elif defined(__CYGWIN__)
+#define PLATFORM  "Cygwin"
 #else
 #error Platform not supported
 #endif
@@ -81,6 +85,18 @@ int main(int argc, const char* argv[]) {
     char property[CANPROP_MAX_BUFFER_SIZE] = "";
     char* string = NULL;
 
+    /* device parameter */
+    void* devParam = NULL;
+#if (SERIAL_CAN_SUPPORTED != 0)
+    /* - CAN-over-Serial-Line (SLCAN protocol) */
+    can_sio_param_t sioParam;
+    sioParam.name = NULL;
+    sioParam.attr.options = CANSIO_SLCAN;
+    sioParam.attr.baudrate = CANSIO_BD57600;
+    sioParam.attr.bytesize = CANSIO_8DATABITS;
+    sioParam.attr.parity = CANSIO_NOPARITY;
+    sioParam.attr.stopbits = CANSIO_1STOPBIT;
+#endif
     /* signal handler */
     if ((signal(SIGINT, sigterm) == SIG_ERR) ||
 #if !defined(_WIN32) && !defined(_WIN64)
@@ -132,7 +148,7 @@ int main(int argc, const char* argv[]) {
     }
     /* - list bit-rate settings (optional) */
     if (opts.m_fListBitrates) {
-        canDevice.ListCanBitrates(opts.m_OpMode);
+        (void)canDevice.ListCanBitrates(opts.m_OpMode);
     }
     /* - exit if no interface is given */
     if (opts.m_fExit) {
@@ -189,6 +205,8 @@ int main(int argc, const char* argv[]) {
         iterLibrary = CCanDevice::GetNextLibrary(library);
     }
 #else
+#if (SERIAL_CAN_SUPPORTED == 0)
+    /* -- loop over build-in device list (old 'can_boards[]') */
     bool iterChannel = CCanDevice::GetFirstChannel(channel);
     while (iterChannel) {
         if (strcasecmp(opts.m_szInterface, channel.m_szDeviceName) == 0) {
@@ -197,23 +215,37 @@ int main(int argc, const char* argv[]) {
         }
         iterChannel = CCanDevice::GetNextChannel(channel);
     }
+#else
+    /* -- note: SerialCAN has no build-in device list (fake it) */
+    channel.m_nLibraryId = CANLIB_SERIALCAN;
+    channel.m_nChannelNo = CANDEV_SERIAL;
+    flagFound = true;
+#endif
 #endif
     if (!flagFound) {
         fprintf(stderr, "+++ error: %s could not be found\n", opts.m_szInterface);
         return 1;
     }
+#if (SERIAL_CAN_SUPPORTED != 0)
+    /* - CAN-over-Serial-Line (SLCAN protocol) */
+    if (channel.m_nLibraryId == CANLIB_SERIALCAN) {
+        channel.m_nChannelNo = CANDEV_SERIAL;  // note: override channel number from JSON file
+        sioParam.name = opts.m_szInterface;
+        devParam = (void*)&sioParam;
+    }
+#endif
     /* - initialize interface */
-    fprintf(stdout, "Hardware=%s...", channel.m_szDeviceName);
+    fprintf(stdout, "Hardware=%s...", opts.m_szInterface);
     fflush (stdout);
 #if (OPTION_CANAPI_LIBRARY != 0)
-    retVal = canDevice.InitializeChannel(channel.m_nLibraryId, channel.m_nChannelNo, opts.m_OpMode);
+    retVal = canDevice.InitializeChannel(channel.m_nLibraryId, channel.m_nChannelNo, opts.m_OpMode, devParam);
 #else
-    retVal = canDevice.InitializeChannel(channel.m_nChannelNo, opts.m_OpMode);
+    retVal = canDevice.InitializeChannel(channel.m_nChannelNo, opts.m_OpMode, devParam);
 #endif
     if (retVal != CCanApi::NoError) {
         fprintf(stdout, "FAILED!\n");
         fprintf(stderr, "+++ error: CAN Controller could not be initialized (%i)", retVal);
-        if (retVal == CCanApi::NotSupported)
+        if (retVal == CCanApi::IllegalParameter)
             fprintf(stderr, "\n           - possibly CAN operating mode %02Xh not supported", opts.m_OpMode.byte);
         fputc('\n', stderr);
         goto farewell;
@@ -344,6 +376,11 @@ int CCanDevice::ListCanDevices(void) {
         iterChannel = CCanDevice::GetNextChannel(channel);
     }
 #endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+    if (n == 0) {
+        fprintf(stdout, "Check the Device Manager for compatible serial communication devices!\n");
+    }
+#endif
     return n;
 }
 
@@ -406,6 +443,11 @@ int CCanDevice::TestCanDevices(CANAPI_OpMode_t opMode) {
         } else
             fprintf(stdout, "FAILED!\n");
         iterChannel = CCanDevice::GetNextChannel(channel);
+    }
+#endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+    if (n == 0) {
+        fprintf(stdout, "Check the Device Manager for compatible serial communication devices!\n");
     }
 #endif
     return n;
@@ -504,13 +546,6 @@ bool CCanDevice::WriteJsonFile(const char* filename) {
         perror("");
         return false;
     }
-    // oops, we need the name of wrapper library
-    char wrapper[CANPROP_MAX_BUFFER_SIZE] = "";
-    if (GetProperty(CANPROP_GET_LIBRARY_DLLNAME, (void*)wrapper, CANPROP_MAX_BUFFER_SIZE) != CCanApi::NoError)
-        strcpy(wrapper, "(unknown)");
-    // loop over the defive list
-    CCanDevice::SChannelInfo channel = { (-1), NULL, NULL, (-1), NULL };
-    bool iterChannel = CCanDevice::GetFirstChannel(channel);
     fprintf(fp,
             "{\n"
             "  \"format\": {\n"
@@ -521,12 +556,21 @@ bool CCanDevice::WriteJsonFile(const char* filename) {
             "  \"vendor\": {\n",
             TESTER_PLATFORM
            );
+#if (SERIAL_CAN_SUPPORTED == 0)
+    // oops, we need the name of wrapper library
+    char wrapper[CANPROP_MAX_BUFFER_SIZE] = "";
+    if (GetProperty(CANPROP_GET_LIBRARY_DLLNAME, (void*)wrapper, CANPROP_MAX_BUFFER_SIZE) != CCanApi::NoError)
+        strcpy(wrapper, "(unknown)");
+    // loop over the defive list
+    CCanDevice::SChannelInfo channel = { (-1), "", "", (-1), "" };
+    bool iterChannel = CCanDevice::GetFirstChannel(channel);
     if (iterChannel) {
         fprintf(fp,
-            "    \"id\": %li,\n"
+            "    \"id\": %" PRIi32 ",\n"
             "    \"name\": \"%s\",\n"
             "    \"driver\": \"%s\",\n"
-            "    \"library\": \"%s\"\n",
+            "    \"library\": \"%s\",\n"
+            "    \"legacy\": false\n",
             channel.m_nLibraryId,
             channel.m_szVendorName,
             channel.m_szDeviceDllName,
@@ -537,11 +581,11 @@ bool CCanDevice::WriteJsonFile(const char* filename) {
             "  },\n"
             "  \"boards\" : [\n"
            );
-    int n = 1;
+    int n = 0;
     while (iterChannel) {
         fprintf(fp,
             "    {\n"
-            "      \"id\": %li,\n"
+            "      \"id\": %" PRIi32 ",\n"
             "      \"name\": \"%s\",\n"
             "      \"alias\": \"%s%i\"\n",
             channel.m_nChannelNo,
@@ -553,6 +597,40 @@ bool CCanDevice::WriteJsonFile(const char* filename) {
             "    %s\n", iterChannel ? "}," : "}"
            );
     }
+#else
+    /* SerialCAN: CAN-over-Serial-Line interfaces */
+    fprintf(fp,
+            "    \"id\": %i,\n"
+            "    \"name\": \"%s\",\n"
+            "    \"driver\": \"%s\",\n"
+            "    \"library\": \"%s\",\n"
+            "    \"legacy\": false\n"
+            "  },\n"
+            "  \"boards\": [\n",
+            SLCAN_LIB_ID,
+            "CAN-over-Serial-Line (SLCAN protocol)",
+            SLCAN_LIB_DRIVER,
+            SLCAN_LIB_WRAPPER
+           );
+    for (int i = 0; i < 8; i++) {
+        fprintf(fp,
+            "    {\n"
+            "      \"id\": %i,\n"
+            "      \"name\": \"%s%i\",\n"
+            "      \"alias\": \"%s%i\"\n",
+            i, 
+#if !defined(_WIN32) && !defined(_WIN64)
+            TESTER_TTYNAME, i,
+#else
+            TESTER_TTYNAME, i + 1,
+#endif
+            TESTER_ALIASNAME, i
+           );
+        fprintf(fp,
+            "    %s\n", i < 7 ? "}," : "}"
+           );
+    }
+#endif
     fprintf(fp,
             "  ]\n"
             "}\n"

@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define CAN_TEST_APPLICATION "CAN Monitor for " TESTER_INTERFACE ", Version " VERSION_STRING
+#define CAN_TEST_APPLICATION "CAN Tester for " TESTER_INTERFACE ", Version " VERSION_STRING
 #define CAN_TEST_COPYRIGHT   "Copyright (c) " TESTER_COPYRIGHT
 #if defined(_WIN32) || defined(_WIN64)
 #define CAN_TEST_WARRANTY    "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \

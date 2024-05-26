@@ -27,6 +27,7 @@
 #include <limits.h>
 #include <getopt.h>
 #include <libgen.h>
+#include <inttypes.h>
 #include <errno.h>
 
 #if defined(__linux__)
@@ -105,7 +106,9 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
     int optFmtId = 0;
     int optFmtData = 0;
     int optFmtAscii = 0;
+#if (CAN_FD_SUPPORTED != 0)
     int optFmtWrap = 0;
+#endif
     int optExclude = 0;
     int optListBitrates = 0;
     int optListBoards = 0;
@@ -191,7 +194,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 fprintf(err, "%s: missing argument for option `--baudrate' (%c)\n", m_szBasename, opt);
                 return 1;
             }
-            if (sscanf(optarg, "%lli", &intarg) != 1) {
+            if (sscanf(optarg, "%" SCNi64, &intarg) != 1) {
                 fprintf(err, "%s: illegal argument for option `--baudrate' (%c)\n", m_szBasename, opt);
                 return 1;
             }
@@ -357,7 +360,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 fprintf(err, "%s: missing argument for option `--code'\n", m_szBasename);
                 return 1;
             }
-            if (sscanf(optarg, "%llx", &intarg) != 1) {
+            if (sscanf(optarg, "%" SCNx64, &intarg) != 1) {
                 fprintf(err, "%s: illegal argument for option `--code'\n", m_szBasename);
                 return 1;
             }
@@ -377,7 +380,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 fprintf(err, "%s: missing argument for option `--mask'\n", m_szBasename);
                 return 1;
             }
-            if (sscanf(optarg, "%llx", &intarg) != 1) {
+            if (sscanf(optarg, "%" SCNx64, &intarg) != 1) {
                 fprintf(err, "%s: illegal argument for option --mask'\n", m_szBasename);
                 return 1;
             }
@@ -397,7 +400,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 fprintf(err, "%s: missing argument for option `--xtd-code'\n", m_szBasename);
                 return 1;
             }
-            if (sscanf(optarg, "%llx", &intarg) != 1) {
+            if (sscanf(optarg, "%" SCNx64, &intarg) != 1) {
                 fprintf(err, "%s: illegal argument for option --xtd-code'\n", m_szBasename);
                 return 1;
             }
@@ -417,7 +420,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 fprintf(err, "%s: missing argument for option `--xtd-mask'\n", m_szBasename);
                 return 1;
             }
-            if (sscanf(optarg, "%llx", &intarg) != 1) {
+            if (sscanf(optarg, "%" SCNx64, &intarg) != 1) {
                 fprintf(err, "%s: illegal argument for option --xtd-mask'\n", m_szBasename);
                 return 1;
             }
@@ -681,11 +684,16 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
     // (3) scan command-line for argument <interface>
     // - check if one and only one <interface> is given
     if (optind + 1 != argc) {
-        if (optind != argc)
-            fprintf(err, "%s: too many interface given\n", m_szBasename);
-        else if (!m_fExit)
-            fprintf(err, "%s: no arguments given\n", m_szBasename);
-        return 1;
+        if (optind != argc) {
+            fprintf(err, "%s: too many arguments given\n", m_szBasename);
+            return 1;
+        } else if (!m_fExit) {
+            fprintf(err, "%s: no interface given\n", m_szBasename);
+            return 1;
+        } else {
+            // no interface given, but --list-boards, --test-boards or --list-bitrates
+            return 0;
+        }
     } else {
         m_szInterface = (char*)argv[optind];
     }
@@ -764,7 +772,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
 #elif (SERIAL_CAN_SUPPORTED == 0)
     fprintf(stream, " -L, --list-boards                    list all supported CAN interfaces and exit\n");
     fprintf(stream, " -T, --test-boards                    list all available CAN interfaces and exit\n");
-    fprintf(stream, " -J, --json-file=<filename>           write configuration into JSON file and exit\n");
+    fprintf(stream, " -J, --json=<filename>                write configuration into JSON file and exit\n");
 #endif
     fprintf(stream, " -h, --help                           display this help screen and exit\n");
     fprintf(stream, "     --version                        show version information and exit\n");

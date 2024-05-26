@@ -776,7 +776,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
     }
     // - check if one and only one <interface> is given
     if (!argInterface && !m_fExit) {
-        fprintf(err, "%s: not enough arguments\n", m_szBasename);
+        fprintf(err, "%s: no interface given\n", m_szBasename);
         return 1;
     }
     // (4) check for illegal combinations
