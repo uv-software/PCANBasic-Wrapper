@@ -141,7 +141,7 @@
     <ClCompile Include="Sources\dosopt.c" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\Message.cpp" />
-    <ClCompile Include="Sources\Options.cpp" />
+    <ClCompile Include="Sources\Options_w.cpp" />
     <ClCompile Include="Sources\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
