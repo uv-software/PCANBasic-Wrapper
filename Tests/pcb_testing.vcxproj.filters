@@ -96,6 +96,9 @@
     <ClCompile Include="Testcases\TC27_ResetFilter.cc">
       <Filter>Source Files\Testcases</Filter>
     </ClCompile>
+    <ClCompile Include="Testcases\TCxX_Summary.cc">
+      <Filter>Source Files\Testcases</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\pch.h">

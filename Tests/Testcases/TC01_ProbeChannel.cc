@@ -306,7 +306,7 @@ TEST_F(ProbeChannel, GTEST_TESTCASE(WithValidChannelNo, GTEST_ENABLED)) {
 
 // @gtest TC01.5: Probe CAN channel with invalid channel number(s)
 //
-// @expected !CANERR_NOERROR (maybe a vendor-specific error code)
+// @expected: CANERR_NOTINIT or vendor-specific error code
 //
 TEST_F(ProbeChannel, GTEST_TESTCASE(WithInvalidChannelNo, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
@@ -318,13 +318,13 @@ TEST_F(ProbeChannel, GTEST_TESTCASE(WithInvalidChannelNo, GTEST_ENABLED)) {
     // @test:
     // @- try to probe channel with invalid channel no. -1
     retVal = dut1.ProbeChannel(TEST_GET_LIBRARY_ID(DUT1, (-1)), opMode, state);
-    EXPECT_NE(CCanApi::NoError, retVal);
+    EXPECT_TRUE((retVal == CCanApi::NotInitialized) || (retVal <= CCanApi::VendorSpecific));
     // @- try to probe channel with invalid channel no. -2
     retVal = dut1.ProbeChannel(TEST_GET_LIBRARY_ID(DUT1, (-2)), opMode, state);
-    EXPECT_NE(CCanApi::NoError, retVal);
+    EXPECT_TRUE((retVal == CCanApi::NotInitialized) || (retVal <= CCanApi::VendorSpecific));
     // @- try to probe channel with invalid channel no. INT32_MIN
     retVal = dut1.ProbeChannel(TEST_GET_LIBRARY_ID(DUT1, INT32_MIN), opMode, state);
-    EXPECT_NE(CCanApi::NoError, retVal);
+    EXPECT_TRUE((retVal == CCanApi::NotInitialized) || (retVal <= CCanApi::VendorSpecific));
     // @  note: channel numbers are defined by the CAN device vendor.
     // @        Therefore, no assumptions can be made for positive values!
     //
@@ -1085,4 +1085,4 @@ TEST_F(ProbeChannel, GTEST_TESTCASE(WithInvalidLibraryId, GTEST_ENABLED)) {
 }
 #endif  // (OPTION_CANAPI_LIBRARY != OPTION_DISBALED)
 
-//  $Id: TC01_ProbeChannel.cc 1314 2024-05-26 08:39:33Z quaoar $  Copyright (c) UV Software, Berlin.
+//  $Id: TC01_ProbeChannel.cc 1335 2024-06-02 16:26:04Z makemake $  Copyright (c) UV Software, Berlin.

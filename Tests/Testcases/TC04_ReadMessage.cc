@@ -266,6 +266,14 @@ TEST_F(ReadMessage, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- compare sent and received message
     EXPECT_TRUE(dut1.CompareMessages(trmMsg, rcvMsg));
+#if (TC04_3_ISSUE_PCBUSB_BUFFERED_MSGS == WORKAROUND_ENABLED)
+    counter.Reset();
+    // @- issue(PCBUSB): buffered messages from device (PCAN-USB [Pro] FD)
+    while (dut1.ReadMessage(rcvMsg, TEST_READ_TIMEOUT) == CCanApi::NoError) {
+        counter.Increment();
+    }
+    counter.Clear();
+#endif
     // @- send some frames to DUT2 and receive some frames from DUT2
     int32_t frames = g_Options.GetNumberOfTestFrames();
     EXPECT_EQ(frames, dut1.SendSomeFrames(dut2, frames));
@@ -754,9 +762,19 @@ TEST_F(ReadMessage, GTEST_TESTCASE(IfReceiveQueueFull, GTEST_TC04_8_ENABLED)) {
 #endif
     // @test:
     int32_t spam = (FEATURE_SIZE_RECEIVE_QUEUE + TEST_QRCVFULL);
-#if (TC04_8_ISSUE_QUEUE_SIZE == WORKAROUND_ENABLED)
+#if (TC04_8_ISSUE_PCBUSB_QUEUE_SIZE == WORKAROUND_ENABLED)
     // @- issue(PCBUSB.TOS): last element of the receive queue is not accessible
-    spam -= 1;
+    CANAPI_OpMode_t opCapa = { CANMODE_DEFAULT };
+    (void)dut1.GetOpCapabilities(opCapa);
+    if (!opCapa.fdoe)  // note: PCAN-USB devices only!
+        spam -= 1;
+#endif
+#if (TC04_8_ISSUE_PCANBASIC_QUEUE_SIZE == WORKAROUND_ENABLED)
+    // @- issue(PCANBasic): I didn't understand the issue
+    CANAPI_OpMode_t opCapa = { CANMODE_DEFAULT };
+    (void)dut1.GetOpCapabilities(opCapa);
+    if (opCapa.fdoe)  // note: PCAN-USB [Pro] FD devices only!
+        spam -= 1;
 #endif
     CProgress progress = CProgress(spam);
     // @- DUT2 spam the receive queue of DUT1 (with one message more than the queue can hold)
@@ -1406,14 +1424,19 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithFlagStsInOperationModeNoErr, GTEST_TC04_1
     trmMsg.dlc = 0;
     memset(trmMsg.data, 0, CANFD_MAX_LEN);
 #endif
-#if (TC04_15_ISSUE_PCBUSB_WARNING_LEVEL == WORKAROUND_ENABLED)
-    ASSERT_TRUE(false) << "[  TC04.15 ] No warning level from device!";
-#endif
     // @
     // @note: This test cannot run if there is another device on bus!
     if (g_Options.Is3rdDevicePresent())
         GTEST_SKIP() << "This test cannot run if there is another device on bus!";
     // @pre:
+#if (TC04_15_ISSUE_PCBUSB_WARNING_LEVEL == WORKAROUND_ENABLED)
+    // @- issue(PCBUSB): no warning level from device -> abort test
+    ASSERT_TRUE(false) << "[  TC04.15 ] No warning level from device!";
+#endif
+#if (TC04_15_ISSUE_TOUCAN_STATUS == WORKAROUND_ENABLED)
+    // @- issue(MacCAN-TouCAN): issue #32 (no bus error states from device) -> run with ICA
+    EXPECT_TRUE(false) << "[  TC04.15 ] Issue #32 (no bus error states from device)";
+#endif
     // @- initialize DUT1 configured settings
     retVal = dut1.InitializeChannel();
     ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut1.InitializeChannel() failed with error code " << retVal;
@@ -1856,9 +1879,9 @@ TEST_F(ReadMessage, GTEST_TESTCASE(InOperationModeListenOnly, GTEST_ENABLED)) {
 }
 
 // @gtest TC04.18: Read a CAN message from empty queue with different time-out values
-// 
+//
 // @expected: CANERR_RX_EMPTY after time-out time has expired
-// 
+//
 TEST_F(ReadMessage, GTEST_TESTCASE(WithDifferentTimeoutValues, GTEST_ENABLED)) {
     CCanDevice dut1 = CCanDevice(TEST_DEVICE(DUT1));
     CCanDevice dut2 = CCanDevice(TEST_DEVICE(DUT2));
@@ -1990,4 +2013,4 @@ TEST_F(ReadMessage, GTEST_TESTCASE(WithDifferentTimeoutValues, GTEST_ENABLED)) {
 // @todo: (1) blocking read
 // @todo: (2) test reentrancy
 
-//  $Id: TC04_ReadMessage.cc 1316 2024-05-26 12:31:37Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC04_ReadMessage.cc 1329 2024-05-30 18:13:31Z quaoar $  Copyright (c) UV Software, Berlin.

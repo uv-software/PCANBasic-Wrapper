@@ -46,7 +46,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_LIBRARY=0;OPTION_CANAPI_RETVALS=1;OPTION_CANCPP_DLLEXPORT=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_LIBRARY=0;OPTION_CANAPI_RETVALS=0;OPTION_CANCPP_DLLEXPORT=0;OPTION_REGESSION_TEST=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;.\Sources;..\Includes;.\GoogleTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -63,7 +63,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_LIBRARY=0;OPTION_CANAPI_RETVALS=1;OPTION_CANCPP_DLLEXPORT=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;OPTION_CAN_2_0_ONLY=0;OPTION_CANAPI_LIBRARY=0;OPTION_CANAPI_RETVALS=0;OPTION_CANCPP_DLLEXPORT=0;OPTION_REGESSION_TEST=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;.\Sources;..\Includes;.\GoogleTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -110,6 +110,7 @@
     <ClCompile Include="Testcases\TC27_ResetFilter.cc" />
     <ClCompile Include="Testcases\TCx1_CallSequences.cc" />
     <ClCompile Include="Testcases\TCx2_BitrateConverter.cc" />
+    <ClCompile Include="Testcases\TCxX_Summary.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Includes\CANAPI.h" />
