@@ -104,9 +104,9 @@ _All rights reserved._
   - Change-log: list all major changes, e.g. from commit comments
   - Assets: drag and drop the artifacts archive (see above)
 3. Click on `Publish release`.
-4. That's all folks!
+4. That´s all folks!
 
-### Announcement
+## Announce the new Release
 
 1. Create a new post with the change-log in the `mac-can.github.io` repo.
 2. Update the PCANBasic-Wrapper page in the `mac-can.github.io` repo.

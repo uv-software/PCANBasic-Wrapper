@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2024  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 ![MSBuild](https://github.com/uv-software/PCANBasic-Wrapper/actions/workflows/msbuild.yml/badge.svg)
 
@@ -126,7 +126,7 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.9.5)
+- Microsoft Visual Studio Community 2022 (Version 17.10.1)
 
 ### Required PCANBasic DLL
 
@@ -146,7 +146,7 @@ For a list of known bugs and caveats see tab [Issues](https://github.com/uv-soft
 
 ### PCANBasic DLL for Windows&reg;
 
-The PCANBasic DLL can be downloaded form [PEAK-System](https://www.peak-system.com/) website. \
+The PCANBasic DLL can be downloaded from [PEAK-System](https://www.peak-system.com/) website. \
 Please note the copyright and license agreements.
 
 ### Wrapper Library for macOS&reg; and Linux&reg;
@@ -162,8 +162,6 @@ A generic documentation of the CAN API V3 application programming interface can 
 Except where otherwise noted, this work is dual-licensed under the terms of the BSD 2-Clause "Simplified" License
 and under the terms of the GNU General Public License v3.0 (or any later version).
 You can choose between one of them if you use these portions of this work in whole or in part.
-
-`SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later`
 
 ### Trademarks
 

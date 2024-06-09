@@ -30,7 +30,7 @@
     <ClCompile Include="..\..\Sources\CANAPI\can_msg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Options.cpp">
+    <ClCompile Include="Sources\Options_w.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
