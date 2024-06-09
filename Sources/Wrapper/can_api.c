@@ -81,7 +81,6 @@
 #include "PCANBasic.h"
 #endif
 #endif
-
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -313,9 +312,11 @@ int can_test(int32_t board, uint8_t mode, const void *param, int *result)
             return CANERR_ILLPARA;
     }
     // when the music is over, turn out the lights
+#if (1)
     if (all_closed()) {                 // if no open handle then
         init = 0;                       //   clear initialization flag
     }
+#endif
     (void)param;
     return CANERR_NOERROR;
 }
@@ -1399,7 +1400,7 @@ static int lib_parameter(uint16_t param, void *value, size_t nbyte)
             (param != CANPROP_SET_FILTER_RESET))
             return CANERR_NULLPTR;
     }
-    // query or modify a CAN library properties
+    // query or modify a CAN library property
     switch (param) {
     case CANPROP_GET_SPEC:              // version of the wrapper specification (uint16_t)
         if (nbyte >= sizeof(uint16_t)) {

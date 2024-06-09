@@ -178,7 +178,7 @@ extern "C" {
  #define PCAN_LIB_MIN_MAJOR      8U
  #define PCAN_LIB_MIN_MINOR      0U
 #else
-#error Platform not supported
+ #error Platform not supported
 #endif
 /** @} */
 
