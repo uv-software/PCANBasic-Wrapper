@@ -52,11 +52,11 @@
 #ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    5
-#define VERSION_PATCH    1
+#define VERSION_PATCH    99
 #else
 #define VERSION_MAJOR    0
-#define VERSION_MINOR    2
-#define VERSION_PATCH    9
+#define VERSION_MINOR    3
+#define VERSION_PATCH    0
 #endif
 #define VERSION_BUILD    BUILD_NO
 #if (VERSION_PATCH == 0)
