@@ -13,15 +13,15 @@ URL: https://github.com/google/googletest
 
 Current Version used by CAN API V3 C++ Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-v1.14.0 (https://github.com/google/googletest/releases/tag/v1.14.0)
+v1.14.0 (https://github.com/google/googletest/releases/tag/v1.15.0)
 
 Installation and Usage of GoogleTest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1. Clone the GoogleTest main branch or download the sources from a tag
    e.g. into 'C:\Projekte\gtest'
-2. Copy all header files from 'C:\Projekte\gtest\googletest\include'
-   into '$(PROJROOT)\Tests\GoogleTest\include'
-3. Build static libraries for x64_x84 and x86_x64 with CMake
+2. Copy all header files from 'C:\Projekte\gtest\googletest\include\gtest'
+   into '$(PROJROOT)\Tests\GoogleTest\include\gtest'
+3. Build static libraries for x64 and x86 with CMake
    note: GoogleMock (aka gmock) does not need to be created for this project.
 4. Copy all files from 'C:\Projekte\gtest\googletest\out\build\x64-Debug\lib'
    into $(PROJROOT)\Tests\GoogleTest\build\x64-Debug\lib'
@@ -35,4 +35,4 @@ Important Notes
 
 Last Updated
 ~~~~~~~~~~~~
-August 23, 2023
+August 17, 2024

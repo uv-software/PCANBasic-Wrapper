@@ -56,7 +56,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>.\GoogleTest\build\x86-Debug\lib\gtest.lib;..\Binaries\x86\lib\Debug\uvPeakCAN.lib;..\Binaries\x86\lib\Debug\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>.\GoogleTest\Windows\x86-Debug\lib\gtest.lib;..\Binaries\x86\lib\Debug\uvPeakCAN.lib;..\Binaries\x86\lib\Debug\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -73,7 +73,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>.\GoogleTest\build\x64-Debug\lib\gtest.lib;..\Binaries\x64\lib\Debug\uvPeakCAN.lib;..\Binaries\x64\lib\Debug\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>.\GoogleTest\Windows\x64-Debug\lib\gtest.lib;..\Binaries\x64\lib\Debug\uvPeakCAN.lib;..\Binaries\x64\lib\Debug\PCANBasic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

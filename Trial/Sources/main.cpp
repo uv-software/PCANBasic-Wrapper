@@ -20,8 +20,11 @@
 #include <inttypes.h>
 
 //#define SECOND_CHANNEL
+#ifdef __APPLE__
+#define ISSUE_198   (1)
+#else
 #define ISSUE_198   (0)
-
+#endif
 #if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_1M(x)    PEAKCAN_BR_1M(x)
 #define BITRATE_800K(x)  PEAKCAN_BR_800K(x)
@@ -34,16 +37,16 @@
 #define BITRATE_10K(x)   PEAKCAN_BR_10K(x)
 #define BITRATE_5K(x)    PEAKCAN_BR_5K(x)
 #else
-#define BITRATE_1M(x)    DEFAULT_CAN_BR_1M(x)  
+#define BITRATE_1M(x)    DEFAULT_CAN_BR_1M(x)
 #define BITRATE_800K(x)  DEFAULT_CAN_BR_800K(x)
 #define BITRATE_500K(x)  DEFAULT_CAN_BR_500K(x)
 #define BITRATE_250K(x)  DEFAULT_CAN_BR_250K(x)
 #define BITRATE_125K(x)  DEFAULT_CAN_BR_125K(x)
 #define BITRATE_100K(x)  DEFAULT_CAN_BR_100K(x)
-#define BITRATE_50K(x)   DEFAULT_CAN_BR_50K(x) 
-#define BITRATE_20K(x)   DEFAULT_CAN_BR_20K(x) 
-#define BITRATE_10K(x)   DEFAULT_CAN_BR_10K(x) 
-#define BITRATE_5K(x)    DEFAULT_CAN_BR_5K(x)  
+#define BITRATE_50K(x)   DEFAULT_CAN_BR_50K(x)
+#define BITRATE_20K(x)   DEFAULT_CAN_BR_20K(x)
+#define BITRATE_10K(x)   DEFAULT_CAN_BR_10K(x)
+#define BITRATE_5K(x)    DEFAULT_CAN_BR_5K(x)
 #endif
 #if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_FD_1M(x)      PEAKCAN_FD_BR_1M(x)
@@ -144,13 +147,14 @@ int main(int argc, const char * argv[]) {
     int option_retry = OPTION_NO;
     int option_reply = OPTION_NO;
     int option_transmit = OPTION_NO;
+    int option_extended = OPTION_NO;
 //    int option_device_id = OPTION_NO;
 //    int option_trace = OPTION_NO;
 //    int option_log = OPTION_NO;
     int option_xor = OPTION_NO;
     uint64_t received = 0ULL;
     uint64_t expected = 0ULL;
-    time_t now = time(NULL);
+    time_t now = 0L;
 
     for (int i = 1, opt = 0; i < argc; i++) {
         /* PCAN-USB channel */
@@ -209,6 +213,7 @@ int main(int argc, const char * argv[]) {
         if (!strncmp(argv[i], "R:", 2) && sscanf(argv[i], "R:%i", &opt) == 1) rxTimeout = (useconds_t)opt;
         /* transmit messages */
         if ((sscanf(argv[i], "%i", &opt) == 1) && (opt > 0)) option_transmit = opt;
+        if (!strcmp(argv[i], "EXT") || !strcmp(argv[i], "EXTENDED")) option_extended = OPTION_YES;
 //        if (!strncmp(argv[i], "T:", 2) && sscanf(argv[i], "T:%i", &opt) == 1) txTimeout = (useconds_t)opt;
         if (!strncmp(argv[i], "C:", 2) && sscanf(argv[i], "C:%i", &opt) == 1) txDelay = (useconds_t)opt * 1000U;
         if (!strncmp(argv[i], "U:", 2) && sscanf(argv[i], "U:%i", &opt) == 1) txDelay = (useconds_t)opt;
@@ -516,7 +521,7 @@ int main(int argc, const char * argv[]) {
             verbose(opMode, bitrate, speed);
 
         uint32_t code, mask;
-        if ((myDriver.GetFilter11Bit(code, mask) == CCanApi::NoError) && 
+        if ((myDriver.GetFilter11Bit(code, mask) == CCanApi::NoError) &&
             ((code != CANACC_CODE_11BIT) || (mask != CANACC_MASK_11BIT)))
             fprintf(stdout, "    Filter11: code = 0x%03X, mask = 0x%03X\n", code, mask);
         if ((myDriver.GetFilter29Bit(code, mask) == CCanApi::NoError) &&
@@ -543,9 +548,15 @@ int main(int argc, const char * argv[]) {
 #endif
     /* transmit messages */
     if (option_transmit) {
+#ifdef __linux__
+       if (!option_retry)
+           fprintf(stdout, "Attention: The program will throw errors if the transmit queue is full.\n"
+                           "           Use program option RETRY to avoid this.\n");
+#else
 //        if ((txTimeout == 0U) && !option_retry)
 //            fprintf(stdout, "Attention: The program will be aborted when the transmitter is busy.\n"
 //                            "           Use program option RETRY or T:<timeout> to avoid this.\n");
+#endif
         fprintf(stdout, "Press Ctrl+C to abort..."); fflush(stdout);
         frames = 0;
         now = time(NULL);
@@ -563,6 +574,7 @@ int main(int argc, const char * argv[]) {
                 message.dlc = CANFD_MAX_DLC;
             }
 #endif
+            message.xtd = option_extended ? 1 : 0;
             message.id = (uint32_t)frames & (message.xtd ? CAN_MAX_XTD_ID : CAN_MAX_STD_ID);
             message.data[0] = (uint8_t)(((uint64_t)frames & 0x00000000000000FF) >> 0);
             message.data[1] = (uint8_t)(((uint64_t)frames & 0x000000000000FF00) >> 8);
@@ -588,7 +600,8 @@ retry_write:
         if (myDriver.GetStatus(status) == CCanApi::NoError) {
             fprintf(stdout, ">>> myDriver.WriteMessage: status = 0x%02X\n", status.byte);
         }
-        fprintf(stdout, "    %i message(s) sent (took %.1lfs)\n", frames, difftime(time(NULL), now));
+        fprintf(stdout, "    %i %s message(s) sent (took %.1lfs)\n", frames, option_extended ? "extended" : "standard",
+                difftime(time(NULL), now));
         if (option_exit)
             goto teardown;
     }

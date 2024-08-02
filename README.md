@@ -126,7 +126,7 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.10.1)
+- Microsoft Visual Studio Community 2022 (Version 17.10.5)
 
 ### Required PCANBasic DLL
 
