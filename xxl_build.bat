@@ -1,7 +1,7 @@
 @echo off
 rem set MSBuild environment variables
 pushd
-call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars32.bat" x86
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat" x64
 popd
 set PWD="%~dp0"
 pushd
