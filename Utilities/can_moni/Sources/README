@@ -1,7 +1,7 @@
 # CAN Monitor for generic CAN Interfaces (CAN API V3)
 
 Copyright &copy; 2007 by Uwe Vogt, UV Software, Friedrichshafen \
-Copyright &copy; 2012-2024 by Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+Copyright &copy; 2012-2025 by Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 
 ## Utility program `can_moni`
 
@@ -20,9 +20,9 @@ This repo only contains the source code for the utility program `can_moni` to be
 
 ## License
 
-This program is free software: you can redistribute it and/or modify
+This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -30,8 +30,8 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License along
+with this program; if not, see <https://www.gnu.org/licenses/>.
 
-CAN API V3 is dual-licensed under the terms of the BSD 2-Clause "Simplified" License and under the terms of the GNU General Public License v3.0 (or any later version).
-In this case the terms of the GNU General Public License v3.0 (or any later version) shall be applied to CAN API V3.
+CAN API V3 is dual-licensed under the terms of the BSD 2-Clause "Simplified" License and under the terms of the GNU General Public License v2.0 (or any later version).
+In connection with this program, the terms of the GNU General Public License v2.0 (or any later version) shall be applied to CAN API V3.
