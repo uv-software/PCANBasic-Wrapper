@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 ![MSBuild](https://github.com/uv-software/PCANBasic-Wrapper/actions/workflows/msbuild.yml/badge.svg)
 
@@ -160,7 +160,7 @@ A generic documentation of the CAN API V3 application programming interface can 
 ### Dual-License
 
 Except where otherwise noted, this work is dual-licensed under the terms of the BSD 2-Clause "Simplified" License
-and under the terms of the GNU General Public License v3.0 (or any later version).
+and under the terms of the GNU General Public License v2.0 (or any later version).
 You can choose between one of them if you use these portions of this work in whole or in part.
 
 ### Trademarks
