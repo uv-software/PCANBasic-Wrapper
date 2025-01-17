@@ -1,17 +1,18 @@
-//  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later
+//  SPDX-License-Identifier: BSD-2-Clause OR GPL-2.0-or-later
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
 //
 //  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
-//  and under the GNU General Public License v3.0 (or any later version).
+//  and under the GNU General Public License v2.0 (or any later version).
 //  You can choose between one of them if you use this file.
 //
-//  BSD 2-Clause "Simplified" License:
+//  (1) BSD 2-Clause "Simplified" License
+//
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
 //  1. Redistributions of source code must retain the above copyright notice, this
@@ -31,10 +32,11 @@
 //  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 //  OF CAN API V3, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-//  GNU General Public License v3.0 or later:
-//  CAN API V3 is free software: you can redistribute it and/or modify
+//  (2) GNU General Public License v2.0 or later
+//
+//  CAN API V3 is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
+//  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
 //
 //  CAN API V3 is distributed in the hope that it will be useful,
@@ -42,8 +44,8 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  You should have received a copy of the GNU General Public License
-//  along with CAN API V3.  If not, see <https://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with CAN API V3; if not, see <https://www.gnu.org/licenses/>.
 //
 #include "pch.h"
 
@@ -91,13 +93,18 @@ TEST_F(GetProperty, GTEST_TESTCASE(SunnydayScenario, GTEST_SUNNYDAY)) {
     uint16_t param = testcase.GetFirstEntry();
     while (param != CANPROP_INVALID) {
         counter.Increment();
+        memset(buffer, 0, CANPROP_MAX_BUFFER_SIZE);
         // printf("param=%i (%s)\n", param, testcase.Description());
         // @-- get property value (incl. pre-initialization parameter)
         retVal = dut1.GetProperty(param, (void*)buffer, testcase.SizeOf());
         if (testcase.IsRequired()) {
             EXPECT_EQ(CCanApi::NoError, retVal);
+            RecordProperty(testcase.Mnemonic(), (retVal == CCanApi::NoError) ? "PASS" : "FAIL");
         } else if (retVal != CCanApi::NoError) {
             EXPECT_EQ(CCanApi::NotSupported, retVal);
+            RecordProperty(testcase.Mnemonic(), (retVal == CCanApi::NotSupported) ? "n/a" : "fail");
+        } else {
+            RecordProperty(testcase.Mnemonic(), "pass");
         }
         // next please
         param = testcase.GetNextEntry();
@@ -235,6 +242,7 @@ TEST_F(GetProperty, GTEST_TESTCASE(WithInvalidParmeterValue, GTEST_ENABLED)) {
     EXPECT_FALSE(status.can_stopped);
     // @test:
     CCounter counter = CCounter();
+    memset(buffer, 0, CANPROP_MAX_BUFFER_SIZE);
     // @- try to get a property value with invalid value for parameter 'param'
     retVal = dut1.GetProperty(CANPROP_INVALID, (void*)buffer, CANPROP_MAX_BUFFER_SIZE);
     EXPECT_EQ(CCanApi::NotSupported, retVal);
@@ -299,6 +307,7 @@ TEST_F(GetProperty, GTEST_TESTCASE(WithWrongParameterSize, GTEST_ENABLED)) {
         // @-- exclude properties with size zero (they return no value)
         if (testcase.SizeOf() != 0U) {
             counter.Increment();
+            memset(buffer, 0, CANPROP_MAX_BUFFER_SIZE);
             uint32_t size = CANPROP_MAX_BUFFER_SIZE;
             if ((testcase.SizeOf() != CANPROP_MAX_BUFFER_SIZE) && (param != CANPROP_GET_BUSLOAD))
                 size = testcase.SizeOf() - 1U;
@@ -365,6 +374,7 @@ TEST_F(GetProperty, GTEST_TESTCASE(IfChannelNotInitialized, GTEST_ENABLED)) {
     uint16_t param = testcase.GetFirstEntry();
     while (param != CANPROP_INVALID) {
         counter.Increment();
+        memset(buffer, 0, CANPROP_MAX_BUFFER_SIZE);
         // printf("param=%i (%s)\n", param, testcase.Description());
         // @-- get property value (incl. pre-initialization parameter)
         retVal = dut1.GetProperty(param, (void*)buffer, testcase.SizeOf());
@@ -447,6 +457,7 @@ TEST_F(GetProperty, GTEST_TESTCASE(IfChannelInitialized, GTEST_ENABLED)) {
     uint16_t param = testcase.GetFirstEntry();
     while (param != CANPROP_INVALID) {
         counter.Increment();
+        memset(buffer, 0, CANPROP_MAX_BUFFER_SIZE);
         // printf("param=%i (%s)\n", param, testcase.Description());
         // @-- get property value (incl. pre-initialization parameter)
         retVal = dut1.GetProperty(param, (void*)buffer, testcase.SizeOf());
@@ -524,6 +535,7 @@ TEST_F(GetProperty, GTEST_TESTCASE(IfControllerStarted, GTEST_ENABLED)) {
     uint16_t param = testcase.GetFirstEntry();
     while (param != CANPROP_INVALID) {
         counter.Increment();
+        memset(buffer, 0, CANPROP_MAX_BUFFER_SIZE);
         // printf("param=%i (%s)\n", param, testcase.Description());
         // @-- get property value (incl. pre-initialization parameter)
         retVal = dut1.GetProperty(param, (void*)buffer, testcase.SizeOf());
@@ -612,6 +624,7 @@ TEST_F(GetProperty, GTEST_TESTCASE(IfControllerStopped, GTEST_ENABLED)) {
     uint16_t param = testcase.GetFirstEntry();
     while (param != CANPROP_INVALID) {
         counter.Increment();
+        memset(buffer, 0, CANPROP_MAX_BUFFER_SIZE);
         // printf("param=%i (%s)\n", param, testcase.Description());
         // @-- get property value (incl. pre-initialization parameter)
         retVal = dut1.GetProperty(param, (void*)buffer, testcase.SizeOf());
@@ -686,6 +699,7 @@ TEST_F(GetProperty, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
     uint16_t param = testcase.GetFirstEntry();
     while (param != CANPROP_INVALID) {
         counter.Increment();
+        memset(buffer, 0, CANPROP_MAX_BUFFER_SIZE);
         // printf("param=%i (%s)\n", param, testcase.Description());
         // @-- get property value (incl. pre-initialization parameter)
         retVal = dut1.GetProperty(param, (void*)buffer, testcase.SizeOf());
@@ -711,4 +725,4 @@ TEST_F(GetProperty, GTEST_TESTCASE(IfChannelTornDown, GTEST_ENABLED)) {
 }
 
 
-//  $Id: TC12_GetProperty.cc 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC12_GetProperty.cc 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin.

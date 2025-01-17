@@ -1,6 +1,6 @@
 ### CAN API V3 Testing with GoogleTest
 
-_Copyright &copy; 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
+_Copyright &copy; 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
 _All rights reserved._
 
 # CAN Interface Wrapper Specification
@@ -132,14 +132,10 @@ call the test program with option `--can_help` to see advanced test options to c
 
 ## This and That
 
-### SVN Repo
-
-The CAN API V3 Testing sources are maintained in a SVN repo to synchronized them between the different CAN API V3 wrapper repos.
-
 ### Dual-License
 
 Except where otherwise noted, this work is dual-licensed under the terms of the BSD 2-Clause "Simplified" License
-and under the terms of the GNU General Public License v3.0 (or any later version).
+and under the terms of the GNU General Public License v2.0 (or any later version).
 You can choose between one of them if you use these portions of this work in whole or in part.
 
 ### GoogleTest License

@@ -1,17 +1,18 @@
-//  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later
+//  SPDX-License-Identifier: BSD-2-Clause OR GPL-2.0-or-later
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
 //
 //  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
-//  and under the GNU General Public License v3.0 (or any later version).
+//  and under the GNU General Public License v2.0 (or any later version).
 //  You can choose between one of them if you use this file.
 //
-//  BSD 2-Clause "Simplified" License:
+//  (1) BSD 2-Clause "Simplified" License
+//
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
 //  1. Redistributions of source code must retain the above copyright notice, this
@@ -31,10 +32,11 @@
 //  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 //  OF CAN API V3, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-//  GNU General Public License v3.0 or later:
-//  CAN API V3 is free software: you can redistribute it and/or modify
+//  (2) GNU General Public License v2.0 or later
+//
+//  CAN API V3 is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
+//  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
 //
 //  CAN API V3 is distributed in the hope that it will be useful,
@@ -42,8 +44,8 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  You should have received a copy of the GNU General Public License
-//  along with CAN API V3.  If not, see <https://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with CAN API V3; if not, see <https://www.gnu.org/licenses/>.
 //
 #include "pch.h"
 
@@ -662,9 +664,9 @@ TEST_F(StartController, GTEST_TESTCASE(WithSameCanBitrateIndexAfterCanStopped, G
     CANAPI_Status_t status = {};
     CANAPI_Return_t retVal;
     // @
-    // @note: This test can take a very long time
+    // @note: This test takes quite a long time
     if (g_Options.RunQuick())
-        GTEST_SKIP() << "This test can take a very long time!";
+        GTEST_SKIP() << "This test takes quite a long time!";
     // @loop over selected CAN 2.0 bit-timing indexes
     // @note: predefined BTR0BTR1 bit-timing table has 10 entries, index 0 to 9.
     // @      The index must be given as negative value to 'bitrate.index'!
@@ -796,9 +798,9 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanBitrateIndexAfterCanStopp
     CANAPI_Status_t status = {};
     CANAPI_Return_t retVal;
     // @
-    // @note: This test can take a very long time
+    // @note: This test takes quite a long time
     if (g_Options.RunQuick())
-        GTEST_SKIP() << "This test can take a very long time!";
+        GTEST_SKIP() << "This test takes quite a long time!";
     // @loop over selected CAN 2.0 bit-timing indexes
     // @note: predefined BTR0BTR1 bit-timing table has 10 entries, index 0 to 9.
     // @      The index must be given as negative value to 'bitrate.index'!
@@ -1166,9 +1168,9 @@ TEST_F(StartController, GTEST_TESTCASE(WithSameCanBitrateSettingsAfterCanStopped
     CANAPI_Status_t status = {};
     CANAPI_Return_t retVal;
     // @
-    // @note: This test can take a very long time
+    // @note: This test takes quite a long time
     if (g_Options.RunQuick())
-        GTEST_SKIP() << "This test can take a very long time!";
+        GTEST_SKIP() << "This test takes quite a long time!";
     // @loop over selected CAN 2.0 bit-rate settings
     CCounter counter = CCounter();
     for (int i = 0; i < 3; i++) {
@@ -1293,9 +1295,9 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanBitrateSettingsAfterCanSt
     CANAPI_Status_t status = {};
     CANAPI_Return_t retVal;
     // @
-    // @note: This test can take a very long time
+    // @note: This test takes quite a long time
     if (g_Options.RunQuick())
-        GTEST_SKIP() << "This test can take a very long time!";
+        GTEST_SKIP() << "This test takes quite a long time!";
     // @loop over selected CAN 2.0 bit-rate settings
     CCounter counter = CCounter();
     for (int i = 0; i < 3; i++) {
@@ -1696,9 +1698,9 @@ TEST_F(StartController, GTEST_TESTCASE(WithSameCanFdBitrateSettingsAfterCanStopp
     if ((!dut1.IsCanFdCapable() || !dut2.IsCanFdCapable()) || g_Options.RunCanClassicOnly())
         GTEST_SKIP() << "At least one device is not CAN FD capable!";
     // @
-    // @note: This test can take a very long time
+    // @note: This test takes quite a long time
     if (g_Options.RunQuick())
-        GTEST_SKIP() << "This test can take a very long time!";
+        GTEST_SKIP() << "This test takes quite a long time!";
     // @loop over selected CAN FD bit-rate settings
     CCounter counter = CCounter();
     for (int i = 0; i < 8; i++) {
@@ -1837,9 +1839,9 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanFdBitrateSettingsAfterCan
     if ((!dut1.IsCanFdCapable() || !dut2.IsCanFdCapable()) || g_Options.RunCanClassicOnly())
         GTEST_SKIP() << "At least one device is not CAN FD capable!";
     // @
-    // @note: This test can take a very long time
+    // @note: This test takes quite a long time
     if (g_Options.RunQuick())
-        GTEST_SKIP() << "This test can take a very long time!";
+        GTEST_SKIP() << "This test takes quite a long time!";
     // @loop over selected CAN FD bit-rate settings
     CCounter counter = CCounter();
     for (int i = 0; i < 8; i++) {
@@ -2313,4 +2315,4 @@ TEST_F(StartController, GTEST_TESTCASE(WithCanFdBitrateSettingsInCan20Mode, GTES
 }
 #endif  // (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
 
-//  $Id: TC03_StartController.cc 1272 2024-04-16 19:55:27Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC03_StartController.cc 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin.
