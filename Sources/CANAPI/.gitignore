@@ -1,4 +1,6 @@
 .svn
+# Not realized yet
+CANIPC_Message.h
 # we don't use the JSON files yet
 can_dev.?
 vanilla.?
