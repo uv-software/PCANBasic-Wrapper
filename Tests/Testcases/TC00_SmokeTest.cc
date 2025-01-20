@@ -1,17 +1,18 @@
-//  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later
+//  SPDX-License-Identifier: BSD-2-Clause OR GPL-2.0-or-later
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
 //
 //  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
-//  and under the GNU General Public License v3.0 (or any later version).
+//  and under the GNU General Public License v2.0 (or any later version).
 //  You can choose between one of them if you use this file.
 //
-//  BSD 2-Clause "Simplified" License:
+//  (1) BSD 2-Clause "Simplified" License
+//
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
 //  1. Redistributions of source code must retain the above copyright notice, this
@@ -31,10 +32,11 @@
 //  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 //  OF CAN API V3, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-//  GNU General Public License v3.0 or later:
-//  CAN API V3 is free software: you can redistribute it and/or modify
+//  (2) GNU General Public License v2.0 or later
+//
+//  CAN API V3 is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
+//  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
 //
 //  CAN API V3 is distributed in the hope that it will be useful,
@@ -42,13 +44,27 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  You should have received a copy of the GNU General Public License
-//  along with CAN API V3.  If not, see <https://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with CAN API V3; if not, see <https://www.gnu.org/licenses/>.
 //
 #include "pch.h"
 
 class SmokeTest : public testing::Test {
-    virtual void SetUp() {}
+    virtual void SetUp() {
+#if (FEATURE_TRACEFILE == FEATURE_SUPPORTED)
+#if defined(_WIN32) || defined(_WIN64)
+        struct _stat info;
+        if (_stat(TRACEFILE_FOLDER, &info) != 0) {
+            _mkdir(TRACEFILE_FOLDER);
+        }
+#else 
+        struct stat info;
+        if (stat(TRACEFILE_FOLDER, &info) != 0) {
+            mkdir(TRACEFILE_FOLDER, (mode_t)0755);
+        }
+#endif
+#endif
+    }
     virtual void TearDown() {}
 protected:
     // ...
@@ -240,8 +256,10 @@ TEST_F(SmokeTest, DefaultScenario) {
     CCanApi::EChannelState state;
     CANAPI_Status_t status = {};
     CANAPI_Return_t retVal;
-#if (FEATURE_TRACE_FILE == FEATURE_SUPPORTED)
-    uint8_t trace = CANPARA_TRACE_ON;
+#if (FEATURE_TRACEFILE == FEATURE_SUPPORTED)
+    uint8_t traceState = CANPARA_TRACE_ON;
+    uint8_t traceType = CANPARA_TRACE_TYPE_BINARY;
+    uint16_t traceMode = CANPARA_TRACE_MODE_PREFIX_DATE | CANPARA_TRACE_MODE_PREFIX_TIME;
     char traceFile[CANPROP_MAX_STRING_LENGTH+1] = "";
 #endif    
     // @pre:
@@ -282,19 +300,25 @@ TEST_F(SmokeTest, DefaultScenario) {
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_FALSE(status.can_stopped);
-#if (FEATURE_TRACE_FILE == FEATURE_SUPPORTED)
+#if (FEATURE_TRACEFILE == FEATURE_SUPPORTED)
     // @- open trace file for DUT1 (if supported)
-    trace = CANPARA_TRACE_TYPE_BINARY;  // TODO: format from command line
-    retVal = dut1.SetProperty(CANPROP_SET_TRACE_TYPE, (void*)&trace, sizeof(trace));
+    traceType = CANPARA_TRACE_TYPE_BINARY;  // TODO: format from command line
+    retVal = dut1.SetProperty(CANPROP_SET_TRACE_TYPE, (void*)&traceType, sizeof(traceType));
     EXPECT_EQ(CCanApi::NoError, retVal);
-    trace = CANPARA_TRACE_ON;
-    retVal = dut1.SetProperty(CANPROP_SET_TRACE_ACTIVE, (void*)&trace, sizeof(trace));
+    traceMode = CANPARA_TRACE_MODE_PREFIX_DATE | CANPARA_TRACE_MODE_PREFIX_TIME;
+    retVal = dut1.SetProperty(CANPROP_SET_TRACE_MODE, (void*)&traceMode, sizeof(traceMode));
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    strcpy(traceFile, TRACEFILE_FOLDER);
+    retVal = dut1.SetProperty(CANPROP_SET_TRACE_FOLDER, (void*)traceFile, sizeof(traceFile));
+    EXPECT_EQ(CCanApi::NoError, retVal);
+    traceState = CANPARA_TRACE_ON;
+    retVal = dut1.SetProperty(CANPROP_SET_TRACE_ACTIVE, (void*)&traceState, sizeof(traceState));
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- check if trace file is open
-    trace = CANPARA_TRACE_OFF;
-    retVal = dut1.GetProperty(CANPROP_GET_TRACE_ACTIVE, (void*)&trace, sizeof(trace));
+    traceState = CANPARA_TRACE_OFF;
+    retVal = dut1.GetProperty(CANPROP_GET_TRACE_ACTIVE, (void*)&traceState, sizeof(traceState));
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(CANPARA_TRACE_ON, trace);
+    EXPECT_EQ(CANPARA_TRACE_ON, traceState);
 #endif
     // @- send some frames to DUT2 and receive some frames from DUT2
     int32_t frames = g_Options.GetNumberOfSmokeTestFrames();
@@ -304,23 +328,23 @@ TEST_F(SmokeTest, DefaultScenario) {
     retVal = dut1.GetStatus(status);
     EXPECT_EQ(CCanApi::NoError, retVal);
     EXPECT_FALSE(status.can_stopped);
-#if (FEATURE_TRACE_FILE == FEATURE_SUPPORTED)
+#if (FEATURE_TRACEFILE == FEATURE_SUPPORTED)
     // @- show file name of trace file written
-    if (CANPARA_TRACE_ON == trace) {
+    if (CANPARA_TRACE_ON == traceState) {
         if (dut1.GetProperty(CANPROP_GET_TRACE_FILE, (void*)traceFile, CANPROP_MAX_STRING_LENGTH) == CCanApi::NoError) {
             traceFile[CANPROP_MAX_STRING_LENGTH] = '\0';
             std::cout << "[   FILE   ] " << traceFile << std::endl;
         }
     }
     // @- close trace file for DUT1
-    trace = CANPARA_TRACE_OFF;
-    retVal = dut1.SetProperty(CANPROP_SET_TRACE_ACTIVE, (void*)&trace, sizeof(trace));
+    traceState = CANPARA_TRACE_OFF;
+    retVal = dut1.SetProperty(CANPROP_SET_TRACE_ACTIVE, (void*)&traceState, sizeof(traceState));
     EXPECT_EQ(CCanApi::NoError, retVal);
     // @- check if trace file is closed
-    trace = CANPARA_TRACE_ON;
-    retVal = dut1.GetProperty(CANPROP_GET_TRACE_ACTIVE, (void*)&trace, sizeof(trace));
+    traceState = CANPARA_TRACE_ON;
+    retVal = dut1.GetProperty(CANPROP_GET_TRACE_ACTIVE, (void*)&traceState, sizeof(traceState));
     EXPECT_EQ(CCanApi::NoError, retVal);
-    EXPECT_EQ(CANPARA_TRACE_OFF, trace);
+    EXPECT_EQ(CANPARA_TRACE_OFF, traceState);
 #endif
     // @- stop/reset DUT1
     retVal = dut1.ResetController();
@@ -335,4 +359,4 @@ TEST_F(SmokeTest, DefaultScenario) {
     // @end.
 }
 
-//  $Id: TC00_SmokeTest.cc 1357 2024-07-14 17:33:37Z makemake $  Copyright (c) UV Software, Berlin.
+//  $Id: TC00_SmokeTest.cc 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin.

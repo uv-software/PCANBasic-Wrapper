@@ -8,7 +8,7 @@
 //
 //  ------------------------------------------------------------------
 //  Author : Keneth Wagner
-//  Last change: 2024-01-26
+//  Last change: 2024-09-24
 //
 //  Language: ANSI-C
 //  ------------------------------------------------------------------
@@ -185,6 +185,7 @@
 #define PCAN_DEVICE_PART_NUMBER       0x2DU  // Get the part number associated to a device
 #define PCAN_HARD_RESET_STATUS        0x2EU  // Activation status of hard reset processing via CAN_Reset calls
 #define PCAN_LAN_CHANNEL_DIRECTION    0x2FU  // Communication direction of a PCAN-Channel representing a PCAN-LAN interface
+#define PCAN_DEVICE_GUID              0x30U  // Get the global unique device identifier (GUID) associated to a device
 
 // DEPRECATED parameters
 //
@@ -251,6 +252,7 @@
 #define LOOKUP_DEVICE_ID            __T("deviceid")         // Lookup channel by device id
 #define LOOKUP_CONTROLLER_NUMBER    __T("controllernumber") // Lookup channel by CAN controller 0-based index
 #define LOOKUP_IP_ADDRESS           __T("ipaddress")        // Lookup channel by IP address (LAN channels only)
+#define LOOKUP_DEVICE_GUID          __T("deviceguid")       // Lookup channel by device unique identifier (USB channels only)
 
 // Frame Type / Initialization Mode
 //

@@ -3,11 +3,11 @@
 //  CAN Tester for generic Interfaces (CAN API V3)
 //
 //  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
-//  Copyright (c) 2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2012-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
-//  This program is free software: you can redistribute it and/or modify
+//  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
+//  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
 //
 //  This program is distributed in the hope that it will be useful,
@@ -15,8 +15,8 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, see <https://www.gnu.org/licenses/>.
 //
 #include "Driver.h"
 #include "Options.h"
@@ -91,7 +91,7 @@ int main(int argc, const char* argv[]) {
     /* - CAN-over-Serial-Line (SLCAN protocol) */
     can_sio_param_t sioParam;
     sioParam.name = NULL;
-    sioParam.attr.options = CANSIO_SLCAN;
+    sioParam.attr.protocol = CANSIO_SLCAN;
     sioParam.attr.baudrate = CANSIO_BD57600;
     sioParam.attr.bytesize = CANSIO_8DATABITS;
     sioParam.attr.parity = CANSIO_NOPARITY;
@@ -231,6 +231,7 @@ int main(int argc, const char* argv[]) {
     if (channel.m_nLibraryId == CANLIB_SERIALCAN) {
         channel.m_nChannelNo = CANDEV_SERIAL;  // note: override channel number from JSON file
         sioParam.name = opts.m_szInterface;
+        sioParam.attr.protocol = opts.m_u8Protocol;
         devParam = (void*)&sioParam;
     }
 #endif

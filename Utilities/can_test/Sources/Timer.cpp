@@ -1,17 +1,18 @@
-//  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later
+//  SPDX-License-Identifier: BSD-2-Clause OR GPL-2.0-or-later
 //
 //  Software for Industrial Communication, Motion Control and Automation
 //
-//  Copyright (c) 2002-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2002-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
-//  Class CTimer
+//  Class CTimer - A class with methods for timeouts, delays and timestamps.
 //
 //  This class is dual-licensed under the BSD 2-Clause "Simplified" License
-//  and under the GNU General Public License v3.0 (or any later version).
+//  and under the GNU General Public License v2.0 (or any later version).
 //  You can choose between one of them if you use this class.
 //
-//  BSD 2-Clause "Simplified" License:
+//  (1) BSD 2-Clause "Simplified" License
+//
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
 //  1. Redistributions of source code must retain the above copyright notice, this
@@ -31,10 +32,11 @@
 //  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 //  OF THIS CLASS, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-//  GNU General Public License v3.0 or later:
-//  This class is free software: you can redistribute it and/or modify
+//  (2) GNU General Public License v2.0 or later
+//
+//  This class is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
+//  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
 //
 //  This class is distributed in the hope that it will be useful,
@@ -42,8 +44,8 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  You should have received a copy of the GNU General Public License
-//  along with this class.  If not, see <https://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this class; if not, see <https://www.gnu.org/licenses/>.
 //
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -260,4 +262,4 @@ double CTimer::DiffTime(struct timespec start, struct timespec stop) {
             ((double)start.tv_sec + ((double)start.tv_nsec / 1000000000.f)));
 }
 
-// $Id: Timer.cpp 810 2024-04-18 14:01:00Z quaoar $  Copyright (c) UV Software, Berlin //
+// $Id: Timer.cpp 841 2025-01-17 18:54:40Z quaoar $  Copyright (c) UV Software, Berlin //

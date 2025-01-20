@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 ![MSBuild](https://github.com/uv-software/PCANBasic-Wrapper/actions/workflows/msbuild.yml/badge.svg)
 
@@ -17,7 +17,7 @@ The wrapper library is build upon Peak´s PCANBasic DLL.
 
 ```C++
 /// \name   PeakCAN API
-/// \brief  CAN API V3 driver for PEAK-System PCAN interfaces
+/// \brief  CAN API V3 Wrapper for PEAK-System PCAN Interfaces
 /// \note   See CCanApi for a description of the overridden methods
 /// \{
 class CPeakCAN : public CCanApi {
@@ -94,6 +94,7 @@ To build all 64-bit targets (x64) run the script `x64_build.bat`.
 C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
 C:\Projects\CAN\Drivers\PeakCAN>x64_build.bat
 ```
+(The version number of the libraries can be adapted by editing the `.rc` files in the corresponding subfolders. Don´t forget to set the version number also in the header file `Version.h`.)
 
 #### uvPeakCAN (DLL)
 
@@ -126,7 +127,7 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.10.5)
+- Microsoft Visual Studio Community 2022 (Version 17.12.4)
 
 ### Required PCANBasic DLL
 
@@ -160,7 +161,7 @@ A generic documentation of the CAN API V3 application programming interface can 
 ### Dual-License
 
 Except where otherwise noted, this work is dual-licensed under the terms of the BSD 2-Clause "Simplified" License
-and under the terms of the GNU General Public License v3.0 (or any later version).
+and under the terms of the GNU General Public License v2.0 (or any later version).
 You can choose between one of them if you use these portions of this work in whole or in part.
 
 ### Trademarks

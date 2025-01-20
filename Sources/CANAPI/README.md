@@ -1,9 +1,7 @@
 ### CAN Interface API, Version 3
 
-_Copyright &copy; 2004-2024  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
+_Copyright &copy; 2004-2025  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
 _All rights reserved._
-
-Version $Rev: 1356 $
 
 # A CAN Interface Wrapper Specification
 
@@ -77,7 +75,7 @@ The implementation is using [vanilla-json](https://github.com/uv-software/vanill
 
 ### Dual-License
 
-This work is dual-licensed under the terms of the BSD 2-Clause "Simplified" License and under the terms of the GNU General Public License v3.0 (or any later version).
+This work is dual-licensed under the terms of the BSD 2-Clause "Simplified" License and under the terms of the GNU General Public License v2.0 (or any later version).
 You can choose between one of them if you use this work in whole or in part.
 
 ### Contact

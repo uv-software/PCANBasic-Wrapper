@@ -1,17 +1,18 @@
-/*  SPDX-License-Identifier: BSD-2-Clause OR GPL-3.0-or-later */
+/*  SPDX-License-Identifier: BSD-2-Clause OR GPL-2.0-or-later */
 /*
  *  CAN Interface API, Version 3 (Data Types and Defines)
  *
- *  Copyright (c) 2004-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of CAN API V3.
  *
  *  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
- *  and under the GNU General Public License v3.0 (or any later version).
- *  You can choose between one of them if you use this file.
+ *  and under the GNU General Public License v2.0 (or any later version). You can
+ *  choose between one of them if you use CAN API V3 in whole or in part.
  *
- *  BSD 2-Clause "Simplified" License:
+ *  (1) BSD 2-Clause "Simplified" License
+ *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
  *  1. Redistributions of source code must retain the above copyright notice, this
@@ -31,10 +32,11 @@
  *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  *  OF CAN API V3, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- *  GNU General Public License v3.0 or later:
- *  CAN API V3 is free software: you can redistribute it and/or modify
+ *  (2) GNU General Public License v2.0 or later
+ *
+ *  CAN API V3 is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
+ *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
  *  CAN API V3 is distributed in the hope that it will be useful,
@@ -42,8 +44,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with CAN API V3.  If not, see <https://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU General Public License along
+ *  with CAN API V3; if not, see <https://www.gnu.org/licenses/>.
  */
 /** @file        CANAPI_Types.h
  *
@@ -51,7 +53,7 @@
  *
  *  @author      $Author: makemake $
  *
- *  @version     $Rev: 1356 $
+ *  @version     $Rev: 1407 $
  *
  *  @addtogroup  can_api
  *  @{
@@ -264,8 +266,10 @@ extern "C" {
 #define CANERR_LEC_CRC            (-16) /**< LEC - checksum error */
 #define CANERR_RESERVED1          (-19) /**< RIP - error frame */
 #define CANERR_TX_BUSY            (-20) /**< USR - transmitter busy */
+#define CANERR_RESERVED2          (-21) /**< N/A - macCAN specific */
 #define CANERR_RX_EMPTY           (-30) /**< USR - receiver empty */
 #define CANERR_QUE_OVR            (-40) /**< USR - queue overrun */
+#define CANERR_RESERVED3          (-41) /**< N/A - macCAN specific */
 #define CANERR_TIMEOUT            (-50) /**< USR - time-out */
 #define CANERR_RESOURCE           (-90) /**< USR - resource allocation */
 #define CANERR_BAUDRATE           (-91) /**< USR - illegal baudrate */
@@ -362,7 +366,7 @@ extern "C" {
 #define CANPROP_SET_TRACE_FOLDER    57U /**< set trace file folder location (directory only) (char[]) */
 #define CANPROP_SET_TRACE_TYPE      58U /**< set trace file type (for possible values see below) (uint8_t) */
 #define CANPROP_SET_TRACE_MODE      59U /**< set trace file mode (for possible options see below) (uint16_t) */
-#define CANPROP_SET_TRACE_SIZE      60U /**< set trace file segment size (in 10 KB steps, 0 = 100MB) (uint 16_t) */
+#define CANPROP_SET_TRACE_SIZE      60U /**< set trace file segment size (in 10 KB steps, 0 = 100MB) (uint16_t) */
 #if (OPTION_CANAPI_LIBRARY != 0)
 /* - -  build-in bit-rate conversion  - - - - - - - - - - - - - - - - - */
 #define CANPROP_GET_BTR_INDEX       64U /**< bit-rate as CiA index (int32_t) */
@@ -450,16 +454,17 @@ extern "C" {
 #define CANPARA_TRACE_TYPE_VENDOR 0x80U /**< trace file: vendor-specific */
 /* - -  trace file mode - - - - - - - - - - - - - - - - - - - - - - - - */
 #define CANPARA_TRACE_MODE_DEFAULT   0x0000U /**< trace file: default (create/append) */
-#define CANPARA_TRACE_MODE_OVERWRITE   0x80U /**< trace file: overwrite existing */
+#define CANPARA_TRACE_MODE_OVERWRITE   0x80U /**< trace file: overwrite existing/create */
 #define CANPARA_TRACE_MODE_SEGMENTED   0x01U /**< trace file: segmented trace file */
 #define CANPARA_TRACE_MODE_COMPRESSED  0x40U /**< trace file: compressed trace file */
 #define CANPARA_TRACE_MODE_PREFIX_DATE  0x02U /**< trace file: date as file name prefix */
 #define CANPARA_TRACE_MODE_PREFIX_TIME  0x04U /**< trace file: time as file name prefix */
 #define CANPARA_TRACE_MODE_OUTPUT_DLC  0x000U /**< trace file: length as Data Length Code */
 #define CANPARA_TRACE_MODE_OUTPUT_LEN  0x100U /**< trace file: length as LENGTH in bytes */
-#define CANPARA_TRACE_MODE_OUTPUT_HEX  0x000U /**< trace file: Id., length and data as HEX */
-#define CANPARA_TRACE_MODE_OUTPUT_DEC  0x200U /**< trace file: Id., length and data as DEC */
-#define CANPARA_TRACE_MODE_CUSTOM_NAME 0x8000U /**< trace file: use of custom file name (basename and extension) */
+/* - -  trace file size - - - - - - - - - - - - - - - - - - - - - - - - */
+#define CANPARA_TRACE_SIZE_DEFAULT   1024U  /**< trace file: default segment size (in [10 * KB]) */
+#define CANPARA_TRACE_SIZE_LIMIT     62500U /**< trace file: maximum segment size (in [10 * KB]) */
+#define CANPARA_TRACE_SIZE_10KB      10240L /**< trace file: size factor(in [KB]) */
 /* - -  message formatter - - - - - - - - - - - - - - - - - - - - - - - */
 #define CANPARA_FORMAT_DEFAULT       0  /**< message formatter output (default) */
 /* - -  formatter option: ON or OFF - - - - - - - - - - - - - - - - - - */

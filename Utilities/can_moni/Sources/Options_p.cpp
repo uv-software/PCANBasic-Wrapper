@@ -2,11 +2,11 @@
 //
 //  CAN Monitor for generic Interfaces (CAN API V3)
 //
-//  Copyright (c) 2007,2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2007,2012-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
-//  This program is free software: you can redistribute it and/or modify
+//  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
+//  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
 //
 //  This program is distributed in the hope that it will be useful,
@@ -14,8 +14,8 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, see <https://www.gnu.org/licenses/>.
 //
 #include "Options.h"
 #include "Message.h"
@@ -68,6 +68,9 @@ SOptions::SOptions() {
 #else
     m_szJsonFilename = (char*)NULL;
 #endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+    m_u8Protocol = CANSIO_LAWICEL;
+#endif
     m_OpMode.byte = DEFAULT_OP_MODE;
     m_Bitrate.index = DEFAULT_BAUDRATE;
     m_bHasDataPhase = false;
@@ -117,6 +120,9 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
     int optListBitrates = 0;
     int optListBoards = 0;
     int optTestBoards = 0;
+#if (SERIAL_CAN_SUPPORTED != 0)
+    int optProtocol = 0;
+#endif
 #if (OPTION_CANAPI_LIBRARY != 0)
     int optPath = 0;
 #else
@@ -140,6 +146,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
         {"baudrate", required_argument, 0, 'b'},
         {"bitrate", required_argument, 0, 'B'},
         {"verbose", no_argument, 0, 'v'},
+        {"protocol", required_argument, 0, 'z'},
         {"mode", required_argument, 0, 'm'},
         {"shared", no_argument, 0, 'S'},
         {"listen-only", no_argument, 0, 'M'},
@@ -184,9 +191,9 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
 #endif
     // (2) scan command-line for options
 #if (OPTION_CANAPI_LIBRARY != 0)
-    while ((opt = getopt_long(argc, (char * const *)argv, "b:vp:m:t:i:d:a:w:x:s:y:lLTh", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, (char * const *)argv, "b:vp:z:m:t:i:d:a:w:x:s:y:lLTh", long_options, NULL)) != -1) {
 #else
-    while ((opt = getopt_long(argc, (char * const *)argv, "b:vm:t:i:d:a:w:x:s:y:lLTj:h", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, (char * const *)argv, "b:vz:m:t:i:d:a:w:x:s:y:lLTj:h", long_options, NULL)) != -1) {
 #endif
         switch (opt) {
         /* option '--baudrate=<baudrate>' (-b) */
@@ -268,6 +275,27 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 return 1;
             }
             m_szSearchPath = optarg;
+            break;
+#endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+        /* option '--protocol=(Lawicel|CANable)' */
+        case 'z':
+            if (optProtocol++) {
+                fprintf(err, "%s: duplicated option `--protocol' (%c)\n", m_szBasename, opt);
+                return 1;
+            }
+            if (optarg == NULL) {
+                fprintf(err, "%s: missing argument for option `--protocol' (%c)\n", m_szBasename, opt);
+                return 1;
+            }
+            if (!strcasecmp(optarg, "Lawicel") || !strcasecmp(optarg, "default") || !strcasecmp(optarg, "SLCAN"))
+                m_u8Protocol = CANSIO_LAWICEL;
+            else if (!strcasecmp(optarg, "CANable"))
+                m_u8Protocol = CANSIO_CANABLE;
+            else {
+                fprintf(err, "%s: illegal argument for option `--protocol' (%c)\n", m_szBasename, opt);
+                return 1;
+            }
             break;
 #endif
         /* option '--mode=(2.0|FDF[+BRS])' (-m) */
@@ -797,6 +825,9 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, " -v, --verbose                        show detailed bit-rate settings\n");
 #if (CAN_TRACE_SUPPORTED != 0)
     fprintf(stream, " -y, --trace=(ON|OFF)                 write a trace file (default=OFF)\n");
+#endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+    fprintf(stream, " -z, --protocol=(Lawicel|CANable)     select SLCAN protocol (default=Lawicel)\n");
 #endif
 #if (CAN_FD_SUPPORTED != 0)
     fprintf(stream, "     --list-bitrates[=<mode>]         list standard bit-rate settings and exit\n");

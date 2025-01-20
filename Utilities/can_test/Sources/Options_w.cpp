@@ -3,11 +3,11 @@
 //  CAN Tester for generic Interfaces (CAN API V3)
 //
 //  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
-//  Copyright (c) 2012-2024 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2012-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
-//  This program is free software: you can redistribute it and/or modify
+//  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
+//  the Free Software Foundation; either version 2 of the License, or
 //  (at your option) any later version.
 //
 //  This program is distributed in the hope that it will be useful,
@@ -15,8 +15,8 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//  You should have received a copy of the GNU General Public License along
+//  with this program; if not, see <https://www.gnu.org/licenses/>.
 //
 #include "Options.h"
 
@@ -101,14 +101,16 @@ extern "C" {
 #define LISTBOARDS_CHR    51
 #define TESTBOARDS_STR    52
 #define TESTBOARDS_CHR    53
-#define JSON_STR          54
-#define JSON_CHR          55
-#define HELP              56
-#define QUESTION_MARK     57
-#define ABOUT             58
-#define CHARACTER_MJU     59
-#define VERSION           60
-#define MAX_OPTIONS       61
+#define PROTOCOL_STR      54
+#define PROTOCOL_CHR      55
+#define JSON_STR          56
+#define JSON_CHR          57
+#define HELP              58
+#define QUESTION_MARK     59
+#define ABOUT             60
+#define CHARACTER_MJU     61
+#define VERSION           62
+#define MAX_OPTIONS       63
 
 static char* option[MAX_OPTIONS] = {
     (char*)"BAUDRATE", (char*)"bd",
@@ -137,6 +139,7 @@ static char* option[MAX_OPTIONS] = {
     (char*)"LIST-BITRATES",
     (char*)"LIST-BOARDS", (char*)"list",
     (char*)"TEST-BOARDS", (char*)"test",
+    (char*)"PROTOCOL", (char*)"pr",
 #if (OPTION_CANAPI_LIBRARY != 0)
     (char*)"PATH", (char*)"p",
 #else
@@ -168,6 +171,9 @@ SOptions::SOptions() {
     m_szSearchPath = (char*)NULL;
 #else
     m_szJsonFilename = (char*)NULL;
+#endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+    m_u8Protocol = CANSIO_LAWICEL;
 #endif
     m_OpMode.byte = DEFAULT_OP_MODE;
     m_Bitrate.index = DEFAULT_BAUDRATE;
@@ -231,6 +237,9 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
     int optListBitrates = 0;
     int optListBoards = 0;
     int optTestBoards = 0;
+#if (SERIAL_CAN_SUPPORTED != 0)
+    int optProtocol = 0;
+#endif
 #if (OPTION_CANAPI_LIBRARY != 0)
     int optPath = 0;
 #else
@@ -331,6 +340,28 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 return 1;
             }
             m_szSearchPath = optarg;
+            break;
+#endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+        /* option '--protocol=(Lawicel|CANable)' (-z) */
+        case PROTOCOL_STR:
+        case PROTOCOL_CHR:
+            if ((optProtocol++)) {
+                fprintf(err, "%s: duplicated option /PROTOCOL\n", m_szBasename);
+                return 1;
+            }
+            if ((optarg = getOptionParameter()) == NULL) {
+                fprintf(err, "%s: missing argument for option /PROTOCOL\n", m_szBasename);
+                return 1;
+            }
+            if (!strcasecmp(optarg, "LAWICEL") || !strcasecmp(optarg, "default") || !strcasecmp(optarg, "SLCAN"))
+                m_u8Protocol = CANSIO_LAWICEL;
+            else if (!strcasecmp(optarg, "CANABLE"))
+                m_u8Protocol = CANSIO_CANABLE;
+            else {
+                fprintf(err, "%s: illegal argument for option /PROTOCOL\n", m_szBasename);
+                return 1;
+            }
             break;
 #endif
         /* option '--mode=(2.0|FDF[+BRS])' (-m) */
@@ -1004,6 +1035,9 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
     fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)\n");
     fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
+#if (SERIAL_CAN_SUPPORTED != 0)
+    fprintf(stream, "  /PRotocol:(Lawicel|CANable)         select SLCAN protocol (default=Lawicel)\n");
+#endif
 #if (CAN_TRACE_SUPPORTED != 0)
     fprintf(stream, "  /TRaCe:(ON|OFF)                     write a trace file (default=OFF)\n");
 #endif
@@ -1029,6 +1063,9 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
     fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)\n");
     fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
+#if (SERIAL_CAN_SUPPORTED != 0)
+    fprintf(stream, "  /PRotocol:(Lawicel|CANable)         select SLCAN protocol (default=Lawicel)\n");
+#endif
 #if (CAN_TRACE_SUPPORTED != 0)
     fprintf(stream, "  /TRaCe:(ON|OFF)                     write a trace file (default=OFF)\n");
 #endif
