@@ -1,3 +1,9 @@
+//
+//  can_send.cpp
+//  PCANBasic-Wrapper
+//  Send some CAN messages using the C API (can_api.h)
+//  Library: u3canpcb.dll, libUVCANPCB.dylib, libuvcanpcb.so
+//
 #ifdef _MSC_VER
 //no Microsoft extensions please!
 #ifndef _CRT_SECURE_NO_WARNINGS
@@ -21,7 +27,7 @@
 #endif
 #define FRAMES  (CAN_MAX_STD_ID+1)
 
-int main(int argc, const char * argv[]) {
+int main(/*int argc, const char * argv[]*/) {
     int handle, result, i;
     can_bitrate_t bitrate;
     can_message_t message;

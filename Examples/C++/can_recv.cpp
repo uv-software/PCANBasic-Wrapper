@@ -1,3 +1,9 @@
+//
+//  can_recv.cpp
+//  PCANBasic-Wrapper
+//  Receive some CAN messages using the C++ API (PeakCAN.h)
+//  Library: PeakCAN.dll, libPeakCAN.dylib, libpeakcan.so
+//
 #ifdef _MSC_VER
 //no Microsoft extensions please!
 #ifndef _CRT_SECURE_NO_WARNINGS
@@ -22,7 +28,7 @@ static volatile int running = 1;
 
 static CPeakCAN myDriver = CPeakCAN();
 
-int main(int argc, const char * argv[]) {
+int main(/*int argc, const char * argv[]*/) {
     CANAPI_OpMode_t opMode = {};
     opMode.byte = CANMODE_DEFAULT;
     CANAPI_Bitrate_t bitrate = {};
@@ -65,10 +71,11 @@ int main(int argc, const char * argv[]) {
             fprintf(stdout, "\n");
         }
         else if (retVal != CCanApi::ReceiverEmpty) {
-            fprintf(stderr, "+++ error: read message returned %i\n", retVal);
+            fprintf(stderr, "+++ error: read message returned %i", retVal);
             running = 0;
         }
     }
+    std::cout << std::endl;
 teardown:
     if ((retVal = myDriver.TeardownChannel()) != CCanApi::NoError)
         std::cerr << "+++ error: interface could not be shutdown" << std::endl;
