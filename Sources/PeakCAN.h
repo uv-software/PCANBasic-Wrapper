@@ -68,7 +68,7 @@
 /// \}
 
 /// \name   PeakCAN API
-/// \brief  CAN API V3 driver for PEAK-System PCAN interfaces
+/// \brief  CAN API V3 Wrapper for PEAK-System PCAN Interfaces
 /// \note   See CCanApi for a description of the overridden methods
 /// \{
 class CANCPP CPeakCAN : public CCanApi {

@@ -17,7 +17,7 @@ The wrapper library is build upon Peak´s PCANBasic DLL.
 
 ```C++
 /// \name   PeakCAN API
-/// \brief  CAN API V3 driver for PEAK-System PCAN interfaces
+/// \brief  CAN API V3 Wrapper for PEAK-System PCAN Interfaces
 /// \note   See CCanApi for a description of the overridden methods
 /// \{
 class CPeakCAN : public CCanApi {
@@ -94,7 +94,7 @@ To build all 64-bit targets (x64) run the script `x64_build.bat`.
 C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
 C:\Projects\CAN\Drivers\PeakCAN>x64_build.bat
 ```
-(The version number of the libraries can be adapted by editing the `.rc` files in the corresponding subfolders and changing the variable VERSION accordingly. Don´t forget to set the version number also in the header file `Version.h`.)
+(The version number of the libraries can be adapted by editing the `.rc` files in the corresponding subfolders. Don´t forget to set the version number also in the header file `Version.h`.)
 
 #### uvPeakCAN (DLL)
 
