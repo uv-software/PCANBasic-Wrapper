@@ -55,15 +55,15 @@
  * 
  *  @author      $Author: makemake $
  *
- *  @version     $Rev: 1407 $
+ *  @version     $Rev: 1418 $
  *
  *  @addtogroup  can_api
  *  @{
  */
 #ifndef CANAPI_VERSION_H_INCLUDED
 #define CANAPI_VERSION_H_INCLUDED
-// SVN revision number (update with each commit: III)
-#define CAN_API_REV  "$Rev: 1407 $"
+// SVN revision number (update with each commit: IV)
+#define CAN_API_REV  "$Rev: 1418 $"
 #endif /* CANAPI_VERSION_H_INCLUDED */
 /** @}
  */
