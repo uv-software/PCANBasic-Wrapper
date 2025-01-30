@@ -1,5 +1,1 @@
 .svn
-# Not realized yet
-ipc_server.*
-# Not using IPC client
-ipc_client.*

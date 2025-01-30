@@ -1,4 +1,4 @@
-//  SPDX-License-Identifier: GPL-3.0-or-later
+//  SPDX-License-Identifier: GPL-2.0-or-later
 //
 //  CAN Monitor for generic Interfaces (CAN API V3)
 //
@@ -921,11 +921,15 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
     fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)\n");
     fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
+#if (CAN_TRACE_SUPPORTED != 0)
+#if (CAN_TRACE_SUPPORTED == 1)
+    fprintf(stream, "  /TRaCe:(ON|OFF)                     write a trace file (default=OFF)\n");
+#else
+    fprintf(stream, "  /TRaCe:(BIN|CSV|TRC)                write a trace file (default=OFF)\n");
+#endif
+#endif
 #if (SERIAL_CAN_SUPPORTED != 0)
     fprintf(stream, "  /PRotocol:(Lawicel|CANable)         select SLCAN protocol (default=Lawicel)\n");
-#endif
-#if (CAN_TRACE_SUPPORTED != 0)
-    fprintf(stream, "  /TRaCe:(ON|OFF)                     write a trace file (default=OFF)\n");
 #endif
 #if (CAN_FD_SUPPORTED != 0)
     fprintf(stream, "  /LIST-BITRATES[:(2.0|FDf[+BRS])]    list standard bit-rate settings and exit\n");

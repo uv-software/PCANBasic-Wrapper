@@ -1,4 +1,4 @@
-//  SPDX-License-Identifier: GPL-3.0-or-later
+//  SPDX-License-Identifier: GPL-2.0-or-later
 //
 //  CAN Monitor for generic Interfaces (CAN API V3)
 //
@@ -18,7 +18,7 @@
 //  with this program; if not, see <https://www.gnu.org/licenses/>.
 //
 #if defined(_WIN32) || defined(_WIN64)
-//  for Windows OS (x86 and x64) 
+//  for Windows OS (x86 and x64)
 #include "Options_w.cpp"
 #else
 //  for POSIX OS (Linux, Darwin)

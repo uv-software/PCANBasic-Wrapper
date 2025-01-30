@@ -1,4 +1,4 @@
-//  SPDX-License-Identifier: GPL-3.0-or-later
+//  SPDX-License-Identifier: GPL-2.0-or-later
 //
 //  CAN Tester for generic Interfaces (CAN API V3)
 //
@@ -32,11 +32,11 @@
 #if defined(_WIN32) || defined(_WIN64)
 #define CAN_TEST_WARRANTY    "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
                              "This is free software, and you are welcome to redistribute it\n" \
-                             "under certain conditions; type '/VERSION' for details.";
+                             "under certain conditions; type '" CAN_TEST_PROGRAM " /VERSION' for details.";
 #else
 #define CAN_TEST_WARRANTY    "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
                              "This is free software, and you are welcome to redistribute it\n" \
-                             "under certain conditions; type `--version' for details.";
+                             "under certain conditions; type `" CAN_TEST_PROGRAM " --version' for details.";
 #endif
 #define CAN_TEST_LICENSE     "This program is free software; you can redistribute it and/or modify\n" \
                              "it under the terms of the GNU General Public License as published by\n" \
@@ -88,7 +88,7 @@ struct SOptions {
     uint8_t m_nTxCanDlc;
     bool m_fTxXtdId;
 #if (CAN_TRACE_SUPPORTED != 0)
-    enum {
+    enum ETraceMode {
         eTraceOff,
         eTraceBinary,
         eTraceLogger,

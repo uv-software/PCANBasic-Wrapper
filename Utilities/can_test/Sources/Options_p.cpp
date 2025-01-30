@@ -1,4 +1,4 @@
-//  SPDX-License-Identifier: GPL-3.0-or-later
+//  SPDX-License-Identifier: GPL-2.0-or-later
 //
 //  CAN Tester for generic Interfaces (CAN API V3)
 //
@@ -920,11 +920,14 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, " -b, --baudrate=<baudrate>            CAN bit-timing in kbps (default=250), or\n");
     fprintf(stream, "     --bitrate=<bit-rate>             CAN bit-rate settings (as key/value list)\n");
     fprintf(stream, " -v, --verbose                        show detailed bit-rate settings\n");
-#if (SERIAL_CAN_SUPPORTED != 0)
-    fprintf(stream, " -z, --protocol=(Lawicel|CANable)     select SLCAN protocol (default=Lawicel)\n");
-#endif
 #if (CAN_TRACE_SUPPORTED != 0)
-    fprintf(stream, " -y, --trace=(ON|OFF)                 write a trace file (default=OFF)\n");
+#if (CAN_TRACE_SUPPORTED == 1)
+    fprintf(stream, "     --trace=(ON|OFF)                 write a trace file (default=OFF)\n");
+#else
+    fprintf(stream, "     --trace=(BIN|CSV|TRC)            write a trace file (default=OFF)\n");
+#endif
+#if (SERIAL_CAN_SUPPORTED != 0)
+    fprintf(stream, "     --protocol=(Lawicel|CANable)     select SLCAN protocol (default=Lawicel)\n");
 #endif
     fprintf(stream, "Options for transmitter test:\n");
     fprintf(stream, " -t, --transmit=<time>                send messages for the given time in seconds, or\n");
@@ -949,10 +952,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "     --bitrate=<bit-rate>             CAN bit-rate settings (as key/value list)\n");
     fprintf(stream, " -v, --verbose                        show detailed bit-rate settings\n");
 #if (SERIAL_CAN_SUPPORTED != 0)
-    fprintf(stream, " -z, --protocol=(Lawicel|CANable)     select SLCAN protocol (default=Lawicel)\n");
-#endif
-#if (CAN_TRACE_SUPPORTED != 0)
-    fprintf(stream, " -y, --trace=(ON|OFF)                 write a trace file (default=OFF)\n");
+    fprintf(stream, "     --protocol=(Lawicel|CANable)     select SLCAN protocol (default=Lawicel)\n");
 #endif
     fprintf(stream, "Other options:\n");
 #if (CAN_FD_SUPPORTED != 0)
