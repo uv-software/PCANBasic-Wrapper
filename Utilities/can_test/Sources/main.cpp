@@ -702,6 +702,9 @@ uint64_t CCanDevice::TransmitterTest(time_t duration, CANAPI_OpMode_t opMode, ui
     uint64_t errors = 0;
     uint64_t calls = 0;
 
+    struct timespec t0;
+    uint64_t dt;
+
     memset(&message, 0, sizeof(CANAPI_Message_t));
 
     fprintf(stderr, "\nPress ^C to abort.\n");
@@ -730,6 +733,7 @@ uint64_t CCanDevice::TransmitterTest(time_t duration, CANAPI_OpMode_t opMode, ui
         memset(&message.data[8], 0, CANFD_MAX_LEN - 8);
 #endif
         /* transmit message (repeat when busy) */
+        t0 = CTimer::GetTime();
 retry_tx_test:
         calls++;
         retVal = WriteMessage(message);
@@ -740,7 +744,9 @@ retry_tx_test:
         else
             errors++;
         /* pause between two messages, as you please */
-        CTimer::Delay(delay * CTimer::USEC);
+        dt = CTimer::DiffTimeInUsec(t0, CTimer::GetTime());
+        if (delay && (dt < (delay * CTimer::USEC)))
+            CTimer::Delay((delay * CTimer::USEC) - dt);
         if (!running) {
             fprintf(stderr, "\b");
             fprintf(stdout, "STOP!\n\n");
@@ -781,6 +787,9 @@ uint64_t CCanDevice::TransmitterTest(uint64_t count, CANAPI_OpMode_t opMode, boo
     uint64_t errors = 0;
     uint64_t calls = 0;
 
+    struct timespec t0;
+    uint64_t dt = 0;
+
     srand((unsigned int)time(NULL));
     memset(&message, 0, sizeof(CANAPI_Message_t));
 
@@ -815,6 +824,7 @@ uint64_t CCanDevice::TransmitterTest(uint64_t count, CANAPI_OpMode_t opMode, boo
             message.dlc = dlc + (uint8_t)(rand() % ((CAN_MAX_DLC - dlc) + 1));
 #endif
         /* transmit message (repeat when busy) */
+        t0 = CTimer::GetTime();
 retry_tx_test:
         calls++;
         retVal = WriteMessage(message);
@@ -825,10 +835,11 @@ retry_tx_test:
         else
             errors++;
         /* pause between two messages, as you please */
+        dt = CTimer::DiffTimeInUsec(t0, CTimer::GetTime());
         if (random)
             CTimer::Delay(CTimer::USEC * (delay + (uint64_t)(rand() % 54945)));
-        else
-            CTimer::Delay(CTimer::USEC * delay);
+        else if (delay && (dt < (delay * CTimer::USEC)))
+            CTimer::Delay((delay * CTimer::USEC) - dt);
         if (!running) {
             fprintf(stderr, "\b");
             fprintf(stdout, "STOP!\n\n");

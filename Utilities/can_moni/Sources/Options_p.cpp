@@ -829,6 +829,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
 #else
     fprintf(stream, "     --trace=(BIN|CSV|TRC)            write a trace file (default=OFF)\n");
 #endif
+#endif
 #if (SERIAL_CAN_SUPPORTED != 0)
     fprintf(stream, "     --protocol=(Lawicel|CANable)     select SLCAN protocol (default=Lawicel)\n");
 #endif

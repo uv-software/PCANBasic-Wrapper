@@ -72,7 +72,7 @@ Arguments:
                  data_brp=<value>     bit-rate prescaler (FD data)
                  data_tseg1=<value>   time segment 1 (FD data)
                  data_tseg2=<value>   time segment 2 (FD data)
-                 data_sjw=<value>     sync. jump width (FD data).
+                 data_sjw=<value>     sync. jump width (FD data)
 Hazard note:
   If you connect your CAN device to a real CAN network when using this program,
   you might damage your application.

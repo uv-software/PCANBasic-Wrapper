@@ -56,6 +56,7 @@
 
 #include <time.h>
 #include <stdint.h>
+#include <limits.h>
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
@@ -88,8 +89,11 @@ public:
 
     static struct timespec GetTime();  // time with nanosecond resolution
     static double DiffTime(struct timespec start, struct timespec stop);
+    static uint64_t DiffTimeInUsec(struct timespec start, struct timespec stop);
+    static uint64_t DiffTimeInMsec(struct timespec start, struct timespec stop);
+    static uint64_t DiffTimeInSec(struct timespec start, struct timespec stop);
 };
 
 #endif // TIMER_H_INCLUDED
 
-// $Id: Timer.h 841 2025-01-17 18:54:40Z quaoar $  Copyright (c) UV Software, Berlin //
+// $Id: Timer.h 847 2025-02-22 12:50:44Z sedna $  Copyright (c) UV Software, Berlin //

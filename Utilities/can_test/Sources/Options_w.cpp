@@ -1067,6 +1067,13 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
     fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)\n");
     fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
+#if (CAN_TRACE_SUPPORTED != 0)
+#if (CAN_TRACE_SUPPORTED == 1)
+    fprintf(stream, "  /TRaCe:(ON|OFF)                     write a trace file (default=OFF)\n");
+#else
+    fprintf(stream, "  /TRaCe:(BIN|CSV|TRC)                write a trace file (default=OFF)\n");
+#endif
+#endif
 #if (SERIAL_CAN_SUPPORTED != 0)
     fprintf(stream, "  /PRotocol:(Lawicel|CANable)         select SLCAN protocol (default=Lawicel)\n");
 #endif

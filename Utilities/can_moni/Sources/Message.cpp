@@ -56,7 +56,7 @@
 //  Methods to format a CAN message
 //
 bool CCanMessage::Format(TCanMessage message, uint64_t counter, char *string, size_t length) {
-    char *szMessage = msg_format_message(&message, MSG_RX_MESSAGE, counter, 0);
+    char *szMessage = msg_format_message((const msg_message_t*)&message, MSG_RX_MESSAGE, counter, 0);
     if (szMessage) {
         strncpy(string, szMessage, length);
         return true;
@@ -86,4 +86,8 @@ bool CCanMessage::SetAsciiFormat(EFormatOption option) {
 
 bool CCanMessage::SetWraparound(EFormatWraparound option) {
     return msg_set_fmt_wraparound((msg_fmt_wraparound_t) option) ? true : false;
+}
+
+bool CCanMessage::Parse(const char *string, TCanMessage &message, uint32_t &count, uint64_t &cycle, int &increment) {
+    return msg_parse(string, (msg_message_t*)&message, &count, &cycle, &increment) == 0 ? true : false;
 }

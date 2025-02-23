@@ -86,6 +86,7 @@ public:
     static bool SetAsciiFormat(EFormatOption option);
     static bool SetWraparound(EFormatWraparound option);
     static bool Format(TCanMessage message, uint64_t counter, char *string, size_t length);
+    static bool Parse(const char *string, TCanMessage &message, uint32_t &count, uint64_t &cycle, int &increment);
 };
 /// \}
 
