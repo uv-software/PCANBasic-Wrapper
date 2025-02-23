@@ -83,13 +83,7 @@ C:\Projects\CAN\Drivers\PeakCAN>build_no.bat
 ```
 Repeat this step after each `git commit`, `git pull`, `git clone`, etc.
 
-To build all 32-bit targets (x86) run the script `x86_build.bat`.
-```
-C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
-C:\Projects\CAN\Drivers\PeakCAN>x86_build.bat
-```
-
-To build all 64-bit targets (x64) run the script `x64_build.bat`.
+To build all targets (x64) run the script `x64_build.bat`.
 ```
 C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN
 C:\Projects\CAN\Drivers\PeakCAN>x64_build.bat
@@ -105,6 +99,13 @@ See header file `PeakCAN.h` for a description of all class members.
 
 ___u3canpcb___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C__ applications.
 See header file `can_api.h` for a description of all API functions.
+
+#### can_send (CLI)
+
+`can_send` is a command line tool to send CAN messages that are entered at the program prompt.
+The syntax is taken from the Linux SocketCAN utility [can_utils\cansend](https://github.com/linux-can/can-utils/tree/master).
+
+Type `can_send /?` to display all program options.
 
 #### can_moni (CLI)
 
@@ -127,7 +128,7 @@ Type `can_test /?` to display all program options.
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.12.4)
+- Microsoft Visual Studio Community 2022 (Version 17.13.1)
 
 ### Required PCANBasic DLL
 
