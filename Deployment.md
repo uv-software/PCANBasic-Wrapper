@@ -17,23 +17,22 @@ _All rights reserved._
    from PEAK's website and commit it with commit comment:
   - `Update PEAK's PCANBasic DLL (version `_n_`.`_n_`.`_n_`)` \
     `- `_list of major changes (optional)_
-2. If necessary, update the CAN API V3 sources in `$(PROJROOT)\Sources\CANAPI`
+1. If necessary, update the CAN API V3 sources in `$(PROJROOT)\Sources\CANAPI`
    from the SVN repo and commit them with commit comment:
   - `Update CAN API V3 sources to rev. `_nnn_ \
     `- `_list of major changes (optional)_
-3. If necessary, update the CAN API V3 testing sources in `$(PROJROOT)\Tests`
+1. If necessary, update the CAN API V3 testing sources in `$(PROJROOT)\Tests`
    from the SVN repo and commit them with commit comment:
   - `Update CAN API V3 testing sources to rev. `_nnn_ \
     `- `_list of major changes (optional)_
-4. Check and update the version and date information in the following files:
+1. Check and update the version and date information in the following files:
   - `$(PROJROOT)\Sources\Version.h`
-  - `$(PROJROOT)\Sources\PeakCAN.h`
-  - `$(PROJROOT)\Sources\PeakCAN.cpp`
-  - `$(PROJROOT)\Sources\Wrapper\can_api.c`
   - `$(PROJROOT)\Libraries\CANAPI\uvcanpcb.rc`
   - `$(PROJROOT)\Libraries\PeakCAN\PeakCAN.rc`
-  - `$(PROJROOT)\Utilities\can_moni\Driver.h`
-  - `$(PROJROOT)\Utilities\can_test\Driver.h`
+  - `$(PROJROOT)/Utilities/can_moni/README.md`
+  - `$(PROJROOT)/Utilities/can_port/README.md`
+  - `$(PROJROOT)/Utilities/can_send/README.md`
+  - `$(PROJROOT)/Utilities/can_test/README.md`
 
 ### Procedure
 
@@ -43,7 +42,7 @@ _All rights reserved._
 2. Open the trial program with Visual Studio and run a code analysis.
   - _**There should not be any serious finding.**_
   - _If there are findings then fix them or create an issue in the repo._
-3. Run `x86_build.bat` and `x64_build.bat` in the project root directory.
+3. Run `x64_build.bat` in the project root directory.
   - _**There should be absolutely no compiler or linker error!**_
   - _If there are compiler or linker warnings then think twice._
 4. Try out the trial program with different options.
@@ -71,16 +70,13 @@ _All rights reserved._
 2. Double check all version numbers again (see above).
 3. Run the batch files in the project root directory:
   - `C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN`
-  - `C:\Projects\CAN\Drivers\PeakCAN>x86_build.bat`
-  - `C:\Projects\CAN\Drivers\PeakCAN>x86_install.bat`
   - `C:\Projects\CAN\Drivers\PeakCAN>x64_build.bat`
   - `C:\Projects\CAN\Drivers\PeakCAN>x64_install.bat`
 4. Build the CAN API V3 GoogleTest program:
   - `C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN\Tests`
-  - `C:\Projects\CAN\Drivers\PeakCAN\Tests>x86_build.bat`
   - `C:\Projects\CAN\Drivers\PeakCAN\Tests>x64_build.bat`
 5. Run the CAN API V3 GoogleTest program with two PCAN-USB devices in CAN 2.0 mode:
-  - `C:\Projects\CAN\Drivers\PeakCAN\Tests>Debug\pcb_testing --can_dut1=PCAN-USB1 --can_dut2=PCAN-USB2 --can_mode=2.0 --can_bitrate=DEFAULT --gtest_output=xml:TestReport_PCAN-USB.xml --run_all=YES --smoketest_frames=100000` [...]
+  - `C:\Projects\CAN\Drivers\PeakCAN\Tests>x64\Debug\pcb_testing --can_dut1=PCAN-USB1 --can_dut2=PCAN-USB2 --can_mode=2.0 --can_bitrate=DEFAULT --gtest_output=xml:TestReport_PCAN-USB.xml --run_all=YES --smoketest_frames=100000` [...]
   - _If there is any error then **stop** here or create an issue for each error in the repo._
   - Copy the test report into the binary's directory `$(PROJROOT)\Binaries`.
 6. Run the CAN API V3 GoogleTest program with two PCAN-USB FD devices in CAN FD mode:
@@ -98,7 +94,7 @@ _All rights reserved._
 
 1. Click on `Draft a new release` in the [GitHub](https://github.com/uv-software/PeakCAN-Wrapper) repo.
 2. Fill out all required fields:
-  - Tag version: e.g `v0.5` (cf. semantic versioning)
+  - Tag version: e.g `v0.6` (cf. semantic versioning)
   - Target: `main` (default branch)
   - Release title: e.g. `Release of January 19, 2038`
   - Change-log: list all major changes, e.g. from commit comments
