@@ -39,6 +39,14 @@ Utilities/can_moni/Release
 Utilities/can_moni/can_moni
 Utilities/can_moni/*.sln
 Utilities/can_moni/*.vcxproj.user
+Utilities/can_send/.vs
+Utilities/can_send/x64
+Utilities/can_send/x86
+Utilities/can_send/Debug
+Utilities/can_send/Release
+Utilities/can_send/can_send
+Utilities/can_send/*.sln
+Utilities/can_send/*.vcxproj.user
 Utilities/can_test/.vs
 Utilities/can_test/x64
 Utilities/can_test/x86

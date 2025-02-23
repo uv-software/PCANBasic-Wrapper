@@ -1,0 +1,57 @@
+# CAN Sender for generic CAN Interfaces (CAN API V3)
+
+Copyright &copy; 2025 by Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+
+## Utility program `can_send`
+
+`can_send` is a command line tool to send CAN messages that are entered at the program prompt.
+The syntax is taken from the Linux SocketCAN utility [can_utils\cansend](https://github.com/linux-can/can-utils/tree/master).
+
+### Syntax
+
+```
+ <can_frame>:
+  <can_id>#{data}                     for CAN CC data frames
+  <can_id>#R{len}                     for CAN CC remote frames
+  <can_id>##<flags>{data}             for CAN FD data frames (up to 64 bytes)
+ <can_id>:
+  3  ASCII hex-chars (0 .. F) for Standard frame format (SFF) or
+  8  ASCII hex-chars (0 .. F) for eXtended frame format (EFF)
+ {data}:
+  0 .. 8   ASCII hex-values in CAN CC mode (optionally separated by '.') or
+  0 .. 64  ASCII hex-values in CAN FD mode (optionally separated by '.')
+ {len}:
+  an optional 0 .. 8 value as RTR frames can contain a valid DLC field
+ <flags>:
+  one ASCII hex-char (0 .. F) which defines CAN FD flags:
+    4 = FDF                           for CAN FD frame format
+    5 = FDF and BRS                   for CAN FD with Bit Rate Switch
+    6 = FDF and ESI                   for CAN FD with Error State Indicator
+    7 = FDF, BRS and ESI              all together now
+```
+
+## CAN Interface API, Version 3
+
+**CAN API V3** is a wrapper specification by UV Software to have a uniform CAN Interface API for various CAN interfaces from different vendors running under multiple operating systems.
+
+## Git repo `can_send`
+
+This repo only contains the source code for the utility program `can_send` to be integrated into CAN API V3 wrapper implementations as a git submodule.
+
+## License
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, see <https://www.gnu.org/licenses/>.
+
+CAN API V3 is dual-licensed under the terms of the BSD 2-Clause "Simplified" License and under the terms of the GNU General Public License v2.0 (or any later version).
+In connection with this program, the terms of the GNU General Public License v2.0 (or any later version) shall be applied to CAN API V3.
