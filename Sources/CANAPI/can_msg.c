@@ -51,9 +51,9 @@
  *
  *  @brief       CAN Message Formatter
  *
- *  @author      $Author: makemake $
+ *  @author      $Author: quaoar $
  *
- *  @version     $Rev: 1407 $
+ *  @version     $Rev: 1467 $
  *
  *  @addtogroup  can_msg
  *  @{
@@ -102,6 +102,17 @@
                     ((x) > 12U) ? 0xAU : \
                     ((x) > 8U) ?  0x9U : (x)
 #endif
+#define IS_EOL(c)   (((c) == '\0') || ((c) == '\n') || ((c) == '\r'))
+#define IS_HEX(c)   (isdigit(c) || (((c) >= 'A') && ((c) <= 'F')) || (((c) >= 'a') && ((c) <= 'f')))
+#define IS_DIGIT(c) (isdigit(c))
+#define IS_SPACE(c) (isspace(c))
+#define CHR2DEC(c)  ((c) >= '0' && (c) <= '9' ? (c) - '0' : 0xFF)
+#define CHR2HEX(c)  ((c) >= '0' && (c) <= '9' ? (c) - '0' : \
+                     (c) >= 'a' && (c) <= 'f' ? (c) - 'a' + 10 : \
+                     (c) >= 'A' && (c) <= 'F' ? (c) - 'A' + 10 : 0xFF)
+#define CANFD_BRS   0x01 /* bit rate switch (second bitrate for payload data) */
+#define CANFD_ESI   0x02 /* error state indicator of the transmitting node */
+#define CANFD_FDF   0x04 /* mark CAN FD for dual use of struct canfd_frame */
 
 
 /*  -----------  types  --------------------------------------------------
@@ -683,6 +694,149 @@ int msg_set_fmt_tx_prompt(const char *option)
     else
         rc = 0;
     return rc;
+}
+
+/* parser: SocketCAN ASCII format (see 'can_utils/cansend') */
+int msg_parse(const char *str, msg_message_t *msg, uint32_t *cnt, uint64_t *cyc, int *inc) {
+    unsigned long can_id = 0x000U;
+    const char *ptr = str;
+    char *endptr;
+    
+    memset(msg, 0, sizeof(msg_message_t));
+    *cnt = 1;
+    *cyc = 0;
+    *inc = 0;
+
+    /* sanity check */
+    if (!str || !msg || !cnt || !cyc || !inc) {
+        return -1;
+    }
+
+    /* parse CAN identifier */
+    can_id = strtoul(ptr, &endptr, 16);
+    if ((endptr == ptr) || (((endptr - ptr) != 3) && ((endptr - ptr) != 8))) {
+        return -1;
+    }
+    if ((endptr - ptr) == 8) {
+        msg->xtd = 1;
+    }
+    if ((uint32_t)can_id > (uint32_t)(msg->xtd ? CAN_MAX_XTD_ID : CAN_MAX_STD_ID)) {
+        return -1;
+    }
+    msg->id = (uint32_t)can_id;
+    ptr = endptr;
+
+    /* parse frame type */
+    if (*ptr != '#') {
+        return -1;
+    }
+    ptr++;
+
+    /* parse CAN FD flags if present */
+    if (*ptr == '#') {
+        ptr++;
+        if (!IS_HEX(*ptr)) {
+            return -1;
+        }
+        /* map CAN FD flags */
+        char flags = CHR2HEX(*ptr);
+        if ((flags & ~(CANFD_BRS | CANFD_ESI)) != CANFD_FDF) {
+            return -1;
+        }
+        msg->fdf = (flags & CANFD_FDF) ? 1 : 0;
+        msg->brs = (flags & CANFD_BRS) ? 1 : 0;
+        msg->esi = (flags & CANFD_ESI) ? 1 : 0;
+        ptr++;
+        /* not sure if this is also in linux/can_utils */
+        if (*ptr == '.') ptr++;
+    }
+
+    /* parse data or remote frame */
+    if (*ptr == 'R') {
+        msg->rtr = 1;
+        ptr++;
+        /* parse optional DLC */
+        if (IS_DIGIT(*ptr)) {
+            msg->dlc = (uint8_t)CHR2DEC(*ptr);
+            if (msg->dlc > CAN_MAX_DLC) return -1;
+            ptr++;
+        }
+    } else {
+        uint8_t len = 0;
+        /* parse data (max. 8 bytes resp. 64 bytes for CAN FD) */
+        while (!IS_EOL(*ptr) && IS_HEX(*ptr)) {
+            if (len >= (msg->fdf ? CANFD_MAX_LEN : CAN_MAX_LEN)) return -1;
+            if (!IS_HEX(*(ptr + 1))) return -1; // Ensure there are two hex digits
+            char hex_byte[3] = { *ptr, *(ptr + 1), '\0' }; // Create a string with two hex digits
+            msg->data[len++] = (uint8_t)strtol(hex_byte, NULL, 16);
+            ptr += 2; // Move to the next pair of hex digits
+            if (*ptr == '.') ptr++; // Skip the '.' separator
+        }
+        if (*ptr == '.') return -1;
+        /* convert data length to DLC */
+        msg->dlc = (uint8_t)LEN2DLC(len);
+    }
+
+    /* parse optional DLC ('9' .. 'F') */
+    if (!msg->fdf && (*ptr == '_')) {
+        ptr++;
+        if (!IS_HEX(*ptr)) return -1;
+        if (CHR2DEC(*ptr) <= CAN_MAX_DLC) return -1;
+        /* ignore extra DLC */
+        ptr++;
+    }
+
+    /* parse optional transmission options */
+    if ((*ptr == 'x') || (*ptr == 'X') || (*ptr == '*')) {
+        ptr++;
+        /* number of messages to send */
+        if (!IS_DIGIT(*ptr)) return -1;
+        long count = strtoul(ptr, &endptr, 10);
+        if ((endptr == ptr) || (count <= 0) || (count > UINT32_MAX)) return -1;
+        *cnt = (uint32_t)count;
+        ptr = endptr;
+        /* cycle time (in [ms]) */
+        if ((*ptr == 'C') || (*ptr == 'c')) {
+            ptr++;
+            if (!IS_DIGIT(*ptr)) return -1;
+            long msec = strtoul(ptr, &endptr, 10);
+            if ((endptr == ptr) || (msec < 0L) || (msec > 60000L)) return -1;
+            *cyc = (uint64_t)(msec * 1000);
+            ptr = endptr;
+        }
+        /* cycle time (in [us]) */
+        else if ((*ptr == 'U') || (*ptr == 'u')) {
+            ptr++;
+            if (!IS_DIGIT(*ptr)) return -1;
+            long usec = strtoul(ptr, &endptr, 10);
+            if ((endptr == ptr) || (usec < 0L) || (usec > 60000000L)) return -1;
+            *cyc = (uint64_t)usec;
+            ptr = endptr;
+        }
+        /* upcounting data */
+        if (*ptr == '+') {
+            if (*(ptr + 1) == '+') {
+                *inc = 1;
+                ptr += 2;
+            } else {
+                return -1;
+            }
+        }
+        /* downcounting data */ 
+        else if (*ptr == '-') {
+            if (*(ptr + 1) == '-') {
+                *inc = -1;
+                ptr += 2;
+            } else {
+                return -1;
+            }
+        }
+    }
+    /* check end of string */
+    if (!IS_EOL(*ptr) && !IS_SPACE(*ptr)) {
+        return -1;
+    }
+    return 0;
 }
 
 /*  -----------  local functions  ----------------------------------------

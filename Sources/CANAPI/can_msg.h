@@ -51,9 +51,9 @@
  *
  *  @brief       CAN Message Formatter
  *
- *  @author      $Author: makemake $
+ *  @author      $Author: sedna $
  *
- *  @version     $Rev: 1407 $
+ *  @version     $Rev: 1458 $
  *
  *  @defgroup    can_msg CAN Message Formatter
  *  @{
@@ -290,62 +290,62 @@ typedef enum msg_direction_t_ {
 /*  -----------  prototypes  ---------------------------------------------
  */
 
-/** @brief       ...
+/** @brief       Returns the given CAN API V3 message as a formatted string.
  *
- *  @param[in]   message - ...
+ *  @param[in]   message  CAN API V3 messge
  *
- *  @returns     pointer to a zero-terminated string.
+ *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
-char *msg_format_message(const msg_message_t *message, msg_direction_t direction,
-                               msg_counter_t counter, msg_channel_t channel);
+extern char *msg_format_message(const msg_message_t *message, msg_direction_t direction,
+                                      msg_counter_t counter, msg_channel_t channel);
 
-/** @brief       ...
+/** @brief       Returns the time-stamp of a CAN API V3 message as a formatted string.
  *
- *  @param[in]   message - ...
+ *  @param[in]   message  CAN API V3 messge
  *
- *  @returns     pointer to a zero-terminated string.
+ *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
-char *msg_format_time(const msg_message_t *message);
+extern char *msg_format_time(const msg_message_t *message);
 
-/** @brief       ...
+/** @brief       Returns the idnetifier of a CAN API V3 message as a formatted string.
  *
- *  @param[in]   message - ...
+ *  @param[in]   message  CAN API V3 messge
  *
- *  @returns     pointer to a zero-terminated string.
+ *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
-char *msg_format_id(const msg_message_t *message);
+extern char *msg_format_id(const msg_message_t *message);
 
-/** @brief       ...
+/** @brief       Returns the flags of a CAN API V3 message as a formatted string.
  *
- *  @param[in]   message - ...
+ *  @param[in]   message  CAN API V3 messge
  *
- *  @returns     pointer to a zero-terminated string.
+ *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
-char *msg_format_flags(const msg_message_t *message);
+extern char *msg_format_flags(const msg_message_t *message);
 
-/** @brief       ...
+/** @brief       Returns the data length code of a CAN API V3 message as a formatted string.
  *
- *  @param[in]   message - ...
+ *  @param[in]   message  CAN API V3 messge
  *
- *  @returns     pointer to a zero-terminated string.
+ *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
-char *msg_format_dlc(const msg_message_t *message);
+extern char *msg_format_dlc(const msg_message_t *message);
 
-/** @brief       ...
+/** @brief       Returns the data of a CAN API V3 message as a formatted string (binary representation).
  *
- *  @param[in]   message - ...
+ *  @param[in]   message  CAN API V3 messge
  *
- *  @returns     pointer to a zero-terminated string.
+ *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
-char *msg_format_data(const msg_message_t *message);
+extern char *msg_format_data(const msg_message_t *message);
 
-/** @brief       ...
+/** @brief       Returns the data of a CAN API V3 message as a formatted string (ASCII representation).
  *
- *  @param[in]   message - ...
+ *  @param[in]   message  CAN API V3 messge
  *
- *  @returns     pointer to a zero-terminated string.
+ *  @returns     pointer to a zero-terminated string, or NULL on error.
  */
-char *msg_format_ascii(const msg_message_t *message);
+extern char *msg_format_ascii(const msg_message_t *message);
 
 /** @brief       set message output format {DEFAULT, ...}.
  *
@@ -353,7 +353,7 @@ char *msg_format_ascii(const msg_message_t *message);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_format(msg_format_t format);
+extern int msg_set_format(msg_format_t format);
 
 /** @brief       set formatter option: time-stamp {ZERO, ABS, REL}.
  *
@@ -361,7 +361,7 @@ int msg_set_format(msg_format_t format);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_time_stamp(msg_fmt_timestamp_t option);
+extern int msg_set_fmt_time_stamp(msg_fmt_timestamp_t option);
 
 /** @brief       set formatter option: time-stamp in usec {OFF, ON}.
  *
@@ -369,7 +369,7 @@ int msg_set_fmt_time_stamp(msg_fmt_timestamp_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_time_usec(msg_fmt_option_t option);
+extern int msg_set_fmt_time_usec(msg_fmt_option_t option);
 
 /** @brief       set formatter option: time format {TIME, SEC, DJD}.
  *
@@ -377,7 +377,7 @@ int msg_set_fmt_time_usec(msg_fmt_option_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_time_format(msg_fmt_time_t option);
+extern int msg_set_fmt_time_format(msg_fmt_time_t option);
 
 /** @brief       set formatter option: identifier {HEX, DEC, OCT, BIN}.
  *
@@ -385,7 +385,7 @@ int msg_set_fmt_time_format(msg_fmt_time_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_id(msg_fmt_number_t option);
+extern int msg_set_fmt_id(msg_fmt_number_t option);
 
 /** @brief       set formatter option: extended identifier {OFF, ON}.
  *
@@ -393,7 +393,7 @@ int msg_set_fmt_id(msg_fmt_number_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_id_xtd(msg_fmt_option_t option);
+extern int msg_set_fmt_id_xtd(msg_fmt_option_t option);
 
 /** @brief       set formatter option: DLC/length {HEX, DEC, OCT, BIN}.
  *
@@ -401,7 +401,7 @@ int msg_set_fmt_id_xtd(msg_fmt_option_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_dlc(msg_fmt_number_t option);
+extern int msg_set_fmt_dlc(msg_fmt_number_t option);
 
 /** @brief       set formatter option: CAN FD format {DLC, LENGTH}.
  *
@@ -409,7 +409,7 @@ int msg_set_fmt_dlc(msg_fmt_number_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_dlc_format(msg_fmt_canfd_t option);
+extern int msg_set_fmt_dlc_format(msg_fmt_canfd_t option);
 
 /** @brief       set formatter option: DLC in brackets {'\0', '(', '['}.
  *
@@ -417,7 +417,7 @@ int msg_set_fmt_dlc_format(msg_fmt_canfd_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_dlc_brackets(int option);
+extern int msg_set_fmt_dlc_brackets(int option);
 
 /** @brief       set formatter option: message flags {ON, OFF}.
  *
@@ -425,7 +425,7 @@ int msg_set_fmt_dlc_brackets(int option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_flags(msg_fmt_option_t option);
+extern int msg_set_fmt_flags(msg_fmt_option_t option);
 
 /** @brief       set formatter option: message data {HEX, DEC, OCT, BIN}.
  *
@@ -433,7 +433,7 @@ int msg_set_fmt_flags(msg_fmt_option_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_data(msg_fmt_number_t option);
+extern int msg_set_fmt_data(msg_fmt_number_t option);
 
 /** @brief       set formatter option: data as ASCII {ON, OFF}.
  *
@@ -441,7 +441,7 @@ int msg_set_fmt_data(msg_fmt_number_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_ascii(msg_fmt_option_t option);
+extern int msg_set_fmt_ascii(msg_fmt_option_t option);
 
 /** @brief       set formatter option: substitute for non-printable characters.
  *
@@ -449,7 +449,7 @@ int msg_set_fmt_ascii(msg_fmt_option_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_ascii_subst(int option);
+extern int msg_set_fmt_ascii_subst(int option);
 
 /** @brief       set formatter option: message source {OFF, ON}.
  *
@@ -457,7 +457,7 @@ int msg_set_fmt_ascii_subst(int option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_channel(msg_fmt_option_t option);
+extern int msg_set_fmt_channel(msg_fmt_option_t option);
 
 /** @brief       set formatter option: message counter {ON, OFF}.
  *
@@ -465,7 +465,7 @@ int msg_set_fmt_channel(msg_fmt_option_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_counter(msg_fmt_option_t option);
+extern int msg_set_fmt_counter(msg_fmt_option_t option);
 
 /** @brief       set formatter option: separator {SPACES, TABS}.
  *
@@ -473,7 +473,7 @@ int msg_set_fmt_counter(msg_fmt_option_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_separator(msg_fmt_separator_t option);
+extern int msg_set_fmt_separator(msg_fmt_separator_t option);
 
 /** @brief       set formatter option: wraparound {NO, 8, 16, 32, 64}.
  *
@@ -481,7 +481,7 @@ int msg_set_fmt_separator(msg_fmt_separator_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_wraparound(msg_fmt_wraparound_t option);
+extern int msg_set_fmt_wraparound(msg_fmt_wraparound_t option);
 
 /** @brief       set formatter option: end-of-line character {OFF, ON}.
  *
@@ -489,7 +489,7 @@ int msg_set_fmt_wraparound(msg_fmt_wraparound_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_eol(msg_fmt_option_t option);
+extern int msg_set_fmt_eol(msg_fmt_option_t option);
 
 /** @brief       set formatter option: prompt for received messages (char[6+1]).
  *
@@ -497,7 +497,7 @@ int msg_set_fmt_eol(msg_fmt_option_t option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_rx_prompt(const char *option);
+extern int msg_set_fmt_rx_prompt(const char *option);
 
 /** @brief       set formatter option: prompt for sent messages (char[6+1]).
  *
@@ -505,7 +505,47 @@ int msg_set_fmt_rx_prompt(const char *option);
  *
  *  @returns     non-zero value on success, otherwise 0.
  */
-int msg_set_fmt_tx_prompt(const char *option);
+extern int msg_set_fmt_tx_prompt(const char *option);
+
+/** @brief Parse CAN API V3 message from ASCII string.
+ *
+ *  The syntax is taken from 'cansend' utility of the Linux SocketCAN package.
+ *  
+ *  <can_frame>:
+ *   <can_id>#{data}          for CAN CC data frames
+ *   <can_id>#R{len}          for CAN CC remote frames
+ *   <can_id>#{data}_{dlc}    for CAN CC data frames with 9..F DLC
+ *   <can_id>#R{len}_{dlc}    for CAN CC remote frames with 9..F DLC
+ *   <can_id>##<flags>{data}  for CAN FD data frames (up to 64 bytes)
+ *
+ *  <can_id>:
+ *   3 (SFF) or 8 (EFF) hex characters
+ *  {data}:
+ *   0..8 (0..64 CAN FD) ASCII hex-values (optionally separated by '.')
+ *  {len}:
+ *   an optional 0..8 value as RTR frames can contain a valid dlc field
+ *  _{dlc}:
+ *   an optional 9..F data length code value when payload length is 8
+ *  <flags>:
+ *   a single ASCII Hex value (0 .. F) which defines CAN FD flags:
+ *     0x4: FDF (CAN FD frame)
+ *     0x1: BRS (Bit Rate Switch)
+ *     0x2: ESI (Error State Indicator)
+ *   Valid combinations are:
+ *     0x4: FDF
+ *     0x5: FDF and BRS
+ *     0x6: FDF and ESI
+ *     0x7: FDF, BRS and ESI
+ *
+ *  @param[in]  str  ASCII string
+ *  @param[out] msg  CAN API V3 message
+ *  @param[out] cnt  count (default: 1)
+ *  @param[out] cyc  cycle time (in [us])
+ *  @param[out] inc  increment: 0 = none, 1 = increment, -1 = decrement
+ * 
+ *  @return 0 on success, -1 on error 
+ */
+extern int msg_parse(const char *str, msg_message_t *msg, uint32_t *cnt, uint64_t *cyc, int *inc);
 
 
 #ifdef __cplusplus
