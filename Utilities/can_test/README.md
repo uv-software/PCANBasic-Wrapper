@@ -7,8 +7,7 @@ Options for receiver test (default test mode):
   /RECEIVE | /RX                      count received messages until ^C is pressed
   /Number:<number>                    check up-counting numbers starting with <number>
   /Stop                               stop on error (with option /NUMBER)
-  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode
-  /SHARED                             shared CAN controller access (if supported)
+  /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode
   /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only mode)
   /ERR:(No|Yes) | /ERROR-FRAMES       allow reception of error frames
   /RTR:(Yes|No)                       allow remote frames (RTR frames)
@@ -30,13 +29,13 @@ Options for transmitter test:
   /can-Id:<can-id>                    use given identifier (default=100h)
   /EXTended                           use extended identifier (29-bit)
   /Number:<number>                    set first up-counting number (default=0)
-  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode
+  /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode
   /SHARED                             shared CAN controller access (if supported)
   /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or
   /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)
   /Verbose                            show detailed bit-rate settings
 Other options:
-  /LIST-BITRATES[:(2.0|FDf[+BRS])]    list standard bit-rate settings and exit
+  /LIST-BITRATES[:(CCf|FDf[+BRS])]    list standard bit-rate settings and exit
   /LIST-BOARDS | /LIST                list all supported CAN interfaces and exit
   /TEST-BOARDS | /TEST                list all available CAN interfaces and exit
   /JSON-file:<filename>               write configuration into JSON file and exit

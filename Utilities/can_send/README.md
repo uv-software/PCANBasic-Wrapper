@@ -4,27 +4,26 @@ Copyright &copy; 2025 by Uwe Vogt, UV Software, Berlin
 ```
 Usage: can_send <interface> [<option>...]
 Options:
- -m, --mode=(2.0|FDF[+BRS])           CAN operation mode: CAN 2.0 or CAN FD mode
-     --shared                         shared CAN controller access (if supported)
-     --listen-only                    monitor mode (listen-only mode)
-     --error-frames                   allow reception of error frames
-     --no-remote-frames               suppress remote frames (RTR frames)
-     --no-extended-frames             suppress extended frames (29-bit identifier)
-     --code=<id>                      acceptance code for 11-bit IDs (default=0x000)
-     --mask=<id>                      acceptance mask for 11-bit IDs (default=0x000)
-     --xtd-code=<id>                  acceptance code for 29-bit IDs (default=0x00000000)
-     --xtd-mask=<id>                  acceptance mask for 29-bit IDs (default=0x00000000)
- -b, --baudrate=<baudrate>            CAN bit-timing in kbps (default=250), or
-     --bitrate=<bit-rate>             CAN bit-rate settings (as key/value list)
- -v, --verbose                        show detailed bit-rate settings
-     --list-bitrates[=<mode>]         list standard bit-rate settings and exit
- -L, --list-boards                    list all supported CAN interfaces and exit
- -T, --test-boards                    list all available CAN interfaces and exit
- -J, --json=<filename>                write configuration into JSON file and exit
- -h, --help                           display this help screen and exit
-     --version                        show version information and exit
+  /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode
+  /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only mode)
+  /ERR:(No|Yes) | /ERROR-FRAMES       allow reception of error frames
+  /RTR:(Yes|No)                       allow remote frames (RTR frames)
+  /XTD:(Yes|No)                       allow extended frames (29-bit identifier)
+  /CODE:<id>                          acceptance code for 11-bit IDs (default=0x000)
+  /MASK:<id>                          acceptance mask for 11-bit IDs (default=0x000)
+  /XTD-CODE:<id>                      acceptance code for 29-bit IDs (default=0x00000000)
+  /XTD-MASK:<id>                      acceptance mask for 29-bit IDs (default=0x00000000)
+  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or
+  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)
+  /Verbose                            show detailed bit-rate settings
+  /LIST-BITRATES[:(CCf|FDf[+BRS])]    list standard bit-rate settings and exit
+  /LIST-BOARDS | /LIST                list all supported CAN interfaces and exit
+  /TEST-BOARDS | /TEST                list all available CAN interfaces and exit
+  /JSON-file:<filename>               write configuration into JSON file and exit
+  /HELP | /?                          display this help screen and exit
+  /VERSION                            show version information and exit
 Arguments:
-  <id>           CAN identifier (11-bit)
+  <id>           CAN identifier (11-bit or 29-bit)
   <interface>    CAN interface board (list all with /LIST)
   <baudrate>     CAN baud rate index (default=3):
                  0 = 1000 kbps

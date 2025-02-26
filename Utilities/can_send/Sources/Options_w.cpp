@@ -163,7 +163,9 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
     int optBitrate = 0;
     int optVerbose = 0;
     int optMode = 0;
+#if (CAN_SHARED_SUPPORTED != 0)
     int optShared = 0;
+#endif
     int optListenOnly = 0;
     int optErrorFrames = 0;
     int optExtendedFrames = 0;
@@ -284,7 +286,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
             break;
 #endif
 #if (SERIAL_CAN_SUPPORTED != 0)
-        /* option '--protocol=(Lawicel|CANable)' (-z) */
+        /* option '--protocol=(Lawicel|CANable)' */
         case PROTOCOL_STR:
         case PROTOCOL_CHR:
             if ((optProtocol++)) {
@@ -317,7 +319,8 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 return 1;
             }
             if (!strcasecmp(optarg, "DEFAULT") || !strcasecmp(optarg, "CLASSIC") || !strcasecmp(optarg, "CLASSICAL") ||
-                !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0"))
+                !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0") ||
+                !strcasecmp(optarg, "CANCC") || !strcasecmp(optarg, "CC") || !strcasecmp(optarg, "CCF"))
                 m_OpMode.byte |= CANMODE_DEFAULT;
 #if (CAN_FD_SUPPORTED != 0)
             else if (!strcasecmp(optarg, "CANFD") || !strcasecmp(optarg, "FD") || !strcasecmp(optarg, "FDF"))
@@ -330,6 +333,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 return 1;
             }
             break;
+#if (CAN_SHARED_SUPPORTED != 0)
         /* option '--shared' */
         case OP_SHARED_STR:
         case OP_SHARED_CHR:
@@ -343,6 +347,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
             }
             m_OpMode.byte |= CANMODE_SHRD;
             break;
+#endif
         /* option '--listen-only' */
         case OP_MON_STR:
         case OP_MONITOR_STR:
@@ -522,7 +527,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
             }
             m_XtdFilter.m_u32Mask = (uint32_t)intarg;
             break;
-        /* option '--trace=(ON|OFF)' (-y) */
+        /* option '--trace=(ON|OFF)' */
 #if (CAN_TRACE_SUPPORTED != 0)
         case TRACEFILE_STR:
         case TRACEFILE_CHR:
@@ -565,7 +570,8 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                     return 1;
                 }
                 if (!strcasecmp(optarg, "DEFAULT") || !strcasecmp(optarg, "CLASSIC") || !strcasecmp(optarg, "CLASSICAL") ||
-                    !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0"))
+                    !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0") ||
+                    !strcasecmp(optarg, "CANCC") || !strcasecmp(optarg, "CC") || !strcasecmp(optarg, "CCF"))
                     m_OpMode.byte |= CANMODE_DEFAULT;
 #if (CAN_FD_SUPPORTED != 0)
                 else if (!strcasecmp(optarg, "CANFD") || !strcasecmp(optarg, "FD") || !strcasecmp(optarg, "FDF"))
@@ -704,11 +710,13 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /Path:<pathname>                    search path for JSON configuration files\n");
 #endif
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN CC or CAN FD mode\n");
+    fprintf(stream, "  /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN CC or CAN FD mode\n");
 #else
-    fprintf(stream, "  /Mode:2.0                           CAN operation mode: CAN CC\n");
+    fprintf(stream, "  /Mode:CCf                           CAN operation mode: CAN CC mode\n");
 #endif
+#if (CAN_SHARED_SUPPORTED != 0)
     fprintf(stream, "  /SHARED                             shared CAN controller access (if supported)\n");
+#endif
     fprintf(stream, "  /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only mode)\n");
     fprintf(stream, "  /ERR:(No|Yes) | /ERROR-FRAMES       allow reception of error frames\n");
     fprintf(stream, "  /RTR:(Yes|No)                       allow remote frames (RTR frames)\n");
@@ -731,7 +739,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /PRotocol:(Lawicel|CANable)         select SLCAN protocol (default=Lawicel)\n");
 #endif
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /LIST-BITRATES[:(2.0|FDf[+BRS])]    list standard bit-rate settings and exit\n");
+    fprintf(stream, "  /LIST-BITRATES[:(CCf|FDf[+BRS])]    list standard bit-rate settings and exit\n");
 #else
     fprintf(stream, "  /LIST-BITRATES[:2.0]                list standard bit-rate settings and exit\n");
 #endif
@@ -747,7 +755,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /VERSION                            show version information and exit\n");
     if (args) {
         fprintf(stream, "Arguments:\n");
-        fprintf(stream, "  <id>           CAN identifier (11-bit)\n");
+        fprintf(stream, "  <id>           CAN identifier (11-bit or 29-bit)\n");
         fprintf(stream, "  <interface>    CAN interface board (list all with /LIST)\n");
         fprintf(stream, "  <baudrate>     CAN baud rate index (default=3):\n");
         fprintf(stream, "                 0 = 1000 kbps\n");
@@ -780,21 +788,21 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     //fprintf(stream, "  <can_id>#R{len}_{dlc}               for CAN CC remote frames with 9..F DLC\n");
     fprintf(stream, "  <can_id>##<flags>{data}             for CAN FD data frames (up to 64 bytes)\n");
     fprintf(stream, " <can_id>:\n");
-    fprintf(stream, "  3  ASCII hex. characters for Standard frame format (SFF) or\n");
-    fprintf(stream, "  8  ASCII hex. characters for eXtended frame format (EFF)\n");
+    fprintf(stream, "  3  ASCII hex-chars (0 .. F) for Standard frame format (SFF) or\n");
+    fprintf(stream, "  8  ASCII hex-chars (0 .. F) for eXtended frame format (EFF)\n");
     fprintf(stream, " {data}:\n");
-    fprintf(stream, "  0 .. 8   ASCII hex. values in CAN CC mode (optionally separated by '.') or\n");
-    fprintf(stream, "  0 .. 64  ASCII hex. values in CAN FD mode (optionally separated by '.')\n");
+    fprintf(stream, "  0 .. 8   ASCII hex-values in CAN CC mode (optionally separated by '.') or\n");
+    fprintf(stream, "  0 .. 64  ASCII hex-values in CAN FD mode (optionally separated by '.')\n");
     fprintf(stream, " {len}:\n");
     fprintf(stream, "  an optional 0 .. 8 value as RTR frames can contain a valid DLC field\n");
     //fprintf(stream, " _{dlc}:\n");
     //fprintf(stream, "  an optional 9..F data length code value when payload length is 8\n");
     fprintf(stream, " <flags>:\n");
-    fprintf(stream, "  one ASCII hex. character which defines CAN FD flags:\n");
-    fprintf(stream, "  4 = FDF                             for CAN FD frame format\n");
-    fprintf(stream, "  5 = FDF and BRS                     for CAN FD with Bit Rate Switch\n");
-    fprintf(stream, "  6 = FDF and ESI                     for CAN FD with Error State Indicator\n");
-    fprintf(stream, "  7 = FDF, BRS and ESI                all together now\n");
+    fprintf(stream, "  one ASCII hex-char (0 .. F) which defines CAN FD flags:\n");
+    fprintf(stream, "    4 = FDF                           for CAN FD frame format\n");
+    fprintf(stream, "    5 = FDF and BRS                   for CAN FD with Bit Rate Switch\n");
+    fprintf(stream, "    6 = FDF and ESI                   for CAN FD with Error State Indicator\n");
+    fprintf(stream, "    7 = FDF, BRS and ESI              all together now\n");
     fprintf(stream, "Hazard note:\n");
     fprintf(stream, "  If you connect your CAN device to a real CAN network when using this program,\n");
     fprintf(stream, "  you might damage your application.\n");

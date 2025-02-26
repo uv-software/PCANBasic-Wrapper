@@ -212,7 +212,9 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
     int optBitrate = 0;
     int optVerbose = 0;
     int optMode = 0;
+#if (CAN_SHARED_SUPPORTED != 0)
     int optShared = 0;
+#endif
     int optListenOnly = 0;
     int optErrorFrames = 0;
     int optExtendedFrames = 0;
@@ -343,7 +345,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
             break;
 #endif
 #if (SERIAL_CAN_SUPPORTED != 0)
-        /* option '--protocol=(Lawicel|CANable)' (-z) */
+        /* option '--protocol=(Lawicel|CANable)' */
         case PROTOCOL_STR:
         case PROTOCOL_CHR:
             if ((optProtocol++)) {
@@ -376,7 +378,8 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 return 1;
             }
             if (!strcasecmp(optarg, "DEFAULT") || !strcasecmp(optarg, "CLASSIC") || !strcasecmp(optarg, "CLASSICAL") ||
-                !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0"))
+                !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0") ||
+                !strcasecmp(optarg, "CANCC") || !strcasecmp(optarg, "CC") || !strcasecmp(optarg, "CCF"))
                 m_OpMode.byte |= CANMODE_DEFAULT;
 #if (CAN_FD_SUPPORTED != 0)
             else if (!strcasecmp(optarg, "CANFD") || !strcasecmp(optarg, "FD") || !strcasecmp(optarg, "FDF"))
@@ -389,6 +392,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                 return 1;
             }
             break;
+#if (CAN_SHARED_SUPPORTED != 0)
         /* option '--shared' */
         case OP_SHARED_STR:
         case OP_SHARED_CHR:
@@ -402,6 +406,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
             }
             m_OpMode.byte |= CANMODE_SHRD;
             break;
+#endif
         /* option '--listen-only' */
         case OP_MON_STR:
         case OP_MONITOR_STR:
@@ -581,7 +586,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
             }
             m_XtdFilter.m_u32Mask = (uint32_t)intarg;
             break;
-        /* option '--trace=(ON|OFF)' (-y) */
+        /* option '--trace=(ON|OFF)' */
 #if (CAN_TRACE_SUPPORTED != 0)
         case TRACEFILE_STR:
         case TRACEFILE_CHR:
@@ -660,7 +665,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
             }
             m_fStopOnError = 1;
             break;
-        /* option '--transmit=<duration>' (-t) in [s] */
+        /* option '--transmit=<duration>' (-t) (in [s]) */
         case TRANSMIT_STR:
         case TRANSMIT_CHR:
             if ((optTransmit++)) {
@@ -845,7 +850,8 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                     return 1;
                 }
                 if (!strcasecmp(optarg, "DEFAULT") || !strcasecmp(optarg, "CLASSIC") || !strcasecmp(optarg, "CLASSICAL") ||
-                    !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0"))
+                    !strcasecmp(optarg, "CAN20") || !strcasecmp(optarg, "CAN2.0") || !strcasecmp(optarg, "2.0") ||
+                    !strcasecmp(optarg, "CANCC") || !strcasecmp(optarg, "CC") || !strcasecmp(optarg, "CCF"))
                     m_OpMode.byte |= CANMODE_DEFAULT;
 #if (CAN_FD_SUPPORTED != 0)
                 else if (!strcasecmp(optarg, "CANFD") || !strcasecmp(optarg, "FD") || !strcasecmp(optarg, "FDF"))
@@ -874,7 +880,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                     fprintf(err, "%s: option /PATH already set\n", m_szBasename);
                     return 1;
                 }
-                m_szSearchPath = optarg;
+                m_szSearchPath = optarg;  // option '--list-boards=<pathname>' (-L)
             }
 #endif
             m_fListBoards = true;
@@ -893,7 +899,7 @@ int SOptions::ScanCommanline(int argc, const char* argv[], FILE* err, FILE* out)
                     fprintf(err, "%s: option /PATH already set\n", m_szBasename);
                     return 1;
                 }
-                m_szSearchPath = optarg;
+                m_szSearchPath = optarg;  // option '--test-boards=<pathname>' (-L)
             }
 #endif
             m_fTestBoards = true;
@@ -1019,11 +1025,13 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /Path:<pathname>                    search path for JSON configuration files\n");
 #endif
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode\n");
+    fprintf(stream, "  /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN CC or CAN FD mode\n");
 #else
-    fprintf(stream, "  /Mode:2.0                           CAN operation mode: CAN 2.0\n");
+    fprintf(stream, "  /Mode:CCf                           CAN operation mode: CAN CC mode\n");
 #endif
+#if (CAN_SHARED_SUPPORTED != 0)
     fprintf(stream, "  /SHARED                             shared CAN controller access (if supported)\n");
+#endif
     fprintf(stream, "  /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only mode)\n");
     fprintf(stream, "  /ERR:(No|Yes) | /ERROR-FRAMES       allow reception of error frames\n");
     fprintf(stream, "  /RTR:(Yes|No)                       allow remote frames (RTR frames)\n");
@@ -1059,11 +1067,13 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, "  /Path:<pathname>                    search path for JSON configuration files\n");
 #endif
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /Mode:(2.0|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode\n");
+    fprintf(stream, "  /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN 2.0 or CAN FD mode\n");
 #else
-    fprintf(stream, "  /Mode:2.0                           CAN operation mode: CAN 2.0\n");
+    fprintf(stream, "  /Mode:CCf                           CAN operation mode: CAN 2.0\n");
 #endif
+#if (CAN_SHARED_SUPPORTED != 0)
     fprintf(stream, "  /SHARED                             shared CAN controller access (if supported)\n");
+#endif
     fprintf(stream, "  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or\n");
     fprintf(stream, "  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)\n");
     fprintf(stream, "  /Verbose                            show detailed bit-rate settings\n");
@@ -1079,7 +1089,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
 #endif
     fprintf(stream, "Other options:\n");
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, "  /LIST-BITRATES[:(2.0|FDf[+BRS])]    list standard bit-rate settings and exit\n");
+    fprintf(stream, "  /LIST-BITRATES[:(CCf|FDf[+BRS])]    list standard bit-rate settings and exit\n");
 #else
     fprintf(stream, "  /LIST-BITRATES[:2.0]                list standard bit-rate settings and exit\n");
 #endif
