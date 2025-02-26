@@ -90,24 +90,28 @@ C:\Projects\CAN\Drivers\PeakCAN>x64_build.bat
 ```
 (The version number of the libraries can be adapted by editing the `.rc` files in the corresponding subfolders. Don´t forget to set the version number also in the header file `Version.h`.)
 
-#### uvPeakCAN (DLL)
+#### Libraries
+
+##### uvPeakCAN (DLL)
 
 ___uvPeakCAN___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C++__ applications.
 See header file `PeakCAN.h` for a description of all class members.
 
-#### u3canpcb (DLL)
+##### u3canpcb (DLL)
 
 ___u3canpcb___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C__ applications.
 See header file `can_api.h` for a description of all API functions.
 
-#### can_send (CLI)
+#### Utilities
+
+##### can_send
 
 `can_send` is a command line tool to send CAN messages that are entered at the program prompt.
 The syntax is taken from the Linux SocketCAN utility [can_utils\cansend](https://github.com/linux-can/can-utils/tree/master).
 
 Type `can_send /?` to display all program options.
 
-#### can_moni (CLI)
+##### can_moni (CLI)
 
 `can_moni` is a command line tool to view incoming CAN messages.
 I hate this messing around with binary masks for identifier filtering.
@@ -115,7 +119,7 @@ So I wrote this little program to have an exclude list for single identifiers or
 
 Type `can_moni /?` to display all program options.
 
-#### can_test (CLI)
+##### can_test (CLI)
 
 `can_test` is a command line tool to test CAN communication.
 Originally developed for electronic environmental tests on an embedded Linux system with SocketCAN, I´m using it for many years as a traffic generator for CAN stress-tests.
@@ -169,7 +173,7 @@ You can choose between one of them if you use these portions of this work in who
 
 Windows is a registered trademark of Microsoft Corporation in the United States and/or other countries. \
 PCAN is a registered trademark of PEAK-System Technik GmbH, Darmstadt, Germany. \
-Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries. \
+Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries and regions. \
 Linux is a registered trademark of Linus Torvalds. \
 All other company, product and service names mentioned herein may be trademarks, registered trademarks, or service marks of their respective owners.
 
