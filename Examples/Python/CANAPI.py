@@ -2,8 +2,9 @@
 #
 #   CAN Interface API, Version 3 (Python Wrapper)
 #
-#   Copyright (c) 2005-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
-#	All rights reserved.
+#   Copyright (c) 2005-2012 Uwe Vogt, UV Software, Friedrichshafen
+#   Copyright (c) 2013-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+#   All rights reserved.
 #
 #   This file is part of CAN API V3.
 #
@@ -21,7 +22,7 @@
 #	   this list of conditions and the following disclaimer in the documentation
 #	   and/or other materials provided with the distribution.
 #
-#	CAN API V3 IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS
+#	CAN API V3 IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 #	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 #	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 #	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
@@ -54,9 +55,9 @@
     Interface API for various CAN interfaces from different
     vendors running under multiple operating systems.
 
-    $Author: quaoar $
+    $Author: makemake $
 
-    $Rev: 1408 $
+    $Rev: 1416 $
 """
 from ctypes import *
 import platform
@@ -71,7 +72,7 @@ if platform.system() == "Darwin":
 
 # CAN API V3 - Python Wrapper
 #
-CAN_API_V3_PYTHON = {'major': 0, 'minor': 3, 'patch': 1}
+CAN_API_V3_PYTHON = {'major': 0, 'minor': 3, 'patch': 2}
 
 # CAN Identifier Ranges
 #
