@@ -54,16 +54,22 @@ int main(/*int argc, const char * argv[]*/) {
         std::cerr << "+++ error: interface could not be started" << std::endl;
         goto teardown;
     }
-    std::cout << "Press Ctrl+C to abort..." << std::endl;
+    std::cout << "Press ^C to abort." << std::endl;
     while (running) {
         if ((retVal = myDriver.ReadMessage(message, CANREAD_INFINITE)) == CCanApi::NoError) {
             fprintf(stdout, "%i\t", frames++);
             fprintf(stdout, "%7li.%04li\t", (long)message.timestamp.tv_sec, message.timestamp.tv_nsec / 100000);
-            if (!opMode.fdoe)
-                fprintf(stdout, "%03X\t%c%c [%u] ", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ', message.dlc);
-            else
-                fprintf(stdout, "%03X\t%c%c%c%c%c [%u] ", message.id, message.xtd ? 'X' : 'S', message.rtr ? 'R' : ' ',
-                        message.fdf ? 'F' : ' ', message.brs ? 'B' : ' ', message.esi ? 'E' :' ', CCanApi::Dlc2Len(message.dlc));
+            fprintf(stdout, "%03X\t", message.id);
+            if (!message.sts) {
+                fputc(message.xtd ? 'X' : 'S', stdout);
+                fputc(message.fdf ? 'F' : '-', stdout);
+                fputc(message.brs ? 'B' : '-', stdout);
+                fputc(message.esi ? 'E' : '-', stdout);
+                fputc(message.rtr ? 'R' : '-', stdout);
+            } else {
+                fprintf(stdout, "Error");
+            }
+            printf(" [%u]", CCanApi::Dlc2Len(message.dlc));
             for (uint8_t i = 0; i < CCanApi::Dlc2Len(message.dlc); i++)
                 fprintf(stdout, " %02X", message.data[i]);
             if (message.sts)
