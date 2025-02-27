@@ -909,7 +909,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, " -p, --path=<pathname>                search path for JSON configuration files\n");
 #endif
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, " -m, --mode=(CCF|FDF[+BRS])           CAN operation mode: CAN 2.0 or CAN FD mode\n");
+    fprintf(stream, " -m, --mode=(CCF|FDF[+BRS])           CAN operation mode: CAN CC or CAN FD mode\n");
 #else
     fprintf(stream, " -m, --mode=CCF                       CAN operation mode: CAN 2.0\n");
 #endif
@@ -951,7 +951,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
     fprintf(stream, " -p, --path=<pathname>                search path for JSON configuration files\n");
 #endif
 #if (CAN_FD_SUPPORTED != 0)
-    fprintf(stream, " -m, --mode=(CCF|FDF[+BRS])           CAN operation mode: CAN 2.0 or CAN FD mode\n");
+    fprintf(stream, " -m, --mode=(CCF|FDF[+BRS])           CAN operation mode: CAN CC or CAN FD mode\n");
 #else
     fprintf(stream, " -m, --mode=CCF                       CAN operation mode: CAN 2.0\n");
 #endif

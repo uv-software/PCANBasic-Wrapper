@@ -157,7 +157,7 @@ int main(int argc, const char* argv[]) {
     /* - show operation mode, bit-rate settings and acceptance filter (if set) */
     if (opts.m_fVerbose) {
         /* -- operation mode */
-        fprintf(stdout, "Op.-mode=%s", (opts.m_OpMode.byte & CANMODE_FDOE) ? "CANFD" : "CAN2.0");
+        fprintf(stdout, "Op.-mode=%s", (opts.m_OpMode.byte & CANMODE_FDOE) ? "CAN FD" : "CAN CC");
         if ((opts.m_OpMode.byte & CANMODE_BRSE)) fprintf(stdout, "+BRS");
         if ((opts.m_OpMode.byte & CANMODE_NISO)) fprintf(stdout, "+NISO");
         if ((opts.m_OpMode.byte & CANMODE_SHRD)) fprintf(stdout, "+SHRD");
