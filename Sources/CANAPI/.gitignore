@@ -1,6 +1,4 @@
 .svn
-# Not realized yet
-CANIPC_Message.h
 # we don't use the JSON files yet
 can_dev.?
 vanilla.?
@@ -8,3 +6,4 @@ vanilla.?
 SerialCAN_Defines.h
 SocketCAN_Defines.h
 RocketCAN_Defines.h
+CANIPC_Message.h

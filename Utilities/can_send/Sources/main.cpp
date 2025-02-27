@@ -1,9 +1,8 @@
 //  SPDX-License-Identifier: GPL-2.0-or-later
 //
-//  CAN Tester for generic Interfaces (CAN API V3)
+//  CAN Sender for generic Interfaces (CAN API V3)
 //
-//  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
-//  Copyright (c) 2012-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,6 +19,7 @@
 //
 #include "Driver.h"
 #include "Options.h"
+#include "Message.h"
 #include "Timer.h"
 #if (SERIAL_CAN_SUPPORTED != 0)
 #include "SerialCAN_Defines.h"
@@ -54,11 +54,11 @@
 #define strcasecmp _stricmp
 #endif
 
+#define MAX_ID  (CAN_MAX_STD_ID + 1)
+
 class CCanDevice : public CCanDriver {
 public:
-    uint64_t ReceiverTest(bool checkCounter = false, uint64_t expectedNumber = 0U, bool stopOnError = false);
-    uint64_t TransmitterTest(time_t duration, CANAPI_OpMode_t opMode, uint32_t id = 0x100U, bool xtd = false, uint8_t dlc = 0U, uint64_t delay = 0U, uint64_t offset = 0U);
-    uint64_t TransmitterTest(uint64_t count, CANAPI_OpMode_t opMode, bool random = false, uint32_t id = 0x100U, bool xtd = false, uint8_t dlc = 0U, uint64_t delay = 0U, uint64_t offset = 0U);
+    uint64_t SendMessage();
 public:
     int ListCanDevices(void);
     int TestCanDevices(CANAPI_OpMode_t opMode);
@@ -72,7 +72,6 @@ public:
 static void sigterm(int signo);
 
 static volatile int running = 1;
-static const char* prompt[4] = {"|\b", "/\b", "-\b", "\\\b"};
 
 static CCanDevice canDevice = CCanDevice();  // global due to SignalChannel() in sigterm()
 
@@ -112,7 +111,7 @@ int main(int argc, const char* argv[]) {
         /* program usage already shown */
         return 1;
     }
-    /* CAN Tester for generic CAN interfaces */
+    /* CAN Sender for generic CAN interfaces */
     opts.ShowGreetings(stdout);
 #if (OPTION_CANAPI_LIBRARY != 0)
     /* - set search path for JSON files (if set) */
@@ -328,22 +327,8 @@ int main(int argc, const char* argv[]) {
     }
 #endif
     fprintf(stdout, "OK!\n");
-    /* - do your job well: */
-    switch (opts.m_TestMode) {
-    case SOptions::TxMODE:   /* transmitter test (duration) */
-        (void)canDevice.TransmitterTest(opts.m_nTxTime, opts.m_OpMode, opts.m_nTxCanId, opts.m_fTxXtdId, opts.m_nTxCanDlc, opts.m_nTxDelay, opts.m_nStartNumber);
-        break;
-    case SOptions::TxFRAMES: /* transmitter test (frames) */
-        (void)canDevice.TransmitterTest(opts.m_nTxFrames, opts.m_OpMode, false, opts.m_nTxCanId, opts.m_fTxXtdId, opts.m_nTxCanDlc, opts.m_nTxDelay, opts.m_nStartNumber);
-        break;
-    case SOptions::TxRANDOM: /* transmitter test (random) */
-        (void)canDevice.TransmitterTest(opts.m_nTxFrames, opts.m_OpMode, true, opts.m_nTxCanId, opts.m_fTxXtdId, opts.m_nTxCanDlc, opts.m_nTxDelay, opts.m_nStartNumber);
-        break;
-    case SOptions::RxMODE:   /* receiver test (abort with Ctrl+C) */
-    default:
-        (void)canDevice.ReceiverTest(opts.m_fCheckNumber, opts.m_nStartNumber, opts.m_fStopOnError);
-        break;
-    }
+    /* - parse and send messages */
+    canDevice.SendMessage();
     /* - stop trace session (if enabled) */
 #if (CAN_TRACE_SUPPORTED != 0)
     if (opts.m_eTraceMode != SOptions::eTraceOff) {
@@ -383,6 +368,80 @@ farewell:
     /* So long and farewell! */
     opts.ShowFarewell(stdout);
     return retVal;
+}
+
+uint64_t CCanDevice::SendMessage() {
+    CANAPI_Message_t message = {};
+    CANAPI_Return_t retVal;
+    char string[1024];
+    uint32_t count = 0;
+    uint64_t cycle = 0;
+    int incr = 0;
+
+    struct timespec t0;
+    uint64_t dt = 0;
+    uint32_t data = 0;
+#if !defined(_WIN32) && !defined(_WIN64)
+    fprintf(stdout, "\nEnter a message to send (or ^D to quit):\n");
+#else
+	fprintf(stdout, "\nEnter a message to send (or ^Z + Enter to quit):\n");
+#endif
+    while (!feof(stdin) && running) {
+        fprintf(stdout, "> "); fflush(stdout);
+        memset(&message, 0, sizeof(message));
+        string[0] = '\0';
+        // read a string from stdin
+        if (fgets(string, sizeof(string), stdin) == NULL) {
+            break;
+        }
+        if (string[0] == '\n') {
+            continue;
+        }
+        // parse message from string
+        if (!CCanMessage::Parse(string, message, count, cycle, incr)) {
+            fprintf(stderr, "! Sorry, you entered an invalid message (syntax error)\n");
+            continue;
+        }
+        // send message one or more times
+        for (uint32_t i = 0; i < count; i++) {
+            // t0 timestamp - start of journey
+            t0 = CTimer::GetTime();
+            // send message, retry when busy
+            do {
+                retVal = WriteMessage(message);
+            } while ((retVal == CCanApi::TransmitterBusy) && running);
+            // abort on error
+            if (retVal != CCanApi::NoError) {
+                fprintf(stderr, "! Sorry, the message could not be sent (error=%i)\n", retVal);
+                break;
+            }
+            // t1 timestamp - end of journey
+            dt = CTimer::DiffTimeInUsec(t0, CTimer::GetTime());
+            // delay if t1-t0 < cycle time
+            if ((0 < cycle) && (dt < cycle)) {
+                CTimer::Delay(cycle - dt);
+            }
+            // increment or decrement data
+            data = (uint32_t)message.data[0]
+                 | ((uint32_t)message.data[1] << 8)
+                 | ((uint32_t)message.data[2] << 16)
+                 | ((uint32_t)message.data[3] << 24);
+            if (incr > 0) {
+                data++;
+            } else if (incr < 0) {
+                data--;
+            } else {
+                data = 0;
+            }
+            // up- or down-counting number
+            message.data[0] = (uint8_t)(data & 0xFF);
+            message.data[1] = (uint8_t)((data >> 8) & 0xFF);
+            message.data[2] = (uint8_t)((data >> 16) & 0xFF);
+            message.data[3] = (uint8_t)((data >> 24) & 0xFF);
+        }
+    }
+    fprintf(stdout, "\n");
+    return 0;
 }
 
 /*  List all supported CAN devices from CAN device list :
@@ -437,7 +496,7 @@ int CCanDevice::TestCanDevices(CANAPI_OpMode_t opMode) {
 
     fprintf(stdout, "Available hardware:\n");
 #if (OPTION_CANAPI_LIBRARY != 0)
-    int32_t blacklist[] = TESTER_BLACKLIST;
+    int32_t blacklist[] = SENDER_BLACKLIST;
     CCanDevice::SLibraryInfo library = { (-1), "", "" };
     bool iterLibrary = CCanDevice::GetFirstLibrary(library);
     while (iterLibrary) {
@@ -595,7 +654,7 @@ bool CCanDevice::WriteJsonFile(const char* filename) {
             "  },\n"
             "  \"platform\": \"%s\",\n"
             "  \"vendor\": {\n",
-            TESTER_PLATFORM
+            SENDER_PLATFORM
            );
 #if (SERIAL_CAN_SUPPORTED == 0)
     // oops, we need the name of wrapper library
@@ -631,7 +690,7 @@ bool CCanDevice::WriteJsonFile(const char* filename) {
             "      \"alias\": \"%s%i\"\n",
             channel.m_nChannelNo,
             channel.m_szDeviceName,
-            TESTER_ALIASNAME, n++
+            SENDER_ALIASNAME, n++
            );
         iterChannel = CCanDevice::GetNextChannel(channel);
         fprintf(fp,
@@ -661,11 +720,11 @@ bool CCanDevice::WriteJsonFile(const char* filename) {
             "      \"alias\": \"%s%i\"\n",
             CANDEV_SERIAL,
 #if defined(_WIN32) || defined(_WIN64)
-            TESTER_TTYNAME, i + 1,
+            SENDER_TTYNAME, i + 1,
 #else
-            TESTER_TTYNAME, i,
+            SENDER_TTYNAME, i,
 #endif
-            TESTER_ALIASNAME, i
+            SENDER_ALIASNAME, i
            );
         fprintf(fp,
             "    %s\n", i < 7 ? "}," : "}"
@@ -683,267 +742,6 @@ bool CCanDevice::WriteJsonFile(const char* filename) {
     return true;
 }
 #endif
-
-/*  Job - transmitter test:
- *  - duration (in [s])
- *  - operation mode
- *  - CAN identifier
- *  - CAN data length code
- *  - delay between two messages
- *  - offset for first up counting number
- *  * Note: Most CAN drivers use a transmission queue that stalls after the time period has expired.
- */
-uint64_t CCanDevice::TransmitterTest(time_t duration, CANAPI_OpMode_t opMode, uint32_t id, bool xtd, uint8_t dlc, uint64_t delay, uint64_t offset) {
-    CANAPI_Message_t message;
-    CANAPI_Return_t retVal;
-
-    time_t start = time(NULL);
-    uint64_t frames = 0;
-    uint64_t errors = 0;
-    uint64_t calls = 0;
-
-    struct timespec t0;
-    uint64_t dt;
-
-    memset(&message, 0, sizeof(CANAPI_Message_t));
-
-    fprintf(stderr, "\nPress ^C to abort.\n");
-    message.id  = id;
-    message.xtd = xtd;
-    message.rtr = 0;
-#if (CAN_FD_SUPPORTED != 0)
-    message.fdf = opMode.fdoe;
-    message.brs = opMode.brse;
-#else
-    (void) opMode;
-#endif
-    message.dlc = dlc;
-    fprintf(stdout, "\nTransmitting message(s)...");
-    fflush (stdout);
-    while (time(NULL) < (start + duration)) {
-        message.data[0] = (uint8_t)((frames + offset) >> 0);
-        message.data[1] = (uint8_t)((frames + offset) >> 8);
-        message.data[2] = (uint8_t)((frames + offset) >> 16);
-        message.data[3] = (uint8_t)((frames + offset) >> 24);
-        message.data[4] = (uint8_t)((frames + offset) >> 32);
-        message.data[5] = (uint8_t)((frames + offset) >> 40);
-        message.data[6] = (uint8_t)((frames + offset) >> 48);
-        message.data[7] = (uint8_t)((frames + offset) >> 56);
-#if (CAN_FD_SUPPORTED != 0)
-        memset(&message.data[8], 0, CANFD_MAX_LEN - 8);
-#endif
-        /* transmit message (repeat when busy) */
-        t0 = CTimer::GetTime();
-retry_tx_test:
-        calls++;
-        retVal = WriteMessage(message);
-        if (retVal == CCanApi::NoError)
-            fprintf(stderr, "%s", prompt[(frames++ % 4)]);
-        else if ((retVal == CCanApi::TransmitterBusy) && running)
-            goto retry_tx_test;
-        else
-            errors++;
-        /* pause between two messages, as you please */
-        dt = CTimer::DiffTimeInUsec(t0, CTimer::GetTime());
-        if (delay && (dt < (delay * CTimer::USEC)))
-            CTimer::Delay((delay * CTimer::USEC) - dt);
-        if (!running) {
-            fprintf(stderr, "\b");
-            fprintf(stdout, "STOP!\n\n");
-            fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
-            fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
-            fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-            fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
-            return frames;
-        }
-    }
-    fprintf(stderr, "\b");
-    fprintf(stdout, "OK!\n\n");
-    fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
-    fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
-    fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-    fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
-
-    CTimer::Delay(1U * CTimer::SEC);  /* afterburner */
-    return frames;
-}
-
-/*  Job - transmitter test :
- *  - number of messages
- *  - operation mode
- *  - random Y/N
- *  - CAN identifier
- *  - CAN data length code
- *  - delay between two messages
- *  - offset for first up counting number
- *  * Note: Most CAN drivers use a transmission queue that stalls after the time period has expired.
- */
-uint64_t CCanDevice::TransmitterTest(uint64_t count, CANAPI_OpMode_t opMode, bool random, uint32_t id, bool xtd, uint8_t dlc, uint64_t delay, uint64_t offset) {
-    CANAPI_Message_t message;
-    CANAPI_Return_t retVal;
-
-    time_t start = time(NULL);
-    uint64_t frames = 0;
-    uint64_t errors = 0;
-    uint64_t calls = 0;
-
-    struct timespec t0;
-    uint64_t dt = 0;
-
-    srand((unsigned int)time(NULL));
-    memset(&message, 0, sizeof(CANAPI_Message_t));
-
-    fprintf(stderr, "\nPress ^C to abort.\n");
-    message.id  = id;
-    message.xtd = xtd;
-    message.rtr = 0;
-#if (CAN_FD_SUPPORTED != 0)
-    message.fdf = opMode.fdoe;
-    message.brs = opMode.brse;
-#else
-    (void) opMode;
-#endif
-    message.dlc = dlc;
-    fprintf(stdout, "\nTransmitting message(s)...");
-    fflush (stdout);
-    while (frames < count) {
-        message.data[0] = (uint8_t)((frames + offset) >> 0);
-        message.data[1] = (uint8_t)((frames + offset) >> 8);
-        message.data[2] = (uint8_t)((frames + offset) >> 16);
-        message.data[3] = (uint8_t)((frames + offset) >> 24);
-        message.data[4] = (uint8_t)((frames + offset) >> 32);
-        message.data[5] = (uint8_t)((frames + offset) >> 40);
-        message.data[6] = (uint8_t)((frames + offset) >> 48);
-        message.data[7] = (uint8_t)((frames + offset) >> 56);
-#if (CAN_FD_SUPPORTED != 0)
-        memset(&message.data[8], 0, CANFD_MAX_LEN - 8);
-        if (random)
-            message.dlc = dlc + (uint8_t)(rand() % ((CANFD_MAX_DLC - dlc) + 1));
-#else
-        if (random)
-            message.dlc = dlc + (uint8_t)(rand() % ((CAN_MAX_DLC - dlc) + 1));
-#endif
-        /* transmit message (repeat when busy) */
-        t0 = CTimer::GetTime();
-retry_tx_test:
-        calls++;
-        retVal = WriteMessage(message);
-        if (retVal == CCanApi::NoError)
-            fprintf(stderr, "%s", prompt[(frames++ % 4)]);
-        else if ((retVal == CCanApi::TransmitterBusy) && running)
-            goto retry_tx_test;
-        else
-            errors++;
-        /* pause between two messages, as you please */
-        dt = CTimer::DiffTimeInUsec(t0, CTimer::GetTime());
-        if (random)
-            CTimer::Delay(CTimer::USEC * (delay + (uint64_t)(rand() % 54945)));
-        else if (delay && (dt < (delay * CTimer::USEC)))
-            CTimer::Delay((delay * CTimer::USEC) - dt);
-        if (!running) {
-            fprintf(stderr, "\b");
-            fprintf(stdout, "STOP!\n\n");
-            fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
-            fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
-            fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-            fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
-            return frames;
-        }
-    }
-    fprintf(stderr, "\b");
-    fprintf(stdout, "OK!\n\n");
-    fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
-    fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
-    fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-    fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
-
-    CTimer::Delay(1U * CTimer::SEC);  /* afterburner */
-    return frames;}
-
-/*  Job - receiver test :
- *  - check for consequtive up counting numbers Y/N
- *  - first number to be check (if checkCounter = Y)
- *  - stop on (first) error
- */
-uint64_t CCanDevice::ReceiverTest(bool checkCounter, uint64_t expectedNumber, bool stopOnError) {
-    CANAPI_Message_t message;
-    CANAPI_Status_t status;
-    CANAPI_Return_t retVal;
-
-    time_t start = time(NULL);
-    uint64_t frames = 0U;
-    uint64_t errors = 0U;
-    uint64_t calls = 0U;
-    uint64_t data;
-
-    fprintf(stderr, "\nPress ^C to abort.\n");
-    fprintf(stdout, "\nReceiving message(s)...");
-    fflush (stdout);
-    for (;;) {
-        retVal = ReadMessage(message);
-        if (retVal == CCanApi::NoError) {
-            fprintf(stderr, "%s", prompt[(frames++ % 4)]);
-            // checking PCBUSB issue #198 (aka. MACCAN-2)
-            if (checkCounter) {
-                data = 0;
-                if (message.dlc > 0)
-                    data |= (uint64_t)message.data[0] << 0;
-                if (message.dlc > 1)
-                    data |= (uint64_t)message.data[1] << 8;
-                if (message.dlc > 2)
-                    data |= (uint64_t)message.data[2] << 16;
-                if (message.dlc > 3)
-                    data |= (uint64_t)message.data[3] << 24;
-                if (message.dlc > 4)
-                    data |= (uint64_t)message.data[4] << 32;
-                if (message.dlc > 5)
-                    data |= (uint64_t)message.data[5] << 40;
-                if (message.dlc > 6)
-                    data |= (uint64_t)message.data[6] << 48;
-                if (message.dlc > 7)
-                    data |= (uint64_t)message.data[7] << 56;
-                if (data != expectedNumber) {
-                    fprintf(stderr, "\b");
-                    fprintf(stdout, "ISSUE#198!\n");
-                    fprintf(stderr, "+++ data inconsistent: %" PRIu64 " received / %" PRIu64 " expected\n", data, expectedNumber);
-                    retVal = GetStatus(status);
-                    if ((retVal == CCanApi::NoError) && ((status.byte & ~CANSTAT_RESET) != 0x00U)) {
-                        fprintf(stderr, "    status register:%s%s%s%s%s%s (%02X)\n",
-                            (status.bus_off) ? " BO" : "",
-                            (status.warning_level) ? " WL" : "",
-                            (status.bus_error) ? " BE" : "",
-                            (status.transmitter_busy) ? " TP" : "",
-                            (status.message_lost) ? " ML" : "",
-                            (status.queue_overrun) ? " QUE" : "", status.byte);
-                    }
-                    if (stopOnError) {
-                        fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
-                        fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
-                        fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-                        fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
-                        return frames;
-                    }
-                    else {
-                        fprintf(stderr, "Receiving message(s)... ");
-                        expectedNumber = data;
-                    }
-                }
-                expectedNumber++;  // depending on DLC received data may wrap around while number is counting up!
-            }
-        } else if (retVal != CCanApi::ReceiverEmpty)
-            errors++;
-        calls++;
-        if (!running) {
-            fprintf(stderr, "\b");
-            fprintf(stdout, "OK!\n\n");
-            fprintf(stdout, "Message(s)=%" PRIu64 "\n", frames);
-            fprintf(stdout, "Error(s)=%" PRIu64 "\n", errors);
-            fprintf(stdout, "Call(s)=%" PRIu64 "\n", calls);
-            fprintf(stdout, "Time=%" PRIi64 "sec\n\n", (int64_t)(time(NULL) - start));
-            return frames;
-        }
-    }
-}
 
 /*  Signal handler to catch Ctrl+C:
  *  - signo: signal number (SIGINT, SIGHUP, SIGTERM)

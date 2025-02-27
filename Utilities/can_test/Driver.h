@@ -26,12 +26,22 @@
 #if (OPTION_CAN_2_0_ONLY != 0)
 #error Compilation with legacy CAN 2.0 frame format!
 #else
-#define CAN_FD_SUPPORTED   1    // don't touch that dial
-#define CAN_TRACE_SUPPORTED  0  // write trace file (1=PCAN)
+#define CAN_FD_SUPPORTED    1  // don't touch that dial
+#define CAN_TRACE_SUPPORTED 0  // write trace file (1=PCAN)
 #endif
+#if !defined(__APPLE__)
 #define TESTER_INTERFACE  "PEAK-System PCAN Interfaces"
+#else
+#define TESTER_INTERFACE  "PEAK-System PCAN USB Interfaces"
+#endif
 #define TESTER_COPYRIGHT  "2005-2010,2012-2025 by Uwe Vogt, UV Software, Berlin"
+#if defined(_WIN32) || defined(_WIN64)
 #define TESTER_PLATFORM   "Windows"
+#elif defined(__linux__)
+#define TESTER_PLATFORM   "Linux"
+#elif defined(__APPLE__)
+#define TESTER_PLATFORM   "Darwin"
+#endif
 #define TESTER_ALIASNAME  "PCB:"
 
 #if (OPTION_PCAN_BIT_TIMING == 1)

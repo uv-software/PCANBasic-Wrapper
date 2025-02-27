@@ -88,9 +88,12 @@ if %LIBDB% == "True" (
    copy /Y .\Sources\PCANBasic\x64\PCANBasic.lib %BIN%
    echo "Static debug libraries (x64)" > %BIN%\readme.txt
 )
-rem build the utilities 'can_moni' and 'can_test'
+rem build the utilities 'can_moni', 'can_send' and 'can_test'
 if %UTILS% == "True" (
    call msbuild.exe .\Utilities\can_moni\can_moni.vcxproj /t:Clean;Build /p:"Configuration=Release";"Platform=x64"
+   if errorlevel 1 goto end
+
+   call msbuild.exe .\Utilities\can_send\can_send.vcxproj /t:Clean;Build /p:"Configuration=Release";"Platform=x64"
    if errorlevel 1 goto end
 
    call msbuild.exe .\Utilities\can_test\can_test.vcxproj /t:Clean;Build /p:"Configuration=Release";"Platform=x64"
@@ -103,6 +106,7 @@ if not exist %BIN% mkdir %BIN%
 if %UTILS% == "True" (
    echo Copying utilities...
    copy /Y .\Utilities\can_moni\x64\Release\can_moni.exe %BIN%
+   copy /Y .\Utilities\can_send\x64\Release\can_send.exe %BIN%
    copy /Y .\Utilities\can_test\x64\Release\can_test.exe %BIN%
 )
 rem copy the header files into the Includes folder

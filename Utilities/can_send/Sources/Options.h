@@ -1,8 +1,8 @@
 //  SPDX-License-Identifier: GPL-2.0-or-later
 //
-//  CAN Monitor for generic Interfaces (CAN API V3)
+//  CAN Sender for generic Interfaces (CAN API V3)
 //
-//  Copyright (c) 2007,2012-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 //  You should have received a copy of the GNU General Public License along
 //  with this program; if not, see <https://www.gnu.org/licenses/>.
 //
-#ifndef CAN_MONI_OPTIONS_H_INCLUDED
-#define CAN_MONI_OPTIONS_H_INCLUDED
+#ifndef CAN_SEND_OPTIONS_H_INCLUDED
+#define CAN_SEND_OPTIONS_H_INCLUDED
 
 #include "Driver.h"
 #include "Version.h"
@@ -26,18 +26,18 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define CAN_MONI_APPLICATION "CAN Monitor for " MONITOR_INTERFACE ", Version " VERSION_STRING
-#define CAN_MONI_COPYRIGHT   "Copyright (c) " MONITOR_COPYRIGHT
+#define CAN_SEND_APPLICATION "CAN Sender for " SENDER_INTERFACE ", Version " VERSION_STRING
+#define CAN_SEND_COPYRIGHT   "Copyright (c) " SENDER_COPYRIGHT
 #if !defined(_WIN32) && !defined(_WIN64)
-#define CAN_MONI_WARRANTY    "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
+#define CAN_SEND_WARRANTY    "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
                              "This is free software, and you are welcome to redistribute it\n" \
-                             "under certain conditions; type `" CAN_MONI_PROGRAM " --version' for details.";
+                             "under certain conditions; type `" CAN_SEND_PROGRAM " --version' for details.";
 #else
-#define CAN_MONI_WARRANTY    "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
+#define CAN_SEND_WARRANTY    "This program comes with ABSOLUTELY NO WARRANTY!\n\n" \
                              "This is free software, and you are welcome to redistribute it\n" \
-                             "under certain conditions; type '" CAN_MONI_PROGRAM " /VERSION' for details.";
+                             "under certain conditions; type '" CAN_SEND_PROGRAM " /VERSION' for details.";
 #endif
-#define CAN_MONI_LICENSE     "This program is free software; you can redistribute it and/or modify\n" \
+#define CAN_SEND_LICENSE     "This program is free software; you can redistribute it and/or modify\n" \
                              "it under the terms of the GNU General Public License as published by\n" \
                              "the Free Software Foundation; either version 2 of the License, or\n" \
                              "(at your option) any later version.\n\n" \
@@ -47,7 +47,7 @@
                              "GNU General Public License for more details.\n\n" \
                              "You should have received a copy of the GNU General Public License along\n" \
                              "with this program; if not, see <https://www.gnu.org/licenses/>."
-#define CAN_MONI_PROGRAM     "can_moni"
+#define CAN_SEND_PROGRAM     "can_send"
 
 struct SOptions {
     // attributes
@@ -70,7 +70,6 @@ struct SOptions {
         uint32_t m_u32Code;
         uint32_t m_u32Mask;
     } m_StdFilter, m_XtdFilter;
-    char* m_szExcludeList;
 #if (CAN_TRACE_SUPPORTED != 0)
     enum ETraceMode {
         eTraceOff,
@@ -95,4 +94,4 @@ struct SOptions {
     void ShowUsage(FILE* stream, bool args = false);
 };
 
-#endif  // CAN_MONI_OPTIONS_H_INCLUDED
+#endif  // CAN_SEND_OPTIONS_H_INCLUDED

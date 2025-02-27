@@ -1,8 +1,8 @@
 //  SPDX-License-Identifier: GPL-2.0-or-later
 //
-//  CAN Monitor for PEAK-System PCAN Interfaces (CAN API V3)
+//  CAN Sender for PEAK-System PCAN Interfaces (CAN API V3)
 //
-//  Copyright (c) 2007,2012-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,19 +29,19 @@
 #define CAN_TRACE_SUPPORTED 0  // write trace file (1=PCAN)
 #endif
 #if !defined(__APPLE__)
-#define MONITOR_INTERFACE  "PEAK-System PCAN Interfaces"
+#define SENDER_INTERFACE  "PEAK-System PCAN Interfaces"
 #else
-#define MONITOR_INTERFACE  "PEAK-System PCAN USB Interfaces"
+#define SENDER_INTERFACE  "PEAK-System PCAN USB Interfaces"
 #endif
-#define MONITOR_COPYRIGHT  "2007,2012-2025 by Uwe Vogt, UV Software, Berlin"
+#define SENDER_COPYRIGHT  "2025 by Uwe Vogt, UV Software, Berlin"
 #if defined(_WIN32) || defined(_WIN64)
-#define MONITOR_PLATFORM   "Windows"
+#define SENDER_PLATFORM   "Windows"
 #elif defined(__linux__)
-#define MONITOR_PLATFORM   "Linux"
+#define SENDER_PLATFORM   "Linux"
 #elif defined(__APPLE__)
-#define MONITOR_PLATFORM   "Darwin"
+#define SENDER_PLATFORM   "Darwin"
 #endif
-#define MONITOR_ALIASNAME  "PCB:"
+#define SENDER_ALIASNAME  "PCB:"
 
 #if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_1M(x)    PEAKCAN_BR_1M(x)

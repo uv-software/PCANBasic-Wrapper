@@ -1,12 +1,9 @@
-__CAN Tester for PEAK-System PCAN Interfaces, Version 0.6__ \
-Copyright &copy; 2005-2010,2012-2025 by Uwe Vogt, UV Software, Berlin
+__CAN Sender for PEAK-System PCAN Interfaces, Version 0.4__ \
+Copyright &copy; 2025 by Uwe Vogt, UV Software, Berlin
 
 ```
-Usage: can_test <interface> [<option>...]
-Options for receiver test (default test mode):
-  /RECEIVE | /RX                      count received messages until ^C is pressed
-  /Number:<number>                    check up-counting numbers starting with <number>
-  /Stop                               stop on error (with option /NUMBER)
+Usage: can_send <interface> [<option>...]
+Options:
   /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN CC or CAN FD mode
   /MONitor:(No|Yes) | /LISTEN-ONLY    monitor mode (listen-only mode)
   /ERR:(No|Yes) | /ERROR-FRAMES       allow reception of error frames
@@ -19,22 +16,6 @@ Options for receiver test (default test mode):
   /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or
   /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)
   /Verbose                            show detailed bit-rate settings
-Options for transmitter test:
-  /TRANSMIT:<time> | /TX=<time>       send messages for the given time in seconds, or
-  /FRames:<frames>                    alternatively send the given number of messages, or
-  /RANDom:<frames>                    optionally with random cycle time and data length
-  /Cycle:<msec>                       cycle time in milliseconds (default=0), or
-  /Usec:<usec>                        cycle time in microseconds (default=0)
-  /Dlc:<length>                       send messages of given length (default=8)
-  /can-Id:<can-id>                    use given identifier (default=100h)
-  /EXTended                           use extended identifier (29-bit)
-  /Number:<number>                    set first up-counting number (default=0)
-  /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN CC or CAN FD mode
-  /SHARED                             shared CAN controller access (if supported)
-  /BauDrate:<baudrate>                CAN bit-timing in kbps (default=250), or
-  /BitRate:<bitrate>                  CAN bit-rate settings (as key/value list)
-  /Verbose                            show detailed bit-rate settings
-Other options:
   /LIST-BITRATES[:(CCf|FDf[+BRS])]    list standard bit-rate settings and exit
   /LIST-BOARDS | /LIST                list all supported CAN interfaces and exit
   /TEST-BOARDS | /TEST                list all available CAN interfaces and exit
@@ -42,13 +23,7 @@ Other options:
   /HELP | /?                          display this help screen and exit
   /VERSION                            show version information and exit
 Arguments:
-  <frames>       send this number of messages (frames), or
-  <time>         send messages for the given time in seconds
-  <msec>         cycle time in milliseconds (default=0), or 
-  <usec>         cycle time in microseconds (default=0)
-  <can-id>       send with given identifier (default=100h)
-  <length>       send data of given length (default=8)
-  <number>       set first up-counting number (default=0)
+  <id>           CAN identifier (11-bit or 29-bit)
   <interface>    CAN interface board (list all with /LIST)
   <baudrate>     CAN baud rate index (default=3):
                  0 = 1000 kbps
@@ -72,6 +47,25 @@ Arguments:
                  data_tseg1=<value>   time segment 1 (FD data)
                  data_tseg2=<value>   time segment 2 (FD data)
                  data_sjw=<value>     sync. jump width (FD data)
+Syntax:
+ <can_frame>:
+  <can_id>#{data}                     for CAN CC data frames
+  <can_id>#R{len}                     for CAN CC remote frames
+  <can_id>##<flags>{data}             for CAN FD data frames (up to 64 bytes)
+ <can_id>:
+  3  ASCII hex-chars (0 .. F) for Standard frame format (SFF) or
+  8  ASCII hex-chars (0 .. F) for eXtended frame format (EFF)
+ {data}:
+  0 .. 8   ASCII hex-values in CAN CC mode (optionally separated by '.') or
+  0 .. 64  ASCII hex-values in CAN FD mode (optionally separated by '.')
+ {len}:
+  an optional 0 .. 8 value as RTR frames can contain a valid DLC field
+ <flags>:
+  one ASCII hex-char (0 .. F) which defines CAN FD flags:
+    4 = FDF                           for CAN FD frame format
+    5 = FDF and BRS                   for CAN FD with Bit Rate Switch
+    6 = FDF and ESI                   for CAN FD with Error State Indicator
+    7 = FDF, BRS and ESI              all together now
 Hazard note:
   If you connect your CAN device to a real CAN network when using this program,
   you might damage your application.
