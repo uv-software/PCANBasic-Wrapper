@@ -911,7 +911,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
 #if (CAN_FD_SUPPORTED != 0)
     fprintf(stream, " -m, --mode=(CCF|FDF[+BRS])           CAN operation mode: CAN CC or CAN FD mode\n");
 #else
-    fprintf(stream, " -m, --mode=CCF                       CAN operation mode: CAN 2.0\n");
+    fprintf(stream, " -m, --mode=CCF                       CAN operation mode: CAN CC mode\n");
 #endif
 #if (CAN_SHARED_SUPPORTED != 0)
     fprintf(stream, "     --shared                         shared CAN controller access (if supported)\n");
@@ -953,7 +953,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
 #if (CAN_FD_SUPPORTED != 0)
     fprintf(stream, " -m, --mode=(CCF|FDF[+BRS])           CAN operation mode: CAN CC or CAN FD mode\n");
 #else
-    fprintf(stream, " -m, --mode=CCF                       CAN operation mode: CAN 2.0\n");
+    fprintf(stream, " -m, --mode=CCF                       CAN operation mode: CAN CC mode\n");
 #endif
 #if (CAN_SHARED_SUPPORTED != 0)
     fprintf(stream, "     --shared                         shared CAN controller access (if supported)\n");

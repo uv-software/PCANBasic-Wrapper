@@ -1069,7 +1069,7 @@ void SOptions::ShowUsage(FILE* stream, bool args) {
 #if (CAN_FD_SUPPORTED != 0)
     fprintf(stream, "  /Mode:(CCf|FDf[+BRS])               CAN operation mode: CAN CC or CAN FD mode\n");
 #else
-    fprintf(stream, "  /Mode:CCf                           CAN operation mode: CAN 2.0\n");
+    fprintf(stream, "  /Mode:CCf                           CAN operation mode: CAN CC mode\n");
 #endif
 #if (CAN_SHARED_SUPPORTED != 0)
     fprintf(stream, "  /SHARED                             shared CAN controller access (if supported)\n");

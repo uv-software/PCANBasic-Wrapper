@@ -564,8 +564,8 @@ bool CCanDevice::IsBlacklisted(int32_t library, int32_t blacklist[]) {
 #endif
 
 /*  List standard CAN bit-rate settings (only a choise):
- *  - CAN 2.0 (Classical CAN)
- *  - CAN FD w/0 Bit-rate Switching (BRS)
+ *  - CAN CC (Classical CAN)
+ *  - CAN FD w/o Bit-rate Switching (BRS)
  *  - CAN FD with Bit-rate Switching (BRS)
  *  return the number of standard CAN bit-rate settings
  */
@@ -603,7 +603,7 @@ int CCanDevice::ListCanBitrates(CANAPI_OpMode_t opMode) {
 #else
     {
 #endif
-        fprintf(stdout, "Bitrates - CAN 2.0 (Classical CAN):\n");
+        fprintf(stdout, "Bitrates - CAN CC (Classical CAN):\n");
         BITRATE_1M(bitrate[n]); n += 1;
 #if (BITRATE_800K_UNSUPPORTED == 0)
         BITRATE_800K(bitrate[n]); n += 1;
