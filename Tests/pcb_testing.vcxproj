@@ -77,6 +77,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\anykey.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Sources\Bitrates.cpp" />
     <ClCompile Include="Sources\Device.cpp" />
     <ClCompile Include="Sources\main.cpp" />
@@ -121,6 +125,7 @@
     <ClInclude Include="..\Includes\PeakCAN_Defaults.h" />
     <ClInclude Include="..\Includes\PeakCAN_Defines.h" />
     <ClInclude Include="Driver.h" />
+    <ClInclude Include="Sources\anykey.h" />
     <ClInclude Include="Sources\Bitrates.h" />
     <ClInclude Include="Sources\Config.h" />
     <ClInclude Include="Sources\Device.h" />
@@ -128,8 +133,10 @@
     <ClInclude Include="Sources\pch.h" />
     <ClInclude Include="Sources\Progress.h" />
     <ClInclude Include="Sources\Properties.h" />
+    <ClInclude Include="Sources\Server.h" />
     <ClInclude Include="Sources\Settings.h" />
     <ClInclude Include="Sources\Timer.h" />
+    <ClInclude Include="Version.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

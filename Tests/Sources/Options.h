@@ -55,7 +55,9 @@
 #endif
 
 #include "Driver.h"
-
+#if (OPTION_CANTCP_ENABLED != 0)
+#include "Server.h"
+#endif
 #define NUM_DUTS  2                     // number of devices under test
 #define DUT1   0                        // device under test #1
 #define DUT2   1                        // device under test #2
@@ -79,6 +81,7 @@ private:
     // test options
     int32_t m_s32TestFrames;            // number of CAN frames to be sent during tests
     int32_t m_s32SmokeTestFrames;       // number of CAN frames to be sent during smoketest
+    bool m_fStartInteractive;           // start test execution only when the Anykey is pressed
     bool m_fCallSequences;              // execute test cases from suite 'CallSequences'
     bool m_fBitrateConverter;           // execute test cases from suite 'BitrateConverter'
     bool m_fCanClassic;                 // execute only test cases in CAN Classic mode
@@ -86,6 +89,14 @@ private:
     bool m_fRtrDevice;                  // a device that can answer RTR frames is connected
     bool m_fRunQuick;                   // omit some long lasting test cases
     bool m_fShowHelp;                   // show help and exit
+#if (OPTION_CANTCP_ENABLED != 0)
+    // server options
+    struct SServer {
+        bool m_fEnable;                 // enable RocketCAN server
+        char *m_szService;              // service name or port number
+        int m_nLogging;                 // logging level
+    } m_Server; 
+#endif
 public:
     // constructor / destructor
     COptions();
@@ -138,6 +149,28 @@ public:
     bool IsRtrDevicePresent() {
         return m_fRtrDevice;
     }
+    bool StartInteractive() {
+        return m_fStartInteractive;
+    }
+#if (OPTION_CANTCP_ENABLED != 0)
+    bool IsCanServerEnabled() {
+        return m_Server.m_fEnable;
+    }
+    const char *GetCanServerService() {
+        return (const char*)m_Server.m_szService;
+    }
+#if (0)
+    CCanServer::EFrameFormat GetCanServerFormat() {
+        return m_Server.m_eFormat;
+    }
+    CCanServer::EIpcProtocol GetCanServerProtocol() {
+        return m_Server.m_eProtocol;
+    }
+#endif
+    int GetCanServerLoggingLevel() {
+        return m_Server.m_nLogging;
+    }
+#endif
     // scan commandline arguments
     int ScanOptions(int argc, char* argv[], char* err = NULL, size_t len = 0);
     int ShowHelp();
@@ -150,4 +183,4 @@ extern COptions g_Options;          // global access to testing options
 
 #endif // OPTIONS_H_INCLUDED
 
-// $Id: Options.h 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin.
+// $Id: Options.h 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin.

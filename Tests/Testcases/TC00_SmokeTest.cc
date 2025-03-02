@@ -268,6 +268,9 @@ TEST_F(SmokeTest, DefaultScenario) {
     dut2.ShowDeviceInformation("[   DUT2   ]");
     dut1.ShowOperationMode("[   MODE   ]");
     dut1.ShowBitrateSettings("[   BAUD   ]");
+#if (OPTION_CANTCP_ENABLED != 0)
+    g_CanServer.ShowServerPort("[   PORT   ]");
+#endif
     // @- probe if DUT1 is present and not occupied
     retVal = dut1.ProbeChannel(state);
     ASSERT_EQ(CCanApi::NoError, retVal) << "[  ERROR!  ] dut1.ProbeChannel() failed with error code " << retVal;
@@ -359,4 +362,4 @@ TEST_F(SmokeTest, DefaultScenario) {
     // @end.
 }
 
-//  $Id: TC00_SmokeTest.cc 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin.
+//  $Id: TC00_SmokeTest.cc 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin.

@@ -62,6 +62,12 @@
 #else
 #define MESSAGE(n,i,l,d) do{ }while(0)
 #endif
+#if (OPTION_CANTCP_ENABLED != 0)
+#define DISCONNECT_CLIENT(client)  do { if(g_CanServer.IsRunning()) (void)client.Disconnect(); } while(0)
+#define CLIENT_READ_TIMEOUT  100U
+#else
+#define DISCONNECT_CLIENT(client)  do { } while(0)
+#endif
 
 CCanDevice::CCanDevice(int32_t library, int32_t channel, CANAPI_OpMode_t opMode, CANAPI_Bitrate_t bitRate, void *param) {
     m_nLibraryId = library;
@@ -104,8 +110,21 @@ int32_t CCanDevice::SendSomeFrames(CCanDevice &other, int32_t frames) {
         }
         PCBUSB_INIT_DELAY();
     }
+#if (OPTION_CANTCP_ENABLED != 0)
+    if (g_CanServer.IsRunning()) {
+        if (!g_CanServer.AttachDevice(this)) {
+            if (!initialized)
+                (void)other.TeardownChannel();
+            return (int32_t)CCanApi::FatalError;
+        }
+    }
+#endif
     int32_t result = SendAndReceiveFrames(this, &other, frames);
-
+#if (OPTION_CANTCP_ENABLED != 0)
+    if (g_CanServer.IsRunning()) {
+        (void)g_CanServer.DetachDevice();
+    }
+#endif
     if (!started) {
         if ((retVal = other.ResetController()) != CCanApi::NoError) {
             if (!initialized)
@@ -148,8 +167,21 @@ int32_t CCanDevice::ReceiveSomeFrames(CCanDevice &other, int32_t frames) {
         }
         PCBUSB_INIT_DELAY();
     }
+#if (OPTION_CANTCP_ENABLED != 0)
+    if (g_CanServer.IsRunning()) {
+        if (!g_CanServer.AttachDevice(&other)) {
+            if (!initialized)
+                (void)other.TeardownChannel();
+            return (int32_t)CCanApi::FatalError;
+        }
+    }
+#endif
     int32_t result = SendAndReceiveFrames(&other, this, frames);
-
+#if (OPTION_CANTCP_ENABLED != 0)
+    if (g_CanServer.IsRunning()) {
+        (void)g_CanServer.DetachDevice();
+    }
+#endif
     if (!started) {
         if ((retVal = other.ResetController()) != CCanApi::NoError) {
             if (!initialized)
@@ -183,15 +215,22 @@ int32_t CCanDevice::SendAndReceiveFrames(CCanDevice *sender, CCanDevice *receive
     txMessage.sts = 0;
     txMessage.dlc = 0U;
 
-#if (DEVICE_DEBUG != 0)
-    // time spec
-    struct timespec t0 = {};
-    struct timespec t1 = {};
-    struct timespec t2 = {};
-    struct timespec m0 = {};
-    struct timespec m1 = {};
-    // get current time: start of transmission
-    t0 = CTimer::GetTime();
+#if (OPTION_CANTCP_ENABLED != 0)
+    CANAPI_Message_t ipMessage = {};
+
+    CCanTcpClient txClient = CCanTcpClient();
+    CCanTcpClient rxClient = CCanTcpClient();
+
+    if (g_CanServer.IsRunning()) {
+        if ((retVal = txClient.Connect(CCanTcpClient::localhost(g_Options.GetCanServerService()))) != CCanApi::NoError) {
+            //printf("txClient.Connect() failed with %d\n", retVal);
+            return (int32_t)retVal;
+        }
+        if ((retVal = rxClient.Connect(CCanTcpClient::localhost(g_Options.GetCanServerService()))) != CCanApi::NoError) {
+            //printf("rxClient.Connect() failed with %d\n", retVal);
+            return (int32_t)retVal;
+        }
+    }
 #endif
     // send the messages
     CProgress progress = CProgress(frames);
@@ -205,14 +244,25 @@ int32_t CCanDevice::SendAndReceiveFrames(CCanDevice *sender, CCanDevice *receive
         txMessage.data[5] = (uint8_t)((uint64_t)i >> 40); if ((uint64_t)i > (uint64_t)0x0FFFFFFFFFF) txMessage.dlc = 6U;
         txMessage.data[6] = (uint8_t)((uint64_t)i >> 48); if ((uint64_t)i > (uint64_t)0x0FFFFFFFFFFFF) txMessage.dlc = 7U;
         txMessage.data[7] = (uint8_t)((uint64_t)i >> 56); if ((uint64_t)i > (uint64_t)0x0FFFFFFFFFFFFFF) txMessage.dlc = 8U;
-        // send one message (retry if busy)
-        do {
-            retVal = sender->WriteMessage(txMessage, DEVICE_SEND_TIMEOUT);
-            if (retVal == CCanApi::TransmitterBusy)
-                PCBUSB_QXMT_DELAY();
-        } while (retVal == CCanApi::TransmitterBusy);
+        // send the message
+#if (OPTION_CANTCP_ENABLED != 0)
+        if (g_CanServer.IsRunning()) {
+            // send via RocketCAN interface
+            retVal = txClient.Send(txMessage);
+        } else
+#endif
+        {
+            // send via CAN bus (retry if busy)
+            do {
+                retVal = sender->WriteMessage(txMessage, DEVICE_SEND_TIMEOUT);
+                if (retVal == CCanApi::TransmitterBusy)
+                    PCBUSB_QXMT_DELAY();
+            } while (retVal == CCanApi::TransmitterBusy);
+        }
         // on error abort
         if (retVal != CCanApi::NoError) {
+            DISCONNECT_CLIENT(txClient);
+            DISCONNECT_CLIENT(rxClient);
             progress.Clear();
             return (int32_t)retVal;
         }
@@ -229,35 +279,73 @@ int32_t CCanDevice::SendAndReceiveFrames(CCanDevice *sender, CCanDevice *receive
                 // check the message (id, length, up-counting number)
                 retVal = CheckMessage(rxMessage, (uint64_t)n, txMessage.id);
                 if (retVal != CCanApi::NoError) {
+                    DISCONNECT_CLIENT(txClient);
+                    DISCONNECT_CLIENT(rxClient);
                     progress.Clear();
                     MESSAGE(n, rxMessage.id, rxMessage.dlc, rxMessage.data);
                     return (int32_t)retVal;
                 }
-#if (DEVICE_DEBUG != 0)
-                if (n == 0)  // first message
-                    m0 = rxMessage.timestamp;
+#if (OPTION_CANTCP_ENABLED != 0)
+                if (g_CanServer.IsRunning()) {
+                    // re-send via RocketCAN server
+                    retVal = g_CanServer.Send(rxMessage);
+                    if (retVal != CCanApi::NoError) {
+                        DISCONNECT_CLIENT(txClient);
+                        DISCONNECT_CLIENT(rxClient);
+                        progress.Clear();
+                        return (int32_t)retVal;
+                    }
+                    // read the re-sent message on receiver's client
+                    retVal = rxClient.Receive(ipMessage, CLIENT_READ_TIMEOUT);
+                    if (retVal != CCanApi::NoError) {
+                        DISCONNECT_CLIENT(txClient);
+                        DISCONNECT_CLIENT(rxClient);
+                        progress.Clear();
+                        return (int32_t)retVal;
+                    }
+                    // check the re-sent message (id, length, up-counting number)
+                    retVal = CheckMessage(ipMessage, (uint64_t)n, txMessage.id);
+                    if (retVal != CCanApi::NoError) {
+                        DISCONNECT_CLIENT(txClient);
+                        DISCONNECT_CLIENT(rxClient);
+                        progress.Clear();
+                        MESSAGE(n, ipMessage.id, ipMessage.dlc, ipMessage.data);
+                        return (int32_t)retVal + 10;
+                    }
+                    // read the re-send message on sender's client
+                    retVal = txClient.Receive(ipMessage, CLIENT_READ_TIMEOUT);
+                    if (retVal != CCanApi::NoError) {
+                        DISCONNECT_CLIENT(txClient);
+                        DISCONNECT_CLIENT(rxClient);
+                        progress.Clear();
+                        return (int32_t)retVal;
+                    }
+                    // check the re-sent message (id, length, up-counting number)
+                    retVal = CheckMessage(ipMessage, (uint64_t)n, txMessage.id);
+                    if (retVal != CCanApi::NoError) {
+                        DISCONNECT_CLIENT(txClient);
+                        DISCONNECT_CLIENT(rxClient);
+                        progress.Clear();
+                        MESSAGE(n, ipMessage.id, ipMessage.dlc, ipMessage.data);
+                        return (int32_t)retVal + 20;
+                    }
+                }
 #endif
                 n++;
             }
         } else if (retVal != CCanApi::ReceiverEmpty) {
             if (++rxRetry > DEVICE_READ_RETRIES) {
+                DISCONNECT_CLIENT(txClient);
+                DISCONNECT_CLIENT(rxClient);
                 progress.Clear();
                 return (int32_t)retVal;
             }
         }
     }
-#if (DEVICE_DEBUG != 0)
-    // get current time: end of transmission
-    t1 = CTimer::GetTime();
-#endif
     // finish the plate
     int32_t remaining = (int32_t)(frames - n);
-#if (0) //defined(_WIN32) || defined(_WIN64)
-    uint32_t timeout = ((uint64_t)remaining * DEVICE_LOOP_TIMEOUT * CTimer::MSEC);  // FIXME: does not work for all bit-rates
-#else
     uint64_t timeout = (((uint64_t)TransmissionTime(receiver->GetBitrate(), (remaining + DEVICE_LOOP_EXTRA))
                      *   (uint64_t)DEVICE_LOOP_FACTOR) / (uint64_t)DEVICE_LOOP_DIVISOR);  // bit-rate dependent timeout
-#endif
     if (n < frames) {
         CTimer timer = CTimer(timeout);
         while ((n < frames) && !timer.Timeout()) {
@@ -271,49 +359,85 @@ int32_t CCanDevice::SendAndReceiveFrames(CCanDevice *sender, CCanDevice *receive
                     // check the message (id, length, up-counting number)
                     retVal = CheckMessage(rxMessage, (uint64_t)n, txMessage.id);
                     if (retVal != CCanApi::NoError) {
+                        DISCONNECT_CLIENT(txClient);
+                        DISCONNECT_CLIENT(rxClient);
                         progress.Clear();
                         MESSAGE(n, rxMessage.id, rxMessage.dlc, rxMessage.data);
                         return (int32_t)retVal;
                     }
-#if (DEVICE_DEBUG != 0)
-                    if (n == 0)  // first message
-                        m0 = rxMessage.timestamp;
+#if (OPTION_CANTCP_ENABLED != 0)
+                    if (g_CanServer.IsRunning()) {
+                        // re-send via RocketCAN server
+                        retVal = g_CanServer.Send(rxMessage);
+                        if (retVal != CCanApi::NoError) {
+                            DISCONNECT_CLIENT(txClient);
+                            DISCONNECT_CLIENT(rxClient);
+                            progress.Clear();
+                            return (int32_t)retVal;
+                        }
+                        // read the re-sent message on receiver's client
+                        retVal = rxClient.Receive(ipMessage, CLIENT_READ_TIMEOUT);
+                        if (retVal != CCanApi::NoError) {
+                            DISCONNECT_CLIENT(txClient);
+                            DISCONNECT_CLIENT(rxClient);
+                            progress.Clear();
+                            return (int32_t)retVal;
+                        }
+                        // check the re-sent message (id, length, up-counting number)
+                        retVal = CheckMessage(ipMessage, (uint64_t)n, txMessage.id);
+                        if (retVal != CCanApi::NoError) {
+                            DISCONNECT_CLIENT(txClient);
+                            DISCONNECT_CLIENT(rxClient);
+                            progress.Clear();
+                            MESSAGE(n, ipMessage.id, ipMessage.dlc, ipMessage.data);
+                            return (int32_t)retVal + 10;
+                        }
+                        // read the re-send message on sender's client
+                        retVal = txClient.Receive(ipMessage, CLIENT_READ_TIMEOUT);
+                        if (retVal != CCanApi::NoError) {
+                            DISCONNECT_CLIENT(txClient);
+                            DISCONNECT_CLIENT(rxClient);
+                            progress.Clear();
+                            return (int32_t)retVal;
+                        }
+                        // check the re-sent message (id, length, up-counting number)
+                        retVal = CheckMessage(ipMessage, (uint64_t)n, txMessage.id);
+                        if (retVal != CCanApi::NoError) {
+                            DISCONNECT_CLIENT(txClient);
+                            DISCONNECT_CLIENT(rxClient);
+                            progress.Clear();
+                            MESSAGE(n, ipMessage.id, ipMessage.dlc, ipMessage.data);
+                            return (int32_t)retVal + 20;
+                        }
+                    }
 #endif
                     n++;
-#if (DEVICE_DEBUG != 0)
-                    if (n == frames)  // last message
-                        m1 = rxMessage.timestamp;
-#endif
                 }
             }
             else if (retVal != CCanApi::ReceiverEmpty) {
                 if (++rxRetry > DEVICE_READ_RETRIES) {
+                    DISCONNECT_CLIENT(txClient);
+                    DISCONNECT_CLIENT(rxClient);
                     progress.Clear();
                     return (int32_t)retVal;
                 }
             }
         }
         if (timer.Timeout()) {
+            DISCONNECT_CLIENT(txClient);
+            DISCONNECT_CLIENT(rxClient);
             progress.Clear();
             return (int32_t)CANERR_TIMEOUT;
         }
     }
-#if (DEVICE_DEBUG != 0)
-    // get current time: end of reception
-    t2 = CTimer::GetTime();
+#if (OPTION_CANTCP_ENABLED != 0)
+    if (g_CanServer.IsRunning()) {
+        (void)txClient.Disconnect();
+        (void)rxClient.Disconnect();
+    }
 #endif
     // return the number of received messages
     progress.Clear();
-#if (DEVICE_DEBUG != 0)
-    if (frames > 0) {
-        std::cout << "  " << frames << " total sent frames in " << ((float)CTimer::DiffTime(t0, t1) * 1000.f) << "ms";
-        if (remaining > 0)
-            std::cout << " + " << remaining << " remaining frames in " << ((float)CTimer::DiffTime(t1, t2) * 1000.f) << "ms w/ timeout " << ((float)timeout / 1000.f) << "ms";
-        if (remaining > 1)
-            std::cout << " : reception of " << n << " frames in " << ((float)CTimer::DiffTime(m0, m1) * 1000.f) << "ms";
-        std::cout << std::endl;
-    }
-#endif
     return (int32_t)n;
 }
 
@@ -610,4 +734,4 @@ void CCanDevice::ShowChannelCapabilities(const char* prefix) {
     std::cout << std::endl;
 }
 
-// $Id: Device.cpp 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin //
+// $Id: Device.cpp 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin //

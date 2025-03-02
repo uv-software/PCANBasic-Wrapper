@@ -429,4 +429,4 @@ TEST_F(Summary, GTEST_TESTCASE(GetDevice2Information, GTEST_ENABLED)) {
     // @end.
 }
 
-//  $Id: TCxX_Summary.cc 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin.
+//  $Id: TCxX_Summary.cc 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin.
