@@ -1,4 +1,4 @@
-__CAN Tester for PEAK-System PCAN Interfaces, Version 0.6__ \
+__CAN Tester for PEAK-System PCAN Interfaces, Version 0.6.1__ \
 Copyright &copy; 2005-2010,2012-2025 by Uwe Vogt, UV Software, Berlin
 
 ```

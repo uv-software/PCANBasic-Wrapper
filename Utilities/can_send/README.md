@@ -1,4 +1,4 @@
-__CAN Sender for PEAK-System PCAN Interfaces, Version 0.4__ \
+__CAN Sender for PEAK-System PCAN Interfaces, Version 0.6.1__ \
 Copyright &copy; 2025 by Uwe Vogt, UV Software, Berlin
 
 ```
