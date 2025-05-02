@@ -1,8 +1,8 @@
 ===============================================================================
 ReadMe.txt
 
-PCAN-Basic V4.10.0.964
-Copyright (c) 2024 PEAK-System Technik GmbH Darmstadt, Germany
+PCAN-Basic V4.10.1.968
+Copyright (c) 2025 PEAK-System Technik GmbH Darmstadt, Germany
 All rights reserved.
 ===============================================================================
 
