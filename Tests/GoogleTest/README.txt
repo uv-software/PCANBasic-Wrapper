@@ -13,26 +13,25 @@ URL: https://github.com/google/googletest
 
 Current Version used by CAN API V3 C++ Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-v1.15.2 (https://github.com/google/googletest/releases/tag/v1.15.2)
+v1.17.0 (https://github.com/google/googletest/releases/tag/v1.17.0)
 
 Installation and Usage of GoogleTest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1. Clone the GoogleTest main branch or download the sources from a tag
-   e.g. into 'C:\Projekte\gtest'
-2. Copy all header files from 'C:\Projekte\gtest\googletest\include\gtest'
+   e.g. into 'D:\Projekte\Testing\googletest' ($(GTESTDIR))
+2. Copy all header files from '$(GTESTDIR)\googletest\include\gtest'
    into '$(PROJROOT)\Tests\GoogleTest\include\gtest'
-3. Build static libraries for x64 and x86 with CMake
+3. Build static libraries for amd64 (_WIN64) with CMake
    note: GoogleMock (aka gmock) does not need to be created for this project.
-4. Copy all files from 'C:\Projekte\gtest\googletest\out\build\x64-Debug\lib'
-   into $(PROJROOT)\Tests\GoogleTest\build\x64-Debug\lib'
-   and all files from 'C:\Projekte\gtest\googletest\out\build\x86-Debug\lib'
-   into $(PROJROOT)\Tests\GoogleTest\build\x86-Debug\lib'
+4. Copy all files from '$(GTESTDIR)\build\lib\Debug'
+   into $(PROJROOT)\Tests\GoogleTest\Windows\lib\Debug'
+*) Do not build for x86 (_WIN32) anymore!
  
 Important Notes
 ~~~~~~~~~~~~~~~
-- By default the GoogleTest libraries are build with option /MDt
-- Since version 1.13.x Googletest requires at least C++14
+- Since version 1.17.0 Googletest requires at least C++17 (with option /MDd)
+- Since version 1.13.x Googletest requires at least C++14 (with option /MDt)
 
 Last Updated
 ~~~~~~~~~~~~
-January 17, 2025
+September 22, 2025
