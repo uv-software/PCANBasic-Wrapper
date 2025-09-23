@@ -53,7 +53,7 @@
 #include "anykey.h"
 
 GTEST_API_ int main(int argc, char **argv) {
-    std::cout << "CAN API V3 C++ Testing (";
+    std::cout << "CAN API V3 C++ Testing (GoogleTest " << GTEST_VERSION << ", ";
 #if !defined(_MSC_VER)
     std::cout << __VERSION__ << ")" << std::endl;
 #else
@@ -108,4 +108,4 @@ GTEST_API_ int main(int argc, char **argv) {
     return res;
 }
 
-// $Id: main.cpp 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin //
+// $Id: main.cpp 1541 2025-09-23 16:34:04Z quaoar $  Copyright (c) UV Software, Berlin //

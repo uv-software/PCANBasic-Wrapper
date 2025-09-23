@@ -212,6 +212,7 @@ int32_t CCanDevice::SendAndReceiveFrames(CCanDevice *sender, CCanDevice *receive
 #endif
     txMessage.xtd = 0;
     txMessage.rtr = 0;
+    txMessage.err = 0;
     txMessage.sts = 0;
     txMessage.dlc = 0U;
 
@@ -273,7 +274,7 @@ int32_t CCanDevice::SendAndReceiveFrames(CCanDevice *sender, CCanDevice *receive
         retVal = receiver->ReadMessage(rxMessage, 0U);
         if (retVal == CCanApi::NoError) {
             // ignore status messages/error frames
-            if (!rxMessage.sts) {
+            if (!rxMessage.sts && !rxMessage.err) {
                 // update number of received CAN messages
                 progress.Update((int)(i + 1), (int)(n + 1));
                 // check the message (id, length, up-counting number)
@@ -353,7 +354,7 @@ int32_t CCanDevice::SendAndReceiveFrames(CCanDevice *sender, CCanDevice *receive
             retVal = receiver->ReadMessage(rxMessage, DEVICE_READ_TIMEOUT);
             if (retVal == CCanApi::NoError) {
                 // ignore status messages/error frames
-                if (!rxMessage.sts) {
+                if (!rxMessage.sts && !rxMessage.err) {
                     // update number of received CAN messages
                     progress.Update((int)frames, (int)(n + 1));
                     // check the message (id, length, up-counting number)
@@ -479,6 +480,7 @@ bool CCanDevice::CompareMessages(CANAPI_Message_t message1, CANAPI_Message_t mes
     if(message1.id != message2.id) return false;
     if(message1.xtd != message2.xtd) return false;
     if(message1.rtr != message2.rtr) return false;
+    if(message1.err != message2.err) return false;
     if(message1.sts != message2.sts) return false;
 #if (OPTION_CAN_2_0_ONLY == OPTION_DISABLED)
     if(message1.fdf != message2.fdf) return false;
@@ -734,4 +736,4 @@ void CCanDevice::ShowChannelCapabilities(const char* prefix) {
     std::cout << std::endl;
 }
 
-// $Id: Device.cpp 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin //
+// $Id: Device.cpp 1493 2025-03-07 18:25:36Z sedna $  Copyright (c) UV Software, Berlin //

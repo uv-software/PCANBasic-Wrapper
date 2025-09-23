@@ -98,7 +98,8 @@ static int EventHandler(const void *data, size_t size, void *param) {
     can_msg.fdf = (ipc_msg->flags & CANTCP_FDF_MASK) ? 1 : 0;
     can_msg.brs = (ipc_msg->flags & CANTCP_BRS_MASK) ? 1 : 0;
     can_msg.esi = (ipc_msg->flags & CANTCP_ESI_MASK) ? 1 : 0;
-    can_msg.sts = (ipc_msg->flags & CANTCP_STS_MASK) ? 1 : 0;
+    can_msg.err = (ipc_msg->flags & CANTCP_ERR_MASK) ? 1 : 0;  // set also flag 'sts' and flag 'err' even
+    can_msg.sts = (ipc_msg->flags & CANTCP_STS_MASK) ? 1 : 0;  // that they can't be send on the CAN bus
     can_msg.dlc = CCanApi::Len2Dlc(ipc_msg->length);
     for (int i = 0; (i < CANFD_MAX_LEN) && (i < CANTCP_MAX_LEN); i++) {
         can_msg.data[i] = ipc_msg->data[i];
@@ -166,4 +167,4 @@ void CCanServer::ShowServerPort(const char* prefix) {
     }
 }
 
-// $Id: Server.cpp 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin.
+// $Id: Server.cpp 1493 2025-03-07 18:25:36Z sedna $  Copyright (c) UV Software, Berlin.

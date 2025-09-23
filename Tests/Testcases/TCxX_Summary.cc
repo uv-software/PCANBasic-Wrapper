@@ -58,6 +58,40 @@ protected:
     // ...
 };
 
+// @gtest TCxX.0: Get test information
+//
+// @expected: CANERR_NOERROR
+//
+TEST_F(Summary, GTEST_TESTCASE(GetTestInformation, GTEST_ENABLED)) {
+    // @
+    // @note: This test is optional!
+    if (!g_Options.RunTestBitrateConverter())
+        GTEST_SKIP() << "This test is optional: '--run_all=YES'";
+    // @test:
+    RecordProperty("GoogleTestVersion", GTEST_VERSION);
+    RecordProperty("TestSuiteRevision", REVISION_NO);
+#if (OPTION_REGESSION_TEST != 0)
+    RecordProperty("RegressionText", "Enabled");
+#else
+    RecordProperty("RegressionTest", "Disabled");
+#endif
+#if (OPTION_CANAPI_RETVALS != 0)
+    RecordProperty("CanApiRetVals", "Enabled");
+#else
+    RecordProperty("CanApiRetVals", "Disabled");
+#endif
+#if (OPTION_CAN_2_0_ONLY != 0)
+    RecordProperty("Can2.0Only", "Enabled");
+#else
+    RecordProperty("Can2.0Only", "Disabled");
+#endif
+    RecordProperty("TestFrames", g_Options.GetNumberOfTestFrames());
+    RecordProperty("SmoketestFrames", g_Options.GetNumberOfSmokeTestFrames());
+    RecordProperty("ClassicalCAN", g_Options.RunCanClassicOnly() ? "Yes" : "No");
+    RecordProperty("3rdDevice", g_Options.Is3rdDevicePresent() ? "Yes" : "No");
+    RecordProperty("RtrDevice", g_Options.IsRtrDevicePresent() ? "Yes" : "No");
+    // @end.
+}
 // @gtest TCxX.1: Get library information
 //
 // @expected: CANERR_NOERROR
@@ -145,31 +179,31 @@ TEST_F(Summary, GTEST_TESTCASE(GetLibraryInformation, GTEST_ENABLED)) {
 #else
     RecordProperty("OperationMode", "CAN CC (2.0)");
 #endif
-    // @ regested bit-rate settings
+    // @ requested bit-rate settings
     bitrate = g_Options.GetBitrate(DUT1);
     if (CCanDevice::MapBitrate2Speed(bitrate, speed) == CCanApi::NoError) {
 #if (OPTION_CAN_2_0_ONLY == 0)
         if (opMode.fdoe) {
-            snprintf(string, CANPROP_MAX_BUFFER_SIZE, "%.3f kbps (SP=%.2f%%, SJW=%u)\n",
+            snprintf(string, CANPROP_MAX_BUFFER_SIZE, "%.3f kbps (SP=%.2f%%, SJW=%u)",
                 speed.nominal.speed / 1000.f, speed.nominal.samplepoint * 100.f,
                 bitrate.btr.nominal.sjw);
             string[CANPROP_MAX_BUFFER_SIZE] = '\0';
             RecordProperty("BusSpeed.Nominal", string);
-            snprintf(string, CANPROP_MAX_BUFFER_SIZE, "%.3f kbps (SP=%.2f%%, SJW=%u)\n",
+            snprintf(string, CANPROP_MAX_BUFFER_SIZE, "%.3f kbps (SP=%.2f%%, SJW=%u)",
                 speed.data.speed / 1000.f, speed.data.samplepoint * 100.f,
                 bitrate.btr.data.sjw);
             string[CANPROP_MAX_BUFFER_SIZE] = '\0';
             RecordProperty("BusSpeed.DataPhase", string);
         }
         else {
-            snprintf(string, CANPROP_MAX_BUFFER_SIZE, "%.3f kbps (SP=%.2f%%, SJW=%u, SAM=%u)\n",
+            snprintf(string, CANPROP_MAX_BUFFER_SIZE, "%.3f kbps (SP=%.2f%%, SJW=%u, SAM=%u)",
                 speed.nominal.speed / 1000.f, speed.nominal.samplepoint * 100.f,
                 bitrate.btr.nominal.sjw, bitrate.btr.nominal.sam);
             string[CANPROP_MAX_BUFFER_SIZE] = '\0';
             RecordProperty("BusSpeed.Nominal", string);
         }
 #else
-        snprintf(string, CANPROP_MAX_BUFFER_SIZE, "%.3f kbps (SP=%.2f%%, SJW=%u, SAM=%u)\n",
+        snprintf(string, CANPROP_MAX_BUFFER_SIZE, "%.3f kbps (SP=%.2f%%, SJW=%u, SAM=%u)",
             speed.nominal.speed / 1000.f, speed.nominal.samplepoint * 100.f,
             bitrate.btr.nominal.sjw, bitrate.btr.nominal.sam);
         string[CANPROP_MAX_BUFFER_SIZE] = '\0';
@@ -429,4 +463,4 @@ TEST_F(Summary, GTEST_TESTCASE(GetDevice2Information, GTEST_ENABLED)) {
     // @end.
 }
 
-//  $Id: TCxX_Summary.cc 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin.
+//  $Id: TCxX_Summary.cc 1541 2025-09-23 16:34:04Z quaoar $  Copyright (c) UV Software, Berlin.
