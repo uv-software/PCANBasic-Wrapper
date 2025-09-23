@@ -7,8 +7,8 @@
  *
  *  This file is part of CAN API V3.
  *
- *  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
- *  and under the GNU General Public License v2.0 (or any later version). You can
+ *  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License and
+ *  under the GNU General Public License v2.0 (or any later version). You can
  *  choose between one of them if you use CAN API V3 in whole or in part.
  *
  *  (1) BSD 2-Clause "Simplified" License
@@ -57,9 +57,9 @@
  *               |  SJW  |          BRP          |SAM|   TSEG2   |     TSEG1     |<br>
  *               +-7-+-6-+-5-+---+---+---+---+-0-+-7-+-6-+---+-4-+-3-+---+---+-0-+<br>
  *
- *  @author      $Author: makemake $
+ *  @author      $Author: sedna $
  *
- *  @version     $Rev: 1407 $
+ *  @version     $Rev: 1488 $ of $Date: 2025-03-06 20:46:30 +0100 (Do, 06 Mrz 2025) $
  *
  *  @addtogroup  can_btr
  *  @{

@@ -7,8 +7,8 @@
  *
  *  This file is part of CAN API V3.
  *
- *  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
- *  and under the GNU General Public License v2.0 (or any later version). You can
+ *  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License and
+ *  under the GNU General Public License v2.0 (or any later version). You can
  *  choose between one of them if you use CAN API V3 in whole or in part.
  *
  *  (1) BSD 2-Clause "Simplified" License
@@ -51,9 +51,9 @@
  *
  *  @brief       CAN API V3 for generic CAN Interfaces - Data Types and Defines
  *
- *  @author      $Author: makemake $
+ *  @author      $Author: sedna $
  *
- *  @version     $Rev: 1407 $
+ *  @version     $Rev: 1490 $ of $Date: 2025-03-06 21:06:42 +0100 (Do, 06 Mrz 2025) $
  *
  *  @addtogroup  can_api
  *  @{
@@ -595,10 +595,11 @@ typedef struct can_message_t_ {
         uint8_t fdf : 1;                /**< flag: CAN FD format */
         uint8_t brs : 1;                /**< flag: bit-rate switching */
         uint8_t esi : 1;                /**< flag: error state indicator */
-        uint8_t : 2;
+        uint8_t : 1;
 #else
-        uint8_t : 5;
+        uint8_t : 4;
 #endif
+        uint8_t err : 1;                /**< flag: error frame (ECC) */
         uint8_t sts : 1;                /**< flag: status message */
     };
 #if (OPTION_CAN_2_0_ONLY == 0)

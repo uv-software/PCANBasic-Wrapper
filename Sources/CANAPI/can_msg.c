@@ -7,8 +7,8 @@
  *
  *  This file is part of CAN API V3.
  *
- *  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License
- *  and under the GNU General Public License v2.0 (or any later version). You can
+ *  CAN API V3 is dual-licensed under the BSD 2-Clause "Simplified" License and
+ *  under the GNU General Public License v2.0 (or any later version). You can
  *  choose between one of them if you use CAN API V3 in whole or in part.
  *
  *  (1) BSD 2-Clause "Simplified" License
@@ -51,9 +51,9 @@
  *
  *  @brief       CAN Message Formatter
  *
- *  @author      $Author: quaoar $
+ *  @author      $Author: sedna $
  *
- *  @version     $Rev: 1467 $
+ *  @version     $Rev: 1490 $ of $Date: 2025-03-06 21:06:42 +0100 (Do, 06 Mrz 2025) $
  *
  *  @addtogroup  can_msg
  *  @{
@@ -234,7 +234,7 @@ char *msg_format_message(const msg_message_t *message, msg_direction_t direction
         /* flags (optional) */
         if (msg_option.flags != MSG_FMT_OPTION_OFF) {
 #if (OPTION_CAN_2_0_ONLY == 0)
-            if (!message->sts) {
+            if (!message->sts && !message->err) {
                 strcat(msg_string, message->xtd ? "X" : "S");
                 strcat(msg_string, message->fdf ? "F" : "-");
                 strcat(msg_string, message->brs ? "B" : "-");
@@ -245,7 +245,7 @@ char *msg_format_message(const msg_message_t *message, msg_direction_t direction
                 strcat(msg_string, "Error");
             }
 #else
-            if (!message->sts) {
+            if (!message-> && !message->err) {
                 strcat(msg_string, message->xtd ? "X" : "S");
                 strcat(msg_string, message->rtr ? "R" : "-");
             }
@@ -301,7 +301,7 @@ char *msg_format_flags(const msg_message_t *message)
 
     if (message) {
 #if (OPTION_CAN_2_0_ONLY == 0)
-        if (!message->sts) {
+        if (!message->sts && !message->err) {
             strcat(msg_string, message->xtd ? "X" : "S");
             strcat(msg_string, message->fdf ? "F" : "-");
             strcat(msg_string, message->brs ? "B" : "-");
@@ -312,7 +312,7 @@ char *msg_format_flags(const msg_message_t *message)
             strcat(msg_string, "Error");
         }
 #else
-        if (!message->sts) {
+        if (!message->sts && !message->err) {
             strcat(msg_string, message->xtd ? "X" : "S");
             strcat(msg_string, message->rtr ? "R" : "-");
         }
