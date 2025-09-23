@@ -68,8 +68,6 @@
 
 #if defined(_WIN64)
 #define PLATFORM        "x64"
-#elif defined(_WIN32)
-#define PLATFORM        "x86"
 #elif defined(__linux__)
 #define PLATFORM        "Linux"
 #elif defined(__APPLE__)

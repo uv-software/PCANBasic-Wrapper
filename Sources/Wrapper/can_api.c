@@ -59,8 +59,6 @@
 #endif
 #if defined(_WIN64)
 #define PLATFORM  "x64"
-#elif defined(_WIN32)
-#define PLATFORM  "x86"
 #else
 #error Platform not supported
 #endif
