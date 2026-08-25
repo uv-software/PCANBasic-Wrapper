@@ -7,13 +7,13 @@ released under the BSD 3-clause license and based on the xUnit architecture.
 CAN API V3 is a wrapper specification to have a multi-vendor, cross-platform CAN API.
 GoogleTest is used for testing of CAN API V3 C++ wrapper implementations.
 
-Source Code Repositiory of GoogleTest
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Source Code Repository of GoogleTest
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 URL: https://github.com/google/googletest
 
 Current Version used by CAN API V3 C++ Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-v1.17.0 (https://github.com/google/googletest/releases/tag/v1.17.0)
+v1.18.0 (https://github.com/google/googletest/releases/tag/v1.18.0)
 
 Installation and Usage of GoogleTest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,4 +34,4 @@ Important Notes
 
 Last Updated
 ~~~~~~~~~~~~
-September 22, 2025
+August 25, 2026
