@@ -1,8 +1,8 @@
 ===============================================================================
 ReadMe.txt
 
-PCAN-Basic V4.10.1.968
-Copyright (c) 2025 PEAK-System Technik GmbH Darmstadt, Germany
+PCAN-Basic V5.1.0.1194
+Copyright (c) 2026 PEAK-System Technik GmbH Darmstadt, Germany
 All rights reserved.
 ===============================================================================
 
@@ -149,8 +149,8 @@ Darmstadt, Germany
 Tel. +49 6151 / 8173-20
 FAX  +49 6151 / 8173-29
 
-support@peak-system.com
-http://www.peak-system.com
+support.peak@hms-networks.com
+https://www.peak-system.com
 
 
 LIFE SUPPORT APPLIANCES

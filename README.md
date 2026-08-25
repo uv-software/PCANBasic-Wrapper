@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2025  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
 
 ![MSBuild](https://github.com/uv-software/PCANBasic-Wrapper/actions/workflows/msbuild.yml/badge.svg)
 
@@ -128,21 +128,21 @@ Type `can_test /?` to display all program options.
 
 ### Target Platform
 
-- Windows 10 & 11 (x64 operating systems)
+- Windows 11 (x64 operating systems)
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.13.2)
+- Microsoft Visual Studio Community 2022 (Version 17.14.39)
 
 ### Required PCANBasic DLL
 
-- Version 4.5 or later _(Latest is Greatest!)_
+- Version 5.0 or later _(Latest is Greatest!)_
 
 ### Tested CAN Hardware
 
-- PCAN-USB - single channel, CAN 2.0 (Peak´s item no.: IPEH-002021, IPEH-002021)
-- PCAN-USB FD - single channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004022)
-- PCAN-USB Pro FD - dual channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004061)
+- PCAN-USB - single channel, CAN 2.0 (Peak´s item no.: IPEH-002021, IPEH-002022; Firmware 6.0.1)
+- PCAN-USB FD - single channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004022; Firmware 3.5.1)
+- PCAN-USB Pro FD - dual channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004061; Firmware 3.5.3)
 
 ## Known Bugs and Caveats
 
