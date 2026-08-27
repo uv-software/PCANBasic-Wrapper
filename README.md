@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)_
 
 ![MSBuild](https://github.com/uv-software/PCANBasic-Wrapper/actions/workflows/msbuild.yml/badge.svg)
 
@@ -90,19 +90,19 @@ C:\Projects\CAN\Drivers\PeakCAN>x64_build.bat
 ```
 (The version number of the libraries can be adapted by editing the `.rc` files in the corresponding subfolders. Don´t forget to set the version number also in the header file `Version.h`.)
 
-#### Libraries
+### Libraries
 
-##### uvPeakCAN (DLL)
+#### uvPeakCAN (DLL)
 
 ___uvPeakCAN___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C++__ applications.
 See header file `PeakCAN.h` for a description of all class members.
 
-##### u3canpcb (DLL)
+#### u3canpcb (DLL)
 
 ___u3canpcb___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C__ applications.
 See header file `can_api.h` for a description of all API functions.
 
-#### Utilities
+### Utilities
 
 ##### can_send
 
@@ -183,5 +183,5 @@ _If you connect your CAN device to a real CAN network when using this library, y
 
 ### Contact
 
-E-Mail: mailto://info@uv-software.com \
+E-Mail: mailto://info@uv-software.de \
 Internet: https://www.uv-software.com
