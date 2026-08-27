@@ -2,7 +2,7 @@
 /*
  *  CAN Interface API, Version 3 (Data Types and Defines)
  *
- *  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2004-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)
  *  All rights reserved.
  *
  *  This file is part of CAN API V3.
@@ -49,8 +49,8 @@
  */
 #ifndef CANAPI_VERSION_H_INCLUDED
 #define CANAPI_VERSION_H_INCLUDED
-// SVN revision number (update with each commit: VII)
-#define CANAPI_SVN_REV  "$Rev: 1490 $"
+// SVN revision number (update with each commit: VIII)
+#define CANAPI_SVN_REV  "$Rev: 1599 $"
 #endif /* CANAPI_VERSION_H_INCLUDED */
 /*  ----------------------------------------------------------------------
  *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany

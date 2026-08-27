@@ -3,7 +3,7 @@
  *  CAN Interface API, Version 3 (for PEAK-System PCAN Interfaces)
  *
  *  Copyright (c) 2005-2012 Uwe Vogt, UV Software, Friedrichshafen
- *  Copyright (c) 2013-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2013-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
@@ -159,10 +159,10 @@ extern "C" {
 /** @name  PEAK CAN FD Bit-rate Settings w/o Bit-rate Switching
  *  @brief Default values for long frames only (0 to 64 bytes).
  *  @{ */
-#define PEAKCAN_FD_BR_1M(x)      do {x.btr.frequency=PEAKCAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=31; x.btr.nominal.tseg2=8; x.btr.nominal.sjw=8; } while(0)
-#define PEAKCAN_FD_BR_500K(x)    do {x.btr.frequency=PEAKCAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=63; x.btr.nominal.tseg2=16;x.btr.nominal.sjw=16;} while(0)
-#define PEAKCAN_FD_BR_250K(x)    do {x.btr.frequency=PEAKCAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=127;x.btr.nominal.tseg2=32;x.btr.nominal.sjw=32;} while(0)
-#define PEAKCAN_FD_BR_125K(x)    do {x.btr.frequency=PEAKCAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=255;x.btr.nominal.tseg2=64;x.btr.nominal.sjw=64;} while(0)
+#define PEAKCAN_FD_BR_1M(x)      do {x.btr.frequency=PEAKCAN_FD_CLOCK;x.btr.nominal.brp=2; x.btr.nominal.tseg1=31; x.btr.nominal.tseg2=8; x.btr.nominal.sjw=8;} while(0)
+#define PEAKCAN_FD_BR_500K(x)    do {x.btr.frequency=PEAKCAN_FD_CLOCK;x.btr.nominal.brp=4; x.btr.nominal.tseg1=31; x.btr.nominal.tseg2=8; x.btr.nominal.sjw=8;} while(0)
+#define PEAKCAN_FD_BR_250K(x)    do {x.btr.frequency=PEAKCAN_FD_CLOCK;x.btr.nominal.brp=8; x.btr.nominal.tseg1=31; x.btr.nominal.tseg2=8; x.btr.nominal.sjw=8;} while(0)
+#define PEAKCAN_FD_BR_125K(x)    do {x.btr.frequency=PEAKCAN_FD_CLOCK;x.btr.nominal.brp=16;x.btr.nominal.tseg1=31; x.btr.nominal.tseg2=8; x.btr.nominal.sjw=8;} while(0)
 /** @} */
 
 /** @name  PEAK CAN FD Bit-rate Settings with Bit-rate Switching

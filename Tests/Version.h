@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -49,10 +49,10 @@
 //
 #ifndef VERSION_H_INCLUDED
 #define VERSION_H_INCLUDED
-// SVN revision number (update with each commit: XXXVII)
-#define REVISION_NO  "$Rev: 1596 $"
+// SVN revision number (update with each commit: XXXVIII)
+#define REVISION_NO  "$Rev: 1600 $"
 // GoogleTest does not offer its own version number
 #define GTEST_VERSION "1.18.0"
 #endif // VERSION_H_INCLUDED
 
-// $Id: Version.h 1596 2026-08-25 16:25:07Z quaoar $  Copyright (c) UV Software, Berlin //
+// $Id: Version.h 1600 2026-08-27 16:08:37Z quaoar $  Copyright (c) UV Software, Berlin //

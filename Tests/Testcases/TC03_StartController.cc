@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -870,7 +870,7 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanBitrateIndexAfterCanStopp
         EXPECT_EQ(CCanApi::NoError, retVal);
         EXPECT_TRUE(status.can_stopped);
         // @test:
-        // @-- change bit-timing index: 
+        // @-- change bit-timing index:
         CLEAR_BTR(bitrate);
         switch (i) {
         // @   - sub(3): index 8 (10kbps) ==> 0 (1Mbps)
@@ -1362,7 +1362,7 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanBitrateSettingsAfterCanSt
         EXPECT_EQ(CCanApi::NoError, retVal);
         EXPECT_TRUE(status.can_stopped);
         // @test:
-        // @-- change bit-timing index: 
+        // @-- change bit-timing index:
         CLEAR_BTR(bitrate);
         switch (i) {
         // @   - sub(3): 10kbps ==> 1Mbps
@@ -1916,7 +1916,7 @@ TEST_F(StartController, GTEST_TESTCASE(WithDifferentCanFdBitrateSettingsAfterCan
         EXPECT_EQ(CCanApi::NoError, retVal);
         EXPECT_TRUE(status.can_stopped);
         // @test:
-        // @-- change bit-timing index: 
+        // @-- change bit-timing index:
         CLEAR_BTR(bitrate);
         switch (i) {
         // @   - sub(4): nominal 1Mbps ==> nominal 125kbps (mode FDOE)
@@ -2315,4 +2315,4 @@ TEST_F(StartController, GTEST_TESTCASE(WithCanFdBitrateSettingsInCan20Mode, GTES
 }
 #endif  // (CAN_FD_SUPPORTED == FEATURE_SUPPORTED)
 
-//  $Id: TC03_StartController.cc 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin.
+//  $Id: TC03_StartController.cc 1598 2026-08-26 09:53:26Z quaoar $  Copyright (c) UV Software, Berlin.

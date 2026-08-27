@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2004-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -256,7 +256,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithInvalidIndexes, GTEST_
     // @note: This test is optional!
     if (!g_Options.RunTestBitrateConverter())
         GTEST_SKIP() << "This test is optional: '--run_all=YES'";
-    // @test: 
+    // @test:
     CCounter counter = CCounter();
     // @- sub(1): index = -10
     counter.Increment();
@@ -306,7 +306,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithValidCan20Values, GTES
     // @note: This test is optional!
     if (!g_Options.RunTestBitrateConverter())
         GTEST_SKIP() << "This test is optional: '--run_all=YES'";
-    // @test: 
+    // @test:
     // @- loop over valid CAN 2.0 bit-rate settings
     CCounter counter = CCounter();
     for (int i = 0; i < 10; i++) {
@@ -362,7 +362,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithInvalidCanValues, GTES
     // @note: This test is optional!
     if (!g_Options.RunTestBitrateConverter())
         GTEST_SKIP() << "This test is optional: '--run_all=YES'";
-    // @test: 
+    // @test:
     // @- loop over invalid CAN 2.0 bit-rate settings
     CCounter counter = CCounter();
     for (int i = 0; i < 16; i++) {
@@ -432,7 +432,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithValidCanFdValues, GTES
     // @note: This test is optional!
     if (!g_Options.RunTestBitrateConverter())
         GTEST_SKIP() << "This test is optional: '--run_all=YES'";
-    // @test: 
+    // @test:
     // @- loop over valid CAN FD bit-rate settings
     CCounter counter = CCounter();
     for (int i = 0; i < 8; i++) {
@@ -441,21 +441,21 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithValidCanFdValues, GTES
         CLEAR_BPS(speed);
         switch (i) {
         // @sub(1): nominal 1Mbps (mode FDOE)
-        case 0: DEFAULT_CAN_FD_BR_1M(bitrate); break;
+        case 0: BITRATE_FD_1M(bitrate); break;
         // @sub(2): nominal 500kbps (mode FDOE)
-        case 1: DEFAULT_CAN_FD_BR_500K(bitrate); break;
+        case 1: BITRATE_FD_500K(bitrate); break;
         // @sub(3): nominal 250kbps (mode FDOE)
-        case 2: DEFAULT_CAN_FD_BR_250K(bitrate); break;
+        case 2: BITRATE_FD_250K(bitrate); break;
         // @sub(4): nominal 125kbps (mode FDOE)
-        case 3: DEFAULT_CAN_FD_BR_125K(bitrate); break;
+        case 3: BITRATE_FD_125K(bitrate); break;
         // @sub(5): nominal 1Mbps, data phase 8Mbps (mode FDOE+BRSE)
-        case 4: DEFAULT_CAN_FD_BR_1M8M(bitrate); break;
+        case 4: BITRATE_FD_1M8M(bitrate); break;
         // @sub(6): nominal 500kbps, data phase 4Mbps (mode FDOE+BRSE)
-        case 5: DEFAULT_CAN_FD_BR_500K4M(bitrate); break;
+        case 5: BITRATE_FD_500K4M(bitrate); break;
         // @sub(7): nominal 250kbps, data phase 2Mbps (mode FDOE+BRSE)
-        case 6: DEFAULT_CAN_FD_BR_250K2M(bitrate); break;
+        case 6: BITRATE_FD_250K2M(bitrate); break;
         // @sub(8): nominal 125kbps, data phase 1Mbps (mode FDOE+BRSE)
-        case 7: DEFAULT_CAN_FD_BR_125K1M(bitrate); break;
+        case 7: BITRATE_FD_125K1M(bitrate); break;
         default: return;  // Get out of here!
         }
         // @-- convert bit-rate settings into transmission rate
@@ -484,14 +484,14 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithInvalidCanFdValues, GT
     // @note: This test is optional!
     if (!g_Options.RunTestBitrateConverter())
         GTEST_SKIP() << "This test is optional: '--run_all=YES'";
-    // @test: 
+    // @test:
     // @- loop over invalid CAN FD bit-rate settings
     CCounter counter = CCounter();
     for (int i = 0; i < 30; i++) {
         counter.Increment();
         CLEAR_BTR(bitrate);
         CLEAR_BPS(speed);
-        DEFAULT_CAN_FD_BR_250K2M(bitrate);
+        BITRATE_FD_250K2M(bitrate);
         switch (i) {
         // @sub(1): set all fields to 0 (note: 'frequency' == 0 is CiA Index 0, set to 1 instead)
         case 0: bitrate.btr.frequency = 1;
@@ -590,7 +590,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithDivisonByZero, GTEST_E
     // @note: This test is optional!
     if (!g_Options.RunTestBitrateConverter())
         GTEST_SKIP() << "This test is optional: '--run_all=YES'";
-    // @test: 
+    // @test:
     CCounter counter = CCounter();
     // @- sub(1): CAN 2.0 250 kbps with nominal BRP set to zero
     counter.Increment();
@@ -612,7 +612,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToSpeedWithDivisonByZero, GTEST_E
     counter.Increment();
     CLEAR_BTR(bitrate);
     CLEAR_BPS(speed);
-    DEFAULT_CAN_FD_BR_250K2M(bitrate);
+    BITRATE_FD_250K2M(bitrate);
     bitrate.btr.data.brp = 0;
     // @-- convert bit-rate settings into transmission rate
     retVal = CCanDevice::MapBitrate2Speed(bitrate, speed);
@@ -703,7 +703,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(IndexToBitrateWithInvalidIndexes, GTEST_
     // @note: This test is optional!
     if (!g_Options.RunTestBitrateConverter())
         GTEST_SKIP() << "This test is optional: '--run_all=YES'";
-    // @test: 
+    // @test:
     CCounter counter = CCounter();
     // @- sub(1): index = -10
     counter.Increment();
@@ -983,7 +983,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidIndexes, GTEST
     // @note: This test is optional!
     if (!g_Options.RunTestBitrateConverter())
         GTEST_SKIP() << "This test is optional: '--run_all=YES'";
-    // @test: 
+    // @test:
     char buffer[CANPROP_MAX_BUFFER_SIZE] = "";
     CCounter counter = CCounter();
     // @- sub(1): index = -10
@@ -1167,13 +1167,13 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromValidCanFdValuesBrsDi
         CLEAR_BTR(target);
         switch (i) {
         // @sub(1): nominal 1Mbps (mode FDOE)
-        case 0: DEFAULT_CAN_FD_BR_1M(source); break;
+        case 0: BITRATE_FD_1M(source); break;
         // @sub(2): nominal 500kbps (mode FDOE)
-        case 1: DEFAULT_CAN_FD_BR_500K(source); break;
+        case 1: BITRATE_FD_500K(source); break;
         // @sub(3): nominal 250kbps (mode FDOE)
-        case 2: DEFAULT_CAN_FD_BR_250K(source); break;
+        case 2: BITRATE_FD_250K(source); break;
         // @sub(4): nominal 125kbps (mode FDOE)
-        case 3: DEFAULT_CAN_FD_BR_125K(source); break;
+        case 3: BITRATE_FD_125K(source); break;
         default: return;  // Get out of here!
         }
         // @- convert index to bit-timing table to string
@@ -1213,7 +1213,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanFdValuesBrs
         counter.Increment();
         CLEAR_BTR(source);
         CLEAR_BTR(target);
-        DEFAULT_CAN_FD_BR_250K(source);
+        BITRATE_FD_250K(source);
         switch (i) {
         // @sub(1): set all fields to 0 (note: 'frequency' == 0 is CiA Index 0, set to 1 instead)
         case 0: source.btr.frequency = 1;
@@ -1304,13 +1304,13 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromValidCanFdValuesBrsEn
         CLEAR_BTR(target);
         switch (i) {
         // @sub(1): nominal 1Mbps, data phase 8Mbps (mode FDOE+BRSE)
-        case 0: DEFAULT_CAN_FD_BR_1M8M(source); break;
+        case 0: BITRATE_FD_1M8M(source); break;
         // @sub(2): nominal 500kbps, data phase 4Mbps (mode FDOE+BRSE)
-        case 1: DEFAULT_CAN_FD_BR_500K4M(source); break;
+        case 1: BITRATE_FD_500K4M(source); break;
         // @sub(3): nominal 250kbps, data phase 2Mbps (mode FDOE+BRSE)
-        case 2: DEFAULT_CAN_FD_BR_250K2M(source); break;
+        case 2: BITRATE_FD_250K2M(source); break;
         // @sub(4): nominal 125kbps, data phase 1Mbps (mode FDOE+BRSE)
-        case 3: DEFAULT_CAN_FD_BR_125K1M(source); break;
+        case 3: BITRATE_FD_125K1M(source); break;
         default: return;  // Get out of here!
         }
         // @- convert index to bit-timing table to string
@@ -1350,7 +1350,7 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringFromInvalidCanFdValuesBrs
         counter.Increment();
         CLEAR_BTR(source);
         CLEAR_BTR(target);
-        DEFAULT_CAN_FD_BR_250K2M(source);
+        BITRATE_FD_250K2M(source);
         switch (i) {
         // @sub(1): set all fields to 0 (note: 'frequency' == 0 is CiA Index 0, set to 1 instead)
         case 0: source.btr.frequency = 1;
@@ -1605,4 +1605,4 @@ TEST_F(BitrateConverter, GTEST_TESTCASE(BitrateToStringWithNullPointerForString,
 //
 // @note: passing a pointer for 'btr0btr1' is not possible with the C++ API!
 
-//  $Id: TCx2_BitrateConverter.cc 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin.
+//  $Id: TCx2_BitrateConverter.cc 1600 2026-08-27 16:08:37Z quaoar $  Copyright (c) UV Software, Berlin.

@@ -2,7 +2,7 @@
 /*
  *  CAN Interface API, Version 3 (Definitions and Options)
  *
- *  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2004-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)
  *  All rights reserved.
  *
  *  This file is part of CAN API V3.
@@ -47,19 +47,19 @@
  *  You should have received a copy of the GNU General Public License along
  *  with CAN API V3; if not, see <https://www.gnu.org/licenses/>.
  */
-/** @file        CANBTR_Defines.h
+/** @file        CANBTR_Defaults.h
  *
- *  @brief       CAN API V3 for generic CAN Interfaces - Definitions and Options
+ *  @brief       CAN API V3 for generic CAN Interfaces - SJA1000 Bit-timing Defaults
  *
- *  @author      $Author: sedna $
+ *  @author      $Author: quaoar $
  *
- *  @version     $Rev: 1488 $ of $Date: 2025-03-06 20:46:30 +0100 (Do, 06 Mrz 2025) $
+ *  @version     $Rev: 1599 $ of $Date: 2026-08-27 18:03:18 +0200 (Do, 27 Aug 2026) $
  *
  *  @addtogroup  can_btr
  *  @{
  */
-#ifndef CANBTR_DEFINES_H_INCLUDED
-#define CANBTR_DEFINES_H_INCLUDED
+#ifndef CANBTR_DEFAULTS_H_INCLUDED
+#define CANBTR_DEFAULTS_H_INCLUDED
 
 #ifdef __cplusplus
 extern "C" {
@@ -138,39 +138,14 @@ extern "C" {
 #define DEFAULT_CAN_BR_5K(x)    SJA1000_BR_5K(x)
 /** @} */
 
-#if (OPTION_CAN_2_0_ONLY == 0)
-/** @name  CAN FD Bit-rate Settings w/o Bit-rate Switching
- *  @brief Default values for long frames only (0 to 64 bytes).
- *
- *  @note  Actual bit-rate settings for specific controllers may vary.
- *         The settings made here are for Peak CAN FD interfaces.
- *  @{ */
-#define DEFAULT_CAN_FD_BR_1M(x)      do {x.btr.frequency=DEFAULT_CAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=31; x.btr.nominal.tseg2=8; x.btr.nominal.sjw=8; } while(0)
-#define DEFAULT_CAN_FD_BR_500K(x)    do {x.btr.frequency=DEFAULT_CAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=63; x.btr.nominal.tseg2=16;x.btr.nominal.sjw=16;} while(0)
-#define DEFAULT_CAN_FD_BR_250K(x)    do {x.btr.frequency=DEFAULT_CAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=127;x.btr.nominal.tseg2=32;x.btr.nominal.sjw=32;} while(0)
-#define DEFAULT_CAN_FD_BR_125K(x)    do {x.btr.frequency=DEFAULT_CAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=255;x.btr.nominal.tseg2=64;x.btr.nominal.sjw=64;} while(0)
-/** @} */
-
-/** @name  CAN FD Bit-rate Settings with Bit-rate Switching
- *  @brief Default values for long and fast frames only (up to 8 Mbps).
- *
- *  @note  Actual bit-rate settings for specific controllers may vary.
- *         The settings made here are for Peak CAN FD interfaces.
- *  @{ */
-#define DEFAULT_CAN_FD_BR_1M8M(x)    do {x.btr.frequency=DEFAULT_CAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=31; x.btr.nominal.tseg2=8; x.btr.nominal.sjw=8;  x.btr.data.brp=2; x.btr.data.tseg1=3;  x.btr.data.tseg2=1; x.btr.data.sjw=1; } while(0)
-#define DEFAULT_CAN_FD_BR_500K4M(x)  do {x.btr.frequency=DEFAULT_CAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=63; x.btr.nominal.tseg2=16;x.btr.nominal.sjw=16; x.btr.data.brp=2; x.btr.data.tseg1=7;  x.btr.data.tseg2=2; x.btr.data.sjw=2; } while(0)
-#define DEFAULT_CAN_FD_BR_250K2M(x)  do {x.btr.frequency=DEFAULT_CAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=127;x.btr.nominal.tseg2=32;x.btr.nominal.sjw=32; x.btr.data.brp=2; x.btr.data.tseg1=15; x.btr.data.tseg2=4; x.btr.data.sjw=4; } while(0)
-#define DEFAULT_CAN_FD_BR_125K1M(x)  do {x.btr.frequency=DEFAULT_CAN_FD_CLOCK;x.btr.nominal.brp=2;x.btr.nominal.tseg1=255;x.btr.nominal.tseg2=64;x.btr.nominal.sjw=64; x.btr.data.brp=2; x.btr.data.tseg1=31; x.btr.data.tseg2=8; x.btr.data.sjw=8; } while(0)
-/** @} */
-#endif
 #ifdef __cplusplus
 }
 #endif
-#endif /* CANBTR_DEFINES_H_INCLUDED */
+#endif /* CANBTR_DEFAULTS_H_INCLUDED */
 /** @}
  */
 /*  ----------------------------------------------------------------------
  *  Uwe Vogt,  UV Software,  Chausseestrasse 33 A,  10115 Berlin,  Germany
  *  Tel.: +49-30-46799872,  Fax: +49-30-46799873,  Mobile: +49-170-3801903
- *  E-Mail: uwe.vogt@uv-software.de,  Homepage: http://www.uv-software.de/
+ *  E-Mail: uwe.vogt@uv-software.de, Homepage: https://www.uv-software.de/
  */
