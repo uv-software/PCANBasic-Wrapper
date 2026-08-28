@@ -3,7 +3,7 @@
  *  CAN Interface API, Version 3 (for PEAK-System PCAN Interfaces)
  *
  *  Copyright (c) 2005-2012 Uwe Vogt, UV Software, Friedrichshafen
- *  Copyright (c) 2013-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2013-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
@@ -51,15 +51,9 @@
 #ifndef VERSION_H_INCLUDED
 #define VERSION_H_INCLUDED
 #include "build_no.h"
-#ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    6
-#define VERSION_PATCH    0
-#else
-#define VERSION_MAJOR    0
-#define VERSION_MINOR    4
-#define VERSION_PATCH    0
-#endif
+#define VERSION_PATCH    1
 #define VERSION_BUILD    BUILD_NO
 #if (VERSION_PATCH == 0)
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) " (" TOSTRING(BUILD_NO) ")"

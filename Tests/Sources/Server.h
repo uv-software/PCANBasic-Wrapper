@@ -2,7 +2,7 @@
 //
 //  CAN Interface API, Version 3 (Testing)
 //
-//  Copyright (c) 2004-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)
+//  Copyright (c) 2004-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
 //  All rights reserved.
 //
 //  This file is part of CAN API V3.
@@ -47,12 +47,35 @@
 //  You should have received a copy of the GNU General Public License along
 //  with CAN API V3; if not, see <https://www.gnu.org/licenses/>.
 //
-#ifndef VERSION_H_INCLUDED
-#define VERSION_H_INCLUDED
-// SVN revision number (update with each commit: XXXVIII)
-#define REVISION_NO  "$Rev: 1600 $"
-// GoogleTest does not offer its own version number
-#define GTEST_VERSION "1.18.0"
-#endif // VERSION_H_INCLUDED
+#ifndef SERVER_H_INCLUDED
+#define SERVER_H_INCLUDED
 
-// $Id: Version.h 1600 2026-08-27 16:08:37Z quaoar $  Copyright (c) UV Software, Berlin //
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include "Device.h"
+
+#include "CanTcpServer.h"
+#include "CanTcpClient.h"
+
+class CCanServer : public CCanTcpServer {
+public:
+    CCanServer();
+    ~CCanServer();
+
+    bool AttachDevice(CCanDevice *device);
+    bool DetachDevice();
+
+    CANAPI_Return_t StartServer(const char *service);
+    CANAPI_Return_t StopServer();
+
+    void ShowServerPort(const char* prefix);
+};
+#if (OPTION_CANTCP_ENABLED != 0)
+// The one and only server object
+extern CCanServer g_CanServer;
+#endif
+#endif // SERVER_H_INCLUDED
+
+// $Id: Server.h 1486 2025-03-02 15:50:07Z quaoar $  Copyright (c) UV Software, Berlin.

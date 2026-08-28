@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2025  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_
+_Copyright &copy; 2005-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)_
 
 ![MSBuild](https://github.com/uv-software/PCANBasic-Wrapper/actions/workflows/msbuild.yml/badge.svg)
 
@@ -90,19 +90,19 @@ C:\Projects\CAN\Drivers\PeakCAN>x64_build.bat
 ```
 (The version number of the libraries can be adapted by editing the `.rc` files in the corresponding subfolders. Don´t forget to set the version number also in the header file `Version.h`.)
 
-#### Libraries
+### Libraries
 
-##### uvPeakCAN (DLL)
+#### uvPeakCAN (DLL)
 
 ___uvPeakCAN___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C++__ applications.
 See header file `PeakCAN.h` for a description of all class members.
 
-##### u3canpcb (DLL)
+#### u3canpcb (DLL)
 
 ___u3canpcb___ is a dynamic link library with a CAN API V3 compatible application programming interface for use in __C__ applications.
 See header file `can_api.h` for a description of all API functions.
 
-#### Utilities
+### Utilities
 
 ##### can_send
 
@@ -128,21 +128,21 @@ Type `can_test /?` to display all program options.
 
 ### Target Platform
 
-- Windows 10 & 11 (x64 operating systems)
+- Windows 11 (x64 operating systems)
 
 ### Development Environment
 
-- Microsoft Visual Studio Community 2022 (Version 17.13.2)
+- Microsoft Visual Studio Community 2022 (Version 17.14.39)
 
 ### Required PCANBasic DLL
 
-- Version 4.5 or later _(Latest is Greatest!)_
+- Version 5.0 or later _(Latest is Greatest!)_
 
 ### Tested CAN Hardware
 
-- PCAN-USB - single channel, CAN 2.0 (Peak´s item no.: IPEH-002021, IPEH-002021)
-- PCAN-USB FD - single channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004022)
-- PCAN-USB Pro FD - dual channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004061)
+- PCAN-USB - single channel, CAN 2.0 (Peak´s item no.: IPEH-002021, IPEH-002022; Firmware 6.0.1)
+- PCAN-USB FD - single channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004022; Firmware 3.5.1)
+- PCAN-USB Pro FD - dual channel, CAN 2.0 and CAN FD (Peak´s item no.: IPEH-004061; Firmware 3.5.3)
 
 ## Known Bugs and Caveats
 
@@ -183,5 +183,5 @@ _If you connect your CAN device to a real CAN network when using this library, y
 
 ### Contact
 
-E-Mail: mailto://info@uv-software.com \
+E-Mail: mailto://info@uv-software.de \
 Internet: https://www.uv-software.com

@@ -9,14 +9,10 @@ pushd
 rem build libraries, utilities and the trial program
 call .\x64_build.bat NOVARS
 if not errorlevel 0 goto end
-call .\x86_build.bat NOVARS
-if not errorlevel 0 goto end
 
 rem build test suites
 cd /D .\Tests
 call .\x64_build.bat NOVARS NORUN
-if not errorlevel 0 goto end
-call .\x86_build.bat NOVARS NORUN
 if not errorlevel 0 goto end
 
 rem end of the job

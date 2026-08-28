@@ -1,6 +1,6 @@
 ### CAN API V3 Wrapper Library for PEAK-System PCAN&reg; Interfaces (Windows&reg;)
 
-_Copyright &copy; 2005-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
+_Copyright &copy; 2005-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
 _All rights reserved._
 
 # Deployment
@@ -76,7 +76,7 @@ _All rights reserved._
   - `C:\Users\haumea>cd C:\Projects\CAN\Drivers\PeakCAN\Tests`
   - `C:\Projects\CAN\Drivers\PeakCAN\Tests>x64_build.bat`
 5. Run the CAN API V3 GoogleTest program with two PCAN-USB devices in CAN 2.0 mode:
-  - `C:\Projects\CAN\Drivers\PeakCAN\Tests>x64\Debug\pcb_testing --can_dut1=PCAN-USB1 --can_dut2=PCAN-USB2 --can_mode=2.0 --can_bitrate=DEFAULT --gtest_output=xml:TestReport_PCAN-USB.xml --run_all=YES --smoketest_frames=100000` [...]
+  - `C:\Projects\CAN\Drivers\PeakCAN\Tests>x64\Debug\pcb_testing --can_dut1=PCAN-USB1 --can_dut2=PCAN-USB2 --can_mode=2.0 --can_baudrate=DEFAULT --gtest_output=xml:TestReport_PCAN-USB.xml --run_all=YES --smoketest_frames=100000` [...]
   - _If there is any error then **stop** here or create an issue for each error in the repo._
   - Copy the test report into the binary's directory `$(PROJROOT)\Binaries`.
 6. Run the CAN API V3 GoogleTest program with two PCAN-USB FD devices in CAN FD mode:

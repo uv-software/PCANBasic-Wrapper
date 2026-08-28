@@ -3,7 +3,7 @@
 //  CAN Tester for for PEAK-System PCAN Interfaces (CAN API V3)
 //
 //  Copyright (c) 2005-2010 Uwe Vogt, UV Software, Friedrichshafen
-//  Copyright (c) 2012-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+//  Copyright (c) 2012-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #else
 #define TESTER_INTERFACE  "PEAK-System PCAN USB Interfaces"
 #endif
-#define TESTER_COPYRIGHT  "2005-2010,2012-2025 by Uwe Vogt, UV Software, Berlin"
+#define TESTER_COPYRIGHT  "2005-2010,2012-2026 by Uwe Vogt, UV Software, Berlin"
 #if defined(_WIN32) || defined(_WIN64)
 #define TESTER_PLATFORM   "Windows"
 #elif defined(__linux__)
@@ -68,7 +68,6 @@
 #define BITRATE_5K(x)    DEFAULT_CAN_BR_5K(x)
 #endif
 #if (CAN_FD_SUPPORTED != 0)
-#if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_FD_1M(x)      PEAKCAN_FD_BR_1M(x)
 #define BITRATE_FD_500K(x)    PEAKCAN_FD_BR_500K(x)
 #define BITRATE_FD_250K(x)    PEAKCAN_FD_BR_250K(x)
@@ -77,16 +76,6 @@
 #define BITRATE_FD_500K4M(x)  PEAKCAN_FD_BR_500K4M(x)
 #define BITRATE_FD_250K2M(x)  PEAKCAN_FD_BR_250K2M(x)
 #define BITRATE_FD_125K1M(x)  PEAKCAN_FD_BR_125K1M(x)
-#else
-#define BITRATE_FD_1M(x)      DEFAULT_CAN_FD_BR_1M(x)
-#define BITRATE_FD_500K(x)    DEFAULT_CAN_FD_BR_500K(x)
-#define BITRATE_FD_250K(x)    DEFAULT_CAN_FD_BR_250K(x)
-#define BITRATE_FD_125K(x)    DEFAULT_CAN_FD_BR_125K(x)
-#define BITRATE_FD_1M8M(x)    DEFAULT_CAN_FD_BR_1M8M(x)
-#define BITRATE_FD_500K4M(x)  DEFAULT_CAN_FD_BR_500K4M(x)
-#define BITRATE_FD_250K2M(x)  DEFAULT_CAN_FD_BR_250K2M(x)
-#define BITRATE_FD_125K1M(x)  DEFAULT_CAN_FD_BR_125K1M(x)
-#endif
 #endif
 
 typedef CPeakCAN  CCanDriver;

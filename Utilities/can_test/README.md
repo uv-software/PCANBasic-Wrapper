@@ -1,5 +1,5 @@
-__CAN Tester for PEAK-System PCAN Interfaces, Version 0.6__ \
-Copyright &copy; 2005-2010,2012-2025 by Uwe Vogt, UV Software, Berlin
+__CAN Tester for PEAK-System PCAN Interfaces, Version 0.6.1__ \
+Copyright &copy; 2005-2010,2012-2026 by Uwe Vogt, UV Software, Berlin
 
 ```
 Usage: can_test <interface> [<option>...]

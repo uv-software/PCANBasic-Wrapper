@@ -1,5 +1,5 @@
-__CAN Sender for PEAK-System PCAN Interfaces, Version 0.4__ \
-Copyright &copy; 2025 by Uwe Vogt, UV Software, Berlin
+__CAN Sender for PEAK-System PCAN Interfaces, Version 0.6.1__ \
+Copyright &copy; 2025-2026 by Uwe Vogt, UV Software, Berlin
 
 ```
 Usage: can_send <interface> [<option>...]

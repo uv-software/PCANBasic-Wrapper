@@ -50,9 +50,10 @@
 #include <cstdio>
 #include <iostream>
 #include "pch.h"
+#include "anykey.h"
 
 GTEST_API_ int main(int argc, char **argv) {
-    std::cout << "CAN API V3 C++ Testing (";
+    std::cout << "CAN API V3 C++ Testing (GoogleTest " << GTEST_VERSION << ", ";
 #if !defined(_MSC_VER)
     std::cout << __VERSION__ << ")" << std::endl;
 #else
@@ -78,8 +79,33 @@ GTEST_API_ int main(int argc, char **argv) {
     else if (g_Options.ShowHelp()) {
         return 0;
     }
+#if (OPTION_CANTCP_ENABLED != 0)
+    // --- start CAN server ---
+    if (g_Options.IsCanServerEnabled()) {
+        g_CanServer.SetLoggingLevel(g_Options.GetCanServerLoggingLevel());
+        if (g_CanServer.StartServer(g_Options.GetCanServerService()) < 0) {
+            std::cerr << "+++ error: failed to start CAN server" << std::endl;
+            return 1;
+        }
+    }
+#endif
+    // --- interactive start ---
+    if (g_Options.StartInteractive()) {
+        std::cout << "Press any key to start testing...";
+        std::cout << std::flush;
+        (void)getkey();
+        std::cout << std::endl;
+    }
     // --- test execution starts here --
-    return RUN_ALL_TESTS();
+    int res = RUN_ALL_TESTS();
+#if (OPTION_CANTCP_ENABLED != 0)
+    // --- stop CAN server ---
+    if (g_Options.IsCanServerEnabled()) {
+        g_CanServer.StopServer();
+    }
+#endif
+    // --- say goodbye ---
+    return res;
 }
 
-// $Id: main.cpp 1411 2025-01-17 18:59:07Z quaoar $  Copyright (c) UV Software, Berlin //
+// $Id: main.cpp 1541 2025-09-23 16:34:04Z quaoar $  Copyright (c) UV Software, Berlin //

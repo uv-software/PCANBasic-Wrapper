@@ -1,6 +1,6 @@
 ### CAN Interface API, Version 3
 
-_Copyright &copy; 2004-2025  Uwe Vogt, UV Software, Berlin (info@uv-software.com)_ \
+_Copyright &copy; 2004-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)_ \
 _All rights reserved._
 
 # A CAN Interface Wrapper Specification
@@ -65,7 +65,7 @@ See header file `can_api.h` for a description of the provided functions.
 
 ### CAN API V3 Reference
 
-A generic documentation of the CAN API V3 application programming interface can be found [here](https://uv-software.github.io/CANAPI-Docs/#/).
+A generic documentation of the CAN API V3 application programming interface is available as [Docsify pages](https://uv-software.github.io/CANAPI-Docs/#/).
 
 ### vanilla-json
 
@@ -80,5 +80,5 @@ You can choose between one of them if you use this work in whole or in part.
 
 ### Contact
 
-E-Mail: mailto://info@uv-software.com \
+E-Mail: mailto://info@uv-software.de \
 Internet: https://www.uv-software.com

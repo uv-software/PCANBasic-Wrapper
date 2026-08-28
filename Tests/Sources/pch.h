@@ -30,5 +30,7 @@
 #include "Progress.h"
 #include "Timer.h"
 #include "Version.h"
-
+#if (OPTION_CANTCP_ENABLED != 0)
+#include "Server.h"
+#endif
 #endif // PRECOMPILED_HEADERS_INCLUDED

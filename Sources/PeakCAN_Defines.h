@@ -3,7 +3,7 @@
  *  CAN Interface API, Version 3 (for PEAK-System PCAN Interfaces)
  *
  *  Copyright (c) 2005-2012 Uwe Vogt, UV Software, Friedrichshafen
- *  Copyright (c) 2013-2025 Uwe Vogt, UV Software, Berlin (info@uv-software.com)
+ *  Copyright (c) 2013-2026 Uwe Vogt, UV Software, Berlin (info@uv-software.de)
  *  All rights reserved.
  *
  *  This file is part of PCANBasic-Wrapper.
@@ -168,8 +168,8 @@ extern "C" {
 #if defined(_WIN32) || defined (_WIN64)
  #define PCAN_LIB_BASIC         "PCANBasic.dll"
  #define PCAN_LIB_WRAPPER       "u3canpcb.dll"
- #define PCAN_LIB_MIN_MAJOR      4U
- #define PCAN_LIB_MIN_MINOR      5U
+ #define PCAN_LIB_MIN_MAJOR      5U
+ #define PCAN_LIB_MIN_MINOR      0U
 #elif defined(__APPLE__)
  #define PCAN_LIB_BASIC         "libPCBUSB.dylib"
  #define PCAN_LIB_WRAPPER       "libUVCANPCB.dylib"
@@ -178,7 +178,7 @@ extern "C" {
 #elif defined(__linux__)
  #define PCAN_LIB_BASIC         "libpcanbasic.so"
  #define PCAN_LIB_WRAPPER       "libuvcanpcb.so"
- #define PCAN_LIB_MIN_MAJOR      8U
+ #define PCAN_LIB_MIN_MAJOR      9U
  #define PCAN_LIB_MIN_MINOR      0U
 #else
  #error Platform not supported

@@ -262,4 +262,44 @@ double CTimer::DiffTime(struct timespec start, struct timespec stop) {
             ((double)start.tv_sec + ((double)start.tv_nsec / 1000000000.f)));
 }
 
-// $Id: Timer.cpp 841 2025-01-17 18:54:40Z quaoar $  Copyright (c) UV Software, Berlin //
+static inline uint64_t abs_int64(int64_t x) {
+    return (x < 0) ? (uint64_t)(-x) : (uint64_t)x;
+}
+
+uint64_t CTimer::DiffTimeInUsec(struct timespec start, struct timespec stop) {
+    int64_t sec_diff = (int64_t)(stop.tv_sec - start.tv_sec);
+    int64_t nsec_diff = (int64_t)(stop.tv_nsec - start.tv_nsec);
+    /* normalize time differences */
+    if (nsec_diff < 0) {
+        sec_diff -= (int64_t)1;
+        nsec_diff += (int64_t)1000000000;
+    }
+    /* convert to microseconds (rounded up) */
+    return abs_int64((sec_diff * (int64_t)1000000) + ((nsec_diff + (int64_t)500) / (int64_t)1000));
+}
+
+uint64_t CTimer::DiffTimeInMsec(struct timespec start, struct timespec stop) {
+    int64_t sec_diff = (int64_t)(stop.tv_sec - start.tv_sec);
+    int64_t nsec_diff = (int64_t)(stop.tv_nsec - start.tv_nsec);
+    /* normalize time differences */
+    if (nsec_diff < 0) {
+        sec_diff -= (int64_t)1;
+        nsec_diff += (int64_t)1000000000;
+    }
+    // convert to milliseconds (rounded up)
+    return abs_int64((sec_diff * (int64_t)1000) + ((nsec_diff + (int64_t)500000) / (int64_t)1000000));
+}
+
+uint64_t CTimer::DiffTimeInSec(struct timespec start, struct timespec stop) {
+    int64_t sec_diff = (int64_t)(stop.tv_sec - start.tv_sec);
+    int64_t nsec_diff = (int64_t)(stop.tv_nsec - start.tv_nsec);
+    /* normalize time differences */
+    if (nsec_diff < 0) {
+        sec_diff -= (int64_t)1;
+        nsec_diff += (int64_t)1000000000;
+    }
+    // convert to seconds (rounded up)
+    return abs_int64(sec_diff + ((nsec_diff + (int64_t)500000000) / (int64_t)1000000000));
+}
+
+// $Id: Timer.cpp 847 2025-02-22 12:50:44Z sedna $  Copyright (c) UV Software, Berlin //

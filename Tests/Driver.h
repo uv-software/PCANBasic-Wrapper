@@ -133,7 +133,6 @@ typedef CPeakCAN  CCanDriver;
 //  (§10) define macros for CAN FD bit-rate settings
 //       at least BITRATE_FD_1M8M, BITRATE_FD_500K4M, BITRATE_FD_250K2M, BITRATE_FD_125K1M,
 //                BITRATE_FD_1M, BITRATE_FD_500K, BITRATE_FD_250K, BITRATE_FD_125K
-#if (OPTION_PCAN_BIT_TIMING == 1)
 #define BITRATE_FD_1M(x)      PEAKCAN_FD_BR_1M(x)
 #define BITRATE_FD_500K(x)    PEAKCAN_FD_BR_500K(x)
 #define BITRATE_FD_250K(x)    PEAKCAN_FD_BR_250K(x)
@@ -142,16 +141,6 @@ typedef CPeakCAN  CCanDriver;
 #define BITRATE_FD_500K4M(x)  PEAKCAN_FD_BR_500K4M(x)
 #define BITRATE_FD_250K2M(x)  PEAKCAN_FD_BR_250K2M(x)
 #define BITRATE_FD_125K1M(x)  PEAKCAN_FD_BR_125K1M(x)
-#else
-#define BITRATE_FD_1M(x)      DEFAULT_CAN_FD_BR_1M(x)
-#define BITRATE_FD_500K(x)    DEFAULT_CAN_FD_BR_500K(x)
-#define BITRATE_FD_250K(x)    DEFAULT_CAN_FD_BR_250K(x)
-#define BITRATE_FD_125K(x)    DEFAULT_CAN_FD_BR_125K(x)
-#define BITRATE_FD_1M8M(x)    DEFAULT_CAN_FD_BR_1M8M(x)
-#define BITRATE_FD_500K4M(x)  DEFAULT_CAN_FD_BR_500K4M(x)
-#define BITRATE_FD_250K2M(x)  DEFAULT_CAN_FD_BR_250K2M(x)
-#define BITRATE_FD_125K1M(x)  DEFAULT_CAN_FD_BR_125K1M(x)
-#endif
 
 //  (§11) define macros for workarounds for CAN FD operation mode (e.g. TC01_3_ISSUE_FD)
 #if (OPTION_REGRESSION_TEST == 0)
