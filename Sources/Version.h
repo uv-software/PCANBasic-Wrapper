@@ -51,15 +51,9 @@
 #ifndef VERSION_H_INCLUDED
 #define VERSION_H_INCLUDED
 #include "build_no.h"
-#ifdef _MSC_VER
 #define VERSION_MAJOR    0
 #define VERSION_MINOR    6
 #define VERSION_PATCH    1
-#else
-#define VERSION_MAJOR    0
-#define VERSION_MINOR    4
-#define VERSION_PATCH    1
-#endif
 #define VERSION_BUILD    BUILD_NO
 #if (VERSION_PATCH == 0)
 #define VERSION_STRING   TOSTRING(VERSION_MAJOR) "." TOSTRING(VERSION_MINOR) " (" TOSTRING(BUILD_NO) ")"
